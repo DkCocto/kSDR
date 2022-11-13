@@ -1,11 +1,14 @@
 #pragma once
 class FirFilter {
+
 	double* coeffs;
 	double* xv;  // This array holds the delayed values
 	int M; // The number of taps, the length of the filter
 	double Fc = 0; // Will be set to cutoffFreq/SAMPLE_RATE; 
 
 public:
+
+	FirFilter();
 
 	FirFilter(double* taps, int tabsLen);
 

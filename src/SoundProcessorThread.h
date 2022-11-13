@@ -28,6 +28,8 @@ class SoundProcessorThread {
 	PolyPhaseFilter* firFilterI;
 	PolyPhaseFilter* firFilterQ;
 
+	FirFilter* audioFilter;
+
 	double* decimateBufferI;
 	double* decimateBufferQ;
 

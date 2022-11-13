@@ -37,6 +37,8 @@ public:
 
 	int defaultFilterWidth = 3000;
 
+	double startFrequency;
+
 	Config(int inputSamplerate, int inputSamplerateDivider, int outputSamplerateDivider);
 
 };

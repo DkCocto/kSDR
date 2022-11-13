@@ -1,9 +1,13 @@
 #pragma once
 
 #include "Env.h"
+#include "Config.h"
 
 class ViewModel {
+	Config* config;
 public:
+
+	ViewModel(Config* config);
 
 	float volume = 1;
 
@@ -24,6 +28,8 @@ public:
 	//int frequency = 41965664;
 	int frequency = 3700000;
 
+	int gain = -30;
 
-	int gain = 320;
+	bool gainControl = false;
+	bool audioFilter = true;
 };

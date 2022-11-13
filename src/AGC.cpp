@@ -1,7 +1,7 @@
 #include "AGC.h"
 
 
-KalmanFilter kf(10, 0.0000005);
+KalmanFilter kf(10, 0.000000001);
 
 AGC::AGC(FFTSpectreHandler* fftSpectreHandler) {
     this->fftSpectreHandler = fftSpectreHandler;
@@ -27,11 +27,11 @@ double AGC::process(double signal) {
     }
 
     savedValue = signalAbs;*/
-    amp = threshold / kf.filter(signalAbs);
+    amp = averageAmp->process(threshold / kf.filter(signalAbs));
     
 
     ////Выводим коэффициант усиления в модель-контейнер отображения и хранения данных
-    Display::instance->viewModel.amp = amp;
+    Display::instance->viewModel->amp = amp;
 
     return signal * amp;
 

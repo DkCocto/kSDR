@@ -43,6 +43,7 @@ void Display::mouseButtonCallback(GLFWwindow* window, int button, int action, in
 Display::Display(Config* config, FFTSpectreHandler* fftSH) {
 	this->config = config;
 	fftSpectreHandler = fftSH;
+	viewModel = new ViewModel(config);
 }
 
 int Display::init() {
@@ -138,9 +139,9 @@ void Display::drawReceivedRegion() {
 	
 	glColor4d(4.0 / 255, 255.0/255.0, 0, 0.2);
 	glBegin(GL_QUADS);
-		float delta = receiver->getFilterWidthAbs(viewModel.filterWidth);
+		float delta = receiver->getFilterWidthAbs(viewModel->filterWidth);
 
-		switch (viewModel.receiverMode) {
+		switch (viewModel->receiverMode) {
 			case USB:
 				glVertex2f(pos - delta, -1.0);
 				glVertex2f(pos - delta, 1.0);
@@ -187,8 +188,8 @@ void Display::drawSpectre() {
 
 	glBegin(GL_LINES);
 	for (int i = 0; i < pipkaSize - 1; i++) {
-		glVertex2f(-1 + (i * stepX), pipka[fftSpectreHandler->getTrueBin(i)] + 1.5);
-		glVertex2f(-1 + ((i + 1.0) * stepX), pipka[fftSpectreHandler->getTrueBin(i + 1)] + 1.5);
+		glVertex2f(-1 + (i * stepX), pipka[fftSpectreHandler->getTrueBin(i)] + 1.1);
+		glVertex2f(-1 + ((i + 1.0) * stepX), pipka[fftSpectreHandler->getTrueBin(i + 1)] + 1.1);
 	}
 	glEnd();
 	fftSpectreHandler->getSemaphore()->unlock();
@@ -231,17 +232,20 @@ void Display::renderImGUIFirst() {
 	ImGui::Text("receiverPos: %f", receiver->receiverPos);
 	ImGui::Text("selectedBin: %i", (int)round(receiver->selectedBin));
 	ImGui::Text("selectedFreq: %i", receiver->getSelectedFreq());
-	ImGui::Text("Frequency: %i", viewModel.frequency + receiver->getSelectedFreq());
-	ImGui::Text("AMP: %f", viewModel.amp);
+	ImGui::Text("Frequency: %i", viewModel->frequency + receiver->getSelectedFreq());
+	ImGui::Text("AMP: %f", viewModel->amp);
 
-	ImGui::SliderFloat("Volume", &viewModel.volume, 0, 5);
-	ImGui::SliderInt("Filter width", &viewModel.filterWidth, 0, 12000);
-	ImGui::SliderInt("Frequency", &viewModel.frequency, 40000000, 50000000);
-	ImGui::SliderInt("Gain", &viewModel.gain, 0, 1000);
+	ImGui::SliderFloat("Volume", &viewModel->volume, 0, 5);
+	ImGui::SliderInt("Filter width", &viewModel->filterWidth, 0, 12000);
+	ImGui::SliderInt("Frequency", &viewModel->frequency, 1000000, 30000000);
+	ImGui::SliderInt("Gain", &viewModel->gain, -60, 0);
 
-	ImGui::RadioButton("USB", &viewModel.receiverMode, USB); ImGui::SameLine();
-	ImGui::RadioButton("LSB", &viewModel.receiverMode, LSB); ImGui::SameLine();
-	ImGui::RadioButton("AM", &viewModel.receiverMode, AM);
+	ImGui::Checkbox("Audio Filter", &viewModel->audioFilter);
+	ImGui::Checkbox("Gain Control", &viewModel->gainControl);
+
+	ImGui::RadioButton("USB", &viewModel->receiverMode, USB); ImGui::SameLine();
+	ImGui::RadioButton("LSB", &viewModel->receiverMode, LSB); ImGui::SameLine();
+	ImGui::RadioButton("AM", &viewModel->receiverMode, AM);
 
 
 	// 

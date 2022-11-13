@@ -4,15 +4,23 @@
 #include "../include/mirsdr/mir_sdr.h"
 #include "CircleBuffer.h"
 #include "Config.h"
+#include "Display.h"
+#include "ViewModel.h"
 
 class RSP1 {
 
-    CircleBuffer* cb;
-
     Config* config;
 
+    double savedFreq;
+    int savedGain;
+    ViewModel* viewModel;
+
+    bool isNeedToSetFreq();
+    bool isNeedToSetGain();
+
 public: 
-    
+    CircleBuffer* cb;
+
     RSP1(Config* config, CircleBuffer* cb);
 
     ~RSP1();
@@ -24,5 +32,9 @@ public:
     static void gainCallback(unsigned int gRdB, unsigned int lnaGRdB, void* cbContext);
 
     void init();
+
+    void setFreq(double freq);
+    void setGain(int gain);
+    void disableGain();
 
 };

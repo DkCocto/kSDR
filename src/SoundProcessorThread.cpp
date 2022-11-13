@@ -30,6 +30,7 @@ void SoundProcessorThread::putData(float* data, int len) {
 void SoundProcessorThread::initFilters(int filterWidth) {
 	firFilterI = new PolyPhaseFilter(config->inputSamplerate, filterWidth, config->outputSamplerateDivider, config->polyphaseFilterLen);
 	firFilterQ = new PolyPhaseFilter(config->inputSamplerate, filterWidth, config->outputSamplerateDivider, config->polyphaseFilterLen);
+	audioFilter = new FirFilter(Filter::makeRaiseCosine(config->outputSamplerate, filterWidth, 1, config->polyphaseFilterLen), config->polyphaseFilterLen);
 }
 
 void SoundProcessorThread::process() {
@@ -49,8 +50,8 @@ void SoundProcessorThread::process() {
 			data = soundProcessorCircleBuffer->read(len);
 
 			//Обработка ширины фильтра
-			if (storedFilterWidth != Display::instance->viewModel.filterWidth) {
-				storedFilterWidth = Display::instance->viewModel.filterWidth;
+			if (storedFilterWidth != Display::instance->viewModel->filterWidth) {
+				storedFilterWidth = Display::instance->viewModel->filterWidth;
 				initFilters(storedFilterWidth);
 			}
 			//------------------------
@@ -79,9 +80,9 @@ void SoundProcessorThread::process() {
 
 					int mode = USB;
 
-					ViewModel viewModel = Display::instance->viewModel;
+					ViewModel* viewModel = Display::instance->viewModel;
 
-					mode = viewModel.receiverMode;
+					mode = viewModel->receiverMode;
 
 					double audio = 0;
 
@@ -101,8 +102,8 @@ void SoundProcessorThread::process() {
 						audio = sqrt(audioI * audioI + audioQ * audioQ);
 						break;
 					}
-
-					audio = agc->process(audio) * Display::instance->viewModel.volume;
+					if (viewModel->audioFilter) audio = audioFilter->filter(audio);
+					audio = agc->process(audio) * Display::instance->viewModel->volume;
 					outputData[count] = audio;
 					count++;
 				}

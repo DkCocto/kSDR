@@ -18,10 +18,12 @@ Config::Config(int inputSamplerate, int inputSamplerateDivider, int outputSample
 
 	circleBufferLen								= 8 * 1024 * 1024;
 
-	hilbertTransformLen							= 255;
+	hilbertTransformLen							= 63;
 	polyphaseFilterLen							= 512;
 
 	fftLen										= 4096;
 
 	fftBandwidth								= (float)inputSamplerate / (float)fftLen;
+
+	startFrequency								= 7100000;
 }

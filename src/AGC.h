@@ -11,18 +11,18 @@
 class AGC {
 
 private:
-    double threshold = 0.03;
+    double threshold = 0.02;
 
     double amp = 1;
 
-    Average* averageAmp = new Average(30);
+    Average* averageAmp = new Average(15);
 
     int count = 0;
 
-    int bufLen = 512;
-   // double* buf = new double[bufLen];
+    //int bufLen = 512;
+    //double* buf = new double[bufLen];
 
-    std::vector<double> buf;
+    //std::vector<double> buf;
 
     double signalAbsAverage = 0.0;
 

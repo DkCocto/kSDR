@@ -28,7 +28,7 @@ public:
 
 	static Display* instance;
 
-	ViewModel viewModel;
+	ViewModel* viewModel;
 
 	int width = 0;
 	int height = 0;
