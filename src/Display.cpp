@@ -84,6 +84,9 @@ int Display::init() {
 	glEnable(GL_LINE_SMOOTH);
 
 	glLineWidth(1.5);
+
+	ImGuiIO& io = ImGui::GetIO();
+	io.FontGlobalScale = 1;
 }
 
 void Display::mainLoop() {
@@ -134,7 +137,6 @@ void Display::drawReceivedRegion() {
 	glBegin(GL_LINES);
 		glVertex2f(pos, 1.0);
 		glVertex2f(pos, -1.0);
-	//cout << pos << "\r\n";
 	glEnd();
 	
 	glColor4d(4.0 / 255, 255.0/255.0, 0, 0.2);
@@ -143,14 +145,14 @@ void Display::drawReceivedRegion() {
 
 		switch (viewModel->receiverMode) {
 			case USB:
-				glVertex2f(pos - delta, -1.0);
-				glVertex2f(pos - delta, 1.0);
+				glVertex2f(pos + delta, -1.0);
+				glVertex2f(pos + delta, 1.0);
 				glVertex2f(pos, 1.0);
 				glVertex2f(pos, -1.0);
 				break;
 			case LSB:
-				glVertex2f(pos + delta, -1.0);
-				glVertex2f(pos + delta, 1.0);
+				glVertex2f(pos - delta, -1.0);
+				glVertex2f(pos - delta, 1.0);
 				glVertex2f(pos, 1.0);
 				glVertex2f(pos, -1.0);
 				break;
@@ -175,24 +177,50 @@ void Display::drawSpectre() {
 	int width = receiver->windowWidth;
 	int height = 200;
 
-
-
-
 	//--------------------
 
-	float* pipka = fftSpectreHandler->getOutput();
+	float* spectre = fftSpectreHandler->getOutput();
 
-	int pipkaSize = config->fftLen / 2;
+	int spectreSize = config->fftLen / 2;
 
-	float stepX = 2.0 / (pipkaSize);
+	float stepX = 2.0 / (spectreSize);
 
 	glBegin(GL_LINES);
-	for (int i = 0; i < pipkaSize - 1; i++) {
-		glVertex2f(-1 + (i * stepX), pipka[fftSpectreHandler->getTrueBin(i)] + 1.1);
-		glVertex2f(-1 + ((i + 1.0) * stepX), pipka[fftSpectreHandler->getTrueBin(i + 1)] + 1.1);
+	for (int i = 0; i < spectreSize - 1; i++) {
+		glVertex2f(-1.0 + (i * stepX), spectre[fftSpectreHandler->getTrueBin(i)] / 130.0 + 0.5);
+		glVertex2f(-1.0 + ((i + 1.0) * stepX), spectre[fftSpectreHandler->getTrueBin(i + 1.0)] / 130.0 + 0.5);
 	}
 	glEnd();
+
+	showSignaldB(spectre);
+
 	fftSpectreHandler->getSemaphore()->unlock();
+}
+
+KalmanFilter maxdBKalman(1, 0.08);
+
+void Display::showSignaldB(float* spectre) {
+	ReceiverLogic::ReceiveBinArea r = receiver->getReceiveBinsArea(viewModel->filterWidth, viewModel->receiverMode);
+
+	//viewModel->serviceField1 = r.A;
+
+	float sum = 0.0;
+	int len = r.B - r.A;
+
+	if (len > 0) {
+		//Utils::printArray(spectre, 64);
+		//printf("%i %i\r\n", r.A, r.B);
+
+		float max = -1000.0;
+
+		for (int i = r.A; i < r.B; i++) {
+			if (spectre[fftSpectreHandler->getTrueBin(i)] > max) {
+				max = spectre[fftSpectreHandler->getTrueBin(i)];
+			}
+			//sum += spectre[i];
+		}
+		viewModel->signalMaxdB = maxdBKalman.filter(max);
+	}
 }
 
 void Display::handleActions() {
@@ -226,42 +254,71 @@ void Display::renderImGUIFirst() {
 
 	ImGui::Begin(APP_NAME);                          // Create a window called "Hello, world!" and append into it.
 
-	ImGui::Text("windowWidth: %i", receiver->windowWidth);
-	ImGui::Text("absoluteXpos: %f", receiver->absoluteXpos);
-	ImGui::Text("stepX: %f", receiver->stepX);
-	ImGui::Text("receiverPos: %f", receiver->receiverPos);
-	ImGui::Text("selectedBin: %i", (int)round(receiver->selectedBin));
-	ImGui::Text("selectedFreq: %i", receiver->getSelectedFreq());
-	ImGui::Text("Frequency: %i", viewModel->frequency + receiver->getSelectedFreq());
-	ImGui::Text("AMP: %f", viewModel->amp);
+		ImGui::SliderFloat("Volume", &viewModel->volume, 0, 5);
+		ImGui::SliderInt("Filter width", &viewModel->filterWidth, 0, 12000);
 
-	ImGui::SliderFloat("Volume", &viewModel->volume, 0, 5);
-	ImGui::SliderInt("Filter width", &viewModel->filterWidth, 0, 12000);
-	ImGui::SliderInt("Frequency", &viewModel->frequency, 1000000, 30000000);
-	ImGui::SliderInt("Gain", &viewModel->gain, -60, 0);
-
-	ImGui::Checkbox("Audio Filter", &viewModel->audioFilter);
-	ImGui::Checkbox("Gain Control", &viewModel->gainControl);
-
-	ImGui::RadioButton("USB", &viewModel->receiverMode, USB); ImGui::SameLine();
-	ImGui::RadioButton("LSB", &viewModel->receiverMode, LSB); ImGui::SameLine();
-	ImGui::RadioButton("AM", &viewModel->receiverMode, AM);
+		if (ImGui::Button("20m")) {
+			viewModel->frequency = 1415000;
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("40m")) {
+			viewModel->frequency = 7100000;
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("80m")) {
+			viewModel->frequency = 3700000;
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("160m")) {
+			viewModel->frequency = 1900000;
+		}
 
 
-	// 
-	//ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-	//ImGui::Checkbox("Another Window", &show_demo_window);
+		ImGui::SliderInt("Frequency", &viewModel->frequency, 1000000, 30000000);
+	
 
-	//ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-	//ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+		ImGui::SliderInt("Gain", &viewModel->gain, -60, 0);
 
-	//if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-		//counter++;
-	//ImGui::SameLine();
-	//ImGui::Text("counter = %d", counter);
+		ImGui::Checkbox("Audio Filter", &viewModel->audioFilter);
+		ImGui::Checkbox("Gain Control", &viewModel->gainControl);
 
-	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+		ImGui::RadioButton("USB", &viewModel->receiverMode, USB); ImGui::SameLine();
+		ImGui::RadioButton("LSB", &viewModel->receiverMode, LSB); ImGui::SameLine();
+		ImGui::RadioButton("AM", &viewModel->receiverMode, AM);
+
+
+		smeter->draw(viewModel->signalMaxdB);
+
+		// 
+		//ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
+		//ImGui::Checkbox("Another Window", &show_demo_window);
+
+		//ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+		//ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+
+		//if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+			//counter++;
+		//ImGui::SameLine();
+		//ImGui::Text("counter = %d", counter);
+
+		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	ImGui::End();
+
+	ImGui::Begin("DATA");
+		ImGui::Text("windowWidth: %i", receiver->windowWidth);
+		ImGui::Text("absoluteXpos: %f", receiver->absoluteXpos);
+		ImGui::Text("stepX: %f", receiver->stepX);
+		ImGui::Text("receiverPos: %f", receiver->receiverPos);
+		ImGui::Text("selectedBin: %i", (int)round(receiver->selectedBin));
+		ImGui::Text("selectedFreq: %i", receiver->getSelectedFreq());
+		ImGui::Text("Frequency: %i", viewModel->frequency + receiver->getSelectedFreq());
+		ImGui::Text("AMP: %f", viewModel->amp);
+		ImGui::Text("Max dB: %f", viewModel->signalMaxdB);
+		ImGui::Text("Service field1: %f", viewModel->serviceField1);
+		ImGui::Text("Service field2: %f", viewModel->serviceField2);
+	ImGui::End();
+
+
 }
 
 /*float getValueRatio(data: DoubleArray, centerY : Int) : Double{

@@ -18,8 +18,8 @@ Config::Config(int inputSamplerate, int inputSamplerateDivider, int outputSample
 
 	circleBufferLen								= 8 * 1024 * 1024;
 
-	hilbertTransformLen							= 63;
-	polyphaseFilterLen							= 512;
+	hilbertTransformLen							= 255;
+	polyphaseFilterLen							= 256;
 
 	fftLen										= 4096;
 

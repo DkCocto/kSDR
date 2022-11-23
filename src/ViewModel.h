@@ -9,9 +9,9 @@ public:
 
 	ViewModel(Config* config);
 
-	float volume = 1;
+	float volume;
 
-	int receiverMode = USB;
+	int receiverMode = LSB;
 
 	int windowWidth = 0;
 
@@ -22,7 +22,9 @@ public:
 
 	double amp = 0;
 
-	int filterWidth = 3000;
+	int filterWidth;
+
+	double signalMaxdB = 0.0;
 
 	//41965664 - хулиганы ssb в центре
 	//int frequency = 41965664;
@@ -32,4 +34,8 @@ public:
 
 	bool gainControl = false;
 	bool audioFilter = true;
+
+	double serviceField1 = 0;
+	double serviceField2 = 0;
+
 };

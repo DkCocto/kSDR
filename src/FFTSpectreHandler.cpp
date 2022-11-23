@@ -139,7 +139,8 @@ bool FFTSpectreHandler::putData(float* pieceOfData, int len) {
 }
 
 float FFTSpectreHandler::psd(float re, float im) {
-	return log((sqrt(re * re + im * im) / config->fftBandwidth)) / 13;
+	return 10 * log((sqrt(re * re + im * im)));
+	// / config->fftBandwidth)
 }
 
 void FFTSpectreHandler::prepareData() {

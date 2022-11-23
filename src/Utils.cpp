@@ -1,5 +1,11 @@
 #include "Utils.h"
 
+void Utils::printArray(float* array, int len) {
+	for (int i = 0; i < len; i++) {
+		printf("%i %f\r\n", i, array[i]);
+	}
+}
+
 void Utils::printArray(double* array, int len) {
 	for (int i = 0; i < len; i++) {
 		printf("%i %f\r\n", i, array[i]);

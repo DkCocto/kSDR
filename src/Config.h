@@ -35,9 +35,11 @@ public:
 	int fftLen;
 	float fftBandwidth;
 
-	int defaultFilterWidth = 3000;
+	int defaultFilterWidth = 2700;
 
 	double startFrequency;
+
+	double srartVolume = 0.5;
 
 	Config(int inputSamplerate, int inputSamplerateDivider, int outputSamplerateDivider);
 

@@ -120,6 +120,9 @@
     <ClCompile Include="src\CircleBufferWriterThread.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="src\SMeter.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Config.h">
@@ -243,6 +246,9 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="src\CircleBufferWriterThread.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SMeter.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

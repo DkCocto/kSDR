@@ -7,6 +7,8 @@
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 #include "ViewModel.h"
+#include "KalmanFilter.h"
+#include "SMeter.h"
 
 class Display {
 
@@ -23,6 +25,8 @@ private:
 	static void windowSizeCallback(GLFWwindow* window, int width, int height);
 
 	static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
+
+	SMeter* smeter = new SMeter(50, 50, 400, 0.2);
 
 public:
 
@@ -60,5 +64,7 @@ public:
 	void initImGUI();
 
 	void renderImGUIFirst();
+
+	void showSignaldB(float* spectre);
 
 };

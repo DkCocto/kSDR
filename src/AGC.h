@@ -37,9 +37,11 @@ public:
 
     AGC(FFTSpectreHandler* fftSpectreHandler);
 
+    //double processNew(double signal);
+
     double process(double signal);
 
     double getAmp();
 
-    double canculateAmplitudeAverage();
+    //double canculateAmplitudeAverage();
 };

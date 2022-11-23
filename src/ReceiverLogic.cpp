@@ -85,14 +85,14 @@ ReceiverLogic::ReceiveBinArea ReceiverLogic::getReceiveBinsArea(int filterWidth,
 
 	switch (receiverMode) {
 		case USB:
-			A = (receiverPos - filterWidthPX) / (this->windowWidth / totalBin);
-			B = selectedBin;
-			if (A < 0) A = 0;
-			break;
-		case LSB:
 			A = selectedBin;
 			B = (receiverPos + filterWidthPX) / (this->windowWidth / totalBin);
 			if (B > totalBin) B = totalBin;
+			break;
+		case LSB:
+			A = (receiverPos - filterWidthPX) / (this->windowWidth / totalBin);
+			B = selectedBin;
+			if (A < 0) A = 0;
 			break;
 		case AM:
 			A = (receiverPos - filterWidthPX) / (this->windowWidth / totalBin);

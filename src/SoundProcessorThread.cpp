@@ -88,15 +88,14 @@ void SoundProcessorThread::process() {
 
 					switch (mode) {
 					case USB:
-						//printf("audioI %f  audioQ %f\r\n", audioI, audioQ);
 						audioQ = hilbertTransform->filter(audioQ);
 						audioI = delay->filter(audioI);
-						audio = audioI + audioQ; // USB
+						audio = audioI - audioQ; // LSB
 						break;
 					case LSB:
 						audioQ = hilbertTransform->filter(audioQ);
 						audioI = delay->filter(audioI);
-						audio = audioI - audioQ; // LSB
+						audio = audioI + audioQ; // USB
 						break;
 					case AM:
 						audio = sqrt(audioI * audioI + audioQ * audioQ);

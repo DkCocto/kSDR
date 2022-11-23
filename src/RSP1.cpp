@@ -118,7 +118,7 @@ void RSP1::setFreq(double freq) {
 
 //-60 .. 0
 void RSP1::setGain(int gain) {
-    mir_sdr_AgcControl(mir_sdr_AGC_100HZ, gain, 0, 0, 0, 0, 0);
+    mir_sdr_AgcControl(mir_sdr_AGC_5HZ, gain, 0, 0, 0, 0, 0);
     //mir_sdr_AgcControl(mir_sdr_AGC_DISABLE, gain, 0, 0, 0, 0, 0);
     savedGain = gain;
 }

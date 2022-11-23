@@ -49,6 +49,7 @@
     <ClCompile Include="src\RSP1.cpp" />
     <ClCompile Include="src\Semaphore.cpp" />
     <ClCompile Include="src\SinOscillator.cpp" />
+    <ClCompile Include="src\SMeter.cpp" />
     <ClCompile Include="src\SoundCard.cpp" />
     <ClCompile Include="src\SoundProcessorThread.cpp" />
     <ClCompile Include="src\SoundReaderThread.cpp" />
@@ -91,6 +92,7 @@
     <ClInclude Include="src\RSP1.h" />
     <ClInclude Include="src\Semaphore.h" />
     <ClInclude Include="src\SinOscillator.h" />
+    <ClInclude Include="src\SMeter.h" />
     <ClInclude Include="src\SoundCard.h" />
     <ClInclude Include="src\SoundProcessorThread.h" />
     <ClInclude Include="src\SoundReaderThread.h" />
