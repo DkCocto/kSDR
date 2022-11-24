@@ -9,6 +9,7 @@
 #include "ViewModel.h"
 #include "KalmanFilter.h"
 #include "SMeter.h"
+#include "Spectre.h"
 
 class Display {
 
@@ -28,11 +29,14 @@ private:
 
 	SMeter* smeter = new SMeter(50, 50, 400, 0.2);
 
+
 public:
 
 	static Display* instance;
 
 	ViewModel* viewModel;
+
+	Spectre* spectre;
 
 	int width = 0;
 	int height = 0;
@@ -55,11 +59,9 @@ public:
 
 	void drawScene();
 
-	void drawReceivedRegion();
+	//void drawReceivedRegion();
 
-	void drawSpectre();
-
-	void handleActions();
+	//void handleActions();
 
 	void initImGUI();
 

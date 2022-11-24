@@ -49,15 +49,14 @@ void ReceiverLogic::setAbsoluteXpos(int windowWidth, float pos) {
 
 void ReceiverLogic::storeDeltaXPos(float mouseX) {
 	deltaXPos = receiverPos - mouseX;
-	//cout << deltaXPos << "\r\n";
+	//printf("%f\r\n", deltaXPos);
 }
 
 int ReceiverLogic::getSelectedFreq() {
 	if (this != NULL) {
 		if (selectedBin >= totalBin / 2) {
 			return (selectedBin * config->inputSamplerate / totalBin) - config->inputSamplerate / 2;
-		}
-		else {
+		} else {
 			return -1 * (config->inputSamplerate / 2 - (selectedBin * config->inputSamplerate / totalBin));
 		}
 	}

@@ -44,16 +44,17 @@ Display::Display(Config* config, FFTSpectreHandler* fftSH) {
 	this->config = config;
 	fftSpectreHandler = fftSH;
 	viewModel = new ViewModel(config);
+	spectre = new Spectre(config, viewModel, fftSH, 200, 200);
 }
 
 int Display::init() {
-
+			
 	glfwInit();
 
 	glfwSetTime(0);
 
 	// Create a GLFWwindow object
-	window = glfwCreateWindow(1280, 1024, "kSDR", nullptr, nullptr);
+	window = glfwCreateWindow(1920, 1080, "kSDR", nullptr, nullptr);
 	if (window == nullptr) {
 		printf("Failed to create GLFW window\r\n");
 		glfwTerminate();
@@ -125,12 +126,12 @@ void Display::drawScene() {
 	//glVertex2f(0.2f, 0.2f);
 	//glEnd();
 
-	drawSpectre();
-	handleActions();
-	drawReceivedRegion();
+	//drawSpectre();
+	//handleActions();
+	//drawReceivedRegion();
 }
 
-void Display::drawReceivedRegion() {
+/*void Display::drawReceivedRegion() {
 	float pos = receiver->receiverPosByCoords;
 
 	glColor3d(1, 1, 1);
@@ -165,11 +166,11 @@ void Display::drawReceivedRegion() {
 		}
 
 	glEnd();
-}
+}*/
 
 //float* pipka;
 
-void Display::drawSpectre() {
+/*void Display::drawSpectre() {
 	glColor3d(1, 1, 1);
 
 	//Чертим шкалу спектра
@@ -195,12 +196,12 @@ void Display::drawSpectre() {
 	showSignaldB(spectre);
 
 	fftSpectreHandler->getSemaphore()->unlock();
-}
+}*/
 
-KalmanFilter maxdBKalman(1, 0.08);
 
-void Display::showSignaldB(float* spectre) {
-	ReceiverLogic::ReceiveBinArea r = receiver->getReceiveBinsArea(viewModel->filterWidth, viewModel->receiverMode);
+
+/*void Display::showSignaldB(float* spectreData) {
+	ReceiverLogicNew::ReceiveBinArea r = spectre->receiverLogicNew->getReceiveBinsArea(viewModel->filterWidth, viewModel->receiverMode);
 
 	//viewModel->serviceField1 = r.A;
 
@@ -214,22 +215,22 @@ void Display::showSignaldB(float* spectre) {
 		float max = -1000.0;
 
 		for (int i = r.A; i < r.B; i++) {
-			if (spectre[fftSpectreHandler->getTrueBin(i)] > max) {
-				max = spectre[fftSpectreHandler->getTrueBin(i)];
+			if (spectreData[fftSpectreHandler->getTrueBin(i)] > max) {
+				max = spectreData[fftSpectreHandler->getTrueBin(i)];
 			}
 			//sum += spectre[i];
 		}
 		viewModel->signalMaxdB = maxdBKalman.filter(max);
 	}
-}
+}*/
 
-void Display::handleActions() {
+/*void Display::handleActions() {
 	if (whichMouseBtnPressed == GLFW_MOUSE_BUTTON_1 && isMouseBtnPressed == GLFW_PRESS) {
 		if (mouseX >= 0 && mouseX <= width) {
 			receiver->setAbsoluteXpos(width, mouseX);
 		}
 	}
-}
+}*/
 
 void Display::initImGUI() {
 	const char* glsl_version = "#version 130";
@@ -286,7 +287,7 @@ void Display::renderImGUIFirst() {
 		ImGui::RadioButton("LSB", &viewModel->receiverMode, LSB); ImGui::SameLine();
 		ImGui::RadioButton("AM", &viewModel->receiverMode, AM);
 
-
+		spectre->draw();
 		smeter->draw(viewModel->signalMaxdB);
 
 		// 
@@ -309,9 +310,9 @@ void Display::renderImGUIFirst() {
 		ImGui::Text("absoluteXpos: %f", receiver->absoluteXpos);
 		ImGui::Text("stepX: %f", receiver->stepX);
 		ImGui::Text("receiverPos: %f", receiver->receiverPos);
-		ImGui::Text("selectedBin: %i", (int)round(receiver->selectedBin));
-		ImGui::Text("selectedFreq: %i", receiver->getSelectedFreq());
-		ImGui::Text("Frequency: %i", viewModel->frequency + receiver->getSelectedFreq());
+		ImGui::Text("selectedBin: %i", (int)round(spectre->receiverLogicNew->getSelectedBin()));
+		ImGui::Text("selectedFreq: %i", spectre->receiverLogicNew->getSelectedFreq());
+		ImGui::Text("Frequency: %i", viewModel->frequency + spectre->receiverLogicNew->getSelectedFreq());
 		ImGui::Text("AMP: %f", viewModel->amp);
 		ImGui::Text("Max dB: %f", viewModel->signalMaxdB);
 		ImGui::Text("Service field1: %f", viewModel->serviceField1);

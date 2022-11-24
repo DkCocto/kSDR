@@ -31,6 +31,7 @@ void RSP1::streamCallback(short* xi, short* xq, unsigned int firstSampleNum, int
 
     }
 
+
     if (rsp1->isNeedToSetFreq()) rsp1->setFreq(rsp1->viewModel->frequency);
 
     if (rsp1->viewModel->gainControl) {

@@ -113,21 +113,18 @@ void SMeter::drawLevel(ImDrawList* draw_list, double dBValue) {
 		draw_list->AddRectFilled(
 			ImVec2(canvas_p0.x + x, canvas_p0.y + y + LEVEL_PADDING_TOP), 
 			ImVec2(canvas_p0.x + x + step * 9, canvas_p0.y + y + LEVEL_PADDING_TOP + LEVEL_THICKNESS), 
-			YELLOW, 2.0f);
+			YELLOW, 0);
 
 		draw_list->AddRectFilled(
 			ImVec2(canvas_p0.x + x + step * 9, canvas_p0.y + y + LEVEL_PADDING_TOP), 
 			ImVec2(canvas_p0.x + x + step * levelVal, canvas_p0.y + y + LEVEL_PADDING_TOP + LEVEL_THICKNESS),
-			RED, 1.0f);
+			RED, 0);
 
 	} else {
 		ImVec2 lineX1(canvas_p0.x + x, canvas_p0.y + y + LEVEL_PADDING_TOP);
 		ImVec2 lineX2(canvas_p0.x + x + step * levelVal, canvas_p0.y + y + LEVEL_PADDING_TOP + LEVEL_THICKNESS);
-		draw_list->AddRectFilled(lineX1, lineX2, YELLOW, 1.0f);
+		draw_list->AddRectFilled(lineX1, lineX2, YELLOW, 0);
 	}
-
-
-
 
 }
 

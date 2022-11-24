@@ -53,5 +53,6 @@ public:
 	float psd(float re, float im);
 	void prepareData();
 	int getTrueBin(int bin);
+	int getSpectreSize();
 
 };

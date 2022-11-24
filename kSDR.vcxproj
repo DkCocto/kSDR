@@ -46,6 +46,7 @@
     <ClCompile Include="src\Oscillator.cpp" />
     <ClCompile Include="src\PolyPhaseFilter.cpp" />
     <ClCompile Include="src\ReceiverLogic.cpp" />
+    <ClCompile Include="src\ReceiverLogicNew.cpp" />
     <ClCompile Include="src\RSP1.cpp" />
     <ClCompile Include="src\Semaphore.cpp" />
     <ClCompile Include="src\SinOscillator.cpp" />
@@ -53,6 +54,7 @@
     <ClCompile Include="src\SoundCard.cpp" />
     <ClCompile Include="src\SoundProcessorThread.cpp" />
     <ClCompile Include="src\SoundReaderThread.cpp" />
+    <ClCompile Include="src\Spectre.cpp" />
     <ClCompile Include="src\Utils.cpp" />
     <ClCompile Include="src\ViewModel.cpp" />
   </ItemGroup>
@@ -89,6 +91,7 @@
     <ClInclude Include="src\Oscillator.h" />
     <ClInclude Include="src\PolyPhaseFilter.h" />
     <ClInclude Include="src\ReceiverLogic.h" />
+    <ClInclude Include="src\ReceiverLogicNew.h" />
     <ClInclude Include="src\RSP1.h" />
     <ClInclude Include="src\Semaphore.h" />
     <ClInclude Include="src\SinOscillator.h" />
@@ -96,6 +99,7 @@
     <ClInclude Include="src\SoundCard.h" />
     <ClInclude Include="src\SoundProcessorThread.h" />
     <ClInclude Include="src\SoundReaderThread.h" />
+    <ClInclude Include="src\Spectre.h" />
     <ClInclude Include="src\Utils.h" />
     <ClInclude Include="src\ViewModel.h" />
     <ClInclude Include="src\WindowBlackman.h" />

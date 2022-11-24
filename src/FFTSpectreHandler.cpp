@@ -172,3 +172,7 @@ int FFTSpectreHandler::getTrueBin(int bin) {
 
 	return bin + increment;
 }
+
+int FFTSpectreHandler::getSpectreSize() {
+	return config->fftLen / 2;
+}
