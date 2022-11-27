@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Env.h"
 #include "../include/GLFW/glfw3.h"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
@@ -8,6 +9,7 @@
 #include "ReceiverLogicNew.h"
 #include "ViewModel.h"
 #include "KalmanFilter.h"
+#include "Waterfall.h"
 
 class Spectre {
 
@@ -32,7 +34,7 @@ class Spectre {
 
 	MIN_MAX getMinMaxInSpectre(float* spectreData, int len);
 
-	int interpolate(int color1, int color2, float fraction);
+	Waterfall* waterfall;
 
 public:
 

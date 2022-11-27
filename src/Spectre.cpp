@@ -1,5 +1,6 @@
 #include "Spectre.h"
 #include "string"
+#include "vector"
 
 #define GRAY						IM_COL32(95, 95, 95, 255)
 #define SPECTRE_FREQ_MARK_COUNT		20
@@ -13,6 +14,8 @@ bool Spectre::isMouseOnSpectreRegion(int spectreX1, int spectreY1, int spectreX2
 }
 
 Spectre::Spectre(Config* config, ViewModel* viewModel, FFTSpectreHandler* fftSH, double width, double height) {
+	this->waterfall = new Waterfall(config, fftSH);
+	//waterfall->start().detach();
 	this->config = config;
 	this->viewModel = viewModel;
 	this->width = width;
@@ -30,6 +33,14 @@ int savedSpectreWidthInPX = 1;
 float veryMinSpectreVal = 0;
 float veryMaxSpectreVal = -1000;
 
+long countFrames = 0;
+
+
+//#define checkImageWidth 128
+//#define checkImageHeight 128
+
+
+
 void Spectre::draw() {
 	ImGui::Begin("Spectre");
 		ImGuiIO& io = ImGui::GetIO();
@@ -37,14 +48,15 @@ void Spectre::draw() {
 
 		int rightPadding = 40;
 		int leftPadding = 40;
+		int waterfallPaddingTop = 50;
 
 		//Начальная точка окна
 		ImVec2 startWindowPoint = ImGui::GetCursorScreenPos();
 
 		//Нижняя левая точка окна
 		ImVec2 windowLeftBottomCorner = ImGui::GetContentRegionAvail();
-		int spectreHeight = 500;
-		int waterfallHeight = 300;
+		int spectreHeight = windowLeftBottomCorner.y / 2;
+		int waterfallHeight = windowLeftBottomCorner.y / 2;
 
 		int spectreWidthInPX = windowLeftBottomCorner.x - rightPadding - leftPadding;
 
@@ -203,24 +215,85 @@ void Spectre::draw() {
 
 		ImGui::BeginChild("Waterfall", ImVec2(ImGui::GetContentRegionAvail().x, windowLeftBottomCorner.y - spectreHeight - 5), false, ImGuiWindowFlags_NoMove);
 
-			fftSH->getSemaphore()->lock();
+			//fftSH->getSemaphore()->lock();
 
-			float* spectreData = fftSH->getOutput();
+			//float* spectreDataCopy = new float[spectreSize];
+			//memset(spectreDataCopy, 0, sizeof(float) * spectreSize);
 
-			int spectreSize = fftSH->getSpectreSize();
+			//memcpy(spectreDataCopy, spectreData, sizeof(spectreData)* spectreSize);
+			//fftSH->getSemaphore()->unlock();
 
-			float stepX = (windowLeftBottomCorner.x - rightPadding - leftPadding) / (spectreSize);
+			//spectreSize = fftSH->getSpectreSize();
+			if (countFrames % 1 == 0) {
+				waterfall->setMinMaxValue(veryMinSpectreVal, veryMaxSpectreVal);
+				waterfall->putData(fftSH, spectreData, spectreSize);
+			}
 
-			draw_list->AddLine(
-				ImVec2(startWindowPoint.x + rightPadding + receiverLogicNew->getPosition(), 0),
-				ImVec2(startWindowPoint.x + rightPadding + receiverLogicNew->getPosition(), startWindowPoint.y + spectreHeight),
-				GRAY, 2.0f);
+			stepX = spectreWidthInPX / (spectreSize / waterfall->getDiv());
+			float stepY = (windowLeftBottomCorner.y / 2) / waterfall->getSize();
 
-			fftSH->getSemaphore()->unlock();
+
+			for (int i = 0; i < waterfall->getSize(); i++) {
+				draw_list->AddImage((void*)(intptr_t)waterfall->getTexturesArray()[i], ImVec2(startWindowPoint.x + rightPadding, startWindowPoint.y + 30 + spectreHeight + stepY * i), ImVec2(startWindowPoint.x + spectreWidthInPX, startWindowPoint.y + 30 + spectreHeight + stepY * i + stepX));
+				//draw_list->AddImage((void*)(intptr_t)waterfall->getTexturesArray()[i], ImVec2(startWindowPoint.x, startWindowPoint.y + spectreHeight), ImVec2(startWindowPoint.x + spectreWidthInPX, startWindowPoint.y + spectreHeight));
+			}
+
+
+			//Waterfall::WATERFALL_TEXTURE_STRUCT textStruct = waterfall->getTextureStruct();
+
+			//Waterfall::WATERFALL_TEXTURE_STRUCT textStruct = waterfall->generateWaterfallTexture();
+
+			//stepX = spectreWidthInPX / (spectreSize / waterfall->getDiv());
+
+			//ImGui::Text("pointer = %p", textStruct.texName);
+			//ImGui::Image((void*)(intptr_t)textStruct.texName, ImVec2(stepX * textStruct.width, textStruct.height));
+			//draw_list->AddImage((void*)(intptr_t)textStruct.texName, ImVec2(startWindowPoint.x, startWindowPoint.y + spectreHeight + 50), ImVec2(startWindowPoint.x + spectreWidthInPX, startWindowPoint.y + textStruct.height + 200));
+			
+/*
+			//delete spectreDataCopy;
+
+
+			//Utils::printFloat(waterfallData.size());
+
+			for (int j = 0; j < waterfall.getSize(); j++) {
+				for (int i = 0; i < (spectreSize / waterfall.getDiv()); i++) {
+					float* currentSpectre = waterfall.getDataFor((waterfall.getSize() - 1) - j);
+
+
+					Waterfall::RGB rgb = waterfall.getColorForPowerInSpectre(currentSpectre[i]);
+
+					ImVec2 lineX1(
+						startWindowPoint.x + i * stepX + rightPadding, 
+						startWindowPoint.y + spectreHeight + waterfallPaddingTop + stepX * j
+					);
+					ImVec2 lineX2(
+						startWindowPoint.x + (i + 1.0) * stepX + rightPadding, 
+						startWindowPoint.y + spectreHeight + waterfallPaddingTop + stepX * (j + 1.0)
+					);
+					draw_list->AddRectFilled(lineX1, lineX2, IM_COL32(rgb.r, rgb.g, rgb.b, 255), 0.0f);
+				}
+			}*/
 
 		ImGui::EndChild();
 
 	ImGui::End();
+	countFrames++;
+
+
+
+	/*for (int ix = 0; ix < checkImageHeight; ++ix) {
+		for (int iy = 0; iy < checkImageWidth; ++iy) {
+			int c = (((ix & 0x8) == 0) ^ ((iy & 0x8)) == 0) * 255;
+
+			checkImage[ix * checkImageWidth * depth + iy * depth + 0] = c;   //red
+			checkImage[ix * checkImageWidth * depth + iy * depth + 1] = c;   //green
+			checkImage[ix * checkImageWidth * depth + iy * depth + 2] = c;   //blue
+			checkImage[ix * checkImageWidth * depth + iy * depth + 3] = 255; //alpha
+		}
+	}*/	
+
+
+
 }
 
 void Spectre::storeSignaldB(float* spectreData) {
@@ -255,30 +328,4 @@ Spectre::MIN_MAX Spectre::getMinMaxInSpectre(float* spectreData, int len) {
 		if (spectreData[i] > max) max = spectreData[i];
 	}
 	return MIN_MAX { min, max };
-}
-
-//#1B1BB3 blue
-//#FFE800 YELLOW
-
-/**
- * interpolate 2 RGB colors
- * @param color1    integer containing color as 0x00RRGGBB
- * @param color2    integer containing color as 0x00RRGGBB
- * @param fraction  how much interpolation (0..1)
- * - 0: full color 1
- * - 1: full color 2
- * @return the new color after interpolation
- */
-int Spectre::interpolate(int color1, int color2, float fraction)
-{
-	unsigned char   r1 = (color1 >> 16) & 0xff;
-	unsigned char   r2 = (color2 >> 16) & 0xff;
-	unsigned char   g1 = (color1 >> 8) & 0xff;
-	unsigned char   g2 = (color2 >> 8) & 0xff;
-	unsigned char   b1 = color1 & 0xff;
-	unsigned char   b2 = color2 & 0xff;
-
-	return (int)((r2 - r1) * fraction + r1) << 16 |
-		(int)((g2 - g1) * fraction + g1) << 8 |
-		(int)((b2 - b1) * fraction + b1);
 }

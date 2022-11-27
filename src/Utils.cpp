@@ -16,3 +16,7 @@ void Utils::printArray(std::vector<float> v) {
 		printf("%i %f\r\n", i, v[i]);
 	}
 }
+
+void Utils::printFloat(float v) {
+	printf("%f\r\n", v);
+}
