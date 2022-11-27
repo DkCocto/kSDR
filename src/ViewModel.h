@@ -30,12 +30,14 @@ public:
 	//int frequency = 41965664;
 	int frequency = 3700000;
 
-	int gain = -30;
+	int gain = -50;
 
 	bool gainControl = false;
 	bool audioFilter = true;
 
 	double serviceField1 = 0;
 	double serviceField2 = 0;
+
+	double cpuUsage = 0;
 
 };

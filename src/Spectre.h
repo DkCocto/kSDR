@@ -19,7 +19,6 @@ class Spectre {
 
 	ViewModel* viewModel;
 
-	//void drawGrid(ImDrawList* draw_list);
 	bool isMouseOnSpectreRegion(int spectreX1, int spectreY1, int spectreX2, int spectreY2);
 
 	KalmanFilter* maxdBKalman;

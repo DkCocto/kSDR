@@ -3,57 +3,35 @@
 Waterfall::Waterfall(Config* config, FFTSpectreHandler* fftSH) {
 	waterfallWidthPx = (config->fftLen / 2) / div;
 	this->fftSH = fftSH;
-
-	for (int i = 0; i < size; i++) {
-		waterfallData[i] = new float[config->fftLen / div];
-	}
 }
 
 float Waterfall::getDiv() {
 	return div;
 }
 
-void Waterfall::putData(FFTSpectreHandler* fftSH, float* spectreData, int len) {
+void Waterfall::putData(FFTSpectreHandler* fftSH, float* spectreData, int lineHeight) {
 	float sum = 0;
 
-	float* output = new float[len / div];
+	float* output = new float[fftSH->getSpectreSize() / div];
 
-	//std::vector<float> out;
-
-	for (int i = 1; i <= len; i++) {
+	for (int i = 1; i <= fftSH->getSpectreSize(); i++) {
 
 		sum += spectreData[fftSH->getTrueBin(i - 1)];
 
-		//Utils::printFloat(spectreData[fftSH->getTrueBin(i - 1)]);
-
 		if (i % (int)div == 0) {
 			output[i / (int)div - 1] = sum / div;
-			//Utils::printFloat(sum / div);
-			//out.push_back(sum / div);
 			sum = 0;
 		}
 	}
 
-	/*for (int i = 0; i < size - 1; i++) {
-		waterfallData[(size - 1) - i] = waterfallData[(size - 1) - i - 1];
-	}
-	waterfallData[0] = output;*/
-
-
-	int height = 1;
+	int height = lineHeight;
 	int width = waterfallWidthPx;
 
 	GLubyte* checkImage = new GLubyte[width * height * depth];
 
 	for (unsigned int ix = 0; ix < height; ++ix) {
 		for (unsigned int iy = 0; iy < width; ++iy) {
-			//int c = (((ix & 0x8) == 0) ^ ((iy & 0x8)) == 0) * 255;
-
-			//float* currentSpectre = getDataFor((getSize() - 1) - ix);
-
 			Waterfall::RGB rgb = getColorForPowerInSpectre(output[iy]);
-
-			//printf("%i\r\n", rgb.r);
 
 			checkImage[ix * width * depth + iy * depth + 0] = rgb.r;   //red
 			checkImage[ix * width * depth + iy * depth + 1] = rgb.g;   //green
@@ -63,8 +41,6 @@ void Waterfall::putData(FFTSpectreHandler* fftSH, float* spectreData, int len) {
 	}
 
 	delete[] output;
-
-	//glDeleteTextures(0, &texName);
 
 	GLuint texName;
 
@@ -90,23 +66,6 @@ void Waterfall::putData(FFTSpectreHandler* fftSH, float* spectreData, int len) {
 	glDeleteTextures(0, &texturesArray[0]);
 
 	texturesArray[0] = texName;
-
-
-	/*
-	if (waterfallData.size() > size) {
-		//std::rotate(waterfallData.begin(), waterfallData.begin() + 1, waterfallData.end());
-		//waterfallData.erase(waterfallData.end());
-		//float* array = waterfallData.back();
-		//waterfallData.pop_back();
-		waterfallData.pop();
-		//delete[] array;
-	}
-
-	waterfallData.push(output);*/
-}
-
-float* Waterfall::getDataFor(int point) {
-	return waterfallData[point];
 }
 
 int Waterfall::getSize() {
@@ -140,9 +99,13 @@ int Waterfall::interpolate(int color1, int color2, float fraction) {
 	unsigned char   b1 = color1 & 0xff;
 	unsigned char   b2 = color2 & 0xff;
 
-	return (int)((r2 - r1) * fraction + r1) << 16 |
-		(int)((g2 - g1) * fraction + g1) << 8 |
-		(int)((b2 - b1) * fraction + b1);
+	float f = (1.0 - cos(fraction * M_PI)) * 0.5f;
+
+	//float f = fraction * fraction;
+
+	return (int)((r2 - r1) * f + r1) << 16 |
+		(int)((g2 - g1) * f + g1) << 8 |
+		(int)((b2 - b1) * f + b1);
 }
 
 /*int Waterfall::interpolate2(int color1, int color2, float progress, int interpolation) {
@@ -178,66 +141,8 @@ int Waterfall::interpolate(int color1, int color2, float fraction) {
 	return (newA << 24) + (newR << 16) + (newG << 8) + newB;
 }*/
 
-Waterfall::WATERFALL_TEXTURE_STRUCT Waterfall::generateWaterfallTexture() {
-
-	int height = size;
-	int width = waterfallWidthPx;
-
-	GLubyte* checkImage = new GLubyte[height * width * depth];
-
-	for (unsigned int ix = 0; ix < height; ++ix) {
-		for (unsigned int iy = 0; iy < width; ++iy) {
-			//int c = (((ix & 0x8) == 0) ^ ((iy & 0x8)) == 0) * 255;
-
-			float* currentSpectre = getDataFor((getSize() - 1) - ix);
-
-			Waterfall::RGB rgb = getColorForPowerInSpectre(currentSpectre[iy]);
-
-			//printf("%i\r\n", rgb.r);
-
-			checkImage[ix * width * depth + iy * depth + 0] = rgb.r;   //red
-			checkImage[ix * width * depth + iy * depth + 1] = rgb.g;   //green
-			checkImage[ix * width * depth + iy * depth + 2] = rgb.b;   //blue
-			checkImage[ix * width * depth + iy * depth + 3] = 255; //alpha
-		}
-	}
-
-	glDeleteTextures(0, &texName);
-
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-	glGenTextures(1, &texName);
-	glBindTexture(GL_TEXTURE_2D, texName);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width,
-		height, 0, GL_RGBA, GL_UNSIGNED_BYTE,
-		checkImage);
-
-	/*for (int i = 0; i < height; i++) {
-		for (int j = 0; j < width; j++) {
-			c = ((((i & 0x8) == 0) ^ ((j & 0x8)) == 0)) * 255;
-			checkImage[i][j][0] = (GLubyte)c;
-			checkImage[i][j][1] = (GLubyte)c;
-			checkImage[i][j][2] = (GLubyte)c;
-			checkImage[i][j][3] = (GLubyte)255;
-		}
-	}*/
-	delete[] checkImage;
-
-	return WATERFALL_TEXTURE_STRUCT {texName, width, height};
-	//return WATERFALL_TEXTURE_STRUCT{};
-}
-
 Waterfall::RGB Waterfall::getColorForPowerInSpectre(float power) {
-	//float fraction = 0.0077 * power + 1.0;
 	float fraction = (1.0 / (maxValue - minValue)) * power - (minValue / (maxValue - minValue));
-	//float fraction = exp(2.8004 + 0.0759 * power);
-	//float ft = power * M_PI;
-	//float f = (1 - (float)cos(ft)) * 0.5f;
 	int interpolatedColor = interpolate(minColor, maxColor, fraction);
 	RGB rgb = convertColor(interpolatedColor);
 	return rgb;
@@ -250,26 +155,4 @@ void Waterfall::setMinMaxValue(float min, float max) {
 
 GLuint* Waterfall::getTexturesArray() {
 	return texturesArray;
-}
-
-Waterfall::WATERFALL_TEXTURE_STRUCT Waterfall::getTextureStruct() {
-	return textureStruct;
-}
-
-void Waterfall::process() {
-	/*while (true) {
-		float* spectreData = fftSH->getOutput();
-		int spectreSize = fftSH->getSpectreSize();
-		
-		putData(fftSH, spectreData, spectreSize);
-
-		textureStruct = generateWaterfallTexture();
-
-		//std::this_thread::sleep_for(std::chrono::nanoseconds(1));
-	}*/
-}
-
-std::thread Waterfall::start() {
-	std::thread p(&Waterfall::process, this);
-	return p;
 }

@@ -14,22 +14,17 @@ class Waterfall {
 
 	GLuint* texturesArray = new GLuint[size];
 
-	float** waterfallData = new float* [size];
-	//std::vector<float*> waterfallData;
-	//std::queue<float*> waterfallData;
-
 	int waterfallWidthPx;
 
-	int minColor = 0x1B1BB3; //blue
+	//int minColor = 0x1B1BB3; //blue
+	int minColor = 0x020C22;
 	int maxColor = 0xFFE800; //yellow
+	//int maxColor = 0xFF0000; //red
+	//int maxColor = 0x00CC00; //red
 
-	float minValue = -120;
-	float maxValue = -30;
 
-	int widthPX;
-	int heightPX;
-
-	//GLubyte checkImage[heightPX][widthPX][4];
+	float minValue = -100;
+	float maxValue = -40;
 
 	unsigned int depth = 4;
 
@@ -57,9 +52,9 @@ public:
 
 	float getDiv();
 
-	void putData(FFTSpectreHandler* fftSH, float* spectreData, int len);
+	void putData(FFTSpectreHandler* fftSH, float* spectreData, int lineHeight);
 
-	float* getDataFor(int point);
+	//float* getDataFor(int point);
 
 	int getSize();
 
@@ -69,17 +64,14 @@ public:
 
 	//int interpolate2(int color1, int color2, float progress, int interpolation);
 
-	WATERFALL_TEXTURE_STRUCT generateWaterfallTexture();
+	//WATERFALL_TEXTURE_STRUCT generateWaterfallTexture();
 
-	WATERFALL_TEXTURE_STRUCT getTextureStruct();
+	//WATERFALL_TEXTURE_STRUCT getTextureStruct();
 
 	RGB getColorForPowerInSpectre(float power);
 
 	void setMinMaxValue(float min, float max);
 
-	void process();
-
-	std::thread start();
 
 private:
 	WATERFALL_TEXTURE_STRUCT textureStruct;

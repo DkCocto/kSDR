@@ -10,6 +10,7 @@
 #include "KalmanFilter.h"
 #include "SMeter.h"
 #include "Spectre.h"
+#include "CPU.h"
 
 class Display {
 
@@ -29,6 +30,7 @@ private:
 
 	SMeter* smeter = new SMeter(50, 50, 400, 0.2);
 
+	CPU cpu;
 
 public:
 

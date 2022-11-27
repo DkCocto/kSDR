@@ -55,8 +55,7 @@ void Spectre::draw() {
 
 		//Нижняя левая точка окна
 		ImVec2 windowLeftBottomCorner = ImGui::GetContentRegionAvail();
-		int spectreHeight = windowLeftBottomCorner.y / 2;
-		int waterfallHeight = windowLeftBottomCorner.y / 2;
+		int spectreHeight = windowLeftBottomCorner.y / 2.0;
 
 		int spectreWidthInPX = windowLeftBottomCorner.x - rightPadding - leftPadding;
 
@@ -81,7 +80,7 @@ void Spectre::draw() {
 			//Freqs mark line
 			int markCount = SPECTRE_FREQ_MARK_COUNT;
 			int sampleRateStep = config->inputSamplerate / markCount;
-			float stepInPX = spectreWidthInPX / markCount;
+			float stepInPX = (float)spectreWidthInPX / (float)markCount;
 			//printf("%i\r\n", viewModel->frequency);
 			//int step = viewModel->frequency - config->inputSamplerate / 2;
 			for (int i = 0; i <= markCount; i++) {
@@ -132,8 +131,7 @@ void Spectre::draw() {
 			}
 
 			//dB mark line
-
-			stepInPX = spectreHeight / SPECTRE_DB_MARK_COUNT;
+			stepInPX = (float)spectreHeight / (float)SPECTRE_DB_MARK_COUNT;
 			float stepdB = (abs(veryMinSpectreVal) - abs(veryMaxSpectreVal)) / SPECTRE_DB_MARK_COUNT;
 
 			for (int i = 0; i < SPECTRE_DB_MARK_COUNT; i++) {
@@ -143,9 +141,6 @@ void Spectre::draw() {
 					std::to_string((int)round(veryMinSpectreVal + i * stepdB)).c_str()
 				);
 			}
-
-
-			//printf("%f %f\r\n", m.min, m.max);
 
 			//---------------
 
@@ -214,86 +209,36 @@ void Spectre::draw() {
 		ImGui::EndChild();
 
 		ImGui::BeginChild("Waterfall", ImVec2(ImGui::GetContentRegionAvail().x, windowLeftBottomCorner.y - spectreHeight - 5), false, ImGuiWindowFlags_NoMove);
-
-			//fftSH->getSemaphore()->lock();
-
-			//float* spectreDataCopy = new float[spectreSize];
-			//memset(spectreDataCopy, 0, sizeof(float) * spectreSize);
-
-			//memcpy(spectreDataCopy, spectreData, sizeof(spectreData)* spectreSize);
-			//fftSH->getSemaphore()->unlock();
-
-			//spectreSize = fftSH->getSpectreSize();
-			if (countFrames % 1 == 0) {
-				waterfall->setMinMaxValue(veryMinSpectreVal, veryMaxSpectreVal);
-				waterfall->putData(fftSH, spectreData, spectreSize);
+			
+			int waterfallLineHeight = 2;
+			
+			if (countFrames % 2 == 0) {
+				waterfall->setMinMaxValue(m.min, m.max);
+				waterfall->putData(fftSH, spectreData, waterfallLineHeight);
 			}
+
+			int waterfallHeight = windowLeftBottomCorner.y - spectreHeight - waterfallPaddingTop;
 
 			stepX = spectreWidthInPX / (spectreSize / waterfall->getDiv());
-			float stepY = (windowLeftBottomCorner.y / 2) / waterfall->getSize();
-
+			float stepY = (float)(waterfallHeight + waterfallPaddingTop) / (float)waterfall->getSize();
 
 			for (int i = 0; i < waterfall->getSize(); i++) {
-				draw_list->AddImage((void*)(intptr_t)waterfall->getTexturesArray()[i], ImVec2(startWindowPoint.x + rightPadding, startWindowPoint.y + 30 + spectreHeight + stepY * i), ImVec2(startWindowPoint.x + spectreWidthInPX, startWindowPoint.y + 30 + spectreHeight + stepY * i + stepX));
-				//draw_list->AddImage((void*)(intptr_t)waterfall->getTexturesArray()[i], ImVec2(startWindowPoint.x, startWindowPoint.y + spectreHeight), ImVec2(startWindowPoint.x + spectreWidthInPX, startWindowPoint.y + spectreHeight));
+				draw_list->AddImage(
+					(void*)(intptr_t)waterfall->getTexturesArray()[i], 
+					ImVec2(
+						startWindowPoint.x + rightPadding,
+						startWindowPoint.y + waterfallHeight + 2 * waterfallPaddingTop + stepY * i
+					), 
+					ImVec2(
+						startWindowPoint.x + windowLeftBottomCorner.x - leftPadding, 
+						startWindowPoint.y + waterfallHeight + 2 * waterfallPaddingTop + stepY * (i + 1)
+					));
 			}
-
-
-			//Waterfall::WATERFALL_TEXTURE_STRUCT textStruct = waterfall->getTextureStruct();
-
-			//Waterfall::WATERFALL_TEXTURE_STRUCT textStruct = waterfall->generateWaterfallTexture();
-
-			//stepX = spectreWidthInPX / (spectreSize / waterfall->getDiv());
-
-			//ImGui::Text("pointer = %p", textStruct.texName);
-			//ImGui::Image((void*)(intptr_t)textStruct.texName, ImVec2(stepX * textStruct.width, textStruct.height));
-			//draw_list->AddImage((void*)(intptr_t)textStruct.texName, ImVec2(startWindowPoint.x, startWindowPoint.y + spectreHeight + 50), ImVec2(startWindowPoint.x + spectreWidthInPX, startWindowPoint.y + textStruct.height + 200));
-			
-/*
-			//delete spectreDataCopy;
-
-
-			//Utils::printFloat(waterfallData.size());
-
-			for (int j = 0; j < waterfall.getSize(); j++) {
-				for (int i = 0; i < (spectreSize / waterfall.getDiv()); i++) {
-					float* currentSpectre = waterfall.getDataFor((waterfall.getSize() - 1) - j);
-
-
-					Waterfall::RGB rgb = waterfall.getColorForPowerInSpectre(currentSpectre[i]);
-
-					ImVec2 lineX1(
-						startWindowPoint.x + i * stepX + rightPadding, 
-						startWindowPoint.y + spectreHeight + waterfallPaddingTop + stepX * j
-					);
-					ImVec2 lineX2(
-						startWindowPoint.x + (i + 1.0) * stepX + rightPadding, 
-						startWindowPoint.y + spectreHeight + waterfallPaddingTop + stepX * (j + 1.0)
-					);
-					draw_list->AddRectFilled(lineX1, lineX2, IM_COL32(rgb.r, rgb.g, rgb.b, 255), 0.0f);
-				}
-			}*/
 
 		ImGui::EndChild();
 
 	ImGui::End();
 	countFrames++;
-
-
-
-	/*for (int ix = 0; ix < checkImageHeight; ++ix) {
-		for (int iy = 0; iy < checkImageWidth; ++iy) {
-			int c = (((ix & 0x8) == 0) ^ ((iy & 0x8)) == 0) * 255;
-
-			checkImage[ix * checkImageWidth * depth + iy * depth + 0] = c;   //red
-			checkImage[ix * checkImageWidth * depth + iy * depth + 1] = c;   //green
-			checkImage[ix * checkImageWidth * depth + iy * depth + 2] = c;   //blue
-			checkImage[ix * checkImageWidth * depth + iy * depth + 3] = 255; //alpha
-		}
-	}*/	
-
-
-
 }
 
 void Spectre::storeSignaldB(float* spectreData) {

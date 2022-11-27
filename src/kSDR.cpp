@@ -11,7 +11,7 @@
 //#include "RTLDeviceReaderThread.h"
 #include "CircleBufferWriterThread.h"
 
-Config* config = new Config(250000, 8, 4);
+Config* config = new Config(187500, 16, 4);
 
 SoundCard soundCard(config);
 
@@ -42,7 +42,6 @@ Display& d = *display;
 Display* Display::instance = &d;
 
 int main() {
-
 	rsp1.init();
 	////exit(0);
 

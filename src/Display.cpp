@@ -274,10 +274,8 @@ void Display::renderImGUIFirst() {
 			viewModel->frequency = 1900000;
 		}
 
-
 		ImGui::SliderInt("Frequency", &viewModel->frequency, 1000000, 30000000);
 	
-
 		ImGui::SliderInt("Gain", &viewModel->gain, -60, 0);
 
 		ImGui::Checkbox("Audio Filter", &viewModel->audioFilter);
@@ -290,18 +288,6 @@ void Display::renderImGUIFirst() {
 		spectre->draw();
 		smeter->draw(viewModel->signalMaxdB);
 
-		// 
-		//ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-		//ImGui::Checkbox("Another Window", &show_demo_window);
-
-		//ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-		//ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
-
-		//if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-			//counter++;
-		//ImGui::SameLine();
-		//ImGui::Text("counter = %d", counter);
-
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	ImGui::End();
 
@@ -313,27 +299,10 @@ void Display::renderImGUIFirst() {
 		ImGui::Text("selectedBin: %i", (int)round(spectre->receiverLogicNew->getSelectedBin()));
 		ImGui::Text("selectedFreq: %i", spectre->receiverLogicNew->getSelectedFreq());
 		ImGui::Text("Frequency: %i", viewModel->frequency + spectre->receiverLogicNew->getSelectedFreq());
-		ImGui::Text("AMP: %f", viewModel->amp);
-		ImGui::Text("Max dB: %f", viewModel->signalMaxdB);
+		ImGui::Text("AMP: %.2f", viewModel->amp);
+		ImGui::Text("Max dB: %.2f", viewModel->signalMaxdB);
+		ImGui::Text("CPU usage: %.1f", cpu.getCurrentValue());
 		ImGui::Text("Service field1: %f", viewModel->serviceField1);
 		ImGui::Text("Service field2: %f", viewModel->serviceField2);
 	ImGui::End();
-
-
 }
-
-/*float getValueRatio(data: DoubleArray, centerY : Int) : Double{
-	val minValueInData = data.minOrNull()
-	val maxValueInData = data.maxOrNull()
-
-	var maxValue = 0.0
-
-	if (minValueInData != null && maxValueInData != null) {
-		val minValueInDataAbs = abs(minValueInData)
-		val maxValueInDataAbs = abs(maxValueInData)
-		if (minValueInDataAbs >= maxValueInDataAbs) maxValue = minValueInDataAbs
-		if (minValueInDataAbs < maxValueInDataAbs) maxValue = maxValueInDataAbs
-	}
-
-	return (height - centerY - paddingBottom) / maxValue
-}*/
