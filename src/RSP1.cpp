@@ -56,7 +56,7 @@ void RSP1::init() {
     mir_sdr_RSPII_AntennaSelectT ant = mir_sdr_RSPII_ANTENNA_A;
     mir_sdr_SetGrModeT grMode = mir_sdr_USE_SET_GR_ALT_MODE;
     mir_sdr_ErrT r;
-    int gainR = 50;
+    int gainR = abs(viewModel->gain);
     uint32_t samp_rate = config->inputSamplerate * config->inputSamplerateDivider;
     uint32_t frequency = config->startFrequency;
     savedFreq = frequency;
@@ -119,13 +119,13 @@ void RSP1::setFreq(double freq) {
 
 //-60 .. 0
 void RSP1::setGain(int gain) {
-    mir_sdr_AgcControl(mir_sdr_AGC_5HZ, gain, 0, 0, 0, 0, 0);
+    mir_sdr_AgcControl(mir_sdr_AGC_50HZ, gain, 0, 0, 0, 0, 0);
     //mir_sdr_AgcControl(mir_sdr_AGC_DISABLE, gain, 0, 0, 0, 0, 0);
     savedGain = gain;
 }
 
 void RSP1::disableGain() {
-    mir_sdr_AgcControl(mir_sdr_AGC_DISABLE, -30, 0, 0, 0, 0, 0);
+    mir_sdr_AgcControl(mir_sdr_AGC_DISABLE, viewModel->gain, 0, 0, 0, 0, 0);
 }
 
 bool RSP1::isNeedToSetFreq() {

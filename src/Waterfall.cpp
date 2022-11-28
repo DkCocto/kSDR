@@ -44,9 +44,11 @@ void Waterfall::putData(FFTSpectreHandler* fftSH, float* spectreData, int lineHe
 
 	GLuint texName;
 
+
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 	glGenTextures(1, &texName);
+
 	glBindTexture(GL_TEXTURE_2D, texName);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -59,11 +61,11 @@ void Waterfall::putData(FFTSpectreHandler* fftSH, float* spectreData, int lineHe
 
 	delete[] checkImage;
 
+	glDeleteTextures(1, &texturesArray[size - 1]);
+
 	for (int i = 0; i < size - 1; i++) {
 		texturesArray[(size - 1) - i] = texturesArray[(size - 1) - i - 1];
 	}
-
-	glDeleteTextures(0, &texturesArray[0]);
 
 	texturesArray[0] = texName;
 }
@@ -92,6 +94,10 @@ Waterfall::RGB Waterfall::convertColor(int hexValue) {
  * @return the new color after interpolation
  */
 int Waterfall::interpolate(int color1, int color2, float fraction) {
+
+	if (fraction < 0) fraction = 0;
+	if (fraction > 1) fraction = 1;
+
 	unsigned char   r1 = (color1 >> 16) & 0xff;
 	unsigned char   r2 = (color2 >> 16) & 0xff;
 	unsigned char   g1 = (color1 >> 8) & 0xff;
@@ -101,45 +107,14 @@ int Waterfall::interpolate(int color1, int color2, float fraction) {
 
 	float f = (1.0 - cos(fraction * M_PI)) * 0.5f;
 
-	//float f = fraction * fraction;
+	//float f = fraction;
+
+	//float f = sqrt(fraction)
 
 	return (int)((r2 - r1) * f + r1) << 16 |
 		(int)((g2 - g1) * f + g1) << 8 |
 		(int)((b2 - b1) * f + b1);
 }
-
-/*int Waterfall::interpolate2(int color1, int color2, float progress, int interpolation) {
-	//Разделяем оба цвета на составляющие
-	int a1 = (color1 & 0xff000000) >>> 24;
-	int r1 = (color1 & 0x00ff0000) >>> 16;
-	int g1 = (color1 & 0x0000ff00) >>> 8;
-	int b1 = color1 & 0x000000ff;
-
-	int a2 = (color2 & 0xff000000) >> > 24;
-	int r2 = (color2 & 0x00ff0000) >> > 16;
-	int g2 = (color2 & 0x0000ff00) >> > 8;
-	int b2 = color2 & 0x000000ff;
-
-	//И рассчитываем новые
-	float f;
-	if (interpolation == INTERPOLATION_LINEAR) {
-		f = progress;
-	}
-	else if (interpolation == INTERPOLATION_COS) {
-		float ft = progress * M_PI;
-		f = (1 - (float)cos(ft)) * 0.5f;
-	}
-	else {
-		throw new IllegalArgumentException();
-	}
-	int newA = clip((int)(a1 * (1 - f) + a2 * f));
-	int newR = clip((int)(r1 * (1 - f) + r2 * f));
-	int newG = clip((int)(g1 * (1 - f) + g2 * f));
-	int newB = clip((int)(b1 * (1 - f) + b2 * f));
-
-	//Собираем и возвращаем полученный цвет
-	return (newA << 24) + (newR << 16) + (newG << 8) + newB;
-}*/
 
 Waterfall::RGB Waterfall::getColorForPowerInSpectre(float power) {
 	float fraction = (1.0 / (maxValue - minValue)) * power - (minValue / (maxValue - minValue));

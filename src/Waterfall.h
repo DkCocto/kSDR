@@ -10,14 +10,15 @@ class Waterfall {
 
 	float div = 1;
 
-	int size = 200;
+	int size = 500;
 
 	GLuint* texturesArray = new GLuint[size];
 
 	int waterfallWidthPx;
 
 	//int minColor = 0x1B1BB3; //blue
-	int minColor = 0x020C22;
+	//int minColor = 0x020C22;
+	int minColor = 0x0e0e0e;
 	int maxColor = 0xFFE800; //yellow
 	//int maxColor = 0xFF0000; //red
 	//int maxColor = 0x00CC00; //red

@@ -19,8 +19,6 @@ class Spectre {
 
 	ViewModel* viewModel;
 
-	bool isMouseOnSpectreRegion(int spectreX1, int spectreY1, int spectreX2, int spectreY2);
-
 	KalmanFilter* maxdBKalman;
 	KalmanFilter* ratioKalman;
 
@@ -29,6 +27,11 @@ class Spectre {
 	struct MIN_MAX {
 		float min;
 		float max;
+	};
+
+	struct WINDOW_FRAME {
+		ImVec2 UPPER_RIGHT;
+		ImVec2 BOTTOM_LEFT;
 	};
 
 	MIN_MAX getMinMaxInSpectre(float* spectreData, int len);
@@ -44,4 +47,7 @@ public:
 
 	void storeSignaldB(float* spectreData);
 
+	bool isMouseOnSpectreRegion(int spectreX1, int spectreY1, int spectreX2, int spectreY2);
+
+	WINDOW_FRAME windowFrame{ ImVec2(0, 0), ImVec2(0, 0) };
 };

@@ -38,21 +38,25 @@ private:
 
 	bool firstRun = true;
 
+	int spectreSpeed = 30;
+
 	//Average average = Average(20);
 
 	void processFFT();
 	float average(float avg, float new_sample, int n);
 	void dataPostprocess();
+	float* getOutput();
 
 public:
 
 	FFTSpectreHandler(Config* config);
 	Semaphore* getSemaphore();
-	float* getOutput();
+	float* getOutputCopy();
 	bool putData(float* pieceOfData, int len);
 	float psd(float re, float im);
 	void prepareData();
 	int getTrueBin(int bin);
 	int getSpectreSize();
+	void setSpectreSpeed(int speed);
 
 };

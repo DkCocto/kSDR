@@ -37,7 +37,6 @@ void Display::mouseButtonCallback(GLFWwindow* window, int button, int action, in
 			if (button == GLFW_MOUSE_BUTTON_1 && action == GLFW_PRESS) Display::instance->receiver->storeDeltaXPos(Display::instance->mouseX);
 		}
 	}
-	//cout << button << " " << action << " " << mods << "\r\n";
 }
 
 Display::Display(Config* config, FFTSpectreHandler* fftSH) {
@@ -93,15 +92,17 @@ int Display::init() {
 void Display::mainLoop() {
 	// Game loop
 	while (!glfwWindowShouldClose(window)) {
+		
 		// Check if any events have been activated (key pressed, mouse moved etc.) and call corresponding response functions
 		glfwPollEvents();
 
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		//fftSpectreHandler->getSemaphore()->lock();
 		renderImGUIFirst();
-
-		drawScene();
+		//fftSpectreHandler->getSemaphore()->unlock();
+		//drawScene();
 
 		// Rendering
 		ImGui::Render();
@@ -111,6 +112,7 @@ void Display::mainLoop() {
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		glfwSwapBuffers(window);
+
 	}
 
 	glfwTerminate();
@@ -250,8 +252,16 @@ void Display::renderImGUIFirst() {
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 
-	//static float f = 0.0f;
-	//static int counter = 0;
+	//Проверка которая исключает настройку приемника при перетягивании стороннего окна в область окна спектра
+	if (ImGui::IsMouseDown(0)) {
+		if (!spectre->isMouseOnSpectreRegion(
+			spectre->windowFrame.UPPER_RIGHT.x,
+			spectre->windowFrame.UPPER_RIGHT.y,
+			spectre->windowFrame.BOTTOM_LEFT.x,
+			spectre->windowFrame.BOTTOM_LEFT.y)) viewModel->mouseBusy = true;
+	} else {
+		viewModel->mouseBusy = false;
+	}
 
 	ImGui::Begin(APP_NAME);                          // Create a window called "Hello, world!" and append into it.
 
@@ -259,7 +269,7 @@ void Display::renderImGUIFirst() {
 		ImGui::SliderInt("Filter width", &viewModel->filterWidth, 0, 12000);
 
 		if (ImGui::Button("20m")) {
-			viewModel->frequency = 1415000;
+			viewModel->frequency = 14150000;
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("40m")) {
@@ -278,18 +288,26 @@ void Display::renderImGUIFirst() {
 	
 		ImGui::SliderInt("Gain", &viewModel->gain, -60, 0);
 
+		ImGui::SliderFloat("Waterfall min", &viewModel->waterfallMin, -130, 0);
+		ImGui::SliderFloat("Waterfall max", &viewModel->waterfallMax, -130, 0);
+
+		ImGui::SliderFloat("Spectre ratio", &viewModel->maxDb, -100, 0);
+
+		ImGui::SliderInt("Spectre speed", &viewModel->spectreSpeed, 0, 300);
+
 		ImGui::Checkbox("Audio Filter", &viewModel->audioFilter);
 		ImGui::Checkbox("Gain Control", &viewModel->gainControl);
 
 		ImGui::RadioButton("USB", &viewModel->receiverMode, USB); ImGui::SameLine();
 		ImGui::RadioButton("LSB", &viewModel->receiverMode, LSB); ImGui::SameLine();
 		ImGui::RadioButton("AM", &viewModel->receiverMode, AM);
-
-		spectre->draw();
-		smeter->draw(viewModel->signalMaxdB);
-
+		
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	ImGui::End();
+
+	spectre->draw();
+
+	smeter->draw(viewModel->signalMaxdB);
 
 	ImGui::Begin("DATA");
 		ImGui::Text("windowWidth: %i", receiver->windowWidth);

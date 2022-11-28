@@ -49,16 +49,17 @@ void SoundProcessorThread::process() {
 		if (available >= len) {
 			data = soundProcessorCircleBuffer->read(len);
 
+			fftSpectreHandler->setSpectreSpeed(Display::instance->viewModel->spectreSpeed);
+			//if (!fftSpectreHandler->getSemaphore()->isLocked()) {
+			fftSpectreHandler->putData(data, len);
+			//}
+
 			//Обработка ширины фильтра
 			if (storedFilterWidth != Display::instance->viewModel->filterWidth) {
 				storedFilterWidth = Display::instance->viewModel->filterWidth;
 				initFilters(storedFilterWidth);
 			}
 			//------------------------
-
-			if (!fftSpectreHandler->getSemaphore()->isLocked()) {
-				fftSpectreHandler->putData(data, len);
-			}
 
 			long count = 0;
 			for (int i = 0; i < len / 2; i++) {

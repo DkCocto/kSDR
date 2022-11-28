@@ -30,14 +30,12 @@ FFTSpectreHandler::FFTSpectreHandler(Config* config) {
 }
 
 void FFTSpectreHandler::processFFT() {
-	if (!semaphore->lock()) return;
-
 	//memcpy(output, dataBuffer, sizeof(output) * bufferLen);
 
 	//memset(imOut, 0, sizeof(float) * bufferLen);
 
-	/*float* realIn = new float[bufferLen];
-	memset(realIn, 0, sizeof(float) * bufferLen);*/
+	//float* realIn = new float[bufferLen];
+	//memset(realIn, 0, sizeof(float) * bufferLen);
 
 	prepareData();
 
@@ -61,22 +59,11 @@ void FFTSpectreHandler::processFFT() {
 	//memcpy(output + sizeof(realOut), imOut, sizeof(imOut));
 
 
-	//outputVector.clear();
-	////outputVector.insert(outputVector.begin(), begin(output), end(output));
-	//for (int i = 0; i < complexLen; i++) {
-	//	outputVector.push_back(realOut[i]);
-	//}
-	//for (int i = 0; i < complexLen; i++) {
-	//	outputVector.push_back(imOut[i]);
-	//}
-
-
 	dataPostprocess();
 
 	//Utils::printArray(inOut, bufferLen);
 
 	//fft.process(1, 10, output, kakashka);
-
 	//semaphore->unlock();
 }
 
@@ -89,7 +76,6 @@ float FFTSpectreHandler::average(float avg, float new_sample, int n) {
 }
 
 void FFTSpectreHandler::dataPostprocess() {
-	//printf("EBLO %i \r\n", outputVector.size());
 	for (int i = 0; i < config->fftLen / 2; i++) {
 		float psd = this->psd(realOut[i], imOut[i]);
 		if (firstRun) {
@@ -97,9 +83,7 @@ void FFTSpectreHandler::dataPostprocess() {
 			firstRun = false;
 		}
 		else {
-			//superOutput[i] = average.process(psd);
-			superOutput[i] = average(superOutput[i], psd, 20);
-			//outputVector.at(i) = average.process(psd);
+			superOutput[i] = average(superOutput[i], psd, spectreSpeed);
 		}
 	}
 }
@@ -111,6 +95,18 @@ Semaphore* FFTSpectreHandler::getSemaphore() {
 
 float* FFTSpectreHandler::getOutput() {
 	return superOutput;
+}
+
+int FFTSpectreHandler::getSpectreSize() {
+	return config->fftLen / 2;
+}
+
+float* FFTSpectreHandler::getOutputCopy() {
+	//getSemaphore()->lock();
+	float* dataCopy = new float[getSpectreSize()];
+	memcpy(dataCopy, getOutput(), sizeof(getOutput()) * getSpectreSize());
+	//getSemaphore()->unlock();
+	return dataCopy;
 }
 
 bool FFTSpectreHandler::putData(float* pieceOfData, int len) {
@@ -173,6 +169,6 @@ int FFTSpectreHandler::getTrueBin(int bin) {
 	return bin + increment;
 }
 
-int FFTSpectreHandler::getSpectreSize() {
-	return config->fftLen / 2;
+void FFTSpectreHandler::setSpectreSpeed(int speed) {
+	spectreSpeed = speed;
 }

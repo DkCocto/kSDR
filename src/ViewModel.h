@@ -38,6 +38,13 @@ public:
 	double serviceField1 = 0;
 	double serviceField2 = 0;
 
-	double cpuUsage = 0;
+	float waterfallMin = -80;
+	float waterfallMax = -60;
+
+	float maxDb = -30;
+
+	bool mouseBusy = false;
+
+	int spectreSpeed = 30;
 
 };

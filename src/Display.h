@@ -61,14 +61,9 @@ public:
 
 	void drawScene();
 
-	//void drawReceivedRegion();
-
-	//void handleActions();
 
 	void initImGUI();
 
 	void renderImGUIFirst();
-
-	void showSignaldB(float* spectre);
 
 };
