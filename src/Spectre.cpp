@@ -39,6 +39,8 @@ float veryMaxSpectreVal = -60;
 
 long countFrames = 0;
 
+bool isFirstFrame = true;
+
 void Spectre::draw() {
 
 	float* spectreData = fftSH->getOutputCopy();
@@ -241,6 +243,7 @@ void Spectre::draw() {
 				s
 			);
 			ImGui::PopFont();
+			delete[] s;
 
 			float delta = receiverLogicNew->getFilterWidthAbs(viewModel->filterWidth);
 
@@ -278,6 +281,11 @@ void Spectre::draw() {
 	countFrames++;
 
 	delete[] spectreData;
+
+	if (isFirstFrame) {
+		receiverLogicNew->setFreq(viewModel->centerFrequency);
+		isFirstFrame = false;
+	}
 }
 
 void Spectre::storeSignaldB(float* spectreData) {

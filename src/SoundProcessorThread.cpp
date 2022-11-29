@@ -108,7 +108,7 @@ void SoundProcessorThread::process() {
 						audio = sqrt(audioI * audioI + audioQ * audioQ);
 						break;
 					}
-					if (viewModel->audioFilter) audio = audioFilter->filter(audio);
+					audio = audioFilter->filter(audio);
 					audio = agc->process(audio) * Display::instance->viewModel->volume;
 					outputData[count] = audio;
 					count++;

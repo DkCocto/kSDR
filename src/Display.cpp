@@ -286,8 +286,6 @@ void Display::renderImGUIFirst() {
 		ImGui::SliderFloat("Spectre ratio", &viewModel->maxDb, -100, 0);
 
 		ImGui::SliderInt("Spectre speed", &viewModel->spectreSpeed, 1, 200);
-
-		ImGui::Checkbox("Audio Filter", &viewModel->audioFilter);
 		
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	ImGui::End();
@@ -308,21 +306,42 @@ void Display::renderImGUIFirst() {
 	ImGui::End();
 
 	ImGui::Begin("MODE");
-		if (ImGui::Button("20m")) {
-			viewModel->centerFrequency = 14150000;
-		}
-		ImGui::SameLine();
-		if (ImGui::Button("40m")) {
-			viewModel->centerFrequency = 7100000;
+		if (ImGui::Button("160m")) {
+			viewModel->centerFrequency = 1900000;
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("80m")) {
 			viewModel->centerFrequency = 3700000;
 		}
 		ImGui::SameLine();
-		if (ImGui::Button("160m")) {
-			viewModel->centerFrequency = 1900000;
+		if (ImGui::Button("40m")) {
+			viewModel->centerFrequency = 7100000;
 		}
+		ImGui::SameLine();
+		if (ImGui::Button("30m")) {
+			viewModel->centerFrequency = 10325000;
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("20m")) {
+			viewModel->centerFrequency = 14150000;
+		}
+
+		if (ImGui::Button("17m")) {
+			viewModel->centerFrequency = 18100000;
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("15m")) {
+			viewModel->centerFrequency = 21100000;
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("12m")) {
+			viewModel->centerFrequency = 24900000;
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("10m")) {
+			viewModel->centerFrequency = 28500000;
+		}
+
 		ImGui::RadioButton("USB", &viewModel->receiverMode, USB); ImGui::SameLine();
 		ImGui::RadioButton("LSB", &viewModel->receiverMode, LSB); ImGui::SameLine();
 		ImGui::RadioButton("AM", &viewModel->receiverMode, AM);
@@ -345,6 +364,14 @@ void Display::renderImGUIFirst() {
 		ImGui::SameLine();
 		if (ImGui::Button("3.0k")) {
 			viewModel->filterWidth = 3000;
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("6.0k")) {
+			viewModel->filterWidth = 6000;
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("12.0k")) {
+			viewModel->filterWidth = 12000;
 		}
 		ImGui::SliderFloat("Volume", &viewModel->volume, 0, 5);
 	ImGui::End();

@@ -109,7 +109,7 @@ void SMeter::drawLevel(ImDrawList* draw_list, double dBValue) {
 	if (levelVal > 15) levelVal = 15.0;
 
 	double step = width / 15;
-	Display::instance->viewModel->serviceField1 = levelVal;
+	//Display::instance->viewModel->serviceField1 = levelVal;
 
 	if (levelVal >= 9) {
 		draw_list->AddRectFilled(
@@ -137,13 +137,14 @@ void SMeter::drawLevel(ImDrawList* draw_list, double dBValue) {
 
 	draw_list->AddText(ImVec2(
 		canvas_p0.x + canvas_sz.x - 40,
-		canvas_p0.y + canvas_sz.y / 2
+		canvas_p0.y + y
 	), WHITE, s);
 
 	draw_list->AddText(ImVec2(
 		canvas_p0.x + 12,
-		canvas_p0.y + canvas_sz.y / 2
+		canvas_p0.y + y
 	), WHITE, getLevelDecodedString(dBValue));
+	delete[] s;
 }
 
 double SMeter::fromdBToLevel(double dBValue) {

@@ -34,7 +34,6 @@ public:
 	int gain = -50;
 
 	bool gainControl = false;
-	bool audioFilter = true;
 
 	double serviceField1 = 0;
 	double serviceField2 = 0;
