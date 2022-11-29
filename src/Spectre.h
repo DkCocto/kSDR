@@ -21,6 +21,8 @@ class Spectre {
 
 	KalmanFilter* maxdBKalman;
 	KalmanFilter* ratioKalman;
+	KalmanFilter* spectreTranferKalman;
+	
 
 	Config* config;
 
@@ -35,6 +37,8 @@ class Spectre {
 	};
 
 	MIN_MAX getMinMaxInSpectre(float* spectreData, int len);
+
+	ImFont* AddDefaultFont(float pixel_size);
 
 	Waterfall* waterfall;
 

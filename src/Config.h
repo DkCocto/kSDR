@@ -1,4 +1,5 @@
 #pragma once
+
 class Config {
 
 public:
@@ -42,5 +43,4 @@ public:
 	double srartVolume = 0.5;
 
 	Config(int inputSamplerate, int inputSamplerateDivider, int outputSamplerateDivider);
-
 };

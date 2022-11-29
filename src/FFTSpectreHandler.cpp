@@ -2,6 +2,7 @@
 
 #include "fft3.hpp"
 
+
 FFTSpectreHandler::FFTSpectreHandler(Config* config) {
 	this->config = config;
 
@@ -76,6 +77,7 @@ float FFTSpectreHandler::average(float avg, float new_sample, int n) {
 }
 
 void FFTSpectreHandler::dataPostprocess() {
+	getSemaphore()->lock();
 	for (int i = 0; i < config->fftLen / 2; i++) {
 		float psd = this->psd(realOut[i], imOut[i]);
 		if (firstRun) {
@@ -86,6 +88,7 @@ void FFTSpectreHandler::dataPostprocess() {
 			superOutput[i] = average(superOutput[i], psd, spectreSpeed);
 		}
 	}
+	getSemaphore()->unlock();
 }
 
 Semaphore* FFTSpectreHandler::getSemaphore() {
@@ -101,17 +104,28 @@ int FFTSpectreHandler::getSpectreSize() {
 	return config->fftLen / 2;
 }
 
+float* dataCopy;
+
 float* FFTSpectreHandler::getOutputCopy() {
-	//getSemaphore()->lock();
-	float* dataCopy = new float[getSpectreSize()];
+	getSemaphore()->lock();
+	//processFFT();
+	dataCopy = new float[getSpectreSize()];
+
 	memcpy(dataCopy, getOutput(), sizeof(getOutput()) * getSpectreSize());
-	//getSemaphore()->unlock();
+	getSemaphore()->unlock();
 	return dataCopy;
 }
 
 bool FFTSpectreHandler::putData(float* pieceOfData, int len) {
 
-	int savedBufferLen = savedBufferPos + 1;
+	//getSemaphore()->lock();
+	memcpy(dataBuffer, pieceOfData, sizeof(pieceOfData) * len);
+	//getSemaphore()->unlock();
+	processFFT();
+
+	return true;
+
+	/*int savedBufferLen = savedBufferPos + 1;
 
 	if (savedBufferLen + len <= config->fftLen) {
 		for (int i = 0; i < len; i++) {
@@ -129,7 +143,7 @@ bool FFTSpectreHandler::putData(float* pieceOfData, int len) {
 		savedBufferPos = -1;
 		processFFT();
 		return true;
-	}
+	}*/
 
 	return false;
 }

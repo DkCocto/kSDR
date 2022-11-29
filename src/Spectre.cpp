@@ -24,17 +24,18 @@ Spectre::Spectre(Config* config, ViewModel* viewModel, FFTSpectreHandler* fftSH,
 	this->width = width;
 	this->height = height;
 	this->fftSH = fftSH;
-	receiverLogicNew = new ReceiverLogicNew(config);
+	receiverLogicNew = new ReceiverLogicNew(config, viewModel);
 	maxdBKalman = new KalmanFilter(1, 0.005);
-	ratioKalman = new KalmanFilter(1, 0.01);
+	ratioKalman = new KalmanFilter(1, 0.001);
+	spectreTranferKalman = new KalmanFilter(1, 0.001);
 }
 
 int savedStartWindowX = 0;
 int savedEndWindowX = 0;
 int savedSpectreWidthInPX = 1;
 
-float veryMinSpectreVal = 0;
-float veryMaxSpectreVal = -1000;
+float veryMinSpectreVal = -100;
+float veryMaxSpectreVal = -60;
 
 long countFrames = 0;
 
@@ -91,7 +92,7 @@ void Spectre::draw() {
 					draw_list->AddText(
 						ImVec2(startWindowPoint.x + rightPadding + i * stepInPX - 20.0, startWindowPoint.y + spectreHeight + 10.0),
 						IM_COL32_WHITE,
-						std::to_string((viewModel->frequency - (config->inputSamplerate / 2)) + i * sampleRateStep).c_str()
+						std::to_string((viewModel->centerFrequency - (config->inputSamplerate / 2)) + i * sampleRateStep).c_str()
 					);
 					draw_list->AddLine(
 						ImVec2(startWindowPoint.x + rightPadding + i * stepInPX, startWindowPoint.y + spectreHeight - 2),
@@ -130,6 +131,8 @@ void Spectre::draw() {
 				koeff = (float)spectreHeight - abs(veryMinSpectreVal) * ratio;
 			}
 				
+			koeff = spectreTranferKalman->filter(koeff);
+
 			for (int i = 0; i < spectreSize - 1; i++) {
 				ImVec2 lineX1(startWindowPoint.x + (i * stepX) + rightPadding, startWindowPoint.y - spectreData[fftSH->getTrueBin(i)] * ratio + koeff);
 				ImVec2 lineX2(startWindowPoint.x + ((i + 1) * stepX) + rightPadding, startWindowPoint.y - spectreData[fftSH->getTrueBin(i + 1)] * ratio + koeff);
@@ -151,6 +154,13 @@ void Spectre::draw() {
 			//---------------
 
 			
+			if (!viewModel->mouseBusy && isMouseOnSpectreRegion(startWindowPoint.x + rightPadding, startWindowPoint.y, startWindowPoint.x + windowLeftBottomCorner.x - leftPadding, startWindowPoint.y + windowLeftBottomCorner.y)) {
+				//receiverLogicNew->saveDelta(0);
+				//spectreWidthInPX
+				receiverLogicNew->setFreq(viewModel->centerFrequency + receiverLogicNew->getSelectedFreq() + io.MouseWheel * 10);
+				//receiverLogicNew->setPosition(receiverLogicNew->getPosition() + io.MouseWheel, true);
+			}
+
 			//¬ыполн€етс€ если Ќажатие мышки произошло внутри спектра и мышка не была где то уже нажата вне окна
 			if (!viewModel->mouseBusy && ImGui::IsMouseClicked(0) && isMouseOnSpectreRegion(startWindowPoint.x + rightPadding, startWindowPoint.y, startWindowPoint.x + windowLeftBottomCorner.x - leftPadding, startWindowPoint.y + windowLeftBottomCorner.y)) {
 				receiverLogicNew->saveDelta(io.MousePos.x - (startWindowPoint.x + rightPadding));
@@ -158,7 +168,11 @@ void Spectre::draw() {
 
 			//¬ыполн€етс€ если Ќажатие и удержание мышки произошло внутри спектра и мышка не была где то уже нажата вне окна
 			if (!viewModel->mouseBusy && ImGui::IsMouseDown(0) && isMouseOnSpectreRegion(startWindowPoint.x + rightPadding, startWindowPoint.y, startWindowPoint.x + windowLeftBottomCorner.x - leftPadding, startWindowPoint.y + windowLeftBottomCorner.y)) {
-				receiverLogicNew->setPosition(io.MousePos.x - (startWindowPoint.x + rightPadding), spectreWidthInPX);
+				/*if (ImGui::IsMouseDown(1)) {
+					receiverLogicNew->setPosition(receiverLogicNew->getPosition() + startWindowPoint.x + rightPadding + io.MousePos.x * 0.01, spectreWidthInPX, true);
+				} else */
+				//spectreWidthInPX
+				receiverLogicNew->setPosition(io.MousePos.x - (startWindowPoint.x + rightPadding), false);
 			}
 
 			//ќпредел€ем сдвинулось ли окно по x
@@ -210,6 +224,23 @@ void Spectre::draw() {
 				ImVec2(startWindowPoint.x + rightPadding + receiverLogicNew->getPosition(), startWindowPoint.y + spectreHeight + waterfallPaddingTop),
 				GRAY, 2.0f);
 
+			std::string freq = std::to_string((int)(viewModel->centerFrequency + receiverLogicNew->getSelectedFreq()));
+			const char* t2 = " Hz";
+
+			char* s = new char[freq.length() + strlen(t2) + 1];
+			strcpy(s, freq.c_str());
+			strcat(s, t2);
+
+			ImGui::PushFont(viewModel->fontBigRegular);
+			draw_list->AddText(
+				ImVec2(
+					startWindowPoint.x + rightPadding + receiverLogicNew->getPosition() + 20, 
+					startWindowPoint.y + 10
+				),
+				IM_COL32_WHITE,
+				s
+			);
+			ImGui::PopFont();
 
 			float delta = receiverLogicNew->getFilterWidthAbs(viewModel->filterWidth);
 

@@ -4,6 +4,7 @@
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
+#include "string"
 
 class SMeter {
 
@@ -12,6 +13,10 @@ class SMeter {
 
 	void drawGrid(ImDrawList* draw_list);
 	void drawLevel(ImDrawList* draw_list, double dBValue);
+
+	double fromdBToLevel(double dBValue);
+
+const char* getLevelDecodedString(double dBValue);
 
 public:
 

@@ -66,4 +66,6 @@ public:
 
 	void renderImGUIFirst();
 
+	ImFont* font1;
+
 };

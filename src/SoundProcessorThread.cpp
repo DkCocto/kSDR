@@ -50,9 +50,9 @@ void SoundProcessorThread::process() {
 			data = soundProcessorCircleBuffer->read(len);
 
 			fftSpectreHandler->setSpectreSpeed(Display::instance->viewModel->spectreSpeed);
-			//if (!fftSpectreHandler->getSemaphore()->isLocked()) {
-			fftSpectreHandler->putData(data, len);
-			//}
+			if (!fftSpectreHandler->getSemaphore()->isLocked()) {
+				fftSpectreHandler->putData(data, len);
+			}
 
 			//Обработка ширины фильтра
 			if (storedFilterWidth != Display::instance->viewModel->filterWidth) {
@@ -68,6 +68,12 @@ void SoundProcessorThread::process() {
 				Signal mixedSignal = mixer->mix(data[2 * i], data[2 * i + 1]);
 
 				//printf("%f\r\n", mixedSignal.Q);
+
+				//Уменьшаем силу выходного сигнала после смесителя, чтобы фильтры не перегружались от сильных сигналов
+				//if (Display::instance->viewModel->att) {
+					mixedSignal.I *= 0.01;
+					mixedSignal.Q *= 0.01;
+				//}
 
 				decimateBufferI[decimationCount] = mixedSignal.I;
 				decimateBufferQ[decimationCount] = mixedSignal.Q;

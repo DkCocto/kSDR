@@ -5,7 +5,7 @@ void Display::framebufferReSizeCallback(GLFWwindow* window, int width, int heigh
 	if (Display::instance != NULL) {
 		Display::instance->width = width;
 		Display::instance->height = height;
-		Display::instance->receiver->initAfterResize(width);
+		//Display::instance->receiver->initAfterResize(width);
 		Display::instance->drawScene();
 		//cout << Display::display->width << " " << Display::display->height << "\r\n";
 	}
@@ -34,7 +34,7 @@ void Display::mouseButtonCallback(GLFWwindow* window, int button, int action, in
 			Display::instance->whichMouseBtnPressed = button;
 			Display::instance->isMouseBtnPressed = action;
 
-			if (button == GLFW_MOUSE_BUTTON_1 && action == GLFW_PRESS) Display::instance->receiver->storeDeltaXPos(Display::instance->mouseX);
+			//if (button == GLFW_MOUSE_BUTTON_1 && action == GLFW_PRESS) Display::instance->receiver->storeDeltaXPos(Display::instance->mouseX);
 		}
 	}
 }
@@ -66,7 +66,7 @@ int Display::init() {
 	glViewport(0, 0, width, height);
 	glfwSwapInterval(1);
 
-	receiver = new ReceiverLogic(config, width);
+	//receiver = new ReceiverLogic(config, width);
 
 	glfwSetFramebufferSizeCallback(window, framebufferReSizeCallback);
 	glfwSetWindowSizeCallback(window, windowSizeCallback);
@@ -87,6 +87,8 @@ int Display::init() {
 
 	ImGuiIO& io = ImGui::GetIO();
 	io.FontGlobalScale = 1;
+
+	//Инициализируем шрифт
 }
 
 void Display::mainLoop() {
@@ -241,6 +243,10 @@ void Display::initImGUI() {
 	ImGui::CreateContext();
 	auto& io = ImGui::GetIO(); (void)io;
 
+	//ImFont* fontStandard = io.Fonts->AddFontDefault();
+	viewModel->fontMyRegular = io.Fonts->AddFontFromFileTTF("DroidSansMono.ttf", 18);
+	viewModel->fontBigRegular = io.Fonts->AddFontFromFileTTF("DroidSansMono.ttf", 42);
+
 	ImGui::StyleColorsDark();
 
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -265,42 +271,23 @@ void Display::renderImGUIFirst() {
 
 	ImGui::Begin(APP_NAME);                          // Create a window called "Hello, world!" and append into it.
 
-		ImGui::SliderFloat("Volume", &viewModel->volume, 0, 5);
 		ImGui::SliderInt("Filter width", &viewModel->filterWidth, 0, 12000);
 
-		if (ImGui::Button("20m")) {
-			viewModel->frequency = 14150000;
-		}
-		ImGui::SameLine();
-		if (ImGui::Button("40m")) {
-			viewModel->frequency = 7100000;
-		}
-		ImGui::SameLine();
-		if (ImGui::Button("80m")) {
-			viewModel->frequency = 3700000;
-		}
-		ImGui::SameLine();
-		if (ImGui::Button("160m")) {
-			viewModel->frequency = 1900000;
-		}
-
-		ImGui::SliderInt("Frequency", &viewModel->frequency, 1000000, 30000000);
+		ImGui::SliderInt("Frequency", &viewModel->centerFrequency, 1000000, 30000000);
 	
-		ImGui::SliderInt("Gain", &viewModel->gain, -60, 0);
+		ImGui::SliderInt("Gain", &viewModel->gain, -120, -10);
+		ImGui::Checkbox("Gain Control", &viewModel->gainControl);
+		//ImGui::SameLine();
+		//ImGui::Checkbox("ATT", &viewModel->att);
 
 		ImGui::SliderFloat("Waterfall min", &viewModel->waterfallMin, -130, 0);
 		ImGui::SliderFloat("Waterfall max", &viewModel->waterfallMax, -130, 0);
 
 		ImGui::SliderFloat("Spectre ratio", &viewModel->maxDb, -100, 0);
 
-		ImGui::SliderInt("Spectre speed", &viewModel->spectreSpeed, 0, 300);
+		ImGui::SliderInt("Spectre speed", &viewModel->spectreSpeed, 1, 200);
 
 		ImGui::Checkbox("Audio Filter", &viewModel->audioFilter);
-		ImGui::Checkbox("Gain Control", &viewModel->gainControl);
-
-		ImGui::RadioButton("USB", &viewModel->receiverMode, USB); ImGui::SameLine();
-		ImGui::RadioButton("LSB", &viewModel->receiverMode, LSB); ImGui::SameLine();
-		ImGui::RadioButton("AM", &viewModel->receiverMode, AM);
 		
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	ImGui::End();
@@ -310,17 +297,55 @@ void Display::renderImGUIFirst() {
 	smeter->draw(viewModel->signalMaxdB);
 
 	ImGui::Begin("DATA");
-		ImGui::Text("windowWidth: %i", receiver->windowWidth);
-		ImGui::Text("absoluteXpos: %f", receiver->absoluteXpos);
-		ImGui::Text("stepX: %f", receiver->stepX);
-		ImGui::Text("receiverPos: %f", receiver->receiverPos);
-		ImGui::Text("selectedBin: %i", (int)round(spectre->receiverLogicNew->getSelectedBin()));
-		ImGui::Text("selectedFreq: %i", spectre->receiverLogicNew->getSelectedFreq());
-		ImGui::Text("Frequency: %i", viewModel->frequency + spectre->receiverLogicNew->getSelectedFreq());
+		//ImGui::Text("stepX: %f", receiver->stepX);
+		//ImGui::Text("receiverPos: %f", receiver->receiverPos);
+		//ImGui::Text("selectedBin: %i", (int)round(spectre->receiverLogicNew->getSelectedBin()));
+		//ImGui::Text("selectedFreq: %i", spectre->receiverLogicNew->getSelectedFreq());
 		ImGui::Text("AMP: %.2f", viewModel->amp);
-		ImGui::Text("Max dB: %.2f", viewModel->signalMaxdB);
 		ImGui::Text("CPU usage: %.1f", cpu.getCurrentValue());
 		ImGui::Text("Service field1: %f", viewModel->serviceField1);
 		ImGui::Text("Service field2: %f", viewModel->serviceField2);
+	ImGui::End();
+
+	ImGui::Begin("MODE");
+		if (ImGui::Button("20m")) {
+			viewModel->centerFrequency = 14150000;
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("40m")) {
+			viewModel->centerFrequency = 7100000;
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("80m")) {
+			viewModel->centerFrequency = 3700000;
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("160m")) {
+			viewModel->centerFrequency = 1900000;
+		}
+		ImGui::RadioButton("USB", &viewModel->receiverMode, USB); ImGui::SameLine();
+		ImGui::RadioButton("LSB", &viewModel->receiverMode, LSB); ImGui::SameLine();
+		ImGui::RadioButton("AM", &viewModel->receiverMode, AM);
+
+		if (ImGui::Button("100")) {
+			viewModel->filterWidth = 100;
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("500")) {
+			viewModel->filterWidth = 500;
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("1.2k")) {
+			viewModel->filterWidth = 1200;
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("2.7k")) {
+			viewModel->filterWidth = 2700;
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("3.0k")) {
+			viewModel->filterWidth = 3000;
+		}
+		ImGui::SliderFloat("Volume", &viewModel->volume, 0, 5);
 	ImGui::End();
 }

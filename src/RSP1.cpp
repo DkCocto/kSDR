@@ -32,7 +32,7 @@ void RSP1::streamCallback(short* xi, short* xq, unsigned int firstSampleNum, int
     }
 
 
-    if (rsp1->isNeedToSetFreq()) rsp1->setFreq(rsp1->viewModel->frequency);
+    if (rsp1->isNeedToSetFreq()) rsp1->setFreq(rsp1->viewModel->centerFrequency);
 
     if (rsp1->viewModel->gainControl) {
         if (rsp1->isNeedToSetGain()) rsp1->setGain(rsp1->viewModel->gain);
@@ -108,7 +108,7 @@ void RSP1::init() {
         exit(1);
     }
 
-    mir_sdr_AgcControl(mir_sdr_AGC_DISABLE, setPoint, 0, 0, 0, 0, rspLNA);
+    mir_sdr_AgcControl(mir_sdr_AGC_5HZ, setPoint, 0, 0, 0, 0, rspLNA);
 
 }
 
@@ -119,7 +119,7 @@ void RSP1::setFreq(double freq) {
 
 //-60 .. 0
 void RSP1::setGain(int gain) {
-    mir_sdr_AgcControl(mir_sdr_AGC_50HZ, gain, 0, 0, 0, 0, 0);
+    mir_sdr_AgcControl(mir_sdr_AGC_5HZ, gain, 0, 0, 0, 0, 0);
     //mir_sdr_AgcControl(mir_sdr_AGC_DISABLE, gain, 0, 0, 0, 0, 0);
     savedGain = gain;
 }
@@ -129,7 +129,7 @@ void RSP1::disableGain() {
 }
 
 bool RSP1::isNeedToSetFreq() {
-    return savedFreq != viewModel->frequency;
+    return savedFreq != viewModel->centerFrequency;
 }
 
 bool RSP1::isNeedToSetGain() {

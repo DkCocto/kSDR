@@ -4,6 +4,7 @@
 #define YELLOW	IM_COL32(255, 233, 0, 255)
 #define GREEN	IM_COL32(0, 204, 0, 255)
 #define RED		IM_COL32(255, 7, 0, 255)
+#define WHITE	IM_COL32(255, 255, 255, 255)
 
 #define LEVEL_THICKNESS 10
 #define LEVEL_PADDING_TOP 5
@@ -101,8 +102,9 @@ void SMeter::drawGrid(ImDrawList* draw_list) {
 
 void SMeter::drawLevel(ImDrawList* draw_list, double dBValue) {
 	ImVec2 canvas_p0 = ImGui::GetCursorScreenPos();      // ImDrawList API uses screen coordinates!
+	ImVec2 canvas_sz = ImGui::GetContentRegionAvail();   // Resize canvas to what's available
 
-	double levelVal = 0.1667 * dBValue + 21.1667;
+	double levelVal = fromdBToLevel(dBValue);
 	
 	if (levelVal > 15) levelVal = 15.0;
 
@@ -126,6 +128,43 @@ void SMeter::drawLevel(ImDrawList* draw_list, double dBValue) {
 		draw_list->AddRectFilled(lineX1, lineX2, YELLOW, 0);
 	}
 
+	std::string dBText = std::to_string((int)dBValue);
+	const char* t2 = "dB";
+
+	char* s = new char[dBText.length() + strlen(t2) + 1];
+	strcpy(s, dBText.c_str());
+	strcat(s, t2);
+
+	draw_list->AddText(ImVec2(
+		canvas_p0.x + canvas_sz.x - 40,
+		canvas_p0.y + canvas_sz.y / 2
+	), WHITE, s);
+
+	draw_list->AddText(ImVec2(
+		canvas_p0.x + 12,
+		canvas_p0.y + canvas_sz.y / 2
+	), WHITE, getLevelDecodedString(dBValue));
+}
+
+double SMeter::fromdBToLevel(double dBValue) {
+	double levelVal = 0.1667 * dBValue + 21.1667;
+	return levelVal;
+}
+
+const char * SMeter::getLevelDecodedString(double dBValue) {
+	int level = (int)fromdBToLevel(dBValue);
+
+	if (level <= 1) return "S0";
+	if (level >= 1 && level < 2) return "S1";
+	if (level >= 2 && level < 3) return "S2";
+	if (level >= 3 && level < 4) return "S3";
+	if (level >= 4 && level < 5) return "S4";
+	if (level >= 5 && level < 6) return "S5";
+	if (level >= 6 && level < 7) return "S6";
+	if (level >= 7 && level < 8) return "S7";
+	if (level >= 8 && level < 9) return "S8";
+	if (level >= 9 && level < 10) return "S9";
+	if (level >= 10) return "S9++";
 }
 
 SMeter::SMeter(double offsetX, double offsetY, double width, double height) {

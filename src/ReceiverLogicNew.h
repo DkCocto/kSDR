@@ -3,6 +3,7 @@
 #include "Env.h"
 #include "math.h"
 #include "Config.h"
+#include "ViewModel.h"
 
 class ReceiverLogicNew {
 private:
@@ -18,17 +19,19 @@ private:
 
 	int delta = 0;
 
+	ViewModel* viewModel;
+
 public:
 
-	ReceiverLogicNew(Config* config);
+	ReceiverLogicNew(Config* config, ViewModel* viewModel);
 
-	void setPosition(float position, float spectreWidth);
+	void setPosition(float position, bool withoutDelta);
 
 	void update(float oldSpectreWidth, float newSpectreWidth);
 
 	float getFilterWidthAbs(int filterWidth);
 
-	int getSelectedFreq();
+	float getSelectedFreq();
 
 	float getSelectedBin();
 
@@ -42,5 +45,6 @@ public:
 
 	ReceiveBinArea getReceiveBinsArea(int filterWidth, int receiverMode);
 
+	void setFreq(float freq);
 
 };

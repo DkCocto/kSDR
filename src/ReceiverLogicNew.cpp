@@ -1,15 +1,20 @@
 #include "ReceiverLogicNew.h"
 
-ReceiverLogicNew::ReceiverLogicNew(Config* config) {
+ReceiverLogicNew::ReceiverLogicNew(Config* config, ViewModel* viewModel) {
 	this->config = config;
 	totalBin = config->fftLen / 2.0;
+	this->viewModel = viewModel;
 }
 
-void ReceiverLogicNew::setPosition(float position, float spectreWidth) {
+void ReceiverLogicNew::setPosition(float position, bool withoutDelta) {
 	//this->position = position;
 	//printf("%i\r\n", position);
 
-	this->position = position + delta;
+	if (!withoutDelta) {
+		this->position = position + delta;
+	} else {
+		this->position = position;
+	}
 	if (this->position <= 0) {
 		this->position = 0;
 		selectedBin = 0.0;
@@ -64,17 +69,24 @@ ReceiverLogicNew::ReceiveBinArea ReceiverLogicNew::getReceiveBinsArea(int filter
 	return r;
 }
 
+void ReceiverLogicNew::setFreq(float freq) {
+	if (freq >= viewModel->centerFrequency - config->inputSamplerate / 2 && freq <= viewModel->centerFrequency + config->inputSamplerate / 2) {
+		float deltaFreq = freq - (viewModel->centerFrequency - config->inputSamplerate / 2);
+		setPosition((deltaFreq * (float)spectreWidth) / (float)config->inputSamplerate, true);
+	}
+}
+
 float ReceiverLogicNew::getFilterWidthAbs(int filterWidth) {
 	return ((float)filterWidth * spectreWidth) / config->inputSamplerate;
 }
 
-int ReceiverLogicNew::getSelectedFreq() {
+float ReceiverLogicNew::getSelectedFreq() {
 	if (this != NULL) {
 		if (selectedBin >= totalBin / 2) {
-			return (selectedBin * config->inputSamplerate / totalBin) - config->inputSamplerate / 2;
+			return ((float)selectedBin * (float)config->inputSamplerate / (float)totalBin) - (float)config->inputSamplerate / 2.0;
 		}
 		else {
-			return -1 * (config->inputSamplerate / 2 - (selectedBin * config->inputSamplerate / totalBin));
+			return -1.0 * ((float)config->inputSamplerate / 2.0 - ((float)selectedBin * (float)config->inputSamplerate / (float)totalBin));
 		}
 	}
 	else return 0;

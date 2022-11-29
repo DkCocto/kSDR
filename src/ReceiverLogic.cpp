@@ -1,6 +1,6 @@
 #include "ReceiverLogic.h"
 
-ReceiverLogic::ReceiverLogic(Config* config, int windowWidth) {
+/*ReceiverLogic::ReceiverLogic(Config* config, int windowWidth) {
 	this->config = config;
 	totalBin = config->fftLen / 2.0;
 	selectedBin = totalBin;
@@ -103,4 +103,4 @@ ReceiverLogic::ReceiveBinArea ReceiverLogic::getReceiveBinsArea(int filterWidth,
 
 	ReceiveBinArea r{ A , B };
 	return r;
-}
+}*/

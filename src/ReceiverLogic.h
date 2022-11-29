@@ -4,14 +4,12 @@
 #include "Config.h"
 
 class ReceiverLogic {
-private:
+/*private:
 	int previousWindowWidth;
 
 public:
 
 	bool initialized = false;
-
-	float absoluteXpos = 0.0;
 
 	float totalBin;
 
@@ -55,5 +53,5 @@ public:
 		int B;
 	};
 
-	ReceiveBinArea getReceiveBinsArea(int filterWidth, int receiverMode);
+	ReceiveBinArea getReceiveBinsArea(int filterWidth, int receiverMode);*/
 };
