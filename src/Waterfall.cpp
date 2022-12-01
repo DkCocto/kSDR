@@ -1,22 +1,21 @@
 #include "Waterfall.h"
 
-Waterfall::Waterfall(Config* config, FFTSpectreHandler* fftSH) {
-	waterfallWidthPx = (config->fftLen / 2) / div;
-	this->fftSH = fftSH;
+Waterfall::Waterfall(Config* config, FlowingFFTSpectre* flowingFFTSpectre) {
+	this->flowingFFTSpectre = flowingFFTSpectre;
 }
 
 float Waterfall::getDiv() {
 	return div;
 }
 
-void Waterfall::putData(FFTSpectreHandler* fftSH, float* spectreData, int lineHeight) {
+void Waterfall::putData(float* spectreData, int lineHeight) {
 	float sum = 0;
 
-	float* output = new float[fftSH->getSpectreSize() / div];
+	float* output = new float[flowingFFTSpectre->getLen() / div];
 
-	for (int i = 1; i <= fftSH->getSpectreSize(); i++) {
+	for (int i = 1; i <= flowingFFTSpectre->getLen(); i++) {
 
-		sum += spectreData[fftSH->getTrueBin(i - 1)];
+		sum += spectreData[i - 1];
 
 		if (i % (int)div == 0) {
 			output[i / (int)div - 1] = sum / div;
@@ -25,7 +24,7 @@ void Waterfall::putData(FFTSpectreHandler* fftSH, float* spectreData, int lineHe
 	}
 
 	int height = lineHeight;
-	int width = waterfallWidthPx;
+	int width = flowingFFTSpectre->getLen() / div;
 
 	GLubyte* checkImage = new GLubyte[width * height * depth];
 
@@ -43,7 +42,6 @@ void Waterfall::putData(FFTSpectreHandler* fftSH, float* spectreData, int lineHe
 	delete[] output;
 
 	GLuint texName;
-
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
@@ -107,9 +105,9 @@ int Waterfall::interpolate(int color1, int color2, float fraction) {
 
 	float f = (1.0 - cos(fraction * M_PI)) * 0.5f;
 
-	//float f = fraction;
+	//float f = fraction * fraction;
 
-	//float f = sqrt(fraction)
+	//float f = sqrt(fraction);
 
 	return (int)((r2 - r1) * f + r1) << 16 |
 		(int)((g2 - g1) * f + g1) << 8 |

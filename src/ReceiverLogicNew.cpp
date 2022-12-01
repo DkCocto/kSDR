@@ -1,11 +1,12 @@
 #include "ReceiverLogicNew.h"
 
-ReceiverLogicNew::ReceiverLogicNew(Config* config, ViewModel* viewModel) {
+ReceiverLogicNew::ReceiverLogicNew(Config* config, ViewModel* viewModel, FlowingFFTSpectre* flowingFFTSpectre) {
 	this->config = config;
-	totalBin = config->fftLen / 2.0;
 	this->viewModel = viewModel;
+	this->flowingFFTSpectre = flowingFFTSpectre;
 }
 
+//Устанавливает конкретную позицию линии приема получая в качестве параметра пиксель из ширины спектра
 void ReceiverLogicNew::setPosition(float position, bool withoutDelta) {
 	//this->position = position;
 	//printf("%i\r\n", position);
@@ -17,19 +18,22 @@ void ReceiverLogicNew::setPosition(float position, bool withoutDelta) {
 	}
 	if (this->position <= 0) {
 		this->position = 0;
-		selectedBin = 0.0;
+		selectedBin = flowingFFTSpectre->getA();
 	} else if (this->position >= spectreWidth) {
 		this->position = spectreWidth;
-		selectedBin = totalBin;
+		selectedBin = flowingFFTSpectre->getB();
 	} else {
-		selectedBin = (this->position) / (spectreWidth / totalBin);
+		selectedBin = (float)flowingFFTSpectre->getA() + (float)(this->position) / ((float)spectreWidth / (float)flowingFFTSpectre->getLen());
 	}
 }
 
-void ReceiverLogicNew::update(float oldSpectreWidth, float newSpectreWidth) {
+void ReceiverLogicNew::updateSpectreWidth(float oldSpectreWidth, float newSpectreWidth) {
 	this->position = this->position * newSpectreWidth / oldSpectreWidth;
 	this->spectreWidth = newSpectreWidth;
-	//printf("%i %i %i\r\n", oldSpectreWidth, newSpectreWidth, this->position);
+}
+
+void ReceiverLogicNew::syncFreq() {
+	setFreq((float)viewModel->centerFrequency + getSelectedFreq());
 }
 
 int ReceiverLogicNew::getPosition() {
@@ -46,15 +50,17 @@ ReceiverLogicNew::ReceiveBinArea ReceiverLogicNew::getReceiveBinsArea(int filter
 
 	int filterWidthPX = getFilterWidthAbs(filterWidth);
 
+	int totalBin = flowingFFTSpectre->getLen();
+
 	switch (receiverMode) {
 	case USB:
-		A = selectedBin;
+		A = selectedBin - flowingFFTSpectre->getA();
 		B = (position + filterWidthPX) / (spectreWidth / totalBin);
 		if (B > totalBin) B = totalBin;
 		break;
 	case LSB:
 		A = (position - filterWidthPX) / (spectreWidth / totalBin);
-		B = selectedBin;
+		B = selectedBin - flowingFFTSpectre->getA();
 		if (A < 0) A = 0;
 		break;
 	case AM:
@@ -70,17 +76,26 @@ ReceiverLogicNew::ReceiveBinArea ReceiverLogicNew::getReceiveBinsArea(int filter
 }
 
 void ReceiverLogicNew::setFreq(float freq) {
-	if (freq >= viewModel->centerFrequency - config->inputSamplerate / 2 && freq <= viewModel->centerFrequency + config->inputSamplerate / 2) {
-		float deltaFreq = freq - (viewModel->centerFrequency - config->inputSamplerate / 2);
-		setPosition((deltaFreq * (float)spectreWidth) / (float)config->inputSamplerate, true);
+	FlowingFFTSpectre::FREQ_RANGE freqRange = flowingFFTSpectre->getVisibleFreqsRangeAbsolute();
+	FlowingFFTSpectre::FREQ_RANGE freqSamplerateRange = flowingFFTSpectre->getVisibleFreqRangeFromSamplerate();
+
+	if (freq >= freqRange.first && freq <= freqRange.second) {
+		//float deltaFreq = freq - ((float)viewModel->centerFrequency - (float)config->inputSamplerate / 2.0);
+
+		float visibleSamplerateWidth = (freqSamplerateRange.second - freqSamplerateRange.first);
+
+		float deltaFreq = freq - ((freqRange.first + visibleSamplerateWidth / 2.0) - visibleSamplerateWidth / 2.0);
+		setPosition((deltaFreq * (float)spectreWidth) / visibleSamplerateWidth, true);
 	}
 }
 
 float ReceiverLogicNew::getFilterWidthAbs(int filterWidth) {
-	return ((float)filterWidth * spectreWidth) / config->inputSamplerate;
+	FlowingFFTSpectre::FREQ_RANGE freqRange = flowingFFTSpectre->getVisibleFreqRangeFromSamplerate();
+	return ((float)filterWidth * spectreWidth) / (freqRange.second - freqRange.first);
 }
 
 float ReceiverLogicNew::getSelectedFreq() {
+	int totalBin = flowingFFTSpectre->getAbsoluteSpectreLen();
 	if (this != NULL) {
 		if (selectedBin >= totalBin / 2) {
 			return ((float)selectedBin * (float)config->inputSamplerate / (float)totalBin) - (float)config->inputSamplerate / 2.0;
@@ -90,8 +105,4 @@ float ReceiverLogicNew::getSelectedFreq() {
 		}
 	}
 	else return 0;
-}
-
-float ReceiverLogicNew::getSelectedBin() {
-	return selectedBin;
 }

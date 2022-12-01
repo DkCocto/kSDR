@@ -106,13 +106,27 @@ int FFTSpectreHandler::getSpectreSize() {
 
 float* dataCopy;
 
-float* FFTSpectreHandler::getOutputCopy() {
+float* FFTSpectreHandler::getOutputCopy(int startPos, int len) {
 	getSemaphore()->lock();
-	//processFFT();
-	dataCopy = new float[getSpectreSize()];
+	dataCopy = new float[len];
+	float* output = getOutput();
 
-	memcpy(dataCopy, getOutput(), sizeof(getOutput()) * getSpectreSize());
+	int spectreSize = getSpectreSize();
+
+	float* buffer = new float[spectreSize];
+	memcpy(buffer, output + (spectreSize / 2), sizeof(output) * (spectreSize / 2));
+	memcpy(buffer + (spectreSize / 2), output, sizeof(output) * (spectreSize / 2));
+
 	getSemaphore()->unlock();
+//	memcpy(dataCopy, output + startPos, sizeof(output) * len);
+	/*for (int i = 0; i < len; i++) {
+		//printf("%f %f\r\n", dataCopy[i], output[startPos + i]);
+		if (dataCopy[i] != output[startPos + i]) printf("%f %f\r\n", dataCopy[i], output[startPos + i]);
+	}*/
+
+	memcpy(dataCopy, buffer + startPos, sizeof(buffer) * len);
+
+	delete[] buffer;
 	return dataCopy;
 }
 
@@ -160,7 +174,6 @@ void FFTSpectreHandler::prepareData() {
 		dataBuffer[2 * i + 1] = dataBuffer[2 * i + 1] * windowArray[i];
 	}
 }
-
 
 int FFTSpectreHandler::getTrueBin(int bin) {
 	//bin[0, 1022]

@@ -5,7 +5,7 @@
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
-#include "FFTSpectreHandler.h"
+#include "FlowingFFTSpectre.h"
 #include "ReceiverLogicNew.h"
 #include "ViewModel.h"
 #include "KalmanFilter.h"
@@ -13,9 +13,11 @@
 
 class Spectre {
 
-	double width, height;
+	int rightPadding = 40;
+	int leftPadding = 40;
+	int waterfallPaddingTop = 50;
 
-	FFTSpectreHandler* fftSH;
+	FlowingFFTSpectre* flowingFFTSectre;
 
 	ViewModel* viewModel;
 
@@ -38,15 +40,17 @@ class Spectre {
 
 	MIN_MAX getMinMaxInSpectre(float* spectreData, int len);
 
-	ImFont* AddDefaultFont(float pixel_size);
-
 	Waterfall* waterfall;
+
+	void handleEvents(ImVec2 startWindowPoint, ImVec2 windowLeftBottomCorner, int spectreWidthInPX);
+
+	void drawFreqMarks(ImDrawList* draw_list, ImVec2 startWindowPoint, ImVec2 windowLeftBottomCorner, int spectreWidthInPX, int spectreHeight);
 
 public:
 
 	ReceiverLogicNew* receiverLogicNew;
 
-	Spectre(Config* config, ViewModel* viewModel, FFTSpectreHandler* fftSH, double width, double height);
+	Spectre(Config* config, ViewModel* viewModel, FlowingFFTSpectre* flowingFFTSectre);
 	void draw();
 
 	void storeSignaldB(float* spectreData);

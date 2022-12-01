@@ -1,6 +1,6 @@
 #pragma once;
 
-#include "FFTSpectreHandler.h"
+#include "FlowingFFTSpectre.h"
 #include "ReceiverLogic.h"
 #include "../include/GLFW/glfw3.h"
 #include "imgui/imgui.h"
@@ -18,7 +18,7 @@ private:
 	
 	GLFWwindow* window = nullptr;
 
-	FFTSpectreHandler* fftSpectreHandler;
+	FlowingFFTSpectre* flowingFFTSpectre;
 
 	static void framebufferReSizeCallback(GLFWwindow* window, int width, int height);
 
@@ -65,7 +65,5 @@ public:
 	void initImGUI();
 
 	void renderImGUIFirst();
-
-	ImFont* font1;
 
 };

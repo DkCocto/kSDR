@@ -1,9 +1,6 @@
 #pragma once
 
-#include "vector"
-#include "stack"
-#include "queue"
-#include "FFTSpectreHandler.h"
+#include "FlowingFFTSpectre.h"
 #include "../include/GLFW/glfw3.h"
 
 class Waterfall {
@@ -14,10 +11,9 @@ class Waterfall {
 
 	GLuint* texturesArray = new GLuint[size];
 
-	int waterfallWidthPx;
-
 	//int minColor = 0x1B1BB3; //blue
 	//int minColor = 0x020C22;
+	//int minColor = 0x0e0e0e; //interface color
 	int minColor = 0x0e0e0e;
 	int maxColor = 0xFFE800; //yellow
 	//int maxColor = 0xFF0000; //red
@@ -29,13 +25,13 @@ class Waterfall {
 
 	unsigned int depth = 4;
 
-	GLuint texName;
+	GLuint texName = NULL;
 
-	FFTSpectreHandler* fftSH;
+	FlowingFFTSpectre* flowingFFTSpectre;
 
 public:
 
-	Waterfall(Config* config, FFTSpectreHandler* fftSH);
+	Waterfall(Config* config, FlowingFFTSpectre* flowingFFTSpectre);
 
 	typedef struct RGB {
 		int r;
@@ -53,9 +49,7 @@ public:
 
 	float getDiv();
 
-	void putData(FFTSpectreHandler* fftSH, float* spectreData, int lineHeight);
-
-	//float* getDataFor(int point);
+	void putData(float* spectreData, int lineHeight);
 
 	int getSize();
 
@@ -63,17 +57,11 @@ public:
 
 	int interpolate(int color1, int color2, float fraction);
 
-	//int interpolate2(int color1, int color2, float progress, int interpolation);
-
-	//WATERFALL_TEXTURE_STRUCT generateWaterfallTexture();
-
-	//WATERFALL_TEXTURE_STRUCT getTextureStruct();
-
 	RGB getColorForPowerInSpectre(float power);
 
 	void setMinMaxValue(float min, float max);
 
 
 private:
-	WATERFALL_TEXTURE_STRUCT textureStruct;
+	WATERFALL_TEXTURE_STRUCT textureStruct {};
 };

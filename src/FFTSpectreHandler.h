@@ -51,7 +51,7 @@ public:
 
 	FFTSpectreHandler(Config* config);
 	Semaphore* getSemaphore();
-	float* getOutputCopy();
+	float* getOutputCopy(int startPos, int len);
 	bool putData(float* pieceOfData, int len);
 	float psd(float re, float im);
 	void prepareData();

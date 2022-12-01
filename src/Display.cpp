@@ -41,9 +41,12 @@ void Display::mouseButtonCallback(GLFWwindow* window, int button, int action, in
 
 Display::Display(Config* config, FFTSpectreHandler* fftSH) {
 	this->config = config;
-	fftSpectreHandler = fftSH;
 	viewModel = new ViewModel(config);
-	spectre = new Spectre(config, viewModel, fftSH, 200, 200);
+	this->flowingFFTSpectre = new FlowingFFTSpectre(config, viewModel, fftSH);
+	spectre = new Spectre(config, viewModel, flowingFFTSpectre);
+	//flowingFFTSpectre->printCurrentPos();
+	//flowingFFTSpectre->zoomIn(1500);
+	//flowingFFTSpectre->printCurrentPos();
 }
 
 int Display::init() {
@@ -284,10 +287,30 @@ void Display::renderImGUIFirst() {
 		ImGui::SliderFloat("Waterfall max", &viewModel->waterfallMax, -130, 0);
 
 		ImGui::SliderFloat("Spectre ratio", &viewModel->maxDb, -100, 0);
+		ImGui::SliderFloat("Spectre min val", &viewModel->minDb, -150, -70);
 
 		ImGui::SliderInt("Spectre speed", &viewModel->spectreSpeed, 1, 200);
 		
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+
+		if (ImGui::Button("+")) {
+			flowingFFTSpectre->zoomIn(100);
+			spectre->receiverLogicNew->syncFreq();
+		} ImGui::SameLine();
+		if (ImGui::Button("-")) {
+			flowingFFTSpectre->zoomOut(100);
+			spectre->receiverLogicNew->syncFreq();
+		} ImGui::SameLine();
+		if (ImGui::Button("<-")) {
+			flowingFFTSpectre->move(-100);
+			spectre->receiverLogicNew->syncFreq();
+		} ImGui::SameLine();
+		if (ImGui::Button("->")) {
+			flowingFFTSpectre->move(100);
+			spectre->receiverLogicNew->syncFreq();
+		}
+		if (ImGui::Button("7100000")) spectre->receiverLogicNew->setFreq(7100000);
+
 	ImGui::End();
 
 	spectre->draw();
@@ -362,8 +385,8 @@ void Display::renderImGUIFirst() {
 			viewModel->filterWidth = 2700;
 		}
 		ImGui::SameLine();
-		if (ImGui::Button("3.0k")) {
-			viewModel->filterWidth = 3000;
+		if (ImGui::Button("3.2k")) {
+			viewModel->filterWidth = 3200;
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("6.0k")) {

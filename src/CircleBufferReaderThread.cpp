@@ -1,10 +1,9 @@
 #include "CircleBufferReaderThread.h"
 
-CircleBufferReaderThread::CircleBufferReaderThread(Config* config, CircleBuffer* cb, FFTSpectreHandler* fftSpectreHandler, SoundProcessorThread* sP) {
+CircleBufferReaderThread::CircleBufferReaderThread(Config* config, CircleBuffer* cb, SoundProcessorThread* sP) {
 	this->config = config;
 	ñircleBuffer = cb;
 	soundProcessor = sP;
-	this->fftSpectreHandler = fftSpectreHandler;
 }
 
 void CircleBufferReaderThread::run() {

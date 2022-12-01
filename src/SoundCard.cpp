@@ -3,14 +3,14 @@
 void SoundCard::init() {
 	err = Pa_Initialize();
 
-	inputParameters.device = Pa_GetDefaultInputDevice(); /* default input device */
+	/*inputParameters.device = Pa_GetDefaultInputDevice();
 
 	inputParameters.channelCount = config->inputChannelNumber;
 	inputParameters.sampleFormat = PA_SAMPLE_TYPE;
 	inputParameters.suggestedLatency = Pa_GetDeviceInfo(inputParameters.device)->defaultHighInputLatency;
-	inputParameters.hostApiSpecificStreamInfo = NULL;
+	inputParameters.hostApiSpecificStreamInfo = NULL;*/
 
-	outputParameters.device = Pa_GetDefaultOutputDevice(); /* default output device */
+	outputParameters.device = Pa_GetDefaultOutputDevice();
 
 	outputParameters.channelCount = config->outputChannelNumber;
 	outputParameters.sampleFormat = PA_SAMPLE_TYPE;

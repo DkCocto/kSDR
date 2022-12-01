@@ -11,11 +11,9 @@ class CircleBufferReaderThread {
 
 	SoundProcessorThread* soundProcessor;
 
-	FFTSpectreHandler* fftSpectreHandler;
-
 public: 
 
-	CircleBufferReaderThread(Config* config, CircleBuffer* cb, FFTSpectreHandler* fftSpectreHandler, SoundProcessorThread* sP);
+	CircleBufferReaderThread(Config* config, CircleBuffer* cb, SoundProcessorThread* sP);
 
 	void run();
 	std::thread start();

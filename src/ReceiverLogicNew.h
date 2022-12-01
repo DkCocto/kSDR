@@ -4,6 +4,7 @@
 #include "math.h"
 #include "Config.h"
 #include "ViewModel.h"
+#include "FlowingFFTSpectre.h"
 
 class ReceiverLogicNew {
 private:
@@ -14,26 +15,27 @@ private:
 
 	float spectreWidth = 0;
 
-	float totalBin = 0;
 	float selectedBin = 0;
 
-	int delta = 0;
+	float delta = 0;
 
 	ViewModel* viewModel;
 
+	FlowingFFTSpectre* flowingFFTSpectre;
+
 public:
 
-	ReceiverLogicNew(Config* config, ViewModel* viewModel);
+	ReceiverLogicNew(Config* config, ViewModel* viewModel, FlowingFFTSpectre* flowingFFTSpectre);
 
 	void setPosition(float position, bool withoutDelta);
 
-	void update(float oldSpectreWidth, float newSpectreWidth);
+	void updateSpectreWidth(float oldSpectreWidth, float newSpectreWidth);
+
+	void syncFreq();
 
 	float getFilterWidthAbs(int filterWidth);
 
 	float getSelectedFreq();
-
-	float getSelectedBin();
 
 	int getPosition();
 	void saveDelta(int x);

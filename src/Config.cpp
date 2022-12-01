@@ -10,7 +10,7 @@ Config::Config(int inputSamplerate, int inputSamplerateDivider, int outputSample
 	outputSamplerate							= inputSamplerate / outputSamplerateDivider;
 
 
-	fftLen										= 4096;
+	fftLen										= 8192;
 
 	bufferWriteAudioLen							= (outputSamplerateDivider * 2) * 4;
 	//readSoundProcessorBufferLen				= (outputSamplerateDivider * 2) * 512;
@@ -20,7 +20,7 @@ Config::Config(int inputSamplerate, int inputSamplerateDivider, int outputSample
 	audioWriteFrameLen							= (outputSamplerateDivider * 2) * 32;
 	readSize									= audioReadFrameLen * inputChannelNumber;
 
-	circleBufferLen								= 512 * 1024;
+	circleBufferLen								= 2 * 1024 * 1024;
 
 	hilbertTransformLen							= 255;
 	polyphaseFilterLen							= 256;

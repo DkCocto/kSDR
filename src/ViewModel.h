@@ -42,10 +42,11 @@ public:
 	float waterfallMax = -60;
 
 	float maxDb = -30;
+	float minDb = -100;
 
 	bool mouseBusy = false;
 
-	int spectreSpeed = 80;
+	int spectreSpeed = 50;
 
 	bool att = false;
 
