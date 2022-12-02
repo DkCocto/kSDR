@@ -46,12 +46,14 @@ public:
 
 	bool mouseBusy = false;
 
-	int spectreSpeed = 50;
+	int spectreSpeed = 40;
 
 	bool att = false;
 
 	//ImFont* fontStandard;
 	ImFont* fontMyRegular;
 	ImFont* fontBigRegular;
+
+	int gainFromDevice = 0;
 
 };

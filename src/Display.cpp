@@ -274,11 +274,11 @@ void Display::renderImGUIFirst() {
 
 	ImGui::Begin(APP_NAME);                          // Create a window called "Hello, world!" and append into it.
 
+		ImGui::SliderInt("Frequency", &viewModel->centerFrequency, 1000000, 30000000);
+
 		ImGui::SliderInt("Filter width", &viewModel->filterWidth, 0, 12000);
 
-		ImGui::SliderInt("Frequency", &viewModel->centerFrequency, 1000000, 30000000);
-	
-		ImGui::SliderInt("Gain", &viewModel->gain, -120, -10);
+		ImGui::SliderInt("Gain", &viewModel->gain, -60, -10); ImGui::SameLine();
 		ImGui::Checkbox("Gain Control", &viewModel->gainControl);
 		//ImGui::SameLine();
 		//ImGui::Checkbox("ATT", &viewModel->att);
@@ -286,30 +286,13 @@ void Display::renderImGUIFirst() {
 		ImGui::SliderFloat("Waterfall min", &viewModel->waterfallMin, -130, 0);
 		ImGui::SliderFloat("Waterfall max", &viewModel->waterfallMax, -130, 0);
 
-		ImGui::SliderFloat("Spectre ratio", &viewModel->maxDb, -100, 0);
+		ImGui::SliderFloat("Spectre ratio", &viewModel->maxDb, -150, 0);
 		ImGui::SliderFloat("Spectre min val", &viewModel->minDb, -150, -70);
 
 		ImGui::SliderInt("Spectre speed", &viewModel->spectreSpeed, 1, 200);
 		
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-
-		if (ImGui::Button("+")) {
-			flowingFFTSpectre->zoomIn(100);
-			spectre->receiverLogicNew->syncFreq();
-		} ImGui::SameLine();
-		if (ImGui::Button("-")) {
-			flowingFFTSpectre->zoomOut(100);
-			spectre->receiverLogicNew->syncFreq();
-		} ImGui::SameLine();
-		if (ImGui::Button("<-")) {
-			flowingFFTSpectre->move(-100);
-			spectre->receiverLogicNew->syncFreq();
-		} ImGui::SameLine();
-		if (ImGui::Button("->")) {
-			flowingFFTSpectre->move(100);
-			spectre->receiverLogicNew->syncFreq();
-		}
-		if (ImGui::Button("7100000")) spectre->receiverLogicNew->setFreq(7100000);
+		//if (ImGui::Button("7100000")) spectre->receiverLogicNew->setFreq(7100000);
 
 	ImGui::End();
 
@@ -324,6 +307,7 @@ void Display::renderImGUIFirst() {
 		//ImGui::Text("selectedFreq: %i", spectre->receiverLogicNew->getSelectedFreq());
 		ImGui::Text("AMP: %.2f", viewModel->amp);
 		ImGui::Text("CPU usage: %.1f", cpu.getCurrentValue());
+		ImGui::Text("Set gain: %i", viewModel->gainFromDevice);
 		ImGui::Text("Service field1: %f", viewModel->serviceField1);
 		ImGui::Text("Service field2: %f", viewModel->serviceField2);
 	ImGui::End();
@@ -397,5 +381,23 @@ void Display::renderImGUIFirst() {
 			viewModel->filterWidth = 12000;
 		}
 		ImGui::SliderFloat("Volume", &viewModel->volume, 0, 5);
+
+		if (ImGui::Button("+")) {
+			flowingFFTSpectre->zoomIn(100);
+			spectre->receiverLogicNew->syncFreq();
+		} ImGui::SameLine();
+		if (ImGui::Button("-")) {
+			flowingFFTSpectre->zoomOut(100);
+			spectre->receiverLogicNew->syncFreq();
+		} ImGui::SameLine();
+		if (ImGui::Button("<-")) {
+			flowingFFTSpectre->move(-100);
+			spectre->receiverLogicNew->syncFreq();
+		} ImGui::SameLine();
+		if (ImGui::Button("->")) {
+			flowingFFTSpectre->move(100);
+			spectre->receiverLogicNew->syncFreq();
+		}
+
 	ImGui::End();
 }

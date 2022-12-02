@@ -45,10 +45,9 @@ bool isFirstFrame = true;
 
 void Spectre::draw() {
 
-	float* spectreData = flowingFFTSectre->getData();
+	ImGuiIO& io = ImGui::GetIO();
 
 	ImGui::Begin("Spectre");
-		ImGuiIO& io = ImGui::GetIO();
 
 		//Ќачальна€ точка окна
 		ImVec2 startWindowPoint = ImGui::GetCursorScreenPos();
@@ -64,6 +63,8 @@ void Spectre::draw() {
 		int spectreWidthInPX = windowLeftBottomCorner.x - rightPadding - leftPadding;
 
 		handleEvents(startWindowPoint, windowLeftBottomCorner, spectreWidthInPX);
+
+		float* spectreData = flowingFFTSectre->getData();
 
 		ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
@@ -212,9 +213,6 @@ void Spectre::draw() {
 				break;
 			}
 			//---
-
-
-
 		ImGui::EndChild();
 
 	ImGui::End();
@@ -263,29 +261,59 @@ Spectre::MIN_MAX Spectre::getMinMaxInSpectre(float* spectreData, int len) {
 }
 
 void Spectre::handleEvents(ImVec2 startWindowPoint, ImVec2 windowLeftBottomCorner, int spectreWidthInPX) {
+	bool isMouseOnSpectre = isMouseOnSpectreRegion(startWindowPoint.x + rightPadding, startWindowPoint.y, startWindowPoint.x + windowLeftBottomCorner.x - leftPadding, startWindowPoint.y + windowLeftBottomCorner.y);
+	
 	ImGuiIO& io = ImGui::GetIO();
-	if (!viewModel->mouseBusy && isMouseOnSpectreRegion(startWindowPoint.x + rightPadding, startWindowPoint.y, startWindowPoint.x + windowLeftBottomCorner.x - leftPadding, startWindowPoint.y + windowLeftBottomCorner.y)) {
-		//receiverLogicNew->saveDelta(0);
-		//spectreWidthInPX
+	if (!viewModel->mouseBusy && isMouseOnSpectre) {
 
-		if (io.MouseWheel != 0) {
-			receiverLogicNew->setFreq((float)viewModel->centerFrequency + receiverLogicNew->getSelectedFreq() + (float)io.MouseWheel * 10.0);
+		bool ctrlPressed = false;
+
+		struct funcs { static bool IsLegacyNativeDupe(ImGuiKey key) { return key < 512 && ImGui::GetIO().KeyMap[key] != -1; } };
+		for (ImGuiKey key = (ImGuiKey)0; key < ImGuiKey_COUNT; key = (ImGuiKey)(key + 1)) {
+			if (funcs::IsLegacyNativeDupe(key)) continue;
+			if (ImGui::IsKeyDown(key)) {
+				if (key == 527) {
+					ctrlPressed = true;
+				}
+			}
 		}
-		//receiverLogicNew->setPosition(receiverLogicNew->getPosition() + io.MouseWheel, true);
+
+
+		float mouseWheelVal = io.MouseWheel;
+		if (mouseWheelVal != 0) {
+			if (!ctrlPressed) {
+				int mouseWheelStep = 100;
+				int selectedFreqShortByStep = ((float)viewModel->centerFrequency + receiverLogicNew->getSelectedFreq()) / mouseWheelStep;
+
+				receiverLogicNew->setFreq(mouseWheelStep* selectedFreqShortByStep + mouseWheelVal * mouseWheelStep);
+			}
+			else {
+				if (mouseWheelVal > 0) flowingFFTSectre->zoomIn((int)mouseWheelVal * 200);
+				else flowingFFTSectre->zoomOut(abs((int)mouseWheelVal) * 200);
+				receiverLogicNew->syncFreq();
+			}
+		}
 	}
 
 	//¬ыполн€етс€ если Ќажатие мышки произошло внутри спектра и мышка не была где то уже нажата вне окна
-	if (!viewModel->mouseBusy && ImGui::IsMouseClicked(0) && isMouseOnSpectreRegion(startWindowPoint.x + rightPadding, startWindowPoint.y, startWindowPoint.x + windowLeftBottomCorner.x - leftPadding, startWindowPoint.y + windowLeftBottomCorner.y)) {
-		receiverLogicNew->saveDelta(io.MousePos.x - (startWindowPoint.x + rightPadding));
+	if (!viewModel->mouseBusy && (ImGui::IsMouseClicked(0) || ImGui::IsMouseClicked(1)) && isMouseOnSpectre) {
+		if (ImGui::IsMouseClicked(0)) {
+			receiverLogicNew->saveDelta(io.MousePos.x - (startWindowPoint.x + rightPadding));
+		}
+		if (ImGui::IsMouseClicked(1)) {
+			flowingFFTSectre->prepareForMovingSpectreByMouse(io.MousePos.x - (startWindowPoint.x + rightPadding));
+		}
 	}
 
-	//¬ыполн€етс€ если Ќажатие и удержание мышки произошло внутри спектра и мышка не была где то уже нажата вне окна
-	if (!viewModel->mouseBusy && ImGui::IsMouseDown(0) && isMouseOnSpectreRegion(startWindowPoint.x + rightPadding, startWindowPoint.y, startWindowPoint.x + windowLeftBottomCorner.x - leftPadding, startWindowPoint.y + windowLeftBottomCorner.y)) {
-		/*if (ImGui::IsMouseDown(1)) {
-			receiverLogicNew->setPosition(receiverLogicNew->getPosition() + startWindowPoint.x + rightPadding + io.MousePos.x * 0.01, spectreWidthInPX, true);
-		} else */
-		//spectreWidthInPX
-		receiverLogicNew->setPosition(io.MousePos.x - (startWindowPoint.x + rightPadding), false);
+	//¬ыполн€етс€ если удержание кнопки мышки произошло внутри спектра и мышка не была где то уже нажата вне окна
+	if (!viewModel->mouseBusy && (ImGui::IsMouseDown(0) || ImGui::IsMouseDown(1)) && isMouseOnSpectre) {
+		if (ImGui::IsMouseDown(0)) {
+			receiverLogicNew->setPosition(io.MousePos.x - (startWindowPoint.x + rightPadding), false);
+		}
+		if (ImGui::IsMouseDown(1)) {
+			flowingFFTSectre->moveSpectreByMouse(spectreWidthInPX, io.MousePos.x - (startWindowPoint.x + rightPadding));
+			receiverLogicNew->syncFreq();
+		}
 	}
 
 	//ќпредел€ем сдвинулось ли окно по x

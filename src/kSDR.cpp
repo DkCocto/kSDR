@@ -11,7 +11,9 @@
 /////#include "RTLDeviceReaderThread.h"
 #include "CircleBufferWriterThread.h"
 
-Config* config = new Config(375000, 8, 4);
+//Config* config = new Config(375000, 8, 4);
+//Config* config = new Config(1000000, 2, 8);
+Config* config = new Config(500000, 4, 4);
 
 SoundCard soundCard(config);
 

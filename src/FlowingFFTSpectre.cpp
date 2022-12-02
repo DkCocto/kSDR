@@ -52,6 +52,12 @@ void FlowingFFTSpectre::move(int delta) {
 	if (DEBUG) printCurrentPos();
 }
 
+void FlowingFFTSpectre::move(SPECTRE_POSITION fromSpectrePosition, int delta) {
+	A = fromSpectrePosition.A;
+	B = fromSpectrePosition.B;
+	move(delta);
+}
+
 void FlowingFFTSpectre::zoomIn(int step) {
 	if (A + step < B - step) {
 		A += step;
@@ -76,12 +82,12 @@ void FlowingFFTSpectre::printCurrentPos() {
 	printf("A=%i B=%i Len=%i, Total spectre[0; %i] Len: %i\r\n", A, B, getLen(), fftSH->getSpectreSize() - 1, fftSH->getSpectreSize());
 }
 
-float FlowingFFTSpectre::getAbsoluteFreqBySpectrePos(float pos) {
-	return (float)viewModel->centerFrequency - (((float)config->inputSamplerate) / 2.0) + getFreqByPosFromSamplerate(pos);
+float FlowingFFTSpectre::getAbsoluteFreqBySpectrePos(int pos) {
+	return (float)viewModel->centerFrequency - ((float)config->inputSamplerate / 2.0) + getFreqByPosFromSamplerate(pos);
 }
 
-float FlowingFFTSpectre::getFreqByPosFromSamplerate(float pos) {
-	return pos * ((float)config->inputSamplerate / (float)fftSH->getSpectreSize());
+float FlowingFFTSpectre::getFreqByPosFromSamplerate(int pos) {
+	return (float)pos * ((float)config->inputSamplerate / (float)fftSH->getSpectreSize());
 }
 
 FlowingFFTSpectre::FREQ_RANGE FlowingFFTSpectre::getVisibleFreqRangeFromSamplerate() {
@@ -108,4 +114,25 @@ int FlowingFFTSpectre::getA() {
 
 int FlowingFFTSpectre::getB() {
 	return B;
+}
+
+void FlowingFFTSpectre::prepareForMovingSpectreByMouse(float mouseSpectrePos) {
+	this->savedMouseSpectrePos = mouseSpectrePos;
+	this->savedPosition.A = getA();
+	this->savedPosition.B = getB();
+}
+
+void FlowingFFTSpectre::moveSpectreByMouse(float spectreWidthInPx, float mouseSpectrePos) {
+	float delta = savedMouseSpectrePos - mouseSpectrePos;
+	FlowingFFTSpectre::FREQ_RANGE freqRange = getVisibleFreqRangeFromSamplerate();
+	float spectreFreqWidth = freqRange.second - freqRange.first;
+	
+	float freqWidthByOnePx = spectreFreqWidth / spectreWidthInPx;
+	
+	float freqWidthByOneSpectreBin = spectreFreqWidth / getLen();
+	
+	float deltaFreqWidth = delta * freqWidthByOnePx;
+	float countSpectreBinsInDelta = deltaFreqWidth / freqWidthByOneSpectreBin;
+
+	move(savedPosition, countSpectreBinsInDelta);
 }

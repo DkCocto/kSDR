@@ -25,6 +25,7 @@ void ReceiverLogicNew::setPosition(float position, bool withoutDelta) {
 	} else {
 		selectedBin = (float)flowingFFTSpectre->getA() + (float)(this->position) / ((float)spectreWidth / (float)flowingFFTSpectre->getLen());
 	}
+	//Utils::printFloat(selectedBin);
 }
 
 void ReceiverLogicNew::updateSpectreWidth(float oldSpectreWidth, float newSpectreWidth) {
@@ -33,7 +34,8 @@ void ReceiverLogicNew::updateSpectreWidth(float oldSpectreWidth, float newSpectr
 }
 
 void ReceiverLogicNew::syncFreq() {
-	setFreq((float)viewModel->centerFrequency + getSelectedFreq());
+	//Utils::printFloat(getSelectedFreq());
+	setFreq(viewModel->centerFrequency + getSelectedFreq());
 }
 
 int ReceiverLogicNew::getPosition() {
@@ -80,12 +82,10 @@ void ReceiverLogicNew::setFreq(float freq) {
 	FlowingFFTSpectre::FREQ_RANGE freqSamplerateRange = flowingFFTSpectre->getVisibleFreqRangeFromSamplerate();
 
 	if (freq >= freqRange.first && freq <= freqRange.second) {
-		//float deltaFreq = freq - ((float)viewModel->centerFrequency - (float)config->inputSamplerate / 2.0);
-
 		float visibleSamplerateWidth = (freqSamplerateRange.second - freqSamplerateRange.first);
 
 		float deltaFreq = freq - ((freqRange.first + visibleSamplerateWidth / 2.0) - visibleSamplerateWidth / 2.0);
-		setPosition((deltaFreq * (float)spectreWidth) / visibleSamplerateWidth, true);
+		setPosition((deltaFreq * spectreWidth) / visibleSamplerateWidth, true);
 	}
 }
 
@@ -95,14 +95,14 @@ float ReceiverLogicNew::getFilterWidthAbs(int filterWidth) {
 }
 
 float ReceiverLogicNew::getSelectedFreq() {
-	int totalBin = flowingFFTSpectre->getAbsoluteSpectreLen();
+	float totalBin = flowingFFTSpectre->getAbsoluteSpectreLen();
 	if (this != NULL) {
-		if (selectedBin >= totalBin / 2) {
+		if (selectedBin >= totalBin / 2.0) {
 			return ((float)selectedBin * (float)config->inputSamplerate / (float)totalBin) - (float)config->inputSamplerate / 2.0;
 		}
 		else {
 			return -1.0 * ((float)config->inputSamplerate / 2.0 - ((float)selectedBin * (float)config->inputSamplerate / (float)totalBin));
 		}
 	}
-	else return 0;
+	else return 0.0;
 }

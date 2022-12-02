@@ -63,7 +63,6 @@ void SoundProcessorThread::process() {
 
 			long count = 0;
 			for (int i = 0; i < len / 2; i++) {
-
 				mixer->setFreq(Display::instance->spectre->receiverLogicNew->getSelectedFreq());
 				Signal mixedSignal = mixer->mix(data[2 * i], data[2 * i + 1]);
 

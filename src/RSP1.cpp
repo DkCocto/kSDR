@@ -31,7 +31,6 @@ void RSP1::streamCallback(short* xi, short* xq, unsigned int firstSampleNum, int
 
     }
 
-
     if (rsp1->isNeedToSetFreq()) rsp1->setFreq(rsp1->viewModel->centerFrequency);
 
     if (rsp1->viewModel->gainControl) {
@@ -39,10 +38,10 @@ void RSP1::streamCallback(short* xi, short* xq, unsigned int firstSampleNum, int
     } else {
         rsp1->disableGain();
     }
-
 }
 
 void RSP1::gainCallback(unsigned int gRdB, unsigned int lnaGRdB, void* cbContext) {
+    Display::instance->viewModel->gainFromDevice = gRdB;
     return;
 }
 

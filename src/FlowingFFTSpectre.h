@@ -14,7 +14,16 @@ class FlowingFFTSpectre {
 	ViewModel* viewModel;
 	Config* config;
 
-	bool DEBUG = true;
+	bool DEBUG = false;
+
+	float savedMouseSpectrePos = 0;
+
+	struct SPECTRE_POSITION {
+		int A;
+		int B;
+	};
+
+	SPECTRE_POSITION savedPosition;
 
 public:
 
@@ -24,12 +33,13 @@ public:
 	int getLen();
 	int getAbsoluteSpectreLen();
 	void move(int delta);
+	void move(SPECTRE_POSITION fromSpectrePosition, int delta);
 	void zoomIn(int step);
 	void zoomOut(int step);
 	FFTSpectreHandler* getSpectreHandler();
 	void printCurrentPos();
-	float getAbsoluteFreqBySpectrePos(float pos);
-	float getFreqByPosFromSamplerate(float pos);
+	float getAbsoluteFreqBySpectrePos(int pos);
+	float getFreqByPosFromSamplerate(int pos);
 	struct FREQ_RANGE {
 		float first;
 		float second;
@@ -39,4 +49,7 @@ public:
 	float getVisibleStartFrequency();
 	int getA();
 	int getB();
+	void prepareForMovingSpectreByMouse(float mouseSpectrePos);
+	void moveSpectreByMouse(float spectreWidthInPx, float mouseSpectrePos);
+
 };
