@@ -28,6 +28,8 @@ FFTSpectreHandler::FFTSpectreHandler(Config* config) {
 
 	superOutput = new float[config->fftLen / 2];
 	memset(superOutput, 0, sizeof(float) * config->fftLen / 2);
+
+	spectreSize = config->fftLen / 2;
 }
 
 void FFTSpectreHandler::processFFT() {
@@ -77,7 +79,7 @@ float FFTSpectreHandler::average(float avg, float new_sample, int n) {
 }
 
 void FFTSpectreHandler::dataPostprocess() {
-	getSemaphore()->lock();
+	//getSemaphore()->lock();
 	for (int i = 0; i < config->fftLen / 2; i++) {
 		float psd = this->psd(realOut[i], imOut[i]);
 		if (firstRun) {
@@ -88,7 +90,7 @@ void FFTSpectreHandler::dataPostprocess() {
 			superOutput[i] = average(superOutput[i], psd, spectreSpeed);
 		}
 	}
-	getSemaphore()->unlock();
+	//getSemaphore()->unlock();
 }
 
 Semaphore* FFTSpectreHandler::getSemaphore() {
@@ -101,14 +103,14 @@ float* FFTSpectreHandler::getOutput() {
 }
 
 int FFTSpectreHandler::getSpectreSize() {
-	return config->fftLen / 2;
+	return spectreSize;
 }
 
 float* dataCopy;
 
 float* FFTSpectreHandler::getOutputCopy(int startPos, int len) {
 	getSemaphore()->lock();
-	dataCopy = new float[len];
+
 	float* output = getOutput();
 
 	int spectreSize = getSpectreSize();
@@ -118,12 +120,8 @@ float* FFTSpectreHandler::getOutputCopy(int startPos, int len) {
 	memcpy(buffer + (spectreSize / 2), output, sizeof(output) * (spectreSize / 2));
 
 	getSemaphore()->unlock();
-//	memcpy(dataCopy, output + startPos, sizeof(output) * len);
-	/*for (int i = 0; i < len; i++) {
-		//printf("%f %f\r\n", dataCopy[i], output[startPos + i]);
-		if (dataCopy[i] != output[startPos + i]) printf("%f %f\r\n", dataCopy[i], output[startPos + i]);
-	}*/
 
+	dataCopy = new float[len];
 	memcpy(dataCopy, buffer + startPos, sizeof(buffer) * len);
 
 	delete[] buffer;
@@ -134,8 +132,8 @@ bool FFTSpectreHandler::putData(float* pieceOfData, int len) {
 
 	//getSemaphore()->lock();
 	memcpy(dataBuffer, pieceOfData, sizeof(pieceOfData) * len);
-	//getSemaphore()->unlock();
 	processFFT();
+	//getSemaphore()->unlock();
 
 	return true;
 
@@ -164,7 +162,6 @@ bool FFTSpectreHandler::putData(float* pieceOfData, int len) {
 
 float FFTSpectreHandler::psd(float re, float im) {
 	return 10 * log((sqrt(re * re + im * im)));
-	// / config->fftBandwidth)
 }
 
 void FFTSpectreHandler::prepareData() {
@@ -175,7 +172,7 @@ void FFTSpectreHandler::prepareData() {
 	}
 }
 
-int FFTSpectreHandler::getTrueBin(int bin) {
+/*int FFTSpectreHandler::getTrueBin(int bin) {
 	//bin[0, 1022]
 
 	int size = (complexLen * 2 - 1) / 2; // 1025
@@ -194,7 +191,7 @@ int FFTSpectreHandler::getTrueBin(int bin) {
 	// 2049 -> 2049 - 1026 = 1023
 
 	return bin + increment;
-}
+}*/
 
 void FFTSpectreHandler::setSpectreSpeed(int speed) {
 	spectreSpeed = speed;

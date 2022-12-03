@@ -31,7 +31,7 @@ public:
 	//int frequency = 41965664;
 	int centerFrequency = 3700000;
 
-	int gain = -50;
+	int gain = 50;
 
 	bool gainControl = false;
 
@@ -54,6 +54,6 @@ public:
 	ImFont* fontMyRegular;
 	ImFont* fontBigRegular;
 
-	int gainFromDevice = 0;
+	unsigned int gainFromDevice = 0;
 
 };

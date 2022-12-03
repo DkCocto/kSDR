@@ -41,7 +41,8 @@ void RSP1::streamCallback(short* xi, short* xq, unsigned int firstSampleNum, int
 }
 
 void RSP1::gainCallback(unsigned int gRdB, unsigned int lnaGRdB, void* cbContext) {
-    Display::instance->viewModel->gainFromDevice = gRdB;
+    RSP1* rsp1 = (RSP1*)cbContext;
+    rsp1->viewModel->gainFromDevice = gRdB;
     return;
 }
 
@@ -59,7 +60,7 @@ void RSP1::init() {
     uint32_t samp_rate = config->inputSamplerate * config->inputSamplerateDivider;
     uint32_t frequency = config->startFrequency;
     savedFreq = frequency;
-    int bwkHz = 1536;
+    int bwkHz = 600;
     int ifkHz = 0;
     int rspLNA = 0;
     int gRdBsystem;
@@ -96,7 +97,7 @@ void RSP1::init() {
     grMode = mir_sdr_USE_RSP_SET_GR;
     if (devModel == 1) grMode = mir_sdr_USE_SET_GR_ALT_MODE;
 
-    mir_sdr_DecimateControl(1, config->inputSamplerateDivider, 1);
+    mir_sdr_DecimateControl(1, config->inputSamplerateDivider, 0);
 
     r = mir_sdr_StreamInit(&gainR, ((config->inputSamplerate * config->inputSamplerateDivider) / 1e6), (frequency / 1e6),
         (mir_sdr_Bw_MHzT)bwkHz, (mir_sdr_If_kHzT)ifkHz, rspLNA, &gRdBsystem,
@@ -118,7 +119,8 @@ void RSP1::setFreq(double freq) {
 
 //-60 .. 0
 void RSP1::setGain(int gain) {
-    mir_sdr_AgcControl(mir_sdr_AGC_5HZ, gain, 0, 0, 0, 0, 0);
+    //mir_sdr_AgcControl(mir_sdr_AGC_5HZ, gain, 0, 0, 0, 0, 0);
+    mir_sdr_SetGr(gain, 1, 0);
     //mir_sdr_AgcControl(mir_sdr_AGC_DISABLE, gain, 0, 0, 0, 0, 0);
     savedGain = gain;
 }

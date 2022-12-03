@@ -47,6 +47,7 @@ private:
 	void dataPostprocess();
 	float* getOutput();
 
+	int spectreSize = 0;
 public:
 
 	FFTSpectreHandler(Config* config);

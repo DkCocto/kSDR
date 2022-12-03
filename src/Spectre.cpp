@@ -27,8 +27,8 @@ Spectre::Spectre(Config* config, ViewModel* viewModel, FlowingFFTSpectre* flowin
 	this->flowingFFTSectre = flowingFFTSectre;
 	receiverLogicNew = new ReceiverLogicNew(config, viewModel, flowingFFTSectre);
 	maxdBKalman = new KalmanFilter(1, 0.005);
-	ratioKalman = new KalmanFilter(1, 0.001);
-	spectreTranferKalman = new KalmanFilter(1, 0.001);
+	ratioKalman = new KalmanFilter(1, 0.01);
+	spectreTranferKalman = new KalmanFilter(1, 0.01);
 	this->waterfall = new Waterfall(config, flowingFFTSectre);
 }
 

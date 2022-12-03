@@ -51,7 +51,9 @@ void SoundProcessorThread::process() {
 
 			fftSpectreHandler->setSpectreSpeed(Display::instance->viewModel->spectreSpeed);
 			if (!fftSpectreHandler->getSemaphore()->isLocked()) {
+				fftSpectreHandler->getSemaphore()->lock();
 				fftSpectreHandler->putData(data, len);
+				fftSpectreHandler->getSemaphore()->unlock();
 			}
 
 			//Обработка ширины фильтра
@@ -65,8 +67,6 @@ void SoundProcessorThread::process() {
 			for (int i = 0; i < len / 2; i++) {
 				mixer->setFreq(Display::instance->spectre->receiverLogicNew->getSelectedFreq());
 				Signal mixedSignal = mixer->mix(data[2 * i], data[2 * i + 1]);
-
-				//printf("%f\r\n", mixedSignal.Q);
 
 				//Уменьшаем силу выходного сигнала после смесителя, чтобы фильтры не перегружались от сильных сигналов
 				//if (Display::instance->viewModel->att) {
@@ -114,13 +114,9 @@ void SoundProcessorThread::process() {
 				}
 		
 			}
-
-			//soundCard->write(outputData, (len / 2) / DECIMATION_LEVEL);
-			//printf("%i\r\n", (len / 2) / DECIMATION_LEVEL);
 			soundWriterCircleBuffer->write(outputData, (len / 2) / config->outputSamplerateDivider);
 			delete data;
 		} else {
-			//printf("SUKA!\r\n");
 			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		}
 	}

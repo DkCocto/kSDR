@@ -278,8 +278,9 @@ void Display::renderImGUIFirst() {
 
 		ImGui::SliderInt("Filter width", &viewModel->filterWidth, 0, 12000);
 
-		ImGui::SliderInt("Gain", &viewModel->gain, -60, -10); ImGui::SameLine();
+		ImGui::SliderInt("Gain", &viewModel->gain, 0, 200); ImGui::SameLine();
 		ImGui::Checkbox("Gain Control", &viewModel->gainControl);
+
 		//ImGui::SameLine();
 		//ImGui::Checkbox("ATT", &viewModel->att);
 
@@ -287,7 +288,7 @@ void Display::renderImGUIFirst() {
 		ImGui::SliderFloat("Waterfall max", &viewModel->waterfallMax, -130, 0);
 
 		ImGui::SliderFloat("Spectre ratio", &viewModel->maxDb, -150, 0);
-		ImGui::SliderFloat("Spectre min val", &viewModel->minDb, -150, -70);
+		ImGui::SliderFloat("Spectre min val", &viewModel->minDb, -150, 0);
 
 		ImGui::SliderInt("Spectre speed", &viewModel->spectreSpeed, 1, 200);
 		
@@ -307,7 +308,8 @@ void Display::renderImGUIFirst() {
 		//ImGui::Text("selectedFreq: %i", spectre->receiverLogicNew->getSelectedFreq());
 		ImGui::Text("AMP: %.2f", viewModel->amp);
 		ImGui::Text("CPU usage: %.1f", cpu.getCurrentValue());
-		ImGui::Text("Set gain: %i", viewModel->gainFromDevice);
+		ImGui::Text("Set gain: %d", viewModel->gainFromDevice);
+		//printf("%d \r\n", viewModel->gainFromDevice);
 		ImGui::Text("Service field1: %f", viewModel->serviceField1);
 		ImGui::Text("Service field2: %f", viewModel->serviceField2);
 	ImGui::End();
