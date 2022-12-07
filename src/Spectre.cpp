@@ -45,6 +45,8 @@ bool isFirstFrame = true;
 
 void Spectre::draw() {
 
+	receiverLogicNew->setCenterFrequency(viewModel->centerFrequency);
+
 	ImGuiIO& io = ImGui::GetIO();
 
 	ImGui::Begin("Spectre");
@@ -81,6 +83,7 @@ void Spectre::draw() {
 			//if (veryMinSpectreVal > m.min) veryMinSpectreVal = m.min;
 			veryMinSpectreVal = viewModel->minDb;
 			if (veryMaxSpectreVal < m.max) veryMaxSpectreVal = m.max;
+
 
 			float stepX = (windowLeftBottomCorner.x - rightPadding - leftPadding)  / (spectreSize);
 
@@ -160,12 +163,13 @@ void Spectre::draw() {
 			}
 
 			//receive region
+			viewModel->serviceField2 = receiverLogicNew->getPositionOnBin();
 			draw_list->AddLine(
-				ImVec2(startWindowPoint.x + rightPadding + receiverLogicNew->getPosition(), startWindowPoint.y - 10),
-				ImVec2(startWindowPoint.x + rightPadding + receiverLogicNew->getPosition(), startWindowPoint.y + windowLeftBottomCorner.y + 10),
+				ImVec2(startWindowPoint.x + rightPadding + receiverLogicNew->getPositionPX(), startWindowPoint.y - 10),
+				ImVec2(startWindowPoint.x + rightPadding + receiverLogicNew->getPositionPX(), startWindowPoint.y + windowLeftBottomCorner.y + 10),
 				GRAY, 2.0f);
 
-			std::string freq = std::to_string((int)(viewModel->centerFrequency + receiverLogicNew->getSelectedFreq()));
+			std::string freq = std::to_string((int)receiverLogicNew->getSelectedFreqNew());
 			const char* t2 = " Hz";
 
 			char* s = new char[freq.length() + strlen(t2) + 1];
@@ -175,7 +179,7 @@ void Spectre::draw() {
 			ImGui::PushFont(viewModel->fontBigRegular);
 			draw_list->AddText(
 				ImVec2(
-					startWindowPoint.x + rightPadding + receiverLogicNew->getPosition() + 20, 
+					startWindowPoint.x + rightPadding + receiverLogicNew->getPositionPX() + 20,
 					startWindowPoint.y + 10
 				),
 				IM_COL32_WHITE,
@@ -190,24 +194,24 @@ void Spectre::draw() {
 			case USB:
 				// Y!!!  spectreHeight + waterfallPaddingTop
 				draw_list->AddRectFilled(
-					ImVec2(startWindowPoint.x + rightPadding + receiverLogicNew->getPosition(), startWindowPoint.y - 10),
-					ImVec2(startWindowPoint.x + rightPadding + receiverLogicNew->getPosition() + delta, startWindowPoint.y + windowLeftBottomCorner.y + 10),
+					ImVec2(startWindowPoint.x + rightPadding + receiverLogicNew->getPositionPX(), startWindowPoint.y - 10),
+					ImVec2(startWindowPoint.x + rightPadding + receiverLogicNew->getPositionPX() + delta, startWindowPoint.y + windowLeftBottomCorner.y + 10),
 					RED, 0);
 
 				break;
 			case LSB:
 
 				draw_list->AddRectFilled(
-					ImVec2(startWindowPoint.x + rightPadding + receiverLogicNew->getPosition() - delta, startWindowPoint.y - 10),
-					ImVec2(startWindowPoint.x + rightPadding + receiverLogicNew->getPosition(), startWindowPoint.y + windowLeftBottomCorner.y + 10),
+					ImVec2(startWindowPoint.x + rightPadding + receiverLogicNew->getPositionPX() - delta, startWindowPoint.y - 10),
+					ImVec2(startWindowPoint.x + rightPadding + receiverLogicNew->getPositionPX(), startWindowPoint.y + windowLeftBottomCorner.y + 10),
 					RED, 0);
 
 				break;
 			case AM:
 
 				draw_list->AddRectFilled(
-					ImVec2(startWindowPoint.x + rightPadding + receiverLogicNew->getPosition() - delta, startWindowPoint.y - 10),
-					ImVec2(startWindowPoint.x + rightPadding + receiverLogicNew->getPosition() + delta, startWindowPoint.y + windowLeftBottomCorner.y + 10),
+					ImVec2(startWindowPoint.x + rightPadding + receiverLogicNew->getPositionPX() - delta, startWindowPoint.y - 10),
+					ImVec2(startWindowPoint.x + rightPadding + receiverLogicNew->getPositionPX() + delta, startWindowPoint.y + windowLeftBottomCorner.y + 10),
 					RED, 0);
 
 				break;
@@ -221,7 +225,7 @@ void Spectre::draw() {
 	delete[] spectreData;
 
 	if (isFirstFrame) {
-		receiverLogicNew->setFreq(viewModel->centerFrequency);
+		receiverLogicNew->setFrequencyDelta(0);
 		isFirstFrame = false;
 	}
 }
@@ -283,14 +287,22 @@ void Spectre::handleEvents(ImVec2 startWindowPoint, ImVec2 windowLeftBottomCorne
 		if (mouseWheelVal != 0) {
 			if (!ctrlPressed) {
 				int mouseWheelStep = 100;
-				int selectedFreqShortByStep = ((float)viewModel->centerFrequency + receiverLogicNew->getSelectedFreq()) / mouseWheelStep;
-
-				receiverLogicNew->setFreq(mouseWheelStep* selectedFreqShortByStep + mouseWheelVal * mouseWheelStep);
+				int selectedFreq = receiverLogicNew->getSelectedFreqNew();
+				int selectedFreqShortByStep = selectedFreq / mouseWheelStep;
+				if (mouseWheelVal > 0) receiverLogicNew->setFreq(mouseWheelStep * selectedFreqShortByStep + mouseWheelVal * mouseWheelStep);
+				else {
+					if (selectedFreq - selectedFreqShortByStep * mouseWheelStep > 0) {
+						receiverLogicNew->setFreq(mouseWheelStep* selectedFreqShortByStep);
+					}
+					else {
+						receiverLogicNew->setFreq(mouseWheelStep* selectedFreqShortByStep + mouseWheelVal * mouseWheelStep);
+					}
+				}
 			}
 			else {
 				if (mouseWheelVal > 0) flowingFFTSectre->zoomIn((int)mouseWheelVal * 200);
 				else flowingFFTSectre->zoomOut(abs((int)mouseWheelVal) * 200);
-				receiverLogicNew->syncFreq();
+				receiverLogicNew->setFrequencyDelta(receiverLogicNew->getFrequencyDelta());
 			}
 		}
 	}
@@ -298,7 +310,8 @@ void Spectre::handleEvents(ImVec2 startWindowPoint, ImVec2 windowLeftBottomCorne
 	//¬ыполн€етс€ если Ќажатие мышки произошло внутри спектра и мышка не была где то уже нажата вне окна
 	if (!viewModel->mouseBusy && (ImGui::IsMouseClicked(0) || ImGui::IsMouseClicked(1)) && isMouseOnSpectre) {
 		if (ImGui::IsMouseClicked(0)) {
-			receiverLogicNew->saveDelta(io.MousePos.x - (startWindowPoint.x + rightPadding));
+			//receiverLogicNew->saveDelta(io.MousePos.x - (startWindowPoint.x + rightPadding));
+			receiverLogicNew->saveSpectrePositionDelta(io.MousePos.x - (startWindowPoint.x + rightPadding));
 		}
 		if (ImGui::IsMouseClicked(1)) {
 			flowingFFTSectre->prepareForMovingSpectreByMouse(io.MousePos.x - (startWindowPoint.x + rightPadding));
@@ -308,11 +321,16 @@ void Spectre::handleEvents(ImVec2 startWindowPoint, ImVec2 windowLeftBottomCorne
 	//¬ыполн€етс€ если удержание кнопки мышки произошло внутри спектра и мышка не была где то уже нажата вне окна
 	if (!viewModel->mouseBusy && (ImGui::IsMouseDown(0) || ImGui::IsMouseDown(1)) && isMouseOnSpectre) {
 		if (ImGui::IsMouseDown(0)) {
-			receiverLogicNew->setPosition(io.MousePos.x - (startWindowPoint.x + rightPadding), false);
+			//receiverLogicNew->setPosition(io.MousePos.x - (startWindowPoint.x + rightPadding), false);
+			receiverLogicNew->setFrequencyDeltaFromSavedPosition(io.MousePos.x - (startWindowPoint.x + rightPadding));
 		}
 		if (ImGui::IsMouseDown(1)) {
-			flowingFFTSectre->moveSpectreByMouse(spectreWidthInPX, io.MousePos.x - (startWindowPoint.x + rightPadding));
-			receiverLogicNew->syncFreq();
+
+			float newCenterFreq = flowingFFTSectre->moveSpectreByMouse(spectreWidthInPX, io.MousePos.x - (startWindowPoint.x + rightPadding));
+			viewModel->centerFrequency = round(newCenterFreq);
+
+			receiverLogicNew->setCenterFrequency(viewModel->centerFrequency);
+			receiverLogicNew->setFrequencyDelta(receiverLogicNew->getFrequencyDelta());
 		}
 	}
 

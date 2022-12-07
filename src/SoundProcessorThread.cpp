@@ -65,7 +65,7 @@ void SoundProcessorThread::process() {
 
 			long count = 0;
 			for (int i = 0; i < len / 2; i++) {
-				mixer->setFreq(Display::instance->spectre->receiverLogicNew->getSelectedFreq());
+				mixer->setFreq(Display::instance->spectre->receiverLogicNew->getFrequencyDelta());
 				Signal mixedSignal = mixer->mix(data[2 * i], data[2 * i + 1]);
 
 				//”меньшаем силу выходного сигнала после смесител€, чтобы фильтры не перегружались от сильных сигналов
@@ -109,6 +109,8 @@ void SoundProcessorThread::process() {
 					}
 					audio = audioFilter->filter(audio);
 					audio = agc->process(audio) * Display::instance->viewModel->volume;
+					//≈сли AM, то немного усилим сигнал
+					if (mode == AM) audio *= 4;
 					outputData[count] = audio;
 					count++;
 				}

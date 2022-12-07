@@ -17,6 +17,7 @@ class FlowingFFTSpectre {
 	bool DEBUG = false;
 
 	float savedMouseSpectrePos = 0;
+	float savedCenterFreq = 0;
 
 	struct SPECTRE_POSITION {
 		int A;
@@ -32,8 +33,8 @@ public:
 	void setPos(int A, int B);
 	int getLen();
 	int getAbsoluteSpectreLen();
-	void move(int delta);
-	void move(SPECTRE_POSITION fromSpectrePosition, int delta);
+	float move(int delta);
+	float move(SPECTRE_POSITION fromSpectrePosition, int delta);
 	void zoomIn(int step);
 	void zoomOut(int step);
 	FFTSpectreHandler* getSpectreHandler();
@@ -50,6 +51,8 @@ public:
 	int getA();
 	int getB();
 	void prepareForMovingSpectreByMouse(float mouseSpectrePos);
-	void moveSpectreByMouse(float spectreWidthInPx, float mouseSpectrePos);
+	float moveSpectreByMouse(float spectreWidthInPx, float mouseSpectrePos);
+
+	float getFreqOfOneSpectreBin();
 
 };

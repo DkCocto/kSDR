@@ -6,7 +6,6 @@ Mixer::Mixer(int inputSampleRate) {
 
 void Mixer::setFreq(int freq) {
 	if (this->freq != freq) {
-		//cout << "SISYAKA " << this->freq << " " << freq << "\r\n";
 		this->freq = freq;
 		complexOscillator->setFreq(freq);
 	}

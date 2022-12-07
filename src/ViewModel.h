@@ -54,6 +54,6 @@ public:
 	ImFont* fontMyRegular;
 	ImFont* fontBigRegular;
 
-	unsigned int gainFromDevice = 0;
+	//unsigned int gainFromDevice = 0;
 
 };

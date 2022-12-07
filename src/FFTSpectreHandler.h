@@ -56,7 +56,7 @@ public:
 	bool putData(float* pieceOfData, int len);
 	float psd(float re, float im);
 	void prepareData();
-	int getTrueBin(int bin);
+	//int getTrueBin(int bin);
 	int getSpectreSize();
 	void setSpectreSpeed(int speed);
 

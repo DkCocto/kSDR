@@ -41,8 +41,8 @@ void RSP1::streamCallback(short* xi, short* xq, unsigned int firstSampleNum, int
 }
 
 void RSP1::gainCallback(unsigned int gRdB, unsigned int lnaGRdB, void* cbContext) {
-    RSP1* rsp1 = (RSP1*)cbContext;
-    rsp1->viewModel->gainFromDevice = gRdB;
+    //RSP1* rsp1 = (RSP1*)cbContext;
+    //rsp1->viewModel->gainFromDevice = gRdB;
     return;
 }
 

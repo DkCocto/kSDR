@@ -308,7 +308,7 @@ void Display::renderImGUIFirst() {
 		//ImGui::Text("selectedFreq: %i", spectre->receiverLogicNew->getSelectedFreq());
 		ImGui::Text("AMP: %.2f", viewModel->amp);
 		ImGui::Text("CPU usage: %.1f", cpu.getCurrentValue());
-		ImGui::Text("Set gain: %d", viewModel->gainFromDevice);
+		//ImGui::Text("Set gain: %d", viewModel->gainFromDevice);
 		//printf("%d \r\n", viewModel->gainFromDevice);
 		ImGui::Text("Service field1: %f", viewModel->serviceField1);
 		ImGui::Text("Service field2: %f", viewModel->serviceField2);
@@ -386,19 +386,19 @@ void Display::renderImGUIFirst() {
 
 		if (ImGui::Button("+")) {
 			flowingFFTSpectre->zoomIn(100);
-			spectre->receiverLogicNew->syncFreq();
+			spectre->receiverLogicNew->setFrequencyDelta(spectre->receiverLogicNew->getFrequencyDelta());
 		} ImGui::SameLine();
 		if (ImGui::Button("-")) {
 			flowingFFTSpectre->zoomOut(100);
-			spectre->receiverLogicNew->syncFreq();
+			spectre->receiverLogicNew->setFrequencyDelta(spectre->receiverLogicNew->getFrequencyDelta());
 		} ImGui::SameLine();
 		if (ImGui::Button("<-")) {
 			flowingFFTSpectre->move(-100);
-			spectre->receiverLogicNew->syncFreq();
+			spectre->receiverLogicNew->setFrequencyDelta(spectre->receiverLogicNew->getFrequencyDelta());
 		} ImGui::SameLine();
 		if (ImGui::Button("->")) {
 			flowingFFTSpectre->move(100);
-			spectre->receiverLogicNew->syncFreq();
+			spectre->receiverLogicNew->setFrequencyDelta(spectre->receiverLogicNew->getFrequencyDelta());
 		}
 
 	ImGui::End();

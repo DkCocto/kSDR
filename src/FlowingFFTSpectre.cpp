@@ -29,11 +29,20 @@ int FlowingFFTSpectre::getAbsoluteSpectreLen() {
 }
 
 //—двинуть спектр на количество единиц вперед или назад. «ависит от знака параметра delta
-void FlowingFFTSpectre::move(int delta) {
+//¬озвращает сдвиг частоты на который надо сдвинуть центрульную частоту приема 
+float FlowingFFTSpectre::move(int delta) {
 	if (delta > 0) {
 		if (B + delta > fftSH->getSpectreSize() - 1) {
+
+			int bAfterDelta = B + delta;
+
 			A += (fftSH->getSpectreSize() - 1) - B;
 			B = fftSH->getSpectreSize() - 1;
+
+			//Ѕудем сдвигать центральную частоту вперед
+			//узнаЄм на сколько по частоте мы выходим за границы спектра
+			float binsDelta = bAfterDelta - (fftSH->getSpectreSize() - 1);
+			return getFreqOfOneSpectreBin() * binsDelta;
 		} else {
 			A += delta;
 			B += delta;
@@ -42,20 +51,29 @@ void FlowingFFTSpectre::move(int delta) {
 	if (delta < 0) {
 		delta *= -1;
 		if (A - delta < 0) {
+
+			int aAfterDelta = A - delta;
+
 			B -= A;
 			A = 0;
+
+			//Ѕудем сдвигать центральную частоту назад
+			//узнаЄм на сколько по частоте мы выходим за границы спектра
+			float binsDelta = aAfterDelta;
+			return getFreqOfOneSpectreBin() * binsDelta;
 		} else {
 			A -= delta;
 			B -= delta;
 		}
 	}
 	if (DEBUG) printCurrentPos();
+	return 0.0;
 }
 
-void FlowingFFTSpectre::move(SPECTRE_POSITION fromSpectrePosition, int delta) {
+float FlowingFFTSpectre::move(SPECTRE_POSITION fromSpectrePosition, int delta) {
 	A = fromSpectrePosition.A;
 	B = fromSpectrePosition.B;
-	move(delta);
+	return move(delta);
 }
 
 void FlowingFFTSpectre::zoomIn(int step) {
@@ -120,19 +138,25 @@ void FlowingFFTSpectre::prepareForMovingSpectreByMouse(float mouseSpectrePos) {
 	this->savedMouseSpectrePos = mouseSpectrePos;
 	this->savedPosition.A = getA();
 	this->savedPosition.B = getB();
+	this->savedCenterFreq = viewModel->centerFrequency;
 }
 
-void FlowingFFTSpectre::moveSpectreByMouse(float spectreWidthInPx, float mouseSpectrePos) {
+//¬озвращает новую центральную частоту приЄма
+float FlowingFFTSpectre::moveSpectreByMouse(float spectreWidthInPx, float mouseSpectrePos) {
 	float delta = savedMouseSpectrePos - mouseSpectrePos;
 	FlowingFFTSpectre::FREQ_RANGE freqRange = getVisibleFreqRangeFromSamplerate();
 	float spectreFreqWidth = freqRange.second - freqRange.first;
 	
 	float freqWidthByOnePx = spectreFreqWidth / spectreWidthInPx;
 	
-	float freqWidthByOneSpectreBin = spectreFreqWidth / getLen();
-	
 	float deltaFreqWidth = delta * freqWidthByOnePx;
-	float countSpectreBinsInDelta = deltaFreqWidth / freqWidthByOneSpectreBin;
+	float countSpectreBinsInDelta = deltaFreqWidth / getFreqOfOneSpectreBin();
 
-	move(savedPosition, countSpectreBinsInDelta);
+	return savedCenterFreq + move(savedPosition, countSpectreBinsInDelta);
+}
+
+float FlowingFFTSpectre::getFreqOfOneSpectreBin() {
+	FlowingFFTSpectre::FREQ_RANGE freqRange = getVisibleFreqRangeFromSamplerate();
+	float spectreFreqWidth = freqRange.second - freqRange.first;
+	return spectreFreqWidth / getLen();
 }
