@@ -42,5 +42,9 @@ public:
 
 	double srartVolume = 0.5;
 
-	Config(int inputSamplerate, int inputSamplerateDivider, int outputSamplerateDivider);
+	Config(int inputSamplerate);
+
+
+private:
+	void calcOutputSamplerate();
 };

@@ -39,11 +39,13 @@ void Display::mouseButtonCallback(GLFWwindow* window, int button, int action, in
 	}
 }
 
-Display::Display(Config* config, FFTSpectreHandler* fftSH) {
+Display::Display(Config* config, FFTSpectreHandler* fftSH, Hackrf* hackrf) {
 	this->config = config;
 	viewModel = new ViewModel(config);
 	this->flowingFFTSpectre = new FlowingFFTSpectre(config, viewModel, fftSH);
 	spectre = new Spectre(config, viewModel, flowingFFTSpectre);
+	this->hackrf = hackrf;
+	//flowingFFTSpectre->zoomIn(30000);
 	//flowingFFTSpectre->printCurrentPos();
 	//flowingFFTSpectre->zoomIn(1500);
 	//flowingFFTSpectre->printCurrentPos();
@@ -275,6 +277,16 @@ void Display::renderImGUIFirst() {
 	ImGui::Begin(APP_NAME);                          // Create a window called "Hello, world!" and append into it.
 
 		ImGui::SliderInt("Frequency", &viewModel->centerFrequency, 1000000, 30000000);
+		hackrf->setFreq(viewModel->centerFrequency);
+
+		ImGui::SliderInt("LNA Gain", &viewModel->lnaGain, 0, 40);
+		hackrf->setLnaGain((uint32_t)viewModel->lnaGain);
+
+		ImGui::SliderInt("VGA Gain", &viewModel->vgaGain, 0, 62);
+		hackrf->setVgaGain((uint32_t)viewModel->vgaGain);
+
+		ImGui::Checkbox("AMP", &viewModel->enableAmp);
+		hackrf->enableAmp((uint8_t)viewModel->enableAmp);
 
 		ImGui::SliderInt("Filter width", &viewModel->filterWidth, 0, 12000);
 

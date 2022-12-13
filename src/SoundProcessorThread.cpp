@@ -1,30 +1,25 @@
 #include "SoundProcessorThread.h"
 
-SoundProcessorThread::SoundProcessorThread(Config* config, CircleBuffer* sPCB, CircleBuffer* sWCB, FFTSpectreHandler* fftSpectreHandler) {
+SoundProcessorThread::SoundProcessorThread(Config* config, CircleBuffer* iqSignalsCircleBuffer, CircleBuffer* sWCB, FFTSpectreHandler* fftSpectreHandler) {
 	this->config = config;
 
 	mixer = new Mixer(config->inputSamplerate);
 
 	len = config->readSoundProcessorBufferLen;
 
-	soundProcessorCircleBuffer = sPCB;
-	soundWriterCircleBuffer = sWCB;
+	this->iqSignalsCircleBuffer = iqSignalsCircleBuffer;
+	this->soundWriterCircleBuffer = sWCB;
 	this->fftSpectreHandler = fftSpectreHandler;
 
 	hilbertTransform = new HilbertTransform(config->inputSamplerate, config->hilbertTransformLen);
 	delay = new Delay((config->hilbertTransformLen - 1) / 2);
 	agc = new AGC(fftSpectreHandler);
 
-
 	//Инициализация полифазных фильтров
 	initFilters(config->defaultFilterWidth);
 
 	decimateBufferI = new double[config->outputSamplerateDivider];
 	decimateBufferQ = new double[config->outputSamplerateDivider];
-}
-
-void SoundProcessorThread::putData(float* data, int len) {
-	soundProcessorCircleBuffer->write(data, len);
 }
 
 void SoundProcessorThread::initFilters(int filterWidth) {
@@ -45,16 +40,9 @@ void SoundProcessorThread::process() {
 
 	while (true) {
 
-		int available = soundProcessorCircleBuffer->available();
+		int available = iqSignalsCircleBuffer->available();
 		if (available >= len) {
-			data = soundProcessorCircleBuffer->read(len);
-
-			fftSpectreHandler->setSpectreSpeed(Display::instance->viewModel->spectreSpeed);
-			if (!fftSpectreHandler->getSemaphore()->isLocked()) {
-				fftSpectreHandler->getSemaphore()->lock();
-				fftSpectreHandler->putData(data, len);
-				fftSpectreHandler->getSemaphore()->unlock();
-			}
+			data = iqSignalsCircleBuffer->read(len);
 
 			//Обработка ширины фильтра
 			if (storedFilterWidth != Display::instance->viewModel->filterWidth) {
@@ -116,11 +104,15 @@ void SoundProcessorThread::process() {
 				}
 		
 			}
+
 			soundWriterCircleBuffer->write(outputData, (len / 2) / config->outputSamplerateDivider);
+			fftSpectreHandler->setSpectreSpeed(Display::instance->viewModel->spectreSpeed);
+			fftSpectreHandler->putData(data);
 			delete data;
-		} else {
-			std::this_thread::sleep_for(std::chrono::milliseconds(1));
-		}
+		}/* else {
+			printf("SoundProcessorThread: Waiting for iqSignalsCircleBuffer...\r\n");
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		}*/
 	}
 }
 

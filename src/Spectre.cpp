@@ -20,6 +20,8 @@ bool Spectre::isMouseOnSpectreRegion(int spectreX1, int spectreY1, int spectreX2
 	return false;
 }
 
+float* spectreDataCopy;
+
 Spectre::Spectre(Config* config, ViewModel* viewModel, FlowingFFTSpectre* flowingFFTSectre) {
 	//waterfall->start().detach();
 	this->config = config;
@@ -30,6 +32,9 @@ Spectre::Spectre(Config* config, ViewModel* viewModel, FlowingFFTSpectre* flowin
 	ratioKalman = new KalmanFilter(1, 0.01);
 	spectreTranferKalman = new KalmanFilter(1, 0.01);
 	this->waterfall = new Waterfall(config, flowingFFTSectre);
+
+	spectreDataCopy = new float[flowingFFTSectre->getLen()];
+	memset(spectreDataCopy, 0, sizeof(float) * flowingFFTSectre->getLen());
 }
 
 int savedStartWindowX = 0;
@@ -39,7 +44,7 @@ int savedSpectreWidthInPX = 1;
 float veryMinSpectreVal = -100;
 float veryMaxSpectreVal = -60;
 
-long countFrames = 0;
+int countFrames = 0;
 
 bool isFirstFrame = true;
 
@@ -67,7 +72,7 @@ void Spectre::draw() {
 		handleEvents(startWindowPoint, windowLeftBottomCorner, spectreWidthInPX);
 
 		float* spectreData = flowingFFTSectre->getData();
-
+		
 		ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
 		ImGui::BeginChild("Spectre1", ImVec2(ImGui::GetContentRegionAvail().x, spectreHeight), false, ImGuiWindowFlags_NoMove);
@@ -216,7 +221,7 @@ void Spectre::draw() {
 
 				break;
 			}
-			//---
+			//--
 		ImGui::EndChild();
 
 	ImGui::End();
@@ -300,8 +305,8 @@ void Spectre::handleEvents(ImVec2 startWindowPoint, ImVec2 windowLeftBottomCorne
 				}
 			}
 			else {
-				if (mouseWheelVal > 0) flowingFFTSectre->zoomIn((int)mouseWheelVal * 200);
-				else flowingFFTSectre->zoomOut(abs((int)mouseWheelVal) * 200);
+				if (mouseWheelVal > 0) flowingFFTSectre->zoomIn((int)mouseWheelVal * flowingFFTSectre->getLen() / 4);
+				else flowingFFTSectre->zoomOut(abs((int)mouseWheelVal) * flowingFFTSectre->getLen() / 4);
 				receiverLogicNew->setFrequencyDelta(receiverLogicNew->getFrequencyDelta());
 			}
 		}
@@ -327,9 +332,9 @@ void Spectre::handleEvents(ImVec2 startWindowPoint, ImVec2 windowLeftBottomCorne
 		if (ImGui::IsMouseDown(1)) {
 
 			float newCenterFreq = flowingFFTSectre->moveSpectreByMouse(spectreWidthInPX, io.MousePos.x - (startWindowPoint.x + rightPadding));
-			viewModel->centerFrequency = round(newCenterFreq);
 
-			receiverLogicNew->setCenterFrequency(viewModel->centerFrequency);
+			//viewModel->centerFrequency = round(newCenterFreq);
+			//receiverLogicNew->setCenterFrequency(viewModel->centerFrequency);
 			receiverLogicNew->setFrequencyDelta(receiverLogicNew->getFrequencyDelta());
 		}
 	}

@@ -34,6 +34,7 @@
     <ClCompile Include="src\Filter.cpp" />
     <ClCompile Include="src\FirFilter.cpp" />
     <ClCompile Include="src\FlowingFFTSpectre.cpp" />
+    <ClCompile Include="src\Hackrf.cpp" />
     <ClCompile Include="src\HilbertTransform.cpp" />
     <ClCompile Include="src\imgui\imgui.cpp" />
     <ClCompile Include="src\imgui\imgui_demo.cpp" />
@@ -81,6 +82,7 @@
     <ClInclude Include="src\Filter.h" />
     <ClInclude Include="src\FirFilter.h" />
     <ClInclude Include="src\FlowingFFTSpectre.h" />
+    <ClInclude Include="src\Hackrf.h" />
     <ClInclude Include="src\HilbertTransform.h" />
     <ClInclude Include="src\imgui\imconfig.h" />
     <ClInclude Include="src\imgui\imgui.h" />
@@ -196,7 +198,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\dev\Visual Studio\kSDR\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AddModuleNamesToAssembly>%(AddModuleNamesToAssembly)</AddModuleNamesToAssembly>
-      <AdditionalDependencies>mir_sdr_api.lib;rtlsdr.lib;portaudio_static_x86.lib;glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>mir_sdr_api.lib;rtlsdr.lib;portaudio_static_x86.lib;glfw3.lib;opengl32.lib;hackrf.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -215,7 +217,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\dev\Visual Studio\kSDR\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>mir_sdr_api.lib;portaudio_static_x86.lib;glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>mir_sdr_api.lib;portaudio_static_x86.lib;glfw3.lib;opengl32.lib;hackrf.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

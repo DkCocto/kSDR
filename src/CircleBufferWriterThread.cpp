@@ -15,8 +15,7 @@ void CircleBufferWriterThread::run() {
 			soundCard->write(data, len);
 			delete data;
 		} else {
-			//printf("SUKA!\r\n");
-			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		}
 	}
 }

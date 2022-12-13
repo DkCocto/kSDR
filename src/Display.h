@@ -1,5 +1,6 @@
 #pragma once;
 
+#include "Hackrf.h"
 #include "FlowingFFTSpectre.h"
 #include "ReceiverLogic.h"
 #include "../include/GLFW/glfw3.h"
@@ -11,6 +12,7 @@
 #include "SMeter.h"
 #include "Spectre.h"
 #include "CPU.h"
+
 
 class Display {
 
@@ -31,6 +33,8 @@ private:
 	SMeter* smeter = new SMeter(50, 50, 400, 0.2);
 
 	CPU cpu;
+
+	Hackrf* hackrf;
 
 public:
 
@@ -53,7 +57,8 @@ public:
 	
 	Config* config;
 
-	Display(Config* config, FFTSpectreHandler* fftSH);
+
+	Display(Config* config, FFTSpectreHandler* fftSH, Hackrf* hackrf);
 
 	int init();
 

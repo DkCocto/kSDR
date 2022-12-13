@@ -2,7 +2,6 @@
 
 #include "fft3.hpp"
 
-
 FFTSpectreHandler::FFTSpectreHandler(Config* config) {
 	this->config = config;
 
@@ -30,6 +29,66 @@ FFTSpectreHandler::FFTSpectreHandler(Config* config) {
 	memset(superOutput, 0, sizeof(float) * config->fftLen / 2);
 
 	spectreSize = config->fftLen / 2;
+}
+
+std::queue<std::vector<float>> spectreDataQueue;
+std::mutex spectreDataMutex;
+
+bool readyToCalculate = false;
+
+void FFTSpectreHandler::run() {
+	while (true) {
+		if (readyToCalculate) {
+			if (!spectreDataMutex.try_lock()) continue;
+			processFFT();
+			readyToCalculate = false;
+			 // не забываем ставить unlock()!!!
+			spectreDataMutex.unlock();
+		}
+		else {
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		}
+		
+	}
+}
+
+//Возвращает объект очереди и ставит lock для потока
+std::queue<std::vector<float>> FFTSpectreHandler::getSpectreDataQueue() {
+	return spectreDataQueue;
+}
+
+	
+void FFTSpectreHandler::putData(float* data) {
+	if (!spectreDataMutex.try_lock()) return;
+
+	memcpy(dataBuffer, data, sizeof(data) * config->fftLen);
+
+	spectreDataMutex.unlock(); // не забываем ставить unlock()!!!
+	readyToCalculate = true;
+}
+
+float* FFTSpectreHandler::getOutputCopy(int startPos, int len) {
+	//memset(dataCopy, 0.001, sizeof(float) * len);
+
+	spectreDataMutex.lock();
+	float* output = getOutput();
+	//float* output = &myQueueDisplay.front()[0];
+
+	int spectreSize = getSpectreSize();
+
+	float* buffer = new float[spectreSize];
+	memcpy(buffer, output + (spectreSize / 2), sizeof(output) * (spectreSize / 2));
+	memcpy(buffer + (spectreSize / 2), output, sizeof(output) * (spectreSize / 2));
+
+	spectreDataMutex.unlock();
+
+	float* dataCopy = new float[len];
+
+	memcpy(dataCopy, buffer + startPos, sizeof(float) * len);
+
+	delete[] buffer;
+
+	return dataCopy;
 }
 
 void FFTSpectreHandler::processFFT() {
@@ -79,7 +138,6 @@ float FFTSpectreHandler::average(float avg, float new_sample, int n) {
 }
 
 void FFTSpectreHandler::dataPostprocess() {
-	//getSemaphore()->lock();
 	for (int i = 0; i < config->fftLen / 2; i++) {
 		float psd = this->psd(realOut[i], imOut[i]);
 		if (firstRun) {
@@ -90,7 +148,6 @@ void FFTSpectreHandler::dataPostprocess() {
 			superOutput[i] = average(superOutput[i], psd, spectreSpeed);
 		}
 	}
-	//getSemaphore()->unlock();
 }
 
 Semaphore* FFTSpectreHandler::getSemaphore() {
@@ -104,60 +161,6 @@ float* FFTSpectreHandler::getOutput() {
 
 int FFTSpectreHandler::getSpectreSize() {
 	return spectreSize;
-}
-
-float* dataCopy;
-
-float* FFTSpectreHandler::getOutputCopy(int startPos, int len) {
-	getSemaphore()->lock();
-
-	float* output = getOutput();
-
-	int spectreSize = getSpectreSize();
-
-	float* buffer = new float[spectreSize];
-	memcpy(buffer, output + (spectreSize / 2), sizeof(output) * (spectreSize / 2));
-	memcpy(buffer + (spectreSize / 2), output, sizeof(output) * (spectreSize / 2));
-
-	getSemaphore()->unlock();
-
-	dataCopy = new float[len];
-	memcpy(dataCopy, buffer + startPos, sizeof(buffer) * len);
-
-	delete[] buffer;
-	return dataCopy;
-}
-
-bool FFTSpectreHandler::putData(float* pieceOfData, int len) {
-
-	//getSemaphore()->lock();
-	memcpy(dataBuffer, pieceOfData, sizeof(pieceOfData) * len);
-	processFFT();
-	//getSemaphore()->unlock();
-
-	return true;
-
-	/*int savedBufferLen = savedBufferPos + 1;
-
-	if (savedBufferLen + len <= config->fftLen) {
-		for (int i = 0; i < len; i++) {
-			dataBuffer[savedBufferPos + 1 + i] = pieceOfData[i];
-		}
-	}
-	else {
-		for (int i = 0; i < config->fftLen - savedBufferLen; i++) {
-			dataBuffer[savedBufferPos + 1 + i] = pieceOfData[i];
-		}
-	}
-
-	if (savedBufferLen + len < config->fftLen) savedBufferPos += len;
-	if (savedBufferLen + len >= config->fftLen) {
-		savedBufferPos = -1;
-		processFFT();
-		return true;
-	}*/
-
-	return false;
 }
 
 float FFTSpectreHandler::psd(float re, float im) {
@@ -195,4 +198,9 @@ void FFTSpectreHandler::prepareData() {
 
 void FFTSpectreHandler::setSpectreSpeed(int speed) {
 	spectreSpeed = speed;
+}
+
+std::thread FFTSpectreHandler::start() {
+	std::thread p(&FFTSpectreHandler::run, this);
+	return p;
 }

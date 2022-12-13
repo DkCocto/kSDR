@@ -54,6 +54,8 @@ public:
 	ImFont* fontMyRegular;
 	ImFont* fontBigRegular;
 
-	//unsigned int gainFromDevice = 0;
+	int lnaGain = 24;
+	int vgaGain = 32;
+	bool enableAmp = false;
 
 };

@@ -6,7 +6,7 @@ CircleBufferReaderThread::CircleBufferReaderThread(Config* config, CircleBuffer*
 	soundProcessor = sP;
 }
 
-void CircleBufferReaderThread::run() {
+/*void CircleBufferReaderThread::run() {
 	float* data;
 	while (true) {
 		int available = ñircleBuffer->available();
@@ -26,4 +26,4 @@ void CircleBufferReaderThread::run() {
 std::thread CircleBufferReaderThread::start() {
 	std::thread p(&CircleBufferReaderThread::run, this);
 	return p;
-}
+}*/

@@ -5,14 +5,17 @@
 #include "Semaphore.h"
 #include "WindowBlackman.h"
 #include "Average.h"
+#include "vector"
+#include "queue"
+#include "mutex"
 
 class FFTSpectreHandler {
 	
 private:
 
 	Config* config;
-
-	//static const int spectreBufferLen = FFT_LENGTH;
+	
+	
 
 	//Инициализируем оконный массив с размерностью длины массива буфера спектра (возвращается массив длиной +1)
 	WindowBlackman* wb;
@@ -48,16 +51,33 @@ private:
 	float* getOutput();
 
 	int spectreSize = 0;
+
+	bool busy = false;
+	bool readyToProcess = false;
+	bool outputting = false;
+
+	float psd(float re, float im);
+	void prepareData();
+
+	std::queue<std::vector<float>> getSpectreDataQueue();
 public:
 
 	FFTSpectreHandler(Config* config);
 	Semaphore* getSemaphore();
 	float* getOutputCopy(int startPos, int len);
-	bool putData(float* pieceOfData, int len);
-	float psd(float re, float im);
-	void prepareData();
-	//int getTrueBin(int bin);
+	void putData(float* data);
+
+
 	int getSpectreSize();
 	void setSpectreSpeed(int speed);
+
+	std::thread start();
+	void run();
+
+
+
+	
+
+
 
 };

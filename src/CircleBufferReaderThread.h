@@ -12,10 +12,7 @@ class CircleBufferReaderThread {
 	SoundProcessorThread* soundProcessor;
 
 public: 
-
 	CircleBufferReaderThread(Config* config, CircleBuffer* cb, SoundProcessorThread* sP);
-
-	void run();
-	std::thread start();
-
+	//void run();
+	//std::thread start();
 };

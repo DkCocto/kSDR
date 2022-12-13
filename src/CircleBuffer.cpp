@@ -22,7 +22,9 @@ void CircleBuffer::write(float buf[], int bufLen) {
 void CircleBuffer::write(uint8_t buf[], int bufLen) {
 	//printf("%i\r\n", bufLen);
 	for (int i = 0; i < bufLen; i++) {
-		write((buf[i] - 127.4) / 128);
+		//printf("%f\r\n", (buf[i] - 127.5) / 128.0);
+		//write(buf[i] * (1.f / 255.f));
+		write(0.01 * ((buf[i] - 127.4f) / 128.0f));
 	}
 }
 
@@ -40,9 +42,19 @@ float CircleBuffer::read() {
 float* CircleBuffer::read(int len) {
 	int countDone = 0;
 	float* b = new float[len];
-	//if (available() >= len) {
-	//	memcpy(b, buf + readPointer, sizeof(b) * len);
-	//}
+	/*while (available() < len) {
+		std::this_thread::sleep_for(std::chrono::nanoseconds(1));
+	}*/
+
+	/*if (readPointer + len > size - 1) {
+		int over = readPointer + len - (size - 1);
+		memcpy(b, buf + readPointer, sizeof(float) * ((size - 1) - readPointer));
+		memcpy(b, buf, sizeof(float) * over);
+
+	} else {
+		memcpy(b, buf + readPointer, sizeof(float) * len);
+	}*/
+
 	for (int i = 0; i < len; i++) {
 		b[i] = read();
 	}

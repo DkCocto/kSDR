@@ -2,6 +2,7 @@
 
 Waterfall::Waterfall(Config* config, FlowingFFTSpectre* flowingFFTSpectre) {
 	this->flowingFFTSpectre = flowingFFTSpectre;
+	memset(texturesArray, 0, sizeof(texturesArray) * size);
 }
 
 float Waterfall::getDiv() {
@@ -40,7 +41,7 @@ void Waterfall::putData(float* spectreData, int lineHeight) {
 	}
 
 	delete[] output;
-
+	
 	GLuint texName;
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -60,7 +61,7 @@ void Waterfall::putData(float* spectreData, int lineHeight) {
 	delete[] checkImage;
 
 	glDeleteTextures(1, &texturesArray[size - 1]);
-
+	
 	for (int i = 0; i < size - 1; i++) {
 		texturesArray[(size - 1) - i] = texturesArray[(size - 1) - i - 1];
 	}

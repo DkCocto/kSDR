@@ -33,9 +33,7 @@ class SoundProcessorThread {
 	double* decimateBufferI;
 	double* decimateBufferQ;
 
-	vector<vector<float>> soundDataBuffer;
-
-	CircleBuffer* soundProcessorCircleBuffer;
+	CircleBuffer* iqSignalsCircleBuffer;
 	CircleBuffer* soundWriterCircleBuffer;
 	FFTSpectreHandler* fftSpectreHandler;
 
@@ -50,8 +48,6 @@ public:
 	SoundProcessorThread(Config* config, CircleBuffer* sPCB, CircleBuffer* sWCB, FFTSpectreHandler* fftSpectreHandler);
 
 	void initFilters(int filterWidth);
-
-	void putData(float* data, int len);
 
 	void process();
 
