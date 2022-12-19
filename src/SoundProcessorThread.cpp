@@ -28,6 +28,9 @@ void SoundProcessorThread::initFilters(int filterWidth) {
 	audioFilter = new FirFilter(Filter::makeRaiseCosine(config->outputSamplerate, filterWidth, 1, config->polyphaseFilterLen), config->polyphaseFilterLen);
 }
 
+float xm1 = 0, ym1 = 0, xm2 = 0, ym2 = 0;
+float p1 = 0, p2 = 0;
+
 void SoundProcessorThread::process() {
 	outputData = new float[(len / 2) / config->outputSamplerateDivider];
 
@@ -53,6 +56,17 @@ void SoundProcessorThread::process() {
 
 			long count = 0;
 			for (int i = 0; i < len / 2; i++) {
+
+				p1 = data[2 * i];
+				data[2 * i] = p1 - xm1 + 0.9995 * ym1;
+				xm1 = p1;
+				ym1 = data[2 * i];
+
+				p2 = data[2 * i + 1];
+				data[2 * i + 1] = p2 - xm2 + 0.9995 * ym2;
+				xm2 = p2;
+				ym2 = data[2 * i + 1];
+
 				mixer->setFreq(Display::instance->spectre->receiverLogicNew->getFrequencyDelta());
 				Signal mixedSignal = mixer->mix(data[2 * i], data[2 * i + 1]);
 
@@ -98,7 +112,7 @@ void SoundProcessorThread::process() {
 					audio = audioFilter->filter(audio);
 					audio = agc->process(audio) * Display::instance->viewModel->volume;
 					//Если AM, то немного усилим сигнал
-					if (mode == AM) audio *= 4;
+					if (mode == AM) audio *= 10;
 					outputData[count] = audio;
 					count++;
 				}
@@ -109,10 +123,10 @@ void SoundProcessorThread::process() {
 			fftSpectreHandler->setSpectreSpeed(Display::instance->viewModel->spectreSpeed);
 			fftSpectreHandler->putData(data);
 			delete data;
-		}/* else {
-			printf("SoundProcessorThread: Waiting for iqSignalsCircleBuffer...\r\n");
-			std::this_thread::sleep_for(std::chrono::milliseconds(10));
-		}*/
+		} else {
+			//printf("SoundProcessorThread: Waiting for iqSignalsCircleBuffer...\r\n");
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		}
 	}
 }
 

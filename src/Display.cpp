@@ -258,6 +258,8 @@ void Display::initImGUI() {
 	ImGui_ImplOpenGL3_Init(glsl_version);
 }
 
+float kaka = 0;
+
 void Display::renderImGUIFirst() {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
@@ -277,29 +279,57 @@ void Display::renderImGUIFirst() {
 	ImGui::Begin(APP_NAME);                          // Create a window called "Hello, world!" and append into it.
 
 		ImGui::SliderInt("Frequency", &viewModel->centerFrequency, 1000000, 30000000);
-		hackrf->setFreq(viewModel->centerFrequency);
+		/*hackrf->setFreq(viewModel->centerFrequency);
 
-		ImGui::SliderInt("LNA Gain", &viewModel->lnaGain, 0, 40);
-		hackrf->setLnaGain((uint32_t)viewModel->lnaGain);
+		ImGui::SliderInt("LNA Gain", &viewModel->lnaGain, 0, 5);
+		hackrf->setLnaGain((uint32_t)(viewModel->lnaGain * 8));
 
-		ImGui::SliderInt("VGA Gain", &viewModel->vgaGain, 0, 62);
-		hackrf->setVgaGain((uint32_t)viewModel->vgaGain);
+		ImGui::SliderInt("VGA Gain", &viewModel->vgaGain, 0, 31);
+		hackrf->setVgaGain((uint32_t)(viewModel->vgaGain * 2));
 
-		ImGui::Checkbox("AMP", &viewModel->enableAmp);
+		ImGui::SliderInt("AMP Gain", &viewModel->enableAmp, 0, 1);
+		//ImGui::Checkbox("AMP", &viewModel->enableAmp);
 		hackrf->enableAmp((uint8_t)viewModel->enableAmp);
+
+		const char* items[] = { "1750000", "2500000", "3500000", "5000000", "5500000", "6000000", "7000000", "8000000", "9000000", "10000000", "20000000"};
+		static int item_current_idx = 0; // Here we store our selection data as an index.
+		const char* combo_preview_value = items[item_current_idx];  // Pass in the preview value visible before opening the combo (it could be anything)
+		if (ImGui::BeginCombo("combo 1", combo_preview_value, 0)) {
+			for (int n = 0; n < IM_ARRAYSIZE(items); n++)
+			{
+				const bool is_selected = (item_current_idx == n);
+				if (ImGui::Selectable(items[n], is_selected)) {
+					item_current_idx = n;
+					unsigned int baseband;
+					hackrf->parse_u32((char*)items[n], &baseband);
+					hackrf->setBaseband(baseband);
+				}
+
+				// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+				if (is_selected)
+					ImGui::SetItemDefaultFocus();
+			}
+			ImGui::EndCombo();
+		}*/
 
 		ImGui::SliderInt("Filter width", &viewModel->filterWidth, 0, 12000);
 
-		ImGui::SliderInt("Gain", &viewModel->gain, 0, 200); ImGui::SameLine();
+		ImGui::SliderInt("Gain", &viewModel->gain, 0, 100); ImGui::SameLine();
 		ImGui::Checkbox("Gain Control", &viewModel->gainControl);
 
 		//ImGui::SameLine();
 		//ImGui::Checkbox("ATT", &viewModel->att);
 
-		ImGui::SliderFloat("Waterfall min", &viewModel->waterfallMin, -130, 0);
+		ImGui::SliderFloat("Waterfall min", &viewModel->waterfallMin, -130, 0); ImGui::SameLine();
+		if (ImGui::Button("Waterfall Auto")) {
+			spectre->waterfallAutoColorCorrection();
+		}
 		ImGui::SliderFloat("Waterfall max", &viewModel->waterfallMax, -130, 0);
 
-		ImGui::SliderFloat("Spectre ratio", &viewModel->maxDb, -150, 0);
+		ImGui::SliderFloat("Spectre ratio", &viewModel->maxDb, -150, 0); ImGui::SameLine();
+		if (ImGui::Button("Spectre Auto")) {
+			spectre->spectreRatioAutoCorrection();
+		}
 		ImGui::SliderFloat("Spectre min val", &viewModel->minDb, -150, 0);
 
 		ImGui::SliderInt("Spectre speed", &viewModel->spectreSpeed, 1, 200);

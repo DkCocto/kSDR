@@ -61,6 +61,8 @@
     <ClCompile Include="src\Utils.cpp" />
     <ClCompile Include="src\ViewModel.cpp" />
     <ClCompile Include="src\Waterfall.cpp" />
+    <ClCompile Include="src\WindowBlackman.cpp" />
+    <ClCompile Include="src\WindowBlackmanHarris.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
@@ -112,6 +114,7 @@
     <ClInclude Include="src\ViewModel.h" />
     <ClInclude Include="src\Waterfall.h" />
     <ClInclude Include="src\WindowBlackman.h" />
+    <ClInclude Include="src\WindowBlackmanHarris.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="kSDR.rc" />

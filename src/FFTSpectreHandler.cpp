@@ -6,7 +6,8 @@ FFTSpectreHandler::FFTSpectreHandler(Config* config) {
 	this->config = config;
 
 	wb = new WindowBlackman(config->fftLen);
-	windowArray = wb->init();
+	wbh = new WindowBlackmanHarris(config->fftLen);
+	//windowArray = wb->init();
 
 	dataBuffer = new float[config->fftLen];
 	//memset(dataBuffer, 0, sizeof(float) * config->fftLen);
@@ -38,6 +39,7 @@ bool readyToCalculate = false;
 
 void FFTSpectreHandler::run() {
 	while (true) {
+		std::this_thread::sleep_for(std::chrono::microseconds(1));
 		if (readyToCalculate) {
 			if (!spectreDataMutex.try_lock()) continue;
 			processFFT();
@@ -45,10 +47,6 @@ void FFTSpectreHandler::run() {
 			 // не забываем ставить unlock()!!!
 			spectreDataMutex.unlock();
 		}
-		else {
-			std::this_thread::sleep_for(std::chrono::milliseconds(10));
-		}
-		
 	}
 }
 
@@ -70,7 +68,7 @@ void FFTSpectreHandler::putData(float* data) {
 float* FFTSpectreHandler::getOutputCopy(int startPos, int len) {
 	//memset(dataCopy, 0.001, sizeof(float) * len);
 
-	spectreDataMutex.lock();
+	//spectreDataMutex.lock();
 	float* output = getOutput();
 	//float* output = &myQueueDisplay.front()[0];
 
@@ -80,7 +78,7 @@ float* FFTSpectreHandler::getOutputCopy(int startPos, int len) {
 	memcpy(buffer, output + (spectreSize / 2), sizeof(output) * (spectreSize / 2));
 	memcpy(buffer + (spectreSize / 2), output, sizeof(output) * (spectreSize / 2));
 
-	spectreDataMutex.unlock();
+	//spectreDataMutex.unlock();
 
 	float* dataCopy = new float[len];
 
@@ -169,9 +167,10 @@ float FFTSpectreHandler::psd(float re, float im) {
 
 void FFTSpectreHandler::prepareData() {
 	//Применения окна Блэкмона к исходным данным
+	float* weights = wb->getWeights();
 	for (int i = 0; i < config->fftLen / 2; i++) {
-		dataBuffer[2 * i] = dataBuffer[2 * i] * windowArray[i];
-		dataBuffer[2 * i + 1] = dataBuffer[2 * i + 1] * windowArray[i];
+		dataBuffer[2 * i] = dataBuffer[2 * i] * weights[i];
+		dataBuffer[2 * i + 1] = dataBuffer[2 * i + 1] * weights[i];
 	}
 }
 

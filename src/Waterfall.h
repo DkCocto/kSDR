@@ -7,7 +7,7 @@ class Waterfall {
 
 	float div = 1;
 
-	int size = 500;
+	int size = 400;
 
 	GLuint* texturesArray = new GLuint[size];
 
@@ -29,9 +29,11 @@ class Waterfall {
 
 	FlowingFFTSpectre* flowingFFTSpectre;
 
+	ViewModel* viewModel;
+
 public:
 
-	Waterfall(Config* config, FlowingFFTSpectre* flowingFFTSpectre);
+	Waterfall(Config* config, FlowingFFTSpectre* flowingFFTSpectre, ViewModel* viewModel);
 
 	typedef struct RGB {
 		int r;
@@ -61,6 +63,7 @@ public:
 
 	void setMinMaxValue(float min, float max);
 
+	void clear();
 
 private:
 	WATERFALL_TEXTURE_STRUCT textureStruct {};

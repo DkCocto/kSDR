@@ -18,17 +18,11 @@ RSP1::~RSP1() {
 void RSP1::streamCallback(short* xi, short* xq, unsigned int firstSampleNum, int grChanged, int rfChanged, int fsChanged, unsigned int numSamples, unsigned int reset, unsigned int hwRemoved, void* cbContext) {
     RSP1* rsp1 = (RSP1*)cbContext;
 
-    int j = 0;
-    int k = 0;
-    for (int i = 0; i < numSamples * 2; i++) {
-        if (i % 2 == 0) {
-            rsp1->cb->write(xi[j] / 32768.0);
-            j++;
-        } else {
-            rsp1->cb->write(xq[k] / 32768.0);
-            k++;
+    for (int i = 0; i < numSamples; i++) {
+        if (i % 4 == 0) {
+            rsp1->cb->write(xi[i] / 32767.0);
+            rsp1->cb->write(xq[i] / 32767.0);
         }
-
     }
 
     if (rsp1->isNeedToSetFreq()) rsp1->setFreq(rsp1->viewModel->centerFrequency);
@@ -60,7 +54,7 @@ void RSP1::init() {
     uint32_t samp_rate = config->inputSamplerate * config->inputSamplerateDivider;
     uint32_t frequency = config->startFrequency;
     savedFreq = frequency;
-    int bwkHz = 600;
+    int bwkHz = mir_sdr_BW_0_600;
     int ifkHz = 0;
     int rspLNA = 0;
     int gRdBsystem;
@@ -99,7 +93,7 @@ void RSP1::init() {
 
     mir_sdr_DecimateControl(1, config->inputSamplerateDivider, 0);
 
-    r = mir_sdr_StreamInit(&gainR, ((config->inputSamplerate * config->inputSamplerateDivider) / 1e6), (frequency / 1e6),
+    r = mir_sdr_StreamInit(&gainR, ((4000000 * config->inputSamplerateDivider) / 1e6), (frequency / 1e6),
         (mir_sdr_Bw_MHzT)bwkHz, (mir_sdr_If_kHzT)ifkHz, rspLNA, &gRdBsystem,
         grMode, &samplesPerPacket, RSP1::streamCallback, RSP1::gainCallback, (void*)this);
 

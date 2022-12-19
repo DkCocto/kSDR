@@ -44,6 +44,8 @@ public:
 
 	Config(int inputSamplerate);
 
+	int visibleSpectreBinCount = 1024;
+
 
 private:
 	void calcOutputSamplerate();

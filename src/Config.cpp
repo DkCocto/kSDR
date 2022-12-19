@@ -6,11 +6,11 @@ Config::Config(int inputSamplerate) {
 	outputChannelNumber							= 1;
 	this->inputSamplerate						= inputSamplerate;
 
-	inputSamplerateDivider						= 2;
+	inputSamplerateDivider						= 1;
 
 	calcOutputSamplerate();
 
-	fftLen										= 128 * 1024;
+	fftLen										= 32 * 1024;
 
 	//(fftLen / 2) / outputSamplerateDivider;
 	bufferWriteAudioLen							= (outputSamplerateDivider * 2) * 2;
@@ -29,7 +29,7 @@ Config::Config(int inputSamplerate) {
 
 	fftBandwidth								= (float)inputSamplerate / (float)fftLen;
 
-	startFrequency								= 7100000;
+	startFrequency								= 3600000;
 }
 
 void Config::calcOutputSamplerate() {

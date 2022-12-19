@@ -11,9 +11,11 @@ class Hackrf {
 	Config* config;
 	CircleBuffer* cb;
 
-	double savedFreq;
-	unsigned int savedLnaGain, savedVgaGain;
-	bool savedAmp;
+	uint64_t savedFreq;
+	uint32_t savedBaseband = 1750000;
+
+	unsigned int savedLnaGain = 0, savedVgaGain = 0;
+	uint8_t savedAmp = 0;
 
 public:
 
@@ -32,10 +34,13 @@ public:
 
 	void setFreq(uint64_t freq);
 
-	void setLnaGain(unsigned int gain);
+	void setLnaGain(uint32_t gain);
 
-	void setVgaGain(unsigned int gain);
+	void setVgaGain(uint32_t gain);
+	void setBaseband(uint32_t baseband);
 
-	void enableAmp(bool enabled);
+	int parse_u32(char* s, uint32_t* const value);
+
+	void enableAmp(uint8_t amp);
 
 };

@@ -46,7 +46,7 @@ public:
 
 	bool mouseBusy = false;
 
-	int spectreSpeed = 40;
+	int spectreSpeed = 20;
 
 	bool att = false;
 
@@ -54,8 +54,8 @@ public:
 	ImFont* fontMyRegular;
 	ImFont* fontBigRegular;
 
-	int lnaGain = 24;
-	int vgaGain = 32;
-	bool enableAmp = false;
+	int lnaGain = 0;
+	int vgaGain = 8;
+	int enableAmp = 0;
 
 };

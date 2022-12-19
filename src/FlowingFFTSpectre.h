@@ -2,6 +2,7 @@
 
 #include "FFTSpectreHandler.h"
 #include "ViewModel.h"
+#include "vector"
 
 //Класс определяет плавающий спектр, который может меняться внутри полного спектра FFT. С помощью
 //него можно будет контролировать масштаб кусочка спектра внутри полного спектра
@@ -37,6 +38,10 @@ public:
 	float move(SPECTRE_POSITION fromSpectrePosition, int delta);
 	void zoomIn(int step);
 	void zoomOut(int step);
+
+	void zoomIn();
+	void zoomOut();
+
 	FFTSpectreHandler* getSpectreHandler();
 	void printCurrentPos();
 	float getAbsoluteFreqBySpectrePos(int pos);
@@ -54,5 +59,8 @@ public:
 	float moveSpectreByMouse(float spectreWidthInPx, float mouseSpectrePos);
 
 	float getFreqOfOneSpectreBin();
+
+	//desiredBins should be div by 2
+	std::vector<float> getReducedSpectre(float* fullSpectreData, int fullSpectreDataLen, int desiredBins);
 
 };

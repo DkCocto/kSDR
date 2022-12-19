@@ -77,10 +77,19 @@ float FlowingFFTSpectre::move(SPECTRE_POSITION fromSpectrePosition, int delta) {
 }
 
 void FlowingFFTSpectre::zoomIn(int step) {
+	if (getLen() <= 128) return;
 	if (A + step < B - step) {
 		A += step;
 		B -= step;
 	}
+
+	/*int remainder = getLen() % config->visibleSpectreBinCount;
+	if (remainder != 0) {
+		if (B + remainder < fftSH->getSpectreSize() - 1) {
+			B += remainder;
+		}
+	}*/
+
 	if (DEBUG) printCurrentPos();
 }
 
@@ -89,7 +98,22 @@ void FlowingFFTSpectre::zoomOut(int step) {
 	else A -= step;
 	if (B + step > fftSH->getSpectreSize() - 1) B = fftSH->getSpectreSize() - 1;
 	else B += step;
+
+	/*int remainder = getLen() % config->visibleSpectreBinCount;
+	printf("%d\r\n", remainder);
+	if (remainder != 0) {
+		B -= remainder;
+	}*/
+
 	if (DEBUG) printCurrentPos();
+}
+
+void FlowingFFTSpectre::zoomIn() {
+	zoomIn(getLen() / 4);
+}
+
+void FlowingFFTSpectre::zoomOut() {
+	zoomOut(getLen() / 4);
 }
 
 FFTSpectreHandler* FlowingFFTSpectre::getSpectreHandler() {
@@ -159,4 +183,67 @@ float FlowingFFTSpectre::getFreqOfOneSpectreBin() {
 	FlowingFFTSpectre::FREQ_RANGE freqRange = getVisibleFreqRangeFromSamplerate();
 	float spectreFreqWidth = freqRange.second - freqRange.first;
 	return spectreFreqWidth / getLen();
+}
+
+std::vector<float> FlowingFFTSpectre::getReducedSpectre(float* fullSpectreData, int fullSpectreDataLen, int desiredBins) {
+	
+	if (getLen() <= desiredBins) {
+		float* spectreData = getData();
+		int spectreLen = getLen();
+		std::vector<float> v;
+		v.assign(spectreData, spectreData + spectreLen);
+		return v;
+	}
+
+	//return (value - From1) / (From2 - From1) * (To2 - To1) + To1;
+
+	float koeff = (float)desiredBins / (float)getLen();
+
+	int newSpectreDataLen = (int)round(fullSpectreDataLen * koeff);
+
+	std::vector<float> reducedSpectreData;
+
+	int savedNewIndex = -1;
+	//int indexCount = 0;
+
+	int ANew = (int)round(A * koeff);
+	int BNew = (int)round(B * koeff);
+
+	for (int i = 0; i < fullSpectreDataLen; i++) {
+		int newIndex = (int)round((float)i / fullSpectreDataLen * newSpectreDataLen);
+
+		if (savedNewIndex != newIndex) {
+			if (newIndex >= ANew && newIndex <= BNew) {
+				reducedSpectreData.push_back(fullSpectreData[i]);
+			}
+			savedNewIndex = newIndex;
+		}
+	}
+
+	/* int spectreLen = getLen();
+	
+	if (spectreLen % desiredBins != 0) {
+		std::vector<float> v;
+		v.assign(spectreData, spectreData + spectreLen);
+		return v;
+	}
+
+	//float* reducedSpectreData = new float[desiredBins];
+	//memset(reducedSpectreData, 0, sizeof(float) * desiredBins);
+	std::vector<float> reducedSpectreData;
+
+	int reducedDiv = spectreLen / desiredBins;
+
+	//0  1  2  3  4  5  6  7   len = 8
+	//0  1  2  3			   len = 4
+
+	for (int i = 0; i < desiredBins; i++) {
+		float sum = 0;
+		for (int j = 0; j < reducedDiv; j++) {
+			sum += spectreData[i * reducedDiv + j];
+		}
+		reducedSpectreData.push_back(sum / reducedDiv);
+	}*/
+
+	return reducedSpectreData;
 }

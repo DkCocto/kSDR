@@ -4,6 +4,7 @@
 #include "Config.h"
 #include "Semaphore.h"
 #include "WindowBlackman.h"
+#include "WindowBlackmanHarris.h"
 #include "Average.h"
 #include "vector"
 #include "queue"
@@ -15,11 +16,10 @@ private:
 
 	Config* config;
 	
-	
 
 	//Инициализируем оконный массив с размерностью длины массива буфера спектра (возвращается массив длиной +1)
 	WindowBlackman* wb;
-	float* windowArray;
+	WindowBlackmanHarris* wbh;
 
 	float* dataBuffer;
 

@@ -121,20 +121,23 @@ ReceiverLogicNew::ReceiveBinArea ReceiverLogicNew::getReceiveBinsArea(int filter
 
 	int totalBin = flowingFFTSpectre->getLen();
 
+	int deltaBin = (int)((float)filterWidth / flowingFFTSpectre->getFreqOfOneSpectreBin());
+
 	switch (receiverMode) {
 	case USB:
-		A = receiverPosOnBin - flowingFFTSpectre->getA();
-		B = (receiverPosOnPx + filterWidthPX) / (spectreWidthPx / totalBin);
+		A = receiverPosOnBin;
+		B = A + deltaBin; // (receiverPosOnPx + filterWidthPX) / (spectreWidthPx / totalBin);
 		if (B > totalBin) B = totalBin;
 		break;
 	case LSB:
-		A = (receiverPosOnPx - filterWidthPX) / (spectreWidthPx / totalBin);
-		B = receiverPosOnBin - flowingFFTSpectre->getA();
+		B = receiverPosOnBin;
+		A = B - deltaBin; // (receiverPosOnPx - filterWidthPX) / (spectreWidthPx / totalBin);
+
 		if (A < 0) A = 0;
 		break;
 	case AM:
-		A = (receiverPosOnPx - filterWidthPX) / (spectreWidthPx / totalBin);
-		B = (receiverPosOnPx + filterWidthPX) / (spectreWidthPx / totalBin);
+		A = (receiverPosOnBin) - deltaBin; // (receiverPosOnPx - filterWidthPX) / (spectreWidthPx / totalBin);
+		B = (receiverPosOnBin) + deltaBin; //(receiverPosOnPx + filterWidthPX) / (spectreWidthPx / totalBin);
 		if (A < 0) A = 0;
 		if (B > totalBin) B = totalBin;
 		break;

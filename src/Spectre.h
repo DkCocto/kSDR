@@ -17,7 +17,7 @@ class Spectre {
 	int leftPadding = 40;
 	int waterfallPaddingTop = 50;
 
-	FlowingFFTSpectre* flowingFFTSectre;
+	FlowingFFTSpectre* flowingFFTSpectre;
 
 	ViewModel* viewModel;
 
@@ -28,17 +28,22 @@ class Spectre {
 
 	Config* config;
 
+public:
 	struct MIN_MAX {
 		float min;
 		float max;
+		float average;
 	};
+
+private:
+	MIN_MAX m;
 
 	struct WINDOW_FRAME {
 		ImVec2 UPPER_RIGHT;
 		ImVec2 BOTTOM_LEFT;
 	};
 
-	MIN_MAX getMinMaxInSpectre(float* spectreData, int len);
+	Spectre::MIN_MAX getMinMaxInSpectre(std::vector<float> spectreData, int len);
 
 	Waterfall* waterfall;
 
@@ -47,6 +52,8 @@ class Spectre {
 	void drawFreqMarks(ImDrawList* draw_list, ImVec2 startWindowPoint, ImVec2 windowLeftBottomCorner, int spectreWidthInPX, int spectreHeight);
 
 public:
+
+	MIN_MAX getMinMaxInSpectre();
 
 	ReceiverLogicNew* receiverLogicNew;
 
@@ -58,4 +65,7 @@ public:
 	bool isMouseOnSpectreRegion(int spectreX1, int spectreY1, int spectreX2, int spectreY2);
 
 	WINDOW_FRAME windowFrame{ ImVec2(0, 0), ImVec2(0, 0) };
+
+	void waterfallAutoColorCorrection();
+	void spectreRatioAutoCorrection();
 };

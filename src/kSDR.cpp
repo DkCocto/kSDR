@@ -5,7 +5,7 @@
 #include "CircleBuffer.h"
 
 #include "Display.h"
-//#include "RSP1.h"
+#include "RSP1.h"
 #include "Hackrf.h"
 #include "SoundProcessorThread.h"
 #include "CircleBufferWriterThread.h"
@@ -13,7 +13,7 @@
 //Config* config = new Config(375000, 8, 4);
 //Config* config = new Config(1000000, 2, 8);
 //Config* config = new Config(500000, 4, 16);
-Config* config = new Config(5000000);
+Config* config = new Config(1000000);
 
 SoundCard soundCard(config);
 
@@ -41,12 +41,12 @@ SoundProcessorThread* soundProcessor = new SoundProcessorThread(config, iqSignal
 CircleBufferWriterThread* circleBufferWriterThread = new CircleBufferWriterThread(config, soundWriterCircleBuffer, &soundCard);
 //
 
-//RSP1 rsp1(config, iqSignalsCircleBuffer);
+RSP1 rsp1(config, iqSignalsCircleBuffer);
 //Инициализация устройства, а так же этот объект берет данные I Q и размещает их в буфере IQSignalsCircleBuffer
-Hackrf hackrf(config, iqSignalsCircleBuffer);
+//Hackrf hackrf(config, iqSignalsCircleBuffer);
 
 //Создаем объект дисплей
-Display* display = new Display(config, fftSpectreHandler, &hackrf);
+Display* display = new Display(config, fftSpectreHandler, NULL);
 //Сразу же инициализируем статическую переменную класса. Она нужна для обработки событий.
 Display& d = *display;
 Display* Display::instance = &d;
@@ -60,8 +60,8 @@ int main() {
 
 	////rtlDeviceReaderThread.start().detach();
 
-	//rsp1.init();
-	hackrf.init();
+	rsp1.init();
+	//hackrf.init();
 
 	////soundReader->start().detach();
 	//сircleBufferReaderThread->start().detach();

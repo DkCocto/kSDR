@@ -1,6 +1,7 @@
 #include "CircleBuffer.h"
 #include "chrono"
 #include "thread"
+#include "Delay.h"
 
 CircleBuffer::CircleBuffer(int size) {
 	buf = new float[size];
@@ -19,12 +20,21 @@ void CircleBuffer::write(float buf[], int bufLen) {
 	}
 }
 
-void CircleBuffer::write(uint8_t buf[], int bufLen) {
-	//printf("%i\r\n", bufLen);
-	for (int i = 0; i < bufLen; i++) {
+Delay* d = new Delay(1);
+
+void CircleBuffer::write(uint8_t* buf, int bufLen) {
+	for (int i = 0; i < bufLen - 1; i++) {
 		//printf("%f\r\n", (buf[i] - 127.5) / 128.0);
 		//write(buf[i] * (1.f / 255.f));
-		write(0.01 * ((buf[i] - 127.4f) / 128.0f));
+
+		//write((float)(buf[i] - 1) / 127.0);
+
+		//write(((buf[i] - 128.0f) / 128.0f));
+
+		if (i % 16 == 0) {
+			write(0.05 * ((buf[i] - 127.0f) / 128.0f));
+			write(0.05 * ((buf[i + 1] - 127.0f) / 128.0f));
+		}
 	}
 }
 
