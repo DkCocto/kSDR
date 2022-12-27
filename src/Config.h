@@ -1,5 +1,7 @@
 #pragma once
 
+#define CONFIG_FILENAME "config.xml"
+
 class Config {
 
 public:
@@ -38,14 +40,23 @@ public:
 
 	int defaultFilterWidth = 2700;
 
-	double startFrequency;
+	double startFrequency = 7100000.0;
 
 	double srartVolume = 0.5;
 
 	Config(int inputSamplerate);
+	~Config();
 
-	int visibleSpectreBinCount = 1024;
+	int visibleSpectreBinCount = 2048;
 
+	float waterfallMin = 0;
+	float waterfallMax = 0;
+	float spectreRatio = 0;
+	float spectreMin = 0;
+	int spectreSpeed = 0;
+
+	void load();
+	void save();
 
 private:
 	void calcOutputSamplerate();

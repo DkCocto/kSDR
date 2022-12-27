@@ -112,7 +112,7 @@ void SoundProcessorThread::process() {
 					audio = audioFilter->filter(audio);
 					audio = agc->process(audio) * Display::instance->viewModel->volume;
 					//Если AM, то немного усилим сигнал
-					if (mode == AM) audio *= 10;
+					if (mode == AM) audio *= 7;
 					outputData[count] = audio;
 					count++;
 				}

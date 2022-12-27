@@ -14,7 +14,8 @@ class Hackrf {
 	uint64_t savedFreq;
 	uint32_t savedBaseband = 1750000;
 
-	unsigned int savedLnaGain = 0, savedVgaGain = 0;
+	uint32_t savedLnaGain = -1;
+	uint32_t savedVgaGain = -1;
 	uint8_t savedAmp = 0;
 
 public:

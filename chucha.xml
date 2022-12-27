@@ -1,0 +1,20 @@
+<file>
+    <Accounts>
+        <Account>
+            <AccountNo>1</AccountNo>
+            <type>Saving</type>
+            <customer>John Doe</customer>
+            <balance>399.88</balance>
+            <openDate>01/01/2017</openDate>
+        </Account>
+ 
+        <Account>
+            <AccountNo>94</AccountNo>
+            <type>Checking</type>
+            <customer>Fredy</customer>
+            <balance>525</balance>
+            <openDate>03/01/2020</openDate>
+        </Account>
+    </Accounts>
+  
+</file>

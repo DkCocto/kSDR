@@ -137,7 +137,7 @@ float FFTSpectreHandler::average(float avg, float new_sample, int n) {
 
 void FFTSpectreHandler::dataPostprocess() {
 	for (int i = 0; i < config->fftLen / 2; i++) {
-		float psd = this->psd(realOut[i], imOut[i]);
+		float psd = this->psd(realOut[i], imOut[i]) - 60;
 		if (firstRun) {
 			superOutput[i] = psd;
 			firstRun = false;
@@ -167,7 +167,7 @@ float FFTSpectreHandler::psd(float re, float im) {
 
 void FFTSpectreHandler::prepareData() {
 	//Применения окна Блэкмона к исходным данным
-	float* weights = wb->getWeights();
+	float* weights = wbh->getWeights();
 	for (int i = 0; i < config->fftLen / 2; i++) {
 		dataBuffer[2 * i] = dataBuffer[2 * i] * weights[i];
 		dataBuffer[2 * i + 1] = dataBuffer[2 * i + 1] * weights[i];

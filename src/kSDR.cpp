@@ -9,6 +9,7 @@
 #include "Hackrf.h"
 #include "SoundProcessorThread.h"
 #include "CircleBufferWriterThread.h"
+#include "tinyxml2/tinyxml2.h"
 
 //Config* config = new Config(375000, 8, 4);
 //Config* config = new Config(1000000, 2, 8);
@@ -51,6 +52,7 @@ Display* display = new Display(config, fftSpectreHandler, NULL);
 Display& d = *display;
 Display* Display::instance = &d;
 
+#include "iostream"
 
 int main() {
 	////exit(0);
@@ -71,4 +73,7 @@ int main() {
 
 	display->init();
 	display->mainLoop();
+
+	delete display;
+	delete config;
 }

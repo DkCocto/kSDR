@@ -140,6 +140,10 @@ void Display::drawScene() {
 	//drawReceivedRegion();
 }
 
+Display::~Display() {
+	delete viewModel;
+}
+
 /*void Display::drawReceivedRegion() {
 	float pos = receiver->receiverPosByCoords;
 
@@ -279,38 +283,41 @@ void Display::renderImGUIFirst() {
 	ImGui::Begin(APP_NAME);                          // Create a window called "Hello, world!" and append into it.
 
 		ImGui::SliderInt("Frequency", &viewModel->centerFrequency, 1000000, 30000000);
-		/*hackrf->setFreq(viewModel->centerFrequency);
+		
+		if (hackrf != NULL) {
+			hackrf->setFreq((uint64_t)viewModel->centerFrequency);
 
-		ImGui::SliderInt("LNA Gain", &viewModel->lnaGain, 0, 5);
-		hackrf->setLnaGain((uint32_t)(viewModel->lnaGain * 8));
+			ImGui::SliderInt("LNA Gain", &viewModel->lnaGain, 0, 5);
+			hackrf->setLnaGain((uint32_t)(viewModel->lnaGain * 8));
 
-		ImGui::SliderInt("VGA Gain", &viewModel->vgaGain, 0, 31);
-		hackrf->setVgaGain((uint32_t)(viewModel->vgaGain * 2));
+			ImGui::SliderInt("VGA Gain", &viewModel->vgaGain, 0, 31);
+			hackrf->setVgaGain((uint32_t)(viewModel->vgaGain * 2));
 
-		ImGui::SliderInt("AMP Gain", &viewModel->enableAmp, 0, 1);
-		//ImGui::Checkbox("AMP", &viewModel->enableAmp);
-		hackrf->enableAmp((uint8_t)viewModel->enableAmp);
+			ImGui::SliderInt("AMP Gain", &viewModel->enableAmp, 0, 1);
+			//ImGui::Checkbox("AMP", &viewModel->enableAmp);
+			hackrf->enableAmp((uint8_t)viewModel->enableAmp);
 
-		const char* items[] = { "1750000", "2500000", "3500000", "5000000", "5500000", "6000000", "7000000", "8000000", "9000000", "10000000", "20000000"};
-		static int item_current_idx = 0; // Here we store our selection data as an index.
-		const char* combo_preview_value = items[item_current_idx];  // Pass in the preview value visible before opening the combo (it could be anything)
-		if (ImGui::BeginCombo("combo 1", combo_preview_value, 0)) {
-			for (int n = 0; n < IM_ARRAYSIZE(items); n++)
-			{
-				const bool is_selected = (item_current_idx == n);
-				if (ImGui::Selectable(items[n], is_selected)) {
-					item_current_idx = n;
-					unsigned int baseband;
-					hackrf->parse_u32((char*)items[n], &baseband);
-					hackrf->setBaseband(baseband);
+			const char* items[] = { "1750000", "2500000", "3500000", "5000000", "5500000", "6000000", "7000000", "8000000", "9000000", "10000000", "20000000" };
+			static int item_current_idx = 0; // Here we store our selection data as an index.
+			const char* combo_preview_value = items[item_current_idx];  // Pass in the preview value visible before opening the combo (it could be anything)
+			if (ImGui::BeginCombo("combo 1", combo_preview_value, 0)) {
+				for (int n = 0; n < IM_ARRAYSIZE(items); n++)
+				{
+					const bool is_selected = (item_current_idx == n);
+					if (ImGui::Selectable(items[n], is_selected)) {
+						item_current_idx = n;
+						uint32_t baseband;
+						hackrf->parse_u32((char*)items[n], &baseband);
+						hackrf->setBaseband(baseband);
+					}
+
+					// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+					if (is_selected)
+						ImGui::SetItemDefaultFocus();
 				}
-
-				// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
-				if (is_selected)
-					ImGui::SetItemDefaultFocus();
+				ImGui::EndCombo();
 			}
-			ImGui::EndCombo();
-		}*/
+		}
 
 		ImGui::SliderInt("Filter width", &viewModel->filterWidth, 0, 12000);
 
@@ -326,7 +333,7 @@ void Display::renderImGUIFirst() {
 		}
 		ImGui::SliderFloat("Waterfall max", &viewModel->waterfallMax, -130, 0);
 
-		ImGui::SliderFloat("Spectre ratio", &viewModel->maxDb, -150, 0); ImGui::SameLine();
+		ImGui::SliderFloat("Spectre ratio", &viewModel->ratio, -150, 0); ImGui::SameLine();
 		if (ImGui::Button("Spectre Auto")) {
 			spectre->spectreRatioAutoCorrection();
 		}

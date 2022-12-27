@@ -11,6 +11,7 @@ class ViewModel {
 public:
 
 	ViewModel(Config* config);
+	~ViewModel();
 
 	float volume;
 
@@ -29,7 +30,7 @@ public:
 
 	//41965664 - хулиганы ssb в центре
 	//int frequency = 41965664;
-	int centerFrequency = 3700000;
+	int centerFrequency = 10000000;
 
 	int gain = 50;
 
@@ -41,7 +42,7 @@ public:
 	float waterfallMin = -80;
 	float waterfallMax = -60;
 
-	float maxDb = -30;
+	float ratio = -30;
 	float minDb = -100;
 
 	bool mouseBusy = false;

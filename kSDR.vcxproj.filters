@@ -147,6 +147,9 @@
     <ClCompile Include="src\WindowBlackmanHarris.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="src\tinyxml2\tinyxml2.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Config.h">
@@ -297,6 +300,9 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="src\WindowBlackmanHarris.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tinyxml2\tinyxml2.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

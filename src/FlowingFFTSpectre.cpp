@@ -109,11 +109,11 @@ void FlowingFFTSpectre::zoomOut(int step) {
 }
 
 void FlowingFFTSpectre::zoomIn() {
-	zoomIn(getLen() / 4);
+	zoomIn(getLen() / 8);
 }
 
 void FlowingFFTSpectre::zoomOut() {
-	zoomOut(getLen() / 4);
+	zoomOut(getLen() / 8);
 }
 
 FFTSpectreHandler* FlowingFFTSpectre::getSpectreHandler() {

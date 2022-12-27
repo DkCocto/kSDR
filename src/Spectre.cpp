@@ -27,7 +27,7 @@ void Spectre::waterfallAutoColorCorrection() {
 
 void Spectre::spectreRatioAutoCorrection() {
 	viewModel->minDb = m.average - 15;
-	viewModel->maxDb = m.max + 40;
+	viewModel->ratio = m.max + 40;
 	//Utils::printFloat(viewModel->minDb);
 }
 
@@ -109,7 +109,7 @@ void Spectre::draw() {
 
 			float stepX = (windowLeftBottomCorner.x - rightPadding - leftPadding) / reducedSpectreData.size();
 
-			float ratio = ratioKalman->filter((float)spectreHeight / (abs(veryMinSpectreVal) - abs(viewModel->maxDb)));
+			float ratio = ratioKalman->filter((float)spectreHeight / (abs(veryMinSpectreVal) - abs(viewModel->ratio)));
 
 			float koeff = 0;
 			if (abs(veryMinSpectreVal) * ratio > (float)spectreHeight) {
@@ -152,14 +152,14 @@ void Spectre::draw() {
 				draw_list->AddConvexPolyFilled(polygon, 4, BLUE);
 				delete[] polygon;
 
-				draw_list->AddLine(lineX1, lineX2, IM_COL32_WHITE, 1.0f);
+				draw_list->AddLine(lineX1, lineX2, IM_COL32_WHITE, 0.1f);
 			}
 			
 			reducedSpectreData.clear();
 
 			//dB mark line
 			float stepInPX = (float)spectreHeight / (float)SPECTRE_DB_MARK_COUNT;
-			float stepdB = (abs(veryMinSpectreVal) - abs(viewModel->maxDb)) / SPECTRE_DB_MARK_COUNT;
+			float stepdB = (abs(veryMinSpectreVal) - abs(viewModel->ratio)) / SPECTRE_DB_MARK_COUNT;
 
 			for (int i = 0; i < SPECTRE_DB_MARK_COUNT; i++) {
 				draw_list->AddText(

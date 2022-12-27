@@ -1,0 +1,14 @@
+<Config>
+    <Receiver>
+        <startFreq>3700000</startFreq>
+    </Receiver>
+    <Waterfall>
+        <min>-102.95805</min>
+        <max>-57.257866</max>
+    </Waterfall>
+    <Spectre>
+        <ratio>-43.556801</ratio>
+        <min>-127.93059</min>
+        <speed>15</speed>
+    </Spectre>
+</Config>

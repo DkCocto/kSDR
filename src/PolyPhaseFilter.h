@@ -6,7 +6,7 @@
 
 class PolyPhaseFilter {
 	double* coeffs;
-	double alpha = 0.5;
+	double alpha = 1.0;
 	std::vector<FirFilter>* subFilters;
 
 private:

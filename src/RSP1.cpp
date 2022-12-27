@@ -19,7 +19,7 @@ void RSP1::streamCallback(short* xi, short* xq, unsigned int firstSampleNum, int
     RSP1* rsp1 = (RSP1*)cbContext;
 
     for (int i = 0; i < numSamples; i++) {
-        if (i % 4 == 0) {
+        if (i % 2 == 0) {
             rsp1->cb->write(xi[i] / 32767.0);
             rsp1->cb->write(xq[i] / 32767.0);
         }
@@ -93,7 +93,7 @@ void RSP1::init() {
 
     mir_sdr_DecimateControl(1, config->inputSamplerateDivider, 0);
 
-    r = mir_sdr_StreamInit(&gainR, ((4000000 * config->inputSamplerateDivider) / 1e6), (frequency / 1e6),
+    r = mir_sdr_StreamInit(&gainR, ((2000000 * config->inputSamplerateDivider) / 1e6), (frequency / 1e6),
         (mir_sdr_Bw_MHzT)bwkHz, (mir_sdr_If_kHzT)ifkHz, rspLNA, &gRdBsystem,
         grMode, &samplesPerPacket, RSP1::streamCallback, RSP1::gainCallback, (void*)this);
 

@@ -31,9 +31,9 @@ void CircleBuffer::write(uint8_t* buf, int bufLen) {
 
 		//write(((buf[i] - 128.0f) / 128.0f));
 
-		if (i % 16 == 0) {
-			write(0.05 * ((buf[i] - 127.0f) / 128.0f));
-			write(0.05 * ((buf[i + 1] - 127.0f) / 128.0f));
+		if (i % 4 == 0) {
+			write(0.01 * ((buf[i] - 127.0f) / 128.0f));
+			write(0.01 * ((buf[i + 1] - 127.0f) / 128.0f));
 		}
 	}
 }

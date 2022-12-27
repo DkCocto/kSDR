@@ -58,6 +58,7 @@
     <ClCompile Include="src\SoundProcessorThread.cpp" />
     <ClCompile Include="src\SoundReaderThread.cpp" />
     <ClCompile Include="src\Spectre.cpp" />
+    <ClCompile Include="src\tinyxml2\tinyxml2.cpp" />
     <ClCompile Include="src\Utils.cpp" />
     <ClCompile Include="src\ViewModel.cpp" />
     <ClCompile Include="src\Waterfall.cpp" />
@@ -110,6 +111,7 @@
     <ClInclude Include="src\SoundProcessorThread.h" />
     <ClInclude Include="src\SoundReaderThread.h" />
     <ClInclude Include="src\Spectre.h" />
+    <ClInclude Include="src\tinyxml2\tinyxml2.h" />
     <ClInclude Include="src\Utils.h" />
     <ClInclude Include="src\ViewModel.h" />
     <ClInclude Include="src\Waterfall.h" />
@@ -220,7 +222,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\dev\Visual Studio\kSDR\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>mir_sdr_api.lib;portaudio_static_x86.lib;glfw3.lib;opengl32.lib;hackrf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>mir_sdr_api.lib;portaudio_static_x86.lib;glfw3.lib;opengl32.lib;hackrf.lib;pthreadVSE2.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

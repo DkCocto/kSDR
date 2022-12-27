@@ -59,6 +59,7 @@ public:
 
 
 	Display(Config* config, FFTSpectreHandler* fftSH, Hackrf* hackrf);
+	~Display();
 
 	int init();
 
