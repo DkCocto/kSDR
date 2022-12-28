@@ -5,9 +5,6 @@ void Display::framebufferReSizeCallback(GLFWwindow* window, int width, int heigh
 	if (Display::instance != NULL) {
 		Display::instance->width = width;
 		Display::instance->height = height;
-		//Display::instance->receiver->initAfterResize(width);
-		Display::instance->drawScene();
-		//cout << Display::display->width << " " << Display::display->height << "\r\n";
 	}
 }
 
@@ -125,125 +122,11 @@ void Display::mainLoop() {
 	glfwTerminate();
 }
 
-void Display::drawScene() {
-	//glEnable(GL_POINT_SMOOTH);
-
-	//glPointSize(2.0f); // размер точки
-
-	//glBegin(GL_POINTS);
-	//glVertex2f(0.5f, 0.5f);
-	//glVertex2f(0.2f, 0.2f);
-	//glEnd();
-
-	//drawSpectre();
-	//handleActions();
-	//drawReceivedRegion();
-}
-
 Display::~Display() {
+	config->lastSelectedFreq = spectre->receiverLogicNew->getSelectedFreqNew(); //saving last selected freq to config class
 	delete viewModel;
 }
 
-/*void Display::drawReceivedRegion() {
-	float pos = receiver->receiverPosByCoords;
-
-	glColor3d(1, 1, 1);
-	glBegin(GL_LINES);
-		glVertex2f(pos, 1.0);
-		glVertex2f(pos, -1.0);
-	glEnd();
-	
-	glColor4d(4.0 / 255, 255.0/255.0, 0, 0.2);
-	glBegin(GL_QUADS);
-		float delta = receiver->getFilterWidthAbs(viewModel->filterWidth);
-
-		switch (viewModel->receiverMode) {
-			case USB:
-				glVertex2f(pos + delta, -1.0);
-				glVertex2f(pos + delta, 1.0);
-				glVertex2f(pos, 1.0);
-				glVertex2f(pos, -1.0);
-				break;
-			case LSB:
-				glVertex2f(pos - delta, -1.0);
-				glVertex2f(pos - delta, 1.0);
-				glVertex2f(pos, 1.0);
-				glVertex2f(pos, -1.0);
-				break;
-			case AM:
-				glVertex2f(pos - delta, -1.0);
-				glVertex2f(pos - delta, 1.0);
-				glVertex2f(pos + delta, 1.0);
-				glVertex2f(pos + delta, -1.0);
-				break;
-		}
-
-	glEnd();
-}*/
-
-//float* pipka;
-
-/*void Display::drawSpectre() {
-	glColor3d(1, 1, 1);
-
-	//Чертим шкалу спектра
-	int startPoint = 0;
-	int width = receiver->windowWidth;
-	int height = 200;
-
-	//--------------------
-
-	float* spectre = fftSpectreHandler->getOutput();
-
-	int spectreSize = config->fftLen / 2;
-
-	float stepX = 2.0 / (spectreSize);
-
-	glBegin(GL_LINES);
-	for (int i = 0; i < spectreSize - 1; i++) {
-		glVertex2f(-1.0 + (i * stepX), spectre[fftSpectreHandler->getTrueBin(i)] / 130.0 + 0.5);
-		glVertex2f(-1.0 + ((i + 1.0) * stepX), spectre[fftSpectreHandler->getTrueBin(i + 1.0)] / 130.0 + 0.5);
-	}
-	glEnd();
-
-	showSignaldB(spectre);
-
-	fftSpectreHandler->getSemaphore()->unlock();
-}*/
-
-
-
-/*void Display::showSignaldB(float* spectreData) {
-	ReceiverLogicNew::ReceiveBinArea r = spectre->receiverLogicNew->getReceiveBinsArea(viewModel->filterWidth, viewModel->receiverMode);
-
-	//viewModel->serviceField1 = r.A;
-
-	float sum = 0.0;
-	int len = r.B - r.A;
-
-	if (len > 0) {
-		//Utils::printArray(spectre, 64);
-		//printf("%i %i\r\n", r.A, r.B);
-
-		float max = -1000.0;
-
-		for (int i = r.A; i < r.B; i++) {
-			if (spectreData[fftSpectreHandler->getTrueBin(i)] > max) {
-				max = spectreData[fftSpectreHandler->getTrueBin(i)];
-			}
-			//sum += spectre[i];
-		}
-		viewModel->signalMaxdB = maxdBKalman.filter(max);
-	}
-}*/
-
-/*void Display::handleActions() {
-	if (whichMouseBtnPressed == GLFW_MOUSE_BUTTON_1 && isMouseBtnPressed == GLFW_PRESS) {
-		if (mouseX >= 0 && mouseX <= width) {
-			receiver->setAbsoluteXpos(width, mouseX);
-		}
-	}
-}*/
 
 void Display::initImGUI() {
 	const char* glsl_version = "#version 130";
@@ -261,8 +144,6 @@ void Display::initImGUI() {
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init(glsl_version);
 }
-
-float kaka = 0;
 
 void Display::renderImGUIFirst() {
 	ImGui_ImplOpenGL3_NewFrame();
@@ -324,9 +205,6 @@ void Display::renderImGUIFirst() {
 		ImGui::SliderInt("Gain", &viewModel->gain, 0, 100); ImGui::SameLine();
 		ImGui::Checkbox("Gain Control", &viewModel->gainControl);
 
-		//ImGui::SameLine();
-		//ImGui::Checkbox("ATT", &viewModel->att);
-
 		ImGui::SliderFloat("Waterfall min", &viewModel->waterfallMin, -130, 0); ImGui::SameLine();
 		if (ImGui::Button("Waterfall Auto")) {
 			spectre->waterfallAutoColorCorrection();
@@ -342,7 +220,6 @@ void Display::renderImGUIFirst() {
 		ImGui::SliderInt("Spectre speed", &viewModel->spectreSpeed, 1, 200);
 		
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-		//if (ImGui::Button("7100000")) spectre->receiverLogicNew->setFreq(7100000);
 
 	ImGui::End();
 
@@ -351,14 +228,9 @@ void Display::renderImGUIFirst() {
 	smeter->draw(viewModel->signalMaxdB);
 
 	ImGui::Begin("DATA");
-		//ImGui::Text("stepX: %f", receiver->stepX);
-		//ImGui::Text("receiverPos: %f", receiver->receiverPos);
-		//ImGui::Text("selectedBin: %i", (int)round(spectre->receiverLogicNew->getSelectedBin()));
-		//ImGui::Text("selectedFreq: %i", spectre->receiverLogicNew->getSelectedFreq());
 		ImGui::Text("AMP: %.2f", viewModel->amp);
 		ImGui::Text("CPU usage: %.1f", cpu.getCurrentValue());
-		//ImGui::Text("Set gain: %d", viewModel->gainFromDevice);
-		//printf("%d \r\n", viewModel->gainFromDevice);
+		ImGui::Text("Buffer available: %.2f sec", viewModel->bufferAvailable);
 		ImGui::Text("Service field1: %f", viewModel->serviceField1);
 		ImGui::Text("Service field2: %f", viewModel->serviceField2);
 	ImGui::End();
@@ -426,6 +298,10 @@ void Display::renderImGUIFirst() {
 		ImGui::SameLine();
 		if (ImGui::Button("6.0k")) {
 			viewModel->filterWidth = 6000;
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("8.0k")) {
+			viewModel->filterWidth = 8000;
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("12.0k")) {

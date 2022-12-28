@@ -32,6 +32,7 @@
     <ClCompile Include="src\Display.cpp" />
     <ClCompile Include="src\FFTSpectreHandler.cpp" />
     <ClCompile Include="src\Filter.cpp" />
+    <ClCompile Include="src\FIR.cpp" />
     <ClCompile Include="src\FirFilter.cpp" />
     <ClCompile Include="src\FlowingFFTSpectre.cpp" />
     <ClCompile Include="src\Hackrf.cpp" />
@@ -83,6 +84,7 @@
     <ClInclude Include="src\fft3.hpp" />
     <ClInclude Include="src\FFTSpectreHandler.h" />
     <ClInclude Include="src\Filter.h" />
+    <ClInclude Include="src\FIR.h" />
     <ClInclude Include="src\FirFilter.h" />
     <ClInclude Include="src\FlowingFFTSpectre.h" />
     <ClInclude Include="src\Hackrf.h" />

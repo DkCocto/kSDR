@@ -10,6 +10,7 @@
 #include "AGC.h"
 #include "ReceiverLogic.h"
 #include "Display.h"
+#include "FIR.h"
 
 using namespace std;
 
@@ -25,8 +26,8 @@ class SoundProcessorThread {
 	HilbertTransform* hilbertTransform;
 	Delay* delay;
 
-	PolyPhaseFilter* firFilterI;
-	PolyPhaseFilter* firFilterQ;
+	PolyPhaseFilter firFilterI;
+	PolyPhaseFilter firFilterQ;
 
 	FirFilter* audioFilter;
 
@@ -38,6 +39,8 @@ class SoundProcessorThread {
 	FFTSpectreHandler* fftSpectreHandler;
 
 	Config* config;
+
+	FIR* fir = new FIR();
 
 public: 
 

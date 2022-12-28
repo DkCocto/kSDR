@@ -49,11 +49,14 @@ public:
 
 	int visibleSpectreBinCount = 2048;
 
+	//This data will be stored in config xml
 	float waterfallMin = 0;
 	float waterfallMax = 0;
 	float spectreRatio = 0;
 	float spectreMin = 0;
 	int spectreSpeed = 0;
+	float lastSelectedFreq = startFrequency;
+	//--------------------------------------
 
 	void load();
 	void save();

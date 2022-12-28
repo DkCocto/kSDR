@@ -59,4 +59,8 @@ public:
 	int vgaGain = 8;
 	int enableAmp = 0;
 
+	float bufferAvailable = 0;
+
+	void setBufferAvailable(int readAvailableBufferCount);
+
 };

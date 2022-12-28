@@ -23,3 +23,7 @@ ViewModel::~ViewModel() {
 	config->spectreSpeed = spectreSpeed;
 	config->startFrequency = centerFrequency;
 }
+
+void ViewModel::setBufferAvailable(int readAvailableBufferCount) {
+	bufferAvailable = (float)readAvailableBufferCount / (config->inputSamplerate / config->inputSamplerateDivider);
+}

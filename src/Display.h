@@ -65,9 +65,6 @@ public:
 
 	void mainLoop();
 
-	void drawScene();
-
-
 	void initImGUI();
 
 	void renderImGUIFirst();

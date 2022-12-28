@@ -11,6 +11,13 @@ void Utils::printArray(double* array, int len) {
 		printf("%i %f\r\n", i, array[i]);
 	}
 }
+
+void Utils::printArrayWithoutIndexes(double* array, int len) {
+	for (int i = 0; i < len; i++) {
+		printf("%10.10f\r\n", array[i]);
+	}
+}
+
 void Utils::printArray(std::vector<float> v) {
 	for (int i = 0; i < v.size(); i++) {
 		printf("%i %f\r\n", i, v[i]);

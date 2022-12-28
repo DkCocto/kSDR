@@ -1,14 +1,15 @@
 <Config>
     <Receiver>
         <startFreq>3700000</startFreq>
+        <lastSelectedFreq>3581714</lastSelectedFreq>
     </Receiver>
     <Waterfall>
-        <min>-102.95805</min>
-        <max>-57.257866</max>
+        <min>-143.40178</min>
+        <max>-47.08654</max>
     </Waterfall>
     <Spectre>
-        <ratio>-43.556801</ratio>
-        <min>-127.93059</min>
+        <ratio>-23.3498</ratio>
+        <min>-146.2924</min>
         <speed>15</speed>
     </Spectre>
 </Config>

@@ -5,24 +5,26 @@
 #include "Filter.h"
 
 class PolyPhaseFilter {
-	double* coeffs;
-	double alpha = 1.0;
-	std::vector<FirFilter>* subFilters;
+	std::vector<double> coeffs;
+	double alpha = 0.5f;
+	std::vector<FirFilter> subFilters;
 
 private:
 
-	void initSubFilters(double* coeffs, int coeffsLen, int R);
+	void initSubFilters(std::vector<double> coeffs, int coeffsLen, int R);
 
 public:
 
 	/**
-		* Taps LEN must be an integer number of decimationRate
-		* @param sampleRate
-		* @param freq
-		* @param decimationRate
-		* @param len
-		*/
-	PolyPhaseFilter(double sampleRate, double freq, int decimationRate, int len);
+	* Taps LEN must be an integer number of decimationRate
+	* @param sampleRate
+	* @param freq
+	* @param decimationRate
+	* @param len
+	*/
+	void initCoeffs(double sampleRate, double freq, int decimationRate, int len);
+
+	PolyPhaseFilter();
 
 	/**
 		* Each time we get an input we rotate though the coefficients based on the decimate rate R and the position P.

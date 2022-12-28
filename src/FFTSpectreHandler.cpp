@@ -174,27 +174,6 @@ void FFTSpectreHandler::prepareData() {
 	}
 }
 
-/*int FFTSpectreHandler::getTrueBin(int bin) {
-	//bin[0, 1022]
-
-	int size = (complexLen * 2 - 1) / 2; // 1025
-
-	int increment = 0;
-	if (bin >= (size - 1) / 2) { //bin >= 512
-		increment = -1 * ((size - 1) / 2) + 1; //inc = -512
-	}
-	else {
-		increment = (size - 1) / 2 + 1; // inc = 513 
-	}
-	//printf("%i ", bin + increment);
-
-
-	//0 -> 1026; 1024 -> -1!!!; 1023 -> 2049; 1022 -> 
-	// 2049 -> 2049 - 1026 = 1023
-
-	return bin + increment;
-}*/
-
 void FFTSpectreHandler::setSpectreSpeed(int speed) {
 	spectreSpeed = speed;
 }

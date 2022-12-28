@@ -27,7 +27,7 @@ Config::Config(int inputSamplerate) {
 	circleBufferLen								= 2 * inputSamplerate;
 
 	hilbertTransformLen							= 255;
-	polyphaseFilterLen							= 256;
+	polyphaseFilterLen							= 512;
 
 	fftBandwidth								= (float)inputSamplerate / (float)fftLen;
 
@@ -53,6 +53,9 @@ void Config::load() {
         if (NULL != pReceiver) {
             tinyxml2::XMLElement* pstartFreq = pReceiver->FirstChildElement("startFreq");
             startFrequency = std::stof(std::string(pstartFreq->GetText()));
+
+            tinyxml2::XMLElement* plastSelectedFreq = pReceiver->FirstChildElement("lastSelectedFreq");
+            lastSelectedFreq = std::stof(std::string(plastSelectedFreq->GetText()));
         }
 
         tinyxml2::XMLElement* pWaterfall = pRootElement->FirstChildElement("Waterfall");
@@ -92,6 +95,9 @@ void Config::save() {
         if (NULL != pReceiver) {
             tinyxml2::XMLElement* pstartFreq = pReceiver->FirstChildElement("startFreq");
             pstartFreq->SetText(startFrequency);
+
+            tinyxml2::XMLElement* plastSelectedFreq = pReceiver->FirstChildElement("lastSelectedFreq");
+            plastSelectedFreq->SetText(lastSelectedFreq);
         }
 
         tinyxml2::XMLElement* pWaterfall = pRootElement->FirstChildElement("Waterfall");
@@ -130,7 +136,7 @@ void Config::calcOutputSamplerate() {
 		div *= 2;
 		if (sampleRate % div != 0) break;
 		else {
-			if (sampleRate / div <= 192000) break;
+			if (sampleRate / div <= 44000) break;
 		}
 	}
 	outputSamplerateDivider = div;

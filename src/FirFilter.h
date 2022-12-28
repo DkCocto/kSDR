@@ -1,7 +1,10 @@
 #pragma once
+
+#include "vector"
+
 class FirFilter {
 
-	double* coeffs;
+	std::vector<double> coeffs;
 	double* xv;  // This array holds the delayed values
 	int M; // The number of taps, the length of the filter
 	double Fc = 0; // Will be set to cutoffFreq/SAMPLE_RATE; 
@@ -10,7 +13,7 @@ public:
 
 	FirFilter();
 
-	FirFilter(double* taps, int tabsLen);
+	FirFilter(std::vector<double> taps, int tabsLen);
 
 	/**
 	 * Calculate the result with convolution.  This assumes that the filter kernel coeffs are already reversed as

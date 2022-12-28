@@ -15,17 +15,23 @@ SoundProcessorThread::SoundProcessorThread(Config* config, CircleBuffer* iqSigna
 	delay = new Delay((config->hilbertTransformLen - 1) / 2);
 	agc = new AGC(fftSpectreHandler);
 
+	decimateBufferI = new double[config->outputSamplerateDivider];
+	memset(decimateBufferI, 0, sizeof(double) * config->outputSamplerateDivider);
+
+	decimateBufferQ = new double[config->outputSamplerateDivider];
+	memset(decimateBufferQ, 0, sizeof(double) * config->outputSamplerateDivider);
+
 	//Инициализация полифазных фильтров
 	initFilters(config->defaultFilterWidth);
-
-	decimateBufferI = new double[config->outputSamplerateDivider];
-	decimateBufferQ = new double[config->outputSamplerateDivider];
 }
 
 void SoundProcessorThread::initFilters(int filterWidth) {
-	firFilterI = new PolyPhaseFilter(config->inputSamplerate, filterWidth, config->outputSamplerateDivider, config->polyphaseFilterLen);
-	firFilterQ = new PolyPhaseFilter(config->inputSamplerate, filterWidth, config->outputSamplerateDivider, config->polyphaseFilterLen);
-	audioFilter = new FirFilter(Filter::makeRaiseCosine(config->outputSamplerate, filterWidth, 1, config->polyphaseFilterLen), config->polyphaseFilterLen);
+	firFilterI.initCoeffs(config->inputSamplerate, filterWidth, config->outputSamplerateDivider, config->polyphaseFilterLen);
+	firFilterQ.initCoeffs(config->inputSamplerate, filterWidth, config->outputSamplerateDivider, config->polyphaseFilterLen);
+
+	fir->init(fir->LOWPASS, fir->HAMMING, 256, filterWidth, 0, config->inputSamplerate/config->outputSamplerateDivider);
+	//audioFilter = new FirFilter(Filter::makeRaiseCosine(config->outputSamplerate / config->outputSamplerateDivider, filterWidth, 0.5, config->polyphaseFilterLen), config->polyphaseFilterLen);
+	//audioFilter = new FirFilter(fir->getCoeffs(), 128);
 }
 
 float xm1 = 0, ym1 = 0, xm2 = 0, ym2 = 0;
@@ -41,15 +47,18 @@ void SoundProcessorThread::process() {
 
 	float* data;
 
+	ViewModel* viewModel = Display::instance->viewModel;
+
 	while (true) {
 
 		int available = iqSignalsCircleBuffer->available();
+		Display::instance->viewModel->setBufferAvailable(available);
 		if (available >= len) {
 			data = iqSignalsCircleBuffer->read(len);
 
 			//Обработка ширины фильтра
-			if (storedFilterWidth != Display::instance->viewModel->filterWidth) {
-				storedFilterWidth = Display::instance->viewModel->filterWidth;
+			if (storedFilterWidth != viewModel->filterWidth) {
+				storedFilterWidth = viewModel->filterWidth;
 				initFilters(storedFilterWidth);
 			}
 			//------------------------
@@ -72,8 +81,8 @@ void SoundProcessorThread::process() {
 
 				//Уменьшаем силу выходного сигнала после смесителя, чтобы фильтры не перегружались от сильных сигналов
 				//if (Display::instance->viewModel->att) {
-					mixedSignal.I *= 0.01;
-					mixedSignal.Q *= 0.01;
+					mixedSignal.I *= 0.005;
+					mixedSignal.Q *= 0.005;
 				//}
 
 				decimateBufferI[decimationCount] = mixedSignal.I;
@@ -83,12 +92,10 @@ void SoundProcessorThread::process() {
 
 				if (i % config->outputSamplerateDivider == 0) {
 					decimationCount = 0;
-					double audioI = firFilterI->filter(decimateBufferI, config->outputSamplerateDivider);
-					double audioQ = firFilterQ->filter(decimateBufferQ, config->outputSamplerateDivider);
+					double audioI = firFilterI.filter(decimateBufferI, config->outputSamplerateDivider);
+					double audioQ = firFilterQ.filter(decimateBufferQ, config->outputSamplerateDivider);
 
 					int mode = USB;
-
-					ViewModel* viewModel = Display::instance->viewModel;
 
 					mode = viewModel->receiverMode;
 
@@ -109,10 +116,11 @@ void SoundProcessorThread::process() {
 						audio = sqrt(audioI * audioI + audioQ * audioQ);
 						break;
 					}
-					audio = audioFilter->filter(audio);
+					//audio = audioFilter->filter(audio);
+					audio = fir->proc(audio);
 					audio = agc->process(audio) * Display::instance->viewModel->volume;
 					//Если AM, то немного усилим сигнал
-					if (mode == AM) audio *= 7;
+					if (mode == AM) audio *= 5;
 					outputData[count] = audio;
 					count++;
 				}
@@ -125,7 +133,7 @@ void SoundProcessorThread::process() {
 			delete data;
 		} else {
 			//printf("SoundProcessorThread: Waiting for iqSignalsCircleBuffer...\r\n");
-			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		}
 	}
 }

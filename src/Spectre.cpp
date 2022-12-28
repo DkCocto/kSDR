@@ -28,7 +28,6 @@ void Spectre::waterfallAutoColorCorrection() {
 void Spectre::spectreRatioAutoCorrection() {
 	viewModel->minDb = m.average - 15;
 	viewModel->ratio = m.max + 40;
-	//Utils::printFloat(viewModel->minDb);
 }
 
 Spectre::Spectre(Config* config, ViewModel* viewModel, FlowingFFTSpectre* flowingFFTSpectre) {
@@ -36,14 +35,13 @@ Spectre::Spectre(Config* config, ViewModel* viewModel, FlowingFFTSpectre* flowin
 	this->config = config;
 	this->viewModel = viewModel;
 	this->flowingFFTSpectre = flowingFFTSpectre;
+
 	receiverLogicNew = new ReceiverLogicNew(config, viewModel, flowingFFTSpectre);
+
 	maxdBKalman = new KalmanFilter(1, 0.005);
 	ratioKalman = new KalmanFilter(1, 0.01);
 	spectreTranferKalman = new KalmanFilter(1, 0.01);
 	this->waterfall = new Waterfall(config, flowingFFTSpectre, viewModel);
-
-	//spectreDataCopy = new float[flowingFFTSpectre->getLen()];
-	//memset(spectreDataCopy, 0, sizeof(float) * flowingFFTSpectre->getLen());
 }
 
 int savedStartWindowX = 0;
@@ -266,7 +264,7 @@ void Spectre::draw() {
 	delete[] fullSpectreData;
 
 	if (isFirstFrame) {
-		receiverLogicNew->setFrequencyDelta(0);
+		receiverLogicNew->setFreq(config->lastSelectedFreq); //load last selected freq
 		isFirstFrame = false;
 	}
 }

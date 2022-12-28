@@ -11,8 +11,6 @@ float ReceiverLogicNew::getCenterFrequency() {
 void ReceiverLogicNew::setFrequencyDelta(float frequencyDelta) {
 	this->frequencyDelta = frequencyDelta;
 
-	//float freqWidthOfOnePx = spectreWidthPx / config->inputSamplerate;
-
 	float freqFromZero = config->inputSamplerate / 2 + frequencyDelta;
 
 	FlowingFFTSpectre::FREQ_RANGE range = flowingFFTSpectre->getVisibleFreqRangeFromSamplerate();
@@ -20,8 +18,6 @@ void ReceiverLogicNew::setFrequencyDelta(float frequencyDelta) {
 	receiverPosOnBin = round(freqFromZero * (float)flowingFFTSpectre->getLen() / (range.second - range.first));
 
 	receiverPosOnPx = round((receiverPosOnBin - flowingFFTSpectre->getA()) * spectreWidthPx / flowingFFTSpectre->getLen());
-
-	//viewModel->serviceField1 = receiverPosOnBin;
 }
 
 void ReceiverLogicNew::setFrequencyDeltaBySpectrePosPx(float positionInSpectrePx) {

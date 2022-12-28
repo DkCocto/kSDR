@@ -11,5 +11,5 @@ class Filter {
      * @param len
      */
 public:
-    static double* makeRaiseCosine(double sampleRate, double freq, double alpha, int len);
+    static std::vector<double> makeRaiseCosine(double sampleRate, double freq, double alpha, int len);
 };
