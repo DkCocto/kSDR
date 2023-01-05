@@ -90,7 +90,7 @@ int Display::init() {
 	ImGuiIO& io = ImGui::GetIO();
 	io.FontGlobalScale = 1;
 
-	//Èíèöèàëèçèðóåì øðèôò
+	//Ð˜Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð¸Ñ€ÑƒÐµÐ¼ ÑˆÑ€Ð¸Ñ„Ñ‚
 }
 
 void Display::mainLoop() {
@@ -150,7 +150,7 @@ void Display::renderImGUIFirst() {
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 
-	//Ïðîâåðêà êîòîðàÿ èñêëþ÷àåò íàñòðîéêó ïðèåìíèêà ïðè ïåðåòÿãèâàíèè ñòîðîííåãî îêíà â îáëàñòü îêíà ñïåêòðà
+	//ÐŸÑ€Ð¾Ð²ÐµÑ€ÐºÐ° ÐºÐ¾Ñ‚Ð¾Ñ€Ð°Ñ Ð¸ÑÐºÐ»ÑŽÑ‡Ð°ÐµÑ‚ Ð½Ð°ÑÑ‚Ñ€Ð¾Ð¹ÐºÑƒ Ð¿Ñ€Ð¸ÐµÐ¼Ð½Ð¸ÐºÐ° Ð¿Ñ€Ð¸ Ð¿ÐµÑ€ÐµÑ‚ÑÐ³Ð¸Ð²Ð°Ð½Ð¸Ð¸ ÑÑ‚Ð¾Ñ€Ð¾Ð½Ð½ÐµÐ³Ð¾ Ð¾ÐºÐ½Ð° Ð² Ð¾Ð±Ð»Ð°ÑÑ‚ÑŒ Ð¾ÐºÐ½Ð° ÑÐ¿ÐµÐºÑ‚Ñ€Ð°
 	if (ImGui::IsMouseDown(0)) {
 		if (!spectre->isMouseOnSpectreRegion(
 			spectre->windowFrame.UPPER_RIGHT.x,

@@ -14,7 +14,7 @@ public:
     const unsigned char BLACKMAN_HARRIS = 5;// Blackman-Harris window
     const unsigned char BLACKMAN_NUTTAL = 6;// Blackman-Nuttal window
     const unsigned char NUTTAL = 7;// Nuttal window
-
+    
 
     const unsigned char OFF = 0;
     const unsigned char LOWPASS = 1;
@@ -31,32 +31,32 @@ public:
     int len = 0;
 
     /**
-     * инициализация параметров
+     * РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РїР°СЂР°РјРµС‚СЂРѕРІ
      *
-     * @param type       - тип фильтра
-     * @param window     - окно
-     * @param order      - порядок фильтра
-     * @param f1         - частота ФНЧ и ФВЧ фильтра
-     * @param f2         - верхняя частота для полосового и режекторного фильтра
-     * @param sampleRate - частота дискретизации
+     * @param type       - С‚РёРї С„РёР»СЊС‚СЂР°
+     * @param window     - РѕРєРЅРѕ
+     * @param order      - РїРѕСЂСЏРґРѕРє С„РёР»СЊС‚СЂР°
+     * @param f1         - С‡Р°СЃС‚РѕС‚Р° Р¤РќР§ Рё Р¤Р’Р§ С„РёР»СЊС‚СЂР°
+     * @param f2         - РІРµСЂС…РЅСЏСЏ С‡Р°СЃС‚РѕС‚Р° РґР»СЏ РїРѕР»РѕСЃРѕРІРѕРіРѕ Рё СЂРµР¶РµРєС‚РѕСЂРЅРѕРіРѕ С„РёР»СЊС‚СЂР°
+     * @param sampleRate - С‡Р°СЃС‚РѕС‚Р° РґРёСЃРєСЂРµС‚РёР·Р°С†РёРё
      */
     void init(unsigned char type, unsigned char window, short order, int f1, int f2, int sampleRate);
 
     /**
-     * получить коэффициент заданного типа окна
+     * РїРѕР»СѓС‡РёС‚СЊ РєРѕСЌС„С„РёС†РёРµРЅС‚ Р·Р°РґР°РЅРЅРѕРіРѕ С‚РёРїР° РѕРєРЅР°
      *
-     * @param i      - индекс
-     * @param n      - размер окна
-     * @param window - тип окна
-     * @return коэффициент
+     * @param i      - РёРЅРґРµРєСЃ
+     * @param n      - СЂР°Р·РјРµСЂ РѕРєРЅР°
+     * @param window - С‚РёРї РѕРєРЅР°
+     * @return РєРѕСЌС„С„РёС†РёРµРЅС‚
      */
     double getWindow(int i, int n, unsigned char window);
 
     /**
-     * фильтрация
+     * С„РёР»СЊС‚СЂР°С†РёСЏ
      *
-     * @param sample - отсчёт звука
-     * @return результат фильтрации
+     * @param sample - РѕС‚СЃС‡С‘С‚ Р·РІСѓРєР°
+     * @return СЂРµР·СѓР»СЊС‚Р°С‚ С„РёР»СЊС‚СЂР°С†РёРё
      */
 
     double proc(double sample);

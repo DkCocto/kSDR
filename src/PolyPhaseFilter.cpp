@@ -1,4 +1,5 @@
 #include "PolyPhaseFilter.h"
+#include "FIR.h"
 
 void PolyPhaseFilter::initSubFilters(std::vector<double> coeffs, int coeffsLen, int R) {
 	int M = coeffsLen;
@@ -22,7 +23,10 @@ void PolyPhaseFilter::initSubFilters(std::vector<double> coeffs, int coeffsLen, 
 
 void PolyPhaseFilter::initCoeffs(double sampleRate, double freq, int decimationRate, int len) {
 	coeffs.clear();
-	coeffs = Filter::makeRaiseCosine(sampleRate, freq, alpha, len);
+	FIR fir;
+	fir.init(fir.LOWPASS, fir.HAMMING, len, freq, 0, sampleRate);
+	coeffs = fir.getCoeffs();
+	//coeffs = Filter::makeRaiseCosine(sampleRate, freq, alpha, len);
 
 	printf("Raised Cosine PolyPhase Filter. Len: %d\r\n", coeffs.size());
 	initSubFilters(coeffs, len, decimationRate);

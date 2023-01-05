@@ -25,6 +25,10 @@
     <ClCompile Include="src\CircleBufferWriterThread.cpp" />
     <ClCompile Include="src\ComplexOscillator.cpp" />
     <ClCompile Include="src\ComplexSignal.cpp" />
+    <ClCompile Include="src\Compressor\SimpleComp.cpp" />
+    <ClCompile Include="src\Compressor\SimpleEnvelope.cpp" />
+    <ClCompile Include="src\Compressor\SimpleGate.cpp" />
+    <ClCompile Include="src\Compressor\SimpleLimit.cpp" />
     <ClCompile Include="src\Config.cpp" />
     <ClCompile Include="src\CosOscillator.cpp" />
     <ClCompile Include="src\CPU.cpp" />
@@ -75,6 +79,12 @@
     <ClInclude Include="src\CircleBufferWriterThread.h" />
     <ClInclude Include="src\ComplexOscillator.h" />
     <ClInclude Include="src\ComplexSignal.h" />
+    <ClInclude Include="src\Compressor\SimpleComp.h" />
+    <ClInclude Include="src\Compressor\SimpleEnvelope.h" />
+    <ClInclude Include="src\Compressor\SimpleGain.h" />
+    <ClInclude Include="src\Compressor\SimpleGate.h" />
+    <ClInclude Include="src\Compressor\SimpleHeader.h" />
+    <ClInclude Include="src\Compressor\SimpleLimit.h" />
     <ClInclude Include="src\Config.h" />
     <ClInclude Include="src\CosOscillator.h" />
     <ClInclude Include="src\CPU.h" />
@@ -125,6 +135,11 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\Compressor\SimpleCompProcess.inl" />
+    <None Include="src\Compressor\SimpleGateProcess.inl" />
+    <None Include="src\Compressor\SimpleLimitProcess.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

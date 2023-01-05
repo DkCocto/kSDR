@@ -27,7 +27,7 @@ Config::Config(int inputSamplerate) {
 	circleBufferLen								= 2 * inputSamplerate;
 
 	hilbertTransformLen							= 255;
-	polyphaseFilterLen							= 512;
+	polyphaseFilterLen							= 256;
 
 	fftBandwidth								= (float)inputSamplerate / (float)fftLen;
 
@@ -56,6 +56,9 @@ void Config::load() {
 
             tinyxml2::XMLElement* plastSelectedFreq = pReceiver->FirstChildElement("lastSelectedFreq");
             lastSelectedFreq = std::stof(std::string(plastSelectedFreq->GetText()));
+
+            tinyxml2::XMLElement* pvolume = pReceiver->FirstChildElement("volume");
+            volume = std::stof(std::string(pvolume->GetText()));
         }
 
         tinyxml2::XMLElement* pWaterfall = pRootElement->FirstChildElement("Waterfall");
@@ -98,6 +101,9 @@ void Config::save() {
 
             tinyxml2::XMLElement* plastSelectedFreq = pReceiver->FirstChildElement("lastSelectedFreq");
             plastSelectedFreq->SetText(lastSelectedFreq);
+
+            tinyxml2::XMLElement* pvolume = pReceiver->FirstChildElement("volume");
+            pvolume->SetText(volume);
         }
 
         tinyxml2::XMLElement* pWaterfall = pRootElement->FirstChildElement("Waterfall");

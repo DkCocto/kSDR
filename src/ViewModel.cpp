@@ -4,7 +4,7 @@ ViewModel::ViewModel(Config* config) {
 	this->config = config;
 	centerFrequency = config->startFrequency;
 	filterWidth = config->defaultFilterWidth;
-	volume = config->srartVolume;
+	volume = config->volume;
 
 
 	//from xml
@@ -22,6 +22,7 @@ ViewModel::~ViewModel() {
 	config->spectreMin = minDb;
 	config->spectreSpeed = spectreSpeed;
 	config->startFrequency = centerFrequency;
+	config->volume = volume;
 }
 
 void ViewModel::setBufferAvailable(int readAvailableBufferCount) {

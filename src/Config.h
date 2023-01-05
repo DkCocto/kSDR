@@ -42,8 +42,6 @@ public:
 
 	double startFrequency = 7100000.0;
 
-	double srartVolume = 0.5;
-
 	Config(int inputSamplerate);
 	~Config();
 
@@ -56,6 +54,7 @@ public:
 	float spectreMin = 0;
 	int spectreSpeed = 0;
 	float lastSelectedFreq = startFrequency;
+	float volume = 1;
 	//--------------------------------------
 
 	void load();

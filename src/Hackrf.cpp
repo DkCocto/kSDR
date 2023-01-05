@@ -97,7 +97,7 @@ void Hackrf::init() {
 	//hackrf_set_hw_sync_mode(device, (uint8_t)0);
 	//hackrf_set_sample_rate_manual
 	//hackrf_set_sample_rate
-	result = (hackrf_error)hackrf_set_sample_rate(device, 10000000.0);
+	result = (hackrf_error)hackrf_set_sample_rate(device, 8000000.0);
 	if (result != HACKRF_SUCCESS) {
 		fprintf(stderr,
 			"hackrf_set_sample_rate() failed: %s (%d)\n",
@@ -107,7 +107,7 @@ void Hackrf::init() {
 	
 	int64_t freq_hz = config->startFrequency;
 
-	result = (hackrf_error)hackrf_set_freq(device, freq_hz);
+	//result = (hackrf_error)hackrf_set_freq(device, freq_hz);
 	//result = (hackrf_error)hackrf_set_freq_explicit(device, 2408100000, 2401000000, RF_PATH_FILTER_LOW_PASS);
 
 	if (result != HACKRF_SUCCESS) {
@@ -119,13 +119,13 @@ void Hackrf::init() {
 
 
 
-	/*result = (hackrf_error)hackrf_set_freq(device, freq_hz);
+	result = (hackrf_error)hackrf_set_freq(device, freq_hz);
 	if (result != HACKRF_SUCCESS) {
 		fprintf(stderr,
 			"hackrf_set_freq() failed: %s (%d)\n",
 			hackrf_error_name(result),
 			result);
-	}*/
+	}
 
 	result = (hackrf_error)hackrf_set_amp_enable(device, amp);
 	if (result != HACKRF_SUCCESS) {
@@ -192,7 +192,7 @@ hackrf_error Hackrf::startRX() {
 
 
 void Hackrf::setFreq(uint64_t freq) {
-	/*if (savedFreq != freq) {
+	if (savedFreq != freq) {
 		//hackrf_error result = (hackrf_error)hackrf_set_freq_explicit(device, 2400000000 - freq, 2400000000, RF_PATH_FILTER_LOW_PASS);
 		hackrf_error result = (hackrf_error)hackrf_set_freq(device, freq);
 		if (result != HACKRF_SUCCESS) {
@@ -202,7 +202,7 @@ void Hackrf::setFreq(uint64_t freq) {
 				result);
 		}
 		savedFreq = freq;
-	}*/
+	}
 }
 
 void Hackrf::setLnaGain(uint32_t gain) {
@@ -242,6 +242,7 @@ void Hackrf::setBaseband(uint32_t baseband) {
 				hackrf_error_name(result),
 				result);
 		}
+		printf("setBaseband\r\n");
 		savedBaseband = baseband;
 	}
 }

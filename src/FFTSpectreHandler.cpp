@@ -44,13 +44,13 @@ void FFTSpectreHandler::run() {
 			if (!spectreDataMutex.try_lock()) continue;
 			processFFT();
 			readyToCalculate = false;
-			 // не забываем ставить unlock()!!!
+			 // РЅРµ Р·Р°Р±С‹РІР°РµРј СЃС‚Р°РІРёС‚СЊ unlock()!!!
 			spectreDataMutex.unlock();
 		}
 	}
 }
 
-//Возвращает объект очереди и ставит lock для потока
+//Р’РѕР·РІСЂР°С‰Р°РµС‚ РѕР±СЉРµРєС‚ РѕС‡РµСЂРµРґРё Рё СЃС‚Р°РІРёС‚ lock РґР»СЏ РїРѕС‚РѕРєР°
 std::queue<std::vector<float>> FFTSpectreHandler::getSpectreDataQueue() {
 	return spectreDataQueue;
 }
@@ -61,7 +61,7 @@ void FFTSpectreHandler::putData(float* data) {
 
 	memcpy(dataBuffer, data, sizeof(data) * config->fftLen);
 
-	spectreDataMutex.unlock(); // не забываем ставить unlock()!!!
+	spectreDataMutex.unlock(); // РЅРµ Р·Р°Р±С‹РІР°РµРј СЃС‚Р°РІРёС‚СЊ unlock()!!!
 	readyToCalculate = true;
 }
 
@@ -166,7 +166,7 @@ float FFTSpectreHandler::psd(float re, float im) {
 }
 
 void FFTSpectreHandler::prepareData() {
-	//Применения окна Блэкмона к исходным данным
+	//РџСЂРёРјРµРЅРµРЅРёСЏ РѕРєРЅР° Р‘Р»СЌРєРјРѕРЅР° Рє РёСЃС…РѕРґРЅС‹Рј РґР°РЅРЅС‹Рј
 	float* weights = wbh->getWeights();
 	for (int i = 0; i < config->fftLen / 2; i++) {
 		dataBuffer[2 * i] = dataBuffer[2 * i] * weights[i];

@@ -13,7 +13,7 @@ SoundProcessorThread::SoundProcessorThread(Config* config, CircleBuffer* iqSigna
 
 	hilbertTransform = new HilbertTransform(config->inputSamplerate, config->hilbertTransformLen);
 	delay = new Delay((config->hilbertTransformLen - 1) / 2);
-	agc = new AGC(fftSpectreHandler);
+	agc = new AGC(config, fftSpectreHandler);
 
 	decimateBufferI = new double[config->outputSamplerateDivider];
 	memset(decimateBufferI, 0, sizeof(double) * config->outputSamplerateDivider);
@@ -23,13 +23,13 @@ SoundProcessorThread::SoundProcessorThread(Config* config, CircleBuffer* iqSigna
 
 	//Инициализация полифазных фильтров
 	initFilters(config->defaultFilterWidth);
+
 }
 
 void SoundProcessorThread::initFilters(int filterWidth) {
 	firFilterI.initCoeffs(config->inputSamplerate, filterWidth, config->outputSamplerateDivider, config->polyphaseFilterLen);
 	firFilterQ.initCoeffs(config->inputSamplerate, filterWidth, config->outputSamplerateDivider, config->polyphaseFilterLen);
-
-	fir->init(fir->LOWPASS, fir->HAMMING, 256, filterWidth, 0, config->inputSamplerate/config->outputSamplerateDivider);
+	fir->init(fir->LOWPASS, fir->BLACKMAN_HARRIS, 256, filterWidth, 0, config->outputSamplerate);
 	//audioFilter = new FirFilter(Filter::makeRaiseCosine(config->outputSamplerate / config->outputSamplerateDivider, filterWidth, 0.5, config->polyphaseFilterLen), config->polyphaseFilterLen);
 	//audioFilter = new FirFilter(fir->getCoeffs(), 128);
 }
@@ -42,26 +42,25 @@ void SoundProcessorThread::process() {
 
 	int storedFilterWidth = config->defaultFilterWidth;
 
-	int decimateCount = 1;
-	long decimationCount = 0;
+	short decimationCount = 0;
 
 	float* data;
 
 	ViewModel* viewModel = Display::instance->viewModel;
 
 	while (true) {
+		
+		//Обработка ширины фильтра
+		if (storedFilterWidth != viewModel->filterWidth) {
+			storedFilterWidth = viewModel->filterWidth;
+			initFilters(storedFilterWidth);
+		}
+		//------------------------
 
 		int available = iqSignalsCircleBuffer->available();
-		Display::instance->viewModel->setBufferAvailable(available);
+		viewModel->setBufferAvailable(available);
 		if (available >= len) {
 			data = iqSignalsCircleBuffer->read(len);
-
-			//Обработка ширины фильтра
-			if (storedFilterWidth != viewModel->filterWidth) {
-				storedFilterWidth = viewModel->filterWidth;
-				initFilters(storedFilterWidth);
-			}
-			//------------------------
 
 			long count = 0;
 			for (int i = 0; i < len / 2; i++) {
@@ -81,8 +80,8 @@ void SoundProcessorThread::process() {
 
 				//Уменьшаем силу выходного сигнала после смесителя, чтобы фильтры не перегружались от сильных сигналов
 				//if (Display::instance->viewModel->att) {
-					mixedSignal.I *= 0.005;
-					mixedSignal.Q *= 0.005;
+					//mixedSignal.I *= 0.01;
+					//mixedSignal.Q *= 0.01;
 				//}
 
 				decimateBufferI[decimationCount] = mixedSignal.I;
@@ -118,10 +117,10 @@ void SoundProcessorThread::process() {
 					}
 					//audio = audioFilter->filter(audio);
 					audio = fir->proc(audio);
-					audio = agc->process(audio) * Display::instance->viewModel->volume;
+					audio = agc->process(audio);
 					//Если AM, то немного усилим сигнал
 					if (mode == AM) audio *= 5;
-					outputData[count] = audio;
+					outputData[count] = audio * Display::instance->viewModel->volume;
 					count++;
 				}
 		

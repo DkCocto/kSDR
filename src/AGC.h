@@ -11,7 +11,7 @@
 class AGC {
 
 private:
-    double threshold = 0.02;
+    double threshold = 0.01;
 
     double amp = 1;
 
@@ -33,9 +33,11 @@ private:
     double savedValue = 0;
     double delta = 0;
 
+    Config* config;
+
 public:
 
-    AGC(FFTSpectreHandler* fftSpectreHandler);
+    AGC(Config* config, FFTSpectreHandler* fftSpectreHandler);
 
     //double processNew(double signal);
 
