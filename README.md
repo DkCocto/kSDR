@@ -26,6 +26,8 @@ dkcocto@gmail.com
 
 Thank you!
 
+Video: https://youtu.be/yCoX8FF5DJc
+
 ![2023-02-01_13-18-52](https://user-images.githubusercontent.com/5113949/216016600-60bd6e26-5792-4ebb-9cea-20fed224fe0d.png)
 
 <test>
