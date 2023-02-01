@@ -1,5 +1,5 @@
 # kSDR
-Simple Fast SDR receiver app with OpenGL
+Simple Fast SDR receiver app with OpenGL support
 
 
 I would like to present to your attention the kSDR application for working with popular SDR devices.
