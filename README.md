@@ -12,9 +12,8 @@ The application uses OpenGL to render the user interface. This allows you to get
 Unfortunately, this fact imposes some limitations. In particular, the computer must contain a video card capable of running OpenGL.
 
 The program is in early beta. At the moment, kSDR allows you to work with devices:
-1) rsp1
-2) rsp1a
-3) rtlsdr ()
+1) rsp1/rsp1a
+2) rtlsdr (not yet fully supported)
 4) hackrf (not yet fully supported)
 
 The application is currently configured to receive signals in the range from 1 to 30 MHz. Supported modulations: AM, USB, LSB.
