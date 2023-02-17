@@ -7,7 +7,7 @@
 #include "Display.h"
 #include "ViewModel.h"
 
-class RSP1 {
+class RSP1: public Device {
 
     Config* config;
 

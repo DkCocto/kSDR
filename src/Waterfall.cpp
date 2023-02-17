@@ -127,7 +127,7 @@ Waterfall::RGB Waterfall::getColorForPowerInSpectre(float power) {
 	float fraction = (1.0 / (maxValue - minValue)) * power - (minValue / (maxValue - minValue));
 
 	float f = (1.0 - cos(fraction * M_PI)) * 0.5f;
-
+	//float f = fraction * fraction;
 	//int interpolatedColor = interpolate(minColor, maxColor, fraction);
 	//RGB rgb = convertColor(interpolatedColor);
 

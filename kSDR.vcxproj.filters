@@ -171,6 +171,9 @@
     <ClCompile Include="src\Compressor\SimpleLimit.cpp">
       <Filter>Исходные файлы\Compressor</Filter>
     </ClCompile>
+    <ClCompile Include="src\Device.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Config.h">
@@ -346,6 +349,9 @@
     </ClInclude>
     <ClInclude Include="src\Compressor\SimpleLimit.h">
       <Filter>Файлы заголовков\Compressor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Device.h">
+      <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

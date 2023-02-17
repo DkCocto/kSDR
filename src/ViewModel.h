@@ -55,9 +55,11 @@ public:
 	ImFont* fontMyRegular;
 	ImFont* fontBigRegular;
 
-	int lnaGain = 0;
-	int vgaGain = 8;
-	int enableAmp = 0;
+	struct HackRFModel {
+		int lnaGain = 0;
+		int vgaGain = 8;
+		int enableAmp = 0;
+	} hackRFModel;
 
 	float bufferAvailable = 0;
 

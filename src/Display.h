@@ -34,8 +34,6 @@ private:
 
 	CPU cpu;
 
-	Hackrf* hackrf;
-
 public:
 
 	static Display* instance;
@@ -58,7 +56,7 @@ public:
 	Config* config;
 
 
-	Display(Config* config, FFTSpectreHandler* fftSH, Hackrf* hackrf);
+	Display(Config* config, FFTSpectreHandler* fftSH);
 	~Display();
 
 	int init();

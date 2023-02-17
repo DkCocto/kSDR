@@ -13,6 +13,9 @@ ViewModel::ViewModel(Config* config) {
 	ratio = config->spectreRatio;
 	minDb = config->spectreMin;
 	spectreSpeed = config->spectreSpeed;
+	hackRFModel.lnaGain = config->hackrf.lnaGain;
+	hackRFModel.vgaGain = config->hackrf.vgaGain;
+	hackRFModel.enableAmp = config->hackrf.rxAmp;
 }
 
 ViewModel::~ViewModel() {
@@ -23,6 +26,10 @@ ViewModel::~ViewModel() {
 	config->spectreSpeed = spectreSpeed;
 	config->startFrequency = centerFrequency;
 	config->volume = volume;
+
+	config->hackrf.lnaGain = hackRFModel.lnaGain;
+	config->hackrf.vgaGain = hackRFModel.vgaGain;
+	config->hackrf.rxAmp = hackRFModel.enableAmp;
 }
 
 void ViewModel::setBufferAvailable(int readAvailableBufferCount) {

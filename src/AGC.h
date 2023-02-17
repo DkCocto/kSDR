@@ -11,7 +11,7 @@
 class AGC {
 
 private:
-    double threshold = 0.01;
+    double threshold = 0.009;
 
     double amp = 1;
 

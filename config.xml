@@ -1,16 +1,50 @@
 <Config>
+    <Device>
+        <!-- 
+		Device codes
+		0: RSP1/RSP1A
+		1: hackrf
+		-->
+        <type>1</type>
+        <samplingRateDiv>2</samplingRateDiv>
+        <RSP>
+            <!-- Total sampling rate = (deviceSamplingRate / deviceDecimationFactor) / samplingRateDiv -->
+            <!-- Example: -->
+            <!--	deviceSamplingRate = 2000000 -->
+            <!--	deviceDecimationFactor = 2 -->
+            <!--	samplingRateDiv = 2 -->
+            <!--	Total sampling rate = (2000000 / 2) / 2 = 500000 -->
+            <deviceSamplingRate>2000000</deviceSamplingRate>
+            <deviceDecimationFactor>2</deviceDecimationFactor>
+            <gain>50</gain>
+        </RSP>
+        <HackRF>
+            <!-- App sampling rate will be: deviceSamplingRate / samplingRateDiv -->
+            <deviceSamplingRate>8000000</deviceSamplingRate>
+            <basebandFilter>1750000</basebandFilter>
+            <rxAmp>0</rxAmp>
+            <!-- 0 1 2 3 4-->
+            <lnaGain>2</lnaGain>
+            <!-- 0 .. 30 -->
+            <vgaGain>10</vgaGain>
+            <!-- 0 .. 40 step 2-->
+            <txAmp>20</txAmp>
+        </HackRF>
+    </Device>
     <Receiver>
-        <startFreq>3700000</startFreq>
-        <lastSelectedFreq>3639900</lastSelectedFreq>
-        <volume>1.178</volume>
+        <startFreq>7100000</startFreq>
+        <lastSelectedFreq>7094141</lastSelectedFreq>
+        <volume>1.2410001</volume>
     </Receiver>
     <Waterfall>
-        <min>-99.120461</min>
-        <max>-44.046997</max>
+        <min>-111.51916</min>
+        <max>-55.00219</max>
     </Waterfall>
     <Spectre>
-        <ratio>-21.834</ratio>
-        <min>-102.2089</min>
-        <speed>25</speed>
+        <ratio>-43.038773</ratio>
+        <min>-120.14176</min>
+        <speed>15</speed>
+        <!-- Must be a power of 2. The total will be fftLen = fftLen * 1024 -->
+        <fftLen>64</fftLen>
     </Spectre>
 </Config>

@@ -3,19 +3,19 @@
 #include "Compressor/SimpleComp.h"
 
 
-KalmanFilter kf(1, 0.00000002);
+KalmanFilter kf(1, 0.00000004);
 
-chunkware_simple::SimpleComp sc;
+//chunkware_simple::SimpleComp sc;
 
 AGC::AGC(Config* config, FFTSpectreHandler* fftSpectreHandler) {
     this->fftSpectreHandler = fftSpectreHandler;
     this->config = config;
-    sc.setSampleRate(config->outputSamplerate);
+    /*sc.setSampleRate(config->outputSamplerate);
     sc.setAttack(10);
     sc.setRelease(1000);
     sc.setThresh(1);
     sc.setRatio(10);
-    sc.initRuntime();
+    sc.initRuntime();*/
     //memset(buf, 0, sizeof(double) * bufLen);
 }
 

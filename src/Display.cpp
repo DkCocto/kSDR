@@ -36,12 +36,12 @@ void Display::mouseButtonCallback(GLFWwindow* window, int button, int action, in
 	}
 }
 
-Display::Display(Config* config, FFTSpectreHandler* fftSH, Hackrf* hackrf) {
+Display::Display(Config* config, FFTSpectreHandler* fftSH) {
 	this->config = config;
 	viewModel = new ViewModel(config);
 	this->flowingFFTSpectre = new FlowingFFTSpectre(config, viewModel, fftSH);
 	spectre = new Spectre(config, viewModel, flowingFFTSpectre);
-	this->hackrf = hackrf;
+	//this->hackrf = hackrf;
 	//flowingFFTSpectre->zoomIn(30000);
 	//flowingFFTSpectre->printCurrentPos();
 	//flowingFFTSpectre->zoomIn(1500);
@@ -83,7 +83,7 @@ int Display::init() {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	glEnable(GL_LINE_SMOOTH);
+	//glEnable(GL_LINE_SMOOTH);
 
 	glLineWidth(1.5);
 
@@ -161,49 +161,11 @@ void Display::renderImGUIFirst() {
 		viewModel->mouseBusy = false;
 	}
 
-	ImGui::Begin(APP_NAME);                          // Create a window called "Hello, world!" and append into it.
+	ImGui::Begin(APP_NAME);
 
 		ImGui::SliderInt("Frequency", &viewModel->centerFrequency, 1000000, 30000000);
-		
-		if (hackrf != NULL) {
-			hackrf->setFreq((uint64_t)viewModel->centerFrequency);
-
-			ImGui::SliderInt("LNA Gain", &viewModel->lnaGain, 0, 5);
-			hackrf->setLnaGain((uint32_t)(viewModel->lnaGain * 8));
-
-			ImGui::SliderInt("VGA Gain", &viewModel->vgaGain, 0, 31);
-			hackrf->setVgaGain((uint32_t)(viewModel->vgaGain * 2));
-
-			ImGui::SliderInt("AMP Gain", &viewModel->enableAmp, 0, 1);
-			//ImGui::Checkbox("AMP", &viewModel->enableAmp);
-			hackrf->enableAmp((uint8_t)viewModel->enableAmp);
-
-			const char* items[] = { "1750000", "2500000", "3500000", "5000000", "5500000", "6000000", "7000000", "8000000", "9000000", "10000000", "20000000" };
-			static int item_current_idx = 0; // Here we store our selection data as an index.
-			const char* combo_preview_value = items[item_current_idx];  // Pass in the preview value visible before opening the combo (it could be anything)
-			if (ImGui::BeginCombo("combo 1", combo_preview_value, 0)) {
-				for (int n = 0; n < IM_ARRAYSIZE(items); n++)
-				{
-					const bool is_selected = (item_current_idx == n);
-					if (ImGui::Selectable(items[n], is_selected)) {
-						item_current_idx = n;
-						uint32_t baseband;
-						hackrf->parse_u32((char*)items[n], &baseband);
-						hackrf->setBaseband(baseband);
-					}
-
-					// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
-					if (is_selected)
-						ImGui::SetItemDefaultFocus();
-				}
-				ImGui::EndCombo();
-			}
-		}
 
 		ImGui::SliderInt("Filter width", &viewModel->filterWidth, 0, 12000);
-
-		ImGui::SliderInt("Gain", &viewModel->gain, 0, 100); ImGui::SameLine();
-		ImGui::Checkbox("Gain Control", &viewModel->gainControl);
 
 		ImGui::SliderFloat("Waterfall min", &viewModel->waterfallMin, -130, 0); ImGui::SameLine();
 		if (ImGui::Button("Waterfall Auto")) {
@@ -227,7 +189,55 @@ void Display::renderImGUIFirst() {
 
 	smeter->draw(viewModel->signalMaxdB);
 
+	if (config->deviceType == Config::HACKRF) {
+		ImGui::Begin("HackRF options");
+			Hackrf* hackrf = (Hackrf*)config->device;
+
+			hackrf->setFreq((uint64_t)viewModel->centerFrequency);
+
+			ImGui::SliderInt("LNA Gain", &viewModel->hackRFModel.lnaGain, 0, 5);
+			hackrf->setLnaGain((uint32_t)(viewModel->hackRFModel.lnaGain * 8));
+
+			ImGui::SliderInt("VGA Gain", &viewModel->hackRFModel.vgaGain, 0, 31);
+			hackrf->setVgaGain((uint32_t)(viewModel->hackRFModel.vgaGain * 2));
+
+			ImGui::SliderInt("AMP Gain", &viewModel->hackRFModel.enableAmp, 0, 1);
+			//ImGui::Checkbox("AMP", &viewModel->enableAmp);
+			hackrf->enableAmp((uint8_t)viewModel->hackRFModel.enableAmp);
+
+			const char* items[] = { "1750000", "2500000", "3500000", "5000000", "5500000", "6000000", "7000000", "8000000", "9000000", "10000000", "20000000" };
+			static int item_current_idx = 0; // Here we store our selection data as an index.
+			const char* combo_preview_value = items[item_current_idx];  // Pass in the preview value visible before opening the combo (it could be anything)
+			if (ImGui::BeginCombo("combo 1", combo_preview_value, 0)) {
+				for (int n = 0; n < IM_ARRAYSIZE(items); n++)
+				{
+					const bool is_selected = (item_current_idx == n);
+					if (ImGui::Selectable(items[n], is_selected)) {
+						item_current_idx = n;
+						uint32_t baseband;
+						hackrf->parse_u32((char*)items[n], &baseband);
+						hackrf->setBaseband(baseband);
+					}
+
+					// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+					if (is_selected)
+						ImGui::SetItemDefaultFocus();
+				}
+				ImGui::EndCombo();
+			}
+		ImGui::End();
+	}
+
+	if (config->deviceType == Config::RSP) {
+		ImGui::Begin("RSP options");
+			ImGui::SliderInt("Gain", &viewModel->gain, 0, 100); ImGui::SameLine();
+			ImGui::Checkbox("Gain Control", &viewModel->gainControl);
+		ImGui::End();
+	}
+
 	ImGui::Begin("DATA");
+		ImGui::Text("Sampling rate: %d", config->inputSamplerate);
+		ImGui::Text("FFT length: %d", config->fftLen);
 		ImGui::Text("AMP: %.2f", viewModel->amp);
 		ImGui::Text("CPU usage: %.1f", cpu.getCurrentValue());
 		ImGui::Text("Buffer available: %.2f sec", viewModel->bufferAvailable);

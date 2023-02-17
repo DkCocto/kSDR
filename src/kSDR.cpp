@@ -13,26 +13,16 @@
 //Config* config = new Config(375000, 8, 4);
 //Config* config = new Config(1000000, 2, 8);
 //Config* config = new Config(500000, 4, 16);
-Config* config = new Config(1000000);
+Config* config = new Config();
 
 SoundCard soundCard(config);
 
 //Буфер для сигналов I Q
 CircleBuffer* iqSignalsCircleBuffer = new CircleBuffer(config->circleBufferLen);
 
-//CircleBuffer* soundProcessorCircleBuffer = new CircleBuffer(config->circleBufferLen);
 CircleBuffer* soundWriterCircleBuffer = new CircleBuffer(config->circleBufferLen);
-//
-////////RTLDeviceReaderThread rtlDeviceReaderThread(soundCardReadCircleBuffer);
-//
 
 FFTSpectreHandler* fftSpectreHandler = new FFTSpectreHandler(config);
-//
-///////SoundReaderThread* soundReader = new SoundReaderThread(&soundCard, soundCardReadCircleBuffer);
-//
-///////ComPort c(soundCardReadCircleBuffer);
-//
-
 
 //Поток берет данные из iqSignalsCircleBuffer обрабатывает их и размещается в буфер soundWriterCircleBuffer
 SoundProcessorThread* soundProcessor = new SoundProcessorThread(config, iqSignalsCircleBuffer, soundWriterCircleBuffer, fftSpectreHandler);
@@ -41,27 +31,37 @@ SoundProcessorThread* soundProcessor = new SoundProcessorThread(config, iqSignal
 CircleBufferWriterThread* circleBufferWriterThread = new CircleBufferWriterThread(config, soundWriterCircleBuffer, &soundCard);
 //
 
-RSP1 rsp1(config, iqSignalsCircleBuffer);
-//Инициализация устройства, а так же этот объект берет данные I Q и размещает их в буфере IQSignalsCircleBuffer
-//Hackrf hackrf(config, iqSignalsCircleBuffer);
-
 //Создаем объект дисплей
-Display* display = new Display(config, fftSpectreHandler, NULL);
+Display* display = new Display(config, fftSpectreHandler);
 //Сразу же инициализируем статическую переменную класса. Она нужна для обработки событий.
 Display& d = *display;
 Display* Display::instance = &d;
 
 int main() {
+	switch (config->deviceType) {
+		//RSP
+		case 0:
+			config->device = new RSP1(config, iqSignalsCircleBuffer);
+			break;
+		//Hackrf
+		case 1:
+			config->device = new Hackrf(config, iqSignalsCircleBuffer);
+			break;
+	}
+
 	//Инициализируем звуковую карту
 	soundCard.open();
 
-	////rtlDeviceReaderThread.start().detach();
+	//Инициализируем устройство
+	switch (config->deviceType) {
+		case Config::RSP:
+			((RSP1*)config->device)->init();
+			break;
+		case Config::HACKRF:
+			((Hackrf*)config->device)->init();
+			break;
+	}
 
-	rsp1.init();
-	//hackrf.init();
-
-	////soundReader->start().detach();
-	//сircleBufferReaderThread->start().detach();
 	fftSpectreHandler->start().detach();
 	circleBufferWriterThread->start().detach();
 	soundProcessor->start().detach();

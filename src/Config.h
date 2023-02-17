@@ -2,15 +2,22 @@
 
 #define CONFIG_FILENAME "config.xml"
 
+#include "Device.h"
+#include "stdio.h"
+#include "tinyxml2/tinyxml2.h"
+#include "string"
+
 class Config {
 
 public:
+
+	Device* device;
 
 	int circleBufferLen;
 
 	int inputSamplerate;
 
-	int inputSamplerateDivider;
+	int inputSamplerateDivider = 1;
 
 	int outputSamplerate;
 
@@ -35,14 +42,14 @@ public:
 	int hilbertTransformLen;
 	int polyphaseFilterLen;
 
-	int fftLen;
+	int fftLen = 64 * 1024;
 	float fftBandwidth;
 
 	int defaultFilterWidth = 2700;
 
 	double startFrequency = 7100000.0;
 
-	Config(int inputSamplerate);
+	Config();
 	~Config();
 
 	int visibleSpectreBinCount = 2048;
@@ -55,6 +62,21 @@ public:
 	int spectreSpeed = 0;
 	float lastSelectedFreq = startFrequency;
 	float volume = 1;
+	
+	enum DeviceType {
+		RSP,
+		HACKRF
+	} deviceType;
+
+	struct HackRF {
+		int deviceSamplingRate = 4000000;
+		int basebandFilter = 1750000;
+		char rxAmp = 0;
+		char lnaGain = 16;
+		char vgaGain = 20;
+		char txAmp = 20;
+	} hackrf;
+
 	//--------------------------------------
 
 	void load();

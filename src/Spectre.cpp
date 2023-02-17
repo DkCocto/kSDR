@@ -8,6 +8,9 @@
 
 #define VIOLET						IM_COL32(72, 3, 111, 160)
 #define RED							IM_COL32(166, 0, 0, 80)
+#define YELLOW						IM_COL32(255, 255, 0, 255)
+#define SPECTRE_COLOR				IM_COL32(50, 50, 50, 255)
+#define SPECTRE_CONTUR_COLOR		IM_COL32(255, 255, 255, 255)
 
 #define SPECTRE_FREQ_MARK_COUNT		20
 #define SPECTRE_FREQ_MARK_COUNT_DIV	10
@@ -84,8 +87,6 @@ void Spectre::draw() {
 
 		ImGui::BeginChild("Spectre1", ImVec2(ImGui::GetContentRegionAvail().x, spectreHeight), false, ImGuiWindowFlags_NoMove);
 
-			drawFreqMarks(draw_list, startWindowPoint, windowLeftBottomCorner, spectreWidthInPX, spectreHeight);
-
 			storeSignaldB(fullSpectreData);
 
 			int spectreSize = flowingFFTSpectre->getLen();
@@ -147,10 +148,12 @@ void Spectre::draw() {
 
 				ImVec2* polygon = new ImVec2[]{ lineX1 , lineX2 , lineX3 , lineX4 };
 
-				draw_list->AddConvexPolyFilled(polygon, 4, BLUE);
+				draw_list->AddConvexPolyFilled(polygon, 4, SPECTRE_COLOR);
 				delete[] polygon;
 
-				draw_list->AddLine(lineX1, lineX2, IM_COL32_WHITE, 0.1f);
+				//lineX1.y -= 4;
+				//lineX2.y -= 4;
+				draw_list->AddLine(lineX1, lineX2, SPECTRE_CONTUR_COLOR, 2.0f);
 			}
 			
 			reducedSpectreData.clear();
@@ -166,9 +169,10 @@ void Spectre::draw() {
 					std::to_string((int)round(veryMinSpectreVal + i * stepdB)).c_str()
 				);
 			}
-
 			//---------------
 			
+			drawFreqMarks(draw_list, startWindowPoint, windowLeftBottomCorner, spectreWidthInPX, spectreHeight);
+
 		ImGui::EndChild();
 
 		ImGui::BeginChild("Waterfall", ImVec2(ImGui::GetContentRegionAvail().x, windowLeftBottomCorner.y - spectreHeight - 5), false, ImGuiWindowFlags_NoMove);

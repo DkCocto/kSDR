@@ -4,9 +4,10 @@
 #include "Config.h"
 #include "CircleBuffer.h"
 #include "ViewModel.h"
+#include "Device.h"
 
 
-class Hackrf {
+class Hackrf: public Device {
 
 	Config* config;
 	CircleBuffer* cb;

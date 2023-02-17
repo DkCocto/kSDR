@@ -27,8 +27,6 @@ Hackrf::Hackrf(Config* config, CircleBuffer* cb) {
 	}
 }
 
-
-
 Hackrf::~Hackrf() {
 	hackrf_error result;
 	if (device != NULL) {
@@ -45,23 +43,23 @@ void Hackrf::close() {
 	result = (hackrf_error)hackrf_close(device);
 }
 
-
-
 int Hackrf::rx_callback(hackrf_transfer* transfer) {
 	int bytes_to_write = transfer->buffer_length;
 
-	Hackrf* hackrf = (Hackrf*)transfer->rx_ctx;
+	Config* config = (Config*)transfer->rx_ctx;
+	Hackrf* hackrf = (Hackrf*)config->device;
 
-	uint8_t* buffer = transfer->buffer;
+	for (int i = 0; i < (bytes_to_write / 2 - 1); i++) { 
 
-	for (int i = 0; i < (bytes_to_write / 2 - 1); i++) {
+		if (i % config->inputSamplerateDivider == 0) {
+			transfer->buffer[2 * i] ^= (uint8_t)0x80;			
+			transfer->buffer[2 * i + 1] ^= (uint8_t)0x80;
 
-		if (i % 2 == 0) {
-			float I = (((float)buffer[2 * i] / 255.0f) - 1.0f);
-			float Q = (((float)buffer[2 * i + 1] / 255.0f) - 1.0f);
-			//I = firFilterI->filter(I);
-			//Q = firFilterQ->filter(Q);
+			float I = (((float)transfer->buffer[2 * i] / 130.0f) - 1.0f);
+			float Q = (((float)transfer->buffer[2 * i + 1] / 130.0f) - 1.0f);
 
+			//printf("%f\r\n", I);
+			//printf("%f\r\n", Q);
 
 			hackrf->cb->write(I);
 			hackrf->cb->write(Q);
@@ -82,22 +80,22 @@ bool Hackrf::isNeedToLnaGain() {
 
 void Hackrf::init() {
 
-	uint8_t amp = 0;
+	uint8_t amp = config->hackrf.rxAmp;
 	uint8_t antenna = 0;
-	uint32_t baseband = 1750000;
+	uint32_t baseband = config->hackrf.basebandFilter;
 
 	//0, 8, 16, 24, 32, 40 
-	uint32_t lna_gain = 16;
+	uint32_t lna_gain = config->hackrf.lnaGain;
 
 	//0 .. 62 step 2
-	uint32_t vga_gain = 32;
+	uint32_t vga_gain = config->hackrf.vgaGain;
 
 	hackrf_error result;
 
-	//hackrf_set_hw_sync_mode(device, (uint8_t)0);
+	hackrf_set_hw_sync_mode(device, (uint8_t)0);
 	//hackrf_set_sample_rate_manual
 	//hackrf_set_sample_rate
-	result = (hackrf_error)hackrf_set_sample_rate(device, 8000000.0);
+	result = (hackrf_error)hackrf_set_sample_rate(device, config->hackrf.deviceSamplingRate);
 	if (result != HACKRF_SUCCESS) {
 		fprintf(stderr,
 			"hackrf_set_sample_rate() failed: %s (%d)\n",
@@ -143,7 +141,7 @@ void Hackrf::init() {
 			result);
 	}
 
-	printf("%d \r\n", hackrf_compute_baseband_filter_bw(baseband));
+	//printf("%d \r\n", hackrf_compute_baseband_filter_bw(baseband));
 
 	result = (hackrf_error)hackrf_set_vga_gain(device, vga_gain);
 	if (result != HACKRF_SUCCESS) {
@@ -168,6 +166,7 @@ void Hackrf::init() {
 			result);
 	}
 
+	hackrf_set_txvga_gain(device, 0);
 
 	/* range 0-47 step 1db */
 	//hackrf_set_txvga_gain(device, 0);
@@ -187,7 +186,7 @@ void Hackrf::stopRX() {
 }
 
 hackrf_error Hackrf::startRX() {
-	return (hackrf_error)hackrf_start_rx(device, rx_callback, this);
+	return (hackrf_error)hackrf_start_rx(device, rx_callback, config);
 }
 
 
@@ -278,7 +277,7 @@ int Hackrf::parse_u32(char* s, uint32_t* const value)
 }
 
 void Hackrf::enableAmp(uint8_t amp) {
-	/*if (savedAmp != amp) {
+	if (savedAmp != amp) {
 		hackrf_error result = (hackrf_error)hackrf_set_amp_enable(device, amp);
 		if (result != HACKRF_SUCCESS) {
 			fprintf(stderr,
@@ -287,5 +286,5 @@ void Hackrf::enableAmp(uint8_t amp) {
 				result);
 		}
 		savedAmp = amp;
-	}*/
+	}
 }

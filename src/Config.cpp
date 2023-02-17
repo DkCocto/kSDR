@@ -1,18 +1,22 @@
 #include "Config.h"
-#include "stdio.h"
-#include "tinyxml2/tinyxml2.h"
-#include "string"
 
-Config::Config(int inputSamplerate) {
+Config::Config() {
+    load();
+
 	inputChannelNumber							= 1;
 	outputChannelNumber							= 1;
-	this->inputSamplerate						= inputSamplerate;
 
-	inputSamplerateDivider						= 2;
+    switch (deviceType) {
+        case RSP:
+            break;
+        case HACKRF:
+            inputSamplerate = hackrf.deviceSamplingRate / inputSamplerateDivider;
+            break;
+        default:
+            inputSamplerate = 4000000;
+    }
 
 	calcOutputSamplerate();
-
-	fftLen										= 32 * 1024;
 
 	//(fftLen / 2) / outputSamplerateDivider;
 	bufferWriteAudioLen							= (outputSamplerateDivider * 2) * 2;
@@ -30,12 +34,11 @@ Config::Config(int inputSamplerate) {
 	polyphaseFilterLen							= 256;
 
 	fftBandwidth								= (float)inputSamplerate / (float)fftLen;
-
-    load();
 }
 
 Config::~Config() {
     save();
+    delete device;
 }
 
 //Loading config from config file
@@ -48,6 +51,46 @@ void Config::load() {
     tinyxml2::XMLElement* pRootElement = doc.RootElement();
 
     if (NULL != pRootElement) {
+
+        tinyxml2::XMLElement* pDevice = pRootElement->FirstChildElement("Device");
+        if (NULL != pDevice) {
+            tinyxml2::XMLElement* ptype = pDevice->FirstChildElement("type");
+
+            switch (std::stoi(std::string(ptype->GetText()))) {
+                case 0:
+                    deviceType = RSP;
+                    break;
+                case 1:
+                    deviceType = HACKRF;
+                    break;
+                default:
+                    deviceType = HACKRF;
+            }
+        
+            tinyxml2::XMLElement* psamplingRateDiv = pDevice->FirstChildElement("samplingRateDiv");
+            inputSamplerateDivider = std::stoi(std::string(psamplingRateDiv->GetText()));
+
+            tinyxml2::XMLElement* pHackRF = pDevice->FirstChildElement("HackRF");
+            if (NULL != pHackRF) {
+                tinyxml2::XMLElement* pdeviceSamplingRate = pHackRF->FirstChildElement("deviceSamplingRate");
+                hackrf.deviceSamplingRate = std::stoi(std::string(pdeviceSamplingRate->GetText()));
+
+                tinyxml2::XMLElement* pbasebandFilter = pHackRF->FirstChildElement("basebandFilter");
+                hackrf.basebandFilter = std::stoi(std::string(pbasebandFilter->GetText()));
+
+                tinyxml2::XMLElement* prxAmp = pHackRF->FirstChildElement("rxAmp");
+                hackrf.rxAmp = std::stoi(std::string(prxAmp->GetText()));
+
+                tinyxml2::XMLElement* plnaGain = pHackRF->FirstChildElement("lnaGain");
+                hackrf.lnaGain = std::stoi(std::string(plnaGain->GetText()));
+
+                tinyxml2::XMLElement* pvgaGain = pHackRF->FirstChildElement("vgaGain");
+                hackrf.vgaGain = std::stoi(std::string(pvgaGain->GetText()));
+
+                tinyxml2::XMLElement* ptxAmp = pHackRF->FirstChildElement("txAmp");
+                hackrf.txAmp = std::stoi(std::string(ptxAmp->GetText()));
+            }
+        }
 
         tinyxml2::XMLElement* pReceiver = pRootElement->FirstChildElement("Receiver");
         if (NULL != pReceiver) {
@@ -80,6 +123,9 @@ void Config::load() {
 
             tinyxml2::XMLElement* pspeed = pSpectre->FirstChildElement("speed");
             spectreSpeed = std::stof(std::string(pspeed->GetText()));
+
+            tinyxml2::XMLElement* pfftLen = pSpectre->FirstChildElement("fftLen");
+            fftLen = std::stoi(std::string(pfftLen->GetText())) * 1024;
         }
     } else {
         printf("Config file not found!");
