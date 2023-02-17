@@ -26,25 +26,28 @@
             <!-- 0 1 2 3 4-->
             <lnaGain>2</lnaGain>
             <!-- 0 .. 30 -->
-            <vgaGain>10</vgaGain>
+            <vgaGain>12</vgaGain>
             <!-- 0 .. 40 step 2-->
             <txAmp>20</txAmp>
         </HackRF>
     </Device>
     <Receiver>
-        <startFreq>7100000</startFreq>
-        <lastSelectedFreq>7094141</lastSelectedFreq>
-        <volume>1.2410001</volume>
+        <startFreq>3700000</startFreq>
+        <lastSelectedFreq>3638000</lastSelectedFreq>
+        <volume>1.179</volume>
+        <filterWidth>3200</filterWidth>
     </Receiver>
     <Waterfall>
-        <min>-111.51916</min>
-        <max>-55.00219</max>
+        <min>-116.56203</min>
+        <max>-62.909157</max>
     </Waterfall>
     <Spectre>
-        <ratio>-43.038773</ratio>
-        <min>-120.14176</min>
+        <ratio>-41.934387</ratio>
+        <min>-119.73672</min>
         <speed>15</speed>
         <!-- Must be a power of 2. The total will be fftLen = fftLen * 1024 -->
         <fftLen>64</fftLen>
+        <startBin>15438</startBin>
+        <stopBin>16192</stopBin>
     </Spectre>
 </Config>

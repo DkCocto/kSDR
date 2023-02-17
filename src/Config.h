@@ -62,7 +62,12 @@ public:
 	int spectreSpeed = 0;
 	float lastSelectedFreq = startFrequency;
 	float volume = 1;
+
+	int filterWidth = defaultFilterWidth;
 	
+	int startBin = 0;
+	int stopBin = fftLen / 2 - 1;
+
 	enum DeviceType {
 		RSP,
 		HACKRF

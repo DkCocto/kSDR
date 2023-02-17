@@ -102,6 +102,9 @@ void Config::load() {
 
             tinyxml2::XMLElement* pvolume = pReceiver->FirstChildElement("volume");
             volume = std::stof(std::string(pvolume->GetText()));
+
+            tinyxml2::XMLElement* pfilterWidth = pReceiver->FirstChildElement("filterWidth");
+            filterWidth = std::stoi(std::string(pfilterWidth->GetText()));
         }
 
         tinyxml2::XMLElement* pWaterfall = pRootElement->FirstChildElement("Waterfall");
@@ -126,6 +129,12 @@ void Config::load() {
 
             tinyxml2::XMLElement* pfftLen = pSpectre->FirstChildElement("fftLen");
             fftLen = std::stoi(std::string(pfftLen->GetText())) * 1024;
+
+            tinyxml2::XMLElement* pstartBin = pSpectre->FirstChildElement("startBin");
+            startBin = std::stoi(std::string(pstartBin->GetText()));
+
+            tinyxml2::XMLElement* pstopBin = pSpectre->FirstChildElement("stopBin");
+            stopBin = std::stoi(std::string(pstopBin->GetText()));
         }
     } else {
         printf("Config file not found!");
@@ -140,6 +149,26 @@ void Config::save() {
     tinyxml2::XMLElement* pRootElement = doc.RootElement();
 
     if (NULL != pRootElement) {
+        tinyxml2::XMLElement* pDevice = pRootElement->FirstChildElement("Device");
+        if (NULL != pDevice) {
+
+            tinyxml2::XMLElement* pHackRF = pDevice->FirstChildElement("HackRF");
+            if (NULL != pHackRF) {
+                //tinyxml2::XMLElement* pbasebandFilter = pHackRF->FirstChildElement("basebandFilter");
+
+                tinyxml2::XMLElement* prxAmp = pHackRF->FirstChildElement("rxAmp");
+                prxAmp->SetText(hackrf.rxAmp);
+
+                tinyxml2::XMLElement* plnaGain = pHackRF->FirstChildElement("lnaGain");
+                plnaGain->SetText(hackrf.lnaGain);
+
+                tinyxml2::XMLElement* pvgaGain = pHackRF->FirstChildElement("vgaGain");
+                pvgaGain->SetText(hackrf.vgaGain);
+
+                //tinyxml2::XMLElement* ptxAmp = pHackRF->FirstChildElement("txAmp");
+            }
+        }
+
         tinyxml2::XMLElement* pReceiver = pRootElement->FirstChildElement("Receiver");
         if (NULL != pReceiver) {
             tinyxml2::XMLElement* pstartFreq = pReceiver->FirstChildElement("startFreq");
@@ -150,6 +179,9 @@ void Config::save() {
 
             tinyxml2::XMLElement* pvolume = pReceiver->FirstChildElement("volume");
             pvolume->SetText(volume);
+
+            tinyxml2::XMLElement* pfilterWidth = pReceiver->FirstChildElement("filterWidth");
+            pfilterWidth->SetText(filterWidth);
         }
 
         tinyxml2::XMLElement* pWaterfall = pRootElement->FirstChildElement("Waterfall");
@@ -171,6 +203,12 @@ void Config::save() {
 
             tinyxml2::XMLElement* pspeed = pSpectre->FirstChildElement("speed");
             pspeed->SetText(spectreSpeed);
+
+            tinyxml2::XMLElement* pstartBin = pSpectre->FirstChildElement("startBin");
+            pstartBin->SetText(startBin);
+
+            tinyxml2::XMLElement* pstopBin = pSpectre->FirstChildElement("stopBin");
+            pstopBin->SetText(stopBin);
         }
 
         doc.SaveFile(CONFIG_FILENAME);
@@ -188,7 +226,7 @@ void Config::calcOutputSamplerate() {
 		div *= 2;
 		if (sampleRate % div != 0) break;
 		else {
-			if (sampleRate / div <= 44000) break;
+			if (sampleRate / div <= 96000) break;
 		}
 	}
 	outputSamplerateDivider = div;

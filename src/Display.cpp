@@ -125,6 +125,7 @@ void Display::mainLoop() {
 Display::~Display() {
 	config->lastSelectedFreq = spectre->receiverLogicNew->getSelectedFreqNew(); //saving last selected freq to config class
 	delete viewModel;
+	delete flowingFFTSpectre;
 }
 
 
@@ -208,7 +209,7 @@ void Display::renderImGUIFirst() {
 			const char* items[] = { "1750000", "2500000", "3500000", "5000000", "5500000", "6000000", "7000000", "8000000", "9000000", "10000000", "20000000" };
 			static int item_current_idx = 0; // Here we store our selection data as an index.
 			const char* combo_preview_value = items[item_current_idx];  // Pass in the preview value visible before opening the combo (it could be anything)
-			if (ImGui::BeginCombo("combo 1", combo_preview_value, 0)) {
+			if (ImGui::BeginCombo("Baseband filter", combo_preview_value, 0)) {
 				for (int n = 0; n < IM_ARRAYSIZE(items); n++)
 				{
 					const bool is_selected = (item_current_idx == n);

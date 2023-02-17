@@ -30,6 +30,7 @@ class FlowingFFTSpectre {
 public:
 
 	FlowingFFTSpectre(Config* config, ViewModel* viewModel, FFTSpectreHandler* fftSH);
+	~FlowingFFTSpectre();
 	float* getData();
 	void setPos(int A, int B);
 	int getLen();

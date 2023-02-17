@@ -16,6 +16,7 @@ ViewModel::ViewModel(Config* config) {
 	hackRFModel.lnaGain = config->hackrf.lnaGain;
 	hackRFModel.vgaGain = config->hackrf.vgaGain;
 	hackRFModel.enableAmp = config->hackrf.rxAmp;
+	filterWidth = config->filterWidth;
 }
 
 ViewModel::~ViewModel() {
@@ -26,6 +27,7 @@ ViewModel::~ViewModel() {
 	config->spectreSpeed = spectreSpeed;
 	config->startFrequency = centerFrequency;
 	config->volume = volume;
+	config->filterWidth = filterWidth;
 
 	config->hackrf.lnaGain = hackRFModel.lnaGain;
 	config->hackrf.vgaGain = hackRFModel.vgaGain;

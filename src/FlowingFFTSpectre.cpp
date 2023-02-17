@@ -4,9 +4,14 @@ FlowingFFTSpectre::FlowingFFTSpectre(Config* config, ViewModel* viewModel, FFTSp
 	this->config = config;
 	this->fftSH = fftSH;
 	this->viewModel = viewModel;
-	A = 0;
-	B = fftSH->getSpectreSize() - 1;
+	A = config->startBin;
+	B = config->stopBin;
 	if (DEBUG) printCurrentPos();
+}
+
+FlowingFFTSpectre::~FlowingFFTSpectre() {
+	config->startBin = A;
+	config->stopBin = B;
 }
 
 float* FlowingFFTSpectre::getData() {
