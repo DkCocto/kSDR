@@ -9,6 +9,7 @@
 #include "Hackrf.h"
 #include "SoundProcessorThread.h"
 #include "CircleBufferWriterThread.h"
+#include "RSPv2.h"
 
 //Config* config = new Config(375000, 8, 4);
 //Config* config = new Config(1000000, 2, 8);
@@ -38,6 +39,7 @@ Display& d = *display;
 Display* Display::instance = &d;
 
 int main() {
+
 	switch (config->deviceType) {
 		//RSP
 		case 0:
@@ -61,6 +63,9 @@ int main() {
 			((Hackrf*)config->device)->init();
 			break;
 	}
+
+	//RSPv2* rspv2 = new RSPv2();
+	//rspv2->init();
 
 	fftSpectreHandler->start().detach();
 	circleBufferWriterThread->start().detach();

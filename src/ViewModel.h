@@ -32,9 +32,12 @@ public:
 	//int frequency = 41965664;
 	int centerFrequency = 10000000;
 
-	int gain = 50;
+	struct RSPModel {
+		int gain = 50;
+		bool lna = false;
+	} rspModel;
 
-	bool gainControl = false;
+	//bool gainControl = false;
 
 	double serviceField1 = 0;
 	double serviceField2 = 0;

@@ -13,10 +13,12 @@ class RSP1: public Device {
 
     double savedFreq;
     int savedGain;
+    bool savedLna;
     ViewModel* viewModel;
 
     bool isNeedToSetFreq();
     bool isNeedToSetGain();
+    bool isNeedToSetLna();
 
 public: 
     CircleBuffer* cb;
@@ -34,7 +36,7 @@ public:
     void init();
 
     void setFreq(double freq);
-    void setGain(int gain);
+    void setGain(int gain, bool lna);
     void disableGain();
 
 };

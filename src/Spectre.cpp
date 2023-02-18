@@ -151,8 +151,6 @@ void Spectre::draw() {
 				draw_list->AddConvexPolyFilled(polygon, 4, SPECTRE_COLOR);
 				delete[] polygon;
 
-				//lineX1.y -= 4;
-				//lineX2.y -= 4;
 				draw_list->AddLine(lineX1, lineX2, SPECTRE_CONTUR_COLOR, 2.0f);
 			}
 			

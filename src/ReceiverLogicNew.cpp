@@ -77,99 +77,45 @@ void ReceiverLogicNew::setFreq(float freq) {
 	}
 }
 
-//Устанавливает конкретную позицию линии приема получая в качестве параметра пиксель из ширины спектра
-/*void ReceiverLogicNew::setPosition(float position, bool withoutDelta) {
-	if (!withoutDelta) {
-		this->position = position + delta;
-	} else {
-		this->position = position;
-	}
-	if (this->position <= 0) {
-		this->position = 0;
-		selectedBin = flowingFFTSpectre->getA();
-	} else if (this->position >= spectreWidth) {
-		this->position = spectreWidth;
-		selectedBin = flowingFFTSpectre->getB();
-	} else {
-		selectedBin = round((float)flowingFFTSpectre->getA() + (float)this->position / ((float)spectreWidth / (float)flowingFFTSpectre->getLen()));
-	}
-	
-}*/
-
 void ReceiverLogicNew::updateSpectreWidth(float oldSpectreWidth, float newSpectreWidth) {
 	receiverPosOnPx = receiverPosOnPx * newSpectreWidth / oldSpectreWidth;
 	this->spectreWidthPx = newSpectreWidth;
 }
-
-/*int ReceiverLogicNew::getPosition() {
-	//printf("%i\r\n", spectreStartPosX);
-	return position;
-}*/
-
-/*void ReceiverLogicNew::saveDelta(int x) {
-	delta = position - x;
-}*/
 
 ReceiverLogicNew::ReceiveBinArea ReceiverLogicNew::getReceiveBinsArea(int filterWidth, int receiverMode) {
 	int A = 0, B = 0;
 
 	int filterWidthPX = getFilterWidthAbs(filterWidth);
 
-	int totalBin = flowingFFTSpectre->getLen();
+	int totalBin = flowingFFTSpectre->getSpectreHandler()->getSpectreSize();
 
 	int deltaBin = (int)((float)filterWidth / flowingFFTSpectre->getFreqOfOneSpectreBin());
 
 	switch (receiverMode) {
-	case USB:
-		A = receiverPosOnBin;
-		B = A + deltaBin; // (receiverPosOnPx + filterWidthPX) / (spectreWidthPx / totalBin);
-		if (B > totalBin) B = totalBin;
-		break;
-	case LSB:
-		B = receiverPosOnBin;
-		A = B - deltaBin; // (receiverPosOnPx - filterWidthPX) / (spectreWidthPx / totalBin);
-
-		if (A < 0) A = 0;
-		break;
-	case AM:
-		A = (receiverPosOnBin) - deltaBin; // (receiverPosOnPx - filterWidthPX) / (spectreWidthPx / totalBin);
-		B = (receiverPosOnBin) + deltaBin; //(receiverPosOnPx + filterWidthPX) / (spectreWidthPx / totalBin);
-		if (A < 0) A = 0;
-		if (B > totalBin) B = totalBin;
-		break;
+		case USB:
+			A = receiverPosOnBin;
+			B = A + deltaBin; // (receiverPosOnPx + filterWidthPX) / (spectreWidthPx / totalBin);
+			//printf("%i %i delta=%i\r\n", A, B, deltaBin);
+			if (B > totalBin) B = totalBin;
+			break;
+		case LSB:
+			B = receiverPosOnBin;
+			A = B - deltaBin; // (receiverPosOnPx - filterWidthPX) / (spectreWidthPx / totalBin);
+			if (A < 0) A = 0;
+			break;
+		case AM:
+			A = (receiverPosOnBin) - deltaBin; // (receiverPosOnPx - filterWidthPX) / (spectreWidthPx / totalBin);
+			B = (receiverPosOnBin) + deltaBin; //(receiverPosOnPx + filterWidthPX) / (spectreWidthPx / totalBin);
+			if (A < 0) A = 0;
+			if (B > totalBin) B = totalBin;
+			break;
 	}
 
 	ReceiveBinArea r{ A , B };
 	return r;
 }
 
-/*void ReceiverLogicNew::setFreq(float freq) {
-	FlowingFFTSpectre::FREQ_RANGE freqRange = flowingFFTSpectre->getVisibleFreqsRangeAbsolute();
-	FlowingFFTSpectre::FREQ_RANGE freqSamplerateRange = flowingFFTSpectre->getVisibleFreqRangeFromSamplerate();
-
-	if (freq >= freqRange.first && freq <= freqRange.second) {
-		float visibleSamplerateWidth = (freqSamplerateRange.second - freqSamplerateRange.first);
-
-		float deltaFreq = freq - ((freqRange.first + visibleSamplerateWidth / 2.0) - visibleSamplerateWidth / 2.0);
-
-		setPosition((deltaFreq * spectreWidth) / visibleSamplerateWidth, true);
-	}
-}*/
-
 float ReceiverLogicNew::getFilterWidthAbs(int filterWidth) {
 	FlowingFFTSpectre::FREQ_RANGE freqRange = flowingFFTSpectre->getVisibleFreqRangeFromSamplerate();
 	return ((float)filterWidth * spectreWidthPx) / (freqRange.second - freqRange.first);
 }
-
-/*float ReceiverLogicNew::getSelectedFreq() {
-	float totalBin = flowingFFTSpectre->getAbsoluteSpectreLen();
-	if (this != NULL) {
-		if (selectedBin >= totalBin / 2.0) {
-			return ((float)selectedBin * (float)config->inputSamplerate / (float)totalBin) - (float)config->inputSamplerate / 2.0;
-		}
-		else {
-			return -1.0 * ((float)config->inputSamplerate / 2.0 - ((float)selectedBin * (float)config->inputSamplerate / (float)totalBin));
-		}
-	}
-	else return 0.0;
-}*/

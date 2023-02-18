@@ -6,48 +6,53 @@
 		1: hackrf
 		-->
         <type>1</type>
-        <samplingRateDiv>2</samplingRateDiv>
+        <decimation>2</decimation>
         <RSP>
-            <!-- Total sampling rate = (deviceSamplingRate / deviceDecimationFactor) / samplingRateDiv -->
+            <!-- Total sampling rate = (deviceSamplingRate / deviceDecimationFactor) / decimation -->
             <!-- Example: -->
             <!--	deviceSamplingRate = 2000000 -->
             <!--	deviceDecimationFactor = 2 -->
-            <!--	samplingRateDiv = 2 -->
+            <!--	decimation = 2 -->
             <!--	Total sampling rate = (2000000 / 2) / 2 = 500000 -->
-            <deviceSamplingRate>2000000</deviceSamplingRate>
+            <deviceSamplingRate>4000000</deviceSamplingRate>
             <deviceDecimationFactor>2</deviceDecimationFactor>
             <gain>50</gain>
+            <!-- Api can be 2 (v2) and 3 (v3)-->
+            <api>2</api>
+            <disableLna>1</disableLna>
         </RSP>
         <HackRF>
-            <!-- App sampling rate will be: deviceSamplingRate / samplingRateDiv -->
-            <deviceSamplingRate>8000000</deviceSamplingRate>
+            <!-- App sampling rate will be: deviceSamplingRate / decimation -->
+            <deviceSamplingRate>4000000</deviceSamplingRate>
             <basebandFilter>1750000</basebandFilter>
             <rxAmp>0</rxAmp>
             <!-- 0 1 2 3 4-->
-            <lnaGain>2</lnaGain>
+            <lnaGain>3</lnaGain>
             <!-- 0 .. 30 -->
-            <vgaGain>12</vgaGain>
+            <vgaGain>14</vgaGain>
             <!-- 0 .. 40 step 2-->
             <txAmp>20</txAmp>
         </HackRF>
     </Device>
     <Receiver>
-        <startFreq>3700000</startFreq>
-        <lastSelectedFreq>3638000</lastSelectedFreq>
+        <startFreq>7100000</startFreq>
+        <lastSelectedFreq>7085000</lastSelectedFreq>
         <volume>1.179</volume>
-        <filterWidth>3200</filterWidth>
+        <filterWidth>2700</filterWidth>
+        <!-- USB:0, LSB:1, AM:2 -->
+        <modulation>1</modulation>
     </Receiver>
     <Waterfall>
-        <min>-116.56203</min>
-        <max>-62.909157</max>
+        <min>-114.60159</min>
+        <max>-38.950809</max>
     </Waterfall>
     <Spectre>
-        <ratio>-41.934387</ratio>
-        <min>-119.73672</min>
-        <speed>15</speed>
+        <ratio>-22.200047</ratio>
+        <min>-118.0822</min>
+        <speed>11</speed>
         <!-- Must be a power of 2. The total will be fftLen = fftLen * 1024 -->
-        <fftLen>64</fftLen>
-        <startBin>15438</startBin>
-        <stopBin>16192</stopBin>
+        <fftLen>32</fftLen>
+        <startBin>7560</startBin>
+        <stopBin>8785</stopBin>
     </Spectre>
 </Config>

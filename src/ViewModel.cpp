@@ -17,6 +17,9 @@ ViewModel::ViewModel(Config* config) {
 	hackRFModel.vgaGain = config->hackrf.vgaGain;
 	hackRFModel.enableAmp = config->hackrf.rxAmp;
 	filterWidth = config->filterWidth;
+	receiverMode = config->receiver.modulation;
+	rspModel.gain = config->rsp.gain;
+	rspModel.lna = config->rsp.lna;
 }
 
 ViewModel::~ViewModel() {
@@ -28,6 +31,10 @@ ViewModel::~ViewModel() {
 	config->startFrequency = centerFrequency;
 	config->volume = volume;
 	config->filterWidth = filterWidth;
+	config->receiver.modulation = receiverMode;
+	config->rsp.gain = rspModel.gain;
+	config->rsp.lna = rspModel.lna;
+
 
 	config->hackrf.lnaGain = hackRFModel.lnaGain;
 	config->hackrf.vgaGain = hackRFModel.vgaGain;

@@ -30,6 +30,9 @@ void SoundProcessorThread::initFilters(int filterWidth) {
 	firFilterI.initCoeffs(config->inputSamplerate, filterWidth, config->outputSamplerateDivider, config->polyphaseFilterLen);
 	firFilterQ.initCoeffs(config->inputSamplerate, filterWidth, config->outputSamplerateDivider, config->polyphaseFilterLen);
 	fir->init(fir->LOWPASS, fir->BLACKMAN_HARRIS, 256, filterWidth, 0, config->outputSamplerate);
+
+	firI->init(fir->LOWPASS, fir->BLACKMAN_HARRIS, 256, filterWidth, 0, config->outputSamplerate);
+	firQ->init(fir->LOWPASS, fir->BLACKMAN_HARRIS, 256, filterWidth, 0, config->outputSamplerate);
 	//audioFilter = new FirFilter(Filter::makeRaiseCosine(config->outputSamplerate / config->outputSamplerateDivider, filterWidth, 0.5, config->polyphaseFilterLen), config->polyphaseFilterLen);
 	//audioFilter = new FirFilter(fir->getCoeffs(), 128);
 }
@@ -112,6 +115,8 @@ void SoundProcessorThread::process() {
 						audio = audioI + audioQ; // USB
 						break;
 					case AM:
+						audioI = firI->proc(audioI);
+						audioQ = firQ->proc(audioQ);
 						audio = sqrt(audioI * audioI + audioQ * audioQ);
 						break;
 					}
@@ -119,7 +124,7 @@ void SoundProcessorThread::process() {
 					audio = fir->proc(audio);
 					audio = agc->process(audio);
 					//Если AM, то немного усилим сигнал
-					if (mode == AM) audio *= 5;
+					if (mode == AM) audio *= 5.0f;
 					outputData[count] = audio * Display::instance->viewModel->volume;
 					count++;
 				}

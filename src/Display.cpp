@@ -209,7 +209,7 @@ void Display::renderImGUIFirst() {
 			const char* items[] = { "1750000", "2500000", "3500000", "5000000", "5500000", "6000000", "7000000", "8000000", "9000000", "10000000", "20000000" };
 			static int item_current_idx = 0; // Here we store our selection data as an index.
 			const char* combo_preview_value = items[item_current_idx];  // Pass in the preview value visible before opening the combo (it could be anything)
-			if (ImGui::BeginCombo("Baseband filter", combo_preview_value, 0)) {
+			if (ImGui::BeginCombo("Filter", combo_preview_value, 0)) {
 				for (int n = 0; n < IM_ARRAYSIZE(items); n++)
 				{
 					const bool is_selected = (item_current_idx == n);
@@ -231,8 +231,9 @@ void Display::renderImGUIFirst() {
 
 	if (config->deviceType == Config::RSP) {
 		ImGui::Begin("RSP options");
-			ImGui::SliderInt("Gain", &viewModel->gain, 0, 100); ImGui::SameLine();
-			ImGui::Checkbox("Gain Control", &viewModel->gainControl);
+			ImGui::SliderInt("Gain", &viewModel->rspModel.gain, 0, 59);
+			ImGui::Checkbox("Disable LNA", &viewModel->rspModel.lna);
+			//ImGui::Checkbox("Gain Control", &viewModel->gainControl);
 		ImGui::End();
 	}
 

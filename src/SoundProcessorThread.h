@@ -41,6 +41,8 @@ class SoundProcessorThread {
 	Config* config;
 
 	FIR* fir = new FIR();
+	FIR* firI = new FIR();
+	FIR* firQ = new FIR();
 
 public: 
 

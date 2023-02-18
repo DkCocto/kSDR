@@ -68,6 +68,10 @@ public:
 	int startBin = 0;
 	int stopBin = fftLen / 2 - 1;
 
+	struct Receiver {
+		int modulation = 1;
+	} receiver;
+
 	enum DeviceType {
 		RSP,
 		HACKRF
@@ -81,6 +85,14 @@ public:
 		char vgaGain = 20;
 		char txAmp = 20;
 	} hackrf;
+
+	struct RSP {
+		int deviceSamplingRate = 4000000;
+		int deviceDecimationFactor = 1;
+		int gain = 50;
+		int lna = 0;
+		char api = 2;
+	} rsp;
 
 	//--------------------------------------
 

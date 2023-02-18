@@ -8,6 +8,7 @@ Config::Config() {
 
     switch (deviceType) {
         case RSP:
+            inputSamplerate = (rsp.deviceSamplingRate / rsp.deviceDecimationFactor) / inputSamplerateDivider;
             break;
         case HACKRF:
             inputSamplerate = hackrf.deviceSamplingRate / inputSamplerateDivider;
@@ -31,7 +32,7 @@ Config::Config() {
 	circleBufferLen								= 2 * inputSamplerate;
 
 	hilbertTransformLen							= 255;
-	polyphaseFilterLen							= 256;
+	polyphaseFilterLen							= 128;
 
 	fftBandwidth								= (float)inputSamplerate / (float)fftLen;
 }
@@ -67,7 +68,7 @@ void Config::load() {
                     deviceType = HACKRF;
             }
         
-            tinyxml2::XMLElement* psamplingRateDiv = pDevice->FirstChildElement("samplingRateDiv");
+            tinyxml2::XMLElement* psamplingRateDiv = pDevice->FirstChildElement("decimation");
             inputSamplerateDivider = std::stoi(std::string(psamplingRateDiv->GetText()));
 
             tinyxml2::XMLElement* pHackRF = pDevice->FirstChildElement("HackRF");
@@ -90,6 +91,25 @@ void Config::load() {
                 tinyxml2::XMLElement* ptxAmp = pHackRF->FirstChildElement("txAmp");
                 hackrf.txAmp = std::stoi(std::string(ptxAmp->GetText()));
             }
+
+            tinyxml2::XMLElement* pRSP = pDevice->FirstChildElement("RSP");
+            if (NULL != pRSP) {
+                tinyxml2::XMLElement* pdeviceSamplingRate = pRSP->FirstChildElement("deviceSamplingRate");
+                rsp.deviceSamplingRate = std::stoi(std::string(pdeviceSamplingRate->GetText()));
+
+                tinyxml2::XMLElement* pgain = pRSP->FirstChildElement("gain");
+                rsp.gain = std::stoi(std::string(pgain->GetText()));
+
+                tinyxml2::XMLElement* papi = pRSP->FirstChildElement("api");
+                rsp.api = std::stoi(std::string(papi->GetText()));
+
+                tinyxml2::XMLElement* pdeviceDecimationFactor = pRSP->FirstChildElement("deviceDecimationFactor");
+                rsp.deviceDecimationFactor = std::stoi(std::string(pdeviceDecimationFactor->GetText()));
+
+                tinyxml2::XMLElement* plna = pRSP->FirstChildElement("disableLna");
+                rsp.lna = std::stoi(std::string(plna->GetText()));
+            }
+
         }
 
         tinyxml2::XMLElement* pReceiver = pRootElement->FirstChildElement("Receiver");
@@ -105,6 +125,9 @@ void Config::load() {
 
             tinyxml2::XMLElement* pfilterWidth = pReceiver->FirstChildElement("filterWidth");
             filterWidth = std::stoi(std::string(pfilterWidth->GetText()));
+
+            tinyxml2::XMLElement* pmodulation = pReceiver->FirstChildElement("modulation");
+            receiver.modulation = std::stoi(std::string(pmodulation->GetText()));
         }
 
         tinyxml2::XMLElement* pWaterfall = pRootElement->FirstChildElement("Waterfall");
@@ -167,6 +190,15 @@ void Config::save() {
 
                 //tinyxml2::XMLElement* ptxAmp = pHackRF->FirstChildElement("txAmp");
             }
+
+            tinyxml2::XMLElement* pRSP = pDevice->FirstChildElement("RSP");
+            if (NULL != pRSP) {
+                tinyxml2::XMLElement* pgain = pRSP->FirstChildElement("gain");
+                pgain->SetText(rsp.gain);
+
+                tinyxml2::XMLElement* plna = pRSP->FirstChildElement("disableLna");
+                plna->SetText(rsp.lna);
+            }
         }
 
         tinyxml2::XMLElement* pReceiver = pRootElement->FirstChildElement("Receiver");
@@ -182,6 +214,9 @@ void Config::save() {
 
             tinyxml2::XMLElement* pfilterWidth = pReceiver->FirstChildElement("filterWidth");
             pfilterWidth->SetText(filterWidth);
+
+            tinyxml2::XMLElement* pmodulation = pReceiver->FirstChildElement("modulation");
+            pmodulation->SetText(receiver.modulation);
         }
 
         tinyxml2::XMLElement* pWaterfall = pRootElement->FirstChildElement("Waterfall");
@@ -226,7 +261,7 @@ void Config::calcOutputSamplerate() {
 		div *= 2;
 		if (sampleRate % div != 0) break;
 		else {
-			if (sampleRate / div <= 96000) break;
+			if (sampleRate / div <= 44000) break;
 		}
 	}
 	outputSamplerateDivider = div;

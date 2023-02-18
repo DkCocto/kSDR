@@ -57,6 +57,7 @@
     <ClCompile Include="src\ReceiverLogic.cpp" />
     <ClCompile Include="src\ReceiverLogicNew.cpp" />
     <ClCompile Include="src\RSP1.cpp" />
+    <ClCompile Include="src\RSPv2.cpp" />
     <ClCompile Include="src\Semaphore.cpp" />
     <ClCompile Include="src\SinOscillator.cpp" />
     <ClCompile Include="src\SMeter.cpp" />
@@ -118,6 +119,7 @@
     <ClInclude Include="src\ReceiverLogic.h" />
     <ClInclude Include="src\ReceiverLogicNew.h" />
     <ClInclude Include="src\RSP1.h" />
+    <ClInclude Include="src\RSPv2.h" />
     <ClInclude Include="src\Semaphore.h" />
     <ClInclude Include="src\SinOscillator.h" />
     <ClInclude Include="src\SMeter.h" />
@@ -241,7 +243,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\dev\Visual Studio\kSDR\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>mir_sdr_api.lib;portaudio_static_x86.lib;glfw3.lib;opengl32.lib;hackrf.lib;pthreadVSE2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>mir_sdr_api.lib;portaudio_static_x86.lib;glfw3.lib;opengl32.lib;hackrf.lib;pthreadVSE2.lib;sdrplay_api.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
