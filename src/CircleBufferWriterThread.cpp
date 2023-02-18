@@ -8,8 +8,21 @@ CircleBufferWriterThread::CircleBufferWriterThread(Config* config, CircleBuffer*
 }
 
 void CircleBufferWriterThread::run() {
+
+	ViewModel* viewModel = Display::instance->viewModel;
+
+	float secondsInBuffer = 0.0;
+
 	while (true) {
 		int available = soundWriterCircleBuffer->available();
+		secondsInBuffer = (float)available / config->outputSamplerate;
+		
+		//Если начинается задержка в звуке, то сбросить буффер. Это ликвидирует задержку в звуке.
+		if (secondsInBuffer > 0.05) {
+			soundWriterCircleBuffer->reset();
+			continue;
+		}
+
 		if (available >= len) {
 			float* data = soundWriterCircleBuffer->read(len);
 			soundCard->write(data, len);

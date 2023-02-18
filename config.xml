@@ -5,20 +5,21 @@
 		0: RSP1/RSP1A
 		1: hackrf
 		-->
-        <type>1</type>
-        <decimation>2</decimation>
+        <type>0</type>
+        <decimation>1</decimation>
         <RSP>
-            <!-- Total sampling rate = (deviceSamplingRate / deviceDecimationFactor) / decimation -->
-            <!-- Example: -->
-            <!--	deviceSamplingRate = 2000000 -->
-            <!--	deviceDecimationFactor = 2 -->
-            <!--	decimation = 2 -->
-            <!--	Total sampling rate = (2000000 / 2) / 2 = 500000 -->
+            <!-- Total sampling rate = (deviceSamplingRate / deviceDecimationFactor) / decimation
+             Example:
+            	deviceSamplingRate = 2000000
+            	deviceDecimationFactor = 2
+            	decimation = 2
+            	Total sampling rate = (2000000 / 2) / 2 = 500000 
+			-->
             <deviceSamplingRate>4000000</deviceSamplingRate>
             <deviceDecimationFactor>2</deviceDecimationFactor>
-            <gain>50</gain>
+            <gain>53</gain>
             <!-- Api can be 2 (v2) and 3 (v3)-->
-            <api>2</api>
+            <api>3</api>
             <disableLna>1</disableLna>
         </RSP>
         <HackRF>
@@ -35,24 +36,24 @@
         </HackRF>
     </Device>
     <Receiver>
-        <startFreq>7100000</startFreq>
-        <lastSelectedFreq>7085000</lastSelectedFreq>
+        <startFreq>3700000</startFreq>
+        <lastSelectedFreq>3668000</lastSelectedFreq>
         <volume>1.179</volume>
         <filterWidth>2700</filterWidth>
         <!-- USB:0, LSB:1, AM:2 -->
         <modulation>1</modulation>
     </Receiver>
     <Waterfall>
-        <min>-114.60159</min>
-        <max>-38.950809</max>
+        <min>-129.78244</min>
+        <max>-69.873795</max>
     </Waterfall>
     <Spectre>
-        <ratio>-22.200047</ratio>
-        <min>-118.0822</min>
-        <speed>11</speed>
+        <ratio>-48.984932</ratio>
+        <min>-132.45901</min>
+        <speed>13</speed>
         <!-- Must be a power of 2. The total will be fftLen = fftLen * 1024 -->
         <fftLen>32</fftLen>
-        <startBin>7560</startBin>
-        <stopBin>8785</stopBin>
+        <startBin>7655</startBin>
+        <stopBin>8510</stopBin>
     </Spectre>
 </Config>

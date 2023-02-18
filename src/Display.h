@@ -12,6 +12,7 @@
 #include "SMeter.h"
 #include "Spectre.h"
 #include "CPU.h"
+#include "RSPv2.h"
 
 
 class Display {

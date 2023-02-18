@@ -101,6 +101,9 @@ void SMeter::drawGrid(ImDrawList* draw_list) {
 }
 
 void SMeter::drawLevel(ImDrawList* draw_list, double dBValue) {
+	
+	if (dBValue <= -126.5) dBValue = -126.5;
+	
 	ImVec2 canvas_p0 = ImGui::GetCursorScreenPos();      // ImDrawList API uses screen coordinates!
 	ImVec2 canvas_sz = ImGui::GetContentRegionAvail();   // Resize canvas to what's available
 

@@ -20,8 +20,6 @@ void CircleBuffer::write(float buf[], int bufLen) {
 	}
 }
 
-Delay* d = new Delay(1);
-
 void CircleBuffer::write(uint8_t* buf, int bufLen) {
 	for (int i = 0; i < bufLen - 1; i++) {
 		//printf("%f\r\n", (buf[i] - 127.5) / 128.0);
@@ -96,4 +94,9 @@ int CircleBuffer::available() {
 	} else {
 		return writePointer + 1 + (size - 1 - readPointer);
 	}
+}
+
+void CircleBuffer::reset() {
+	writePointer = -1;
+	readPointer = -1;
 }

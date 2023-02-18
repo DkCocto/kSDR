@@ -2,6 +2,8 @@
 
 #include "CircleBuffer.h"
 #include "SoundCard.h"
+#include "ViewModel.h"
+#include "Display.h"
 
 class CircleBufferWriterThread {
 

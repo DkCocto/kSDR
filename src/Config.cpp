@@ -19,15 +19,12 @@ Config::Config() {
 
 	calcOutputSamplerate();
 
-	//(fftLen / 2) / outputSamplerateDivider;
 	bufferWriteAudioLen							= (outputSamplerateDivider * 2) * 2;
 
-	//readSoundProcessorBufferLen				= (outputSamplerateDivider * 2) * 512;
 	readSoundProcessorBufferLen					= fftLen; //fftLen
 
 	audioReadFrameLen							= (outputSamplerateDivider * 2) * 32;
 	audioWriteFrameLen							= (outputSamplerateDivider * 2) * 32;
-	//readSize									= audioReadFrameLen * inputChannelNumber;
 
 	circleBufferLen								= 2 * inputSamplerate;
 
@@ -254,7 +251,7 @@ void Config::save() {
 }
 
 void Config::calcOutputSamplerate() {
-	int sampleRate = inputSamplerate; // 2 000 000
+	int sampleRate = inputSamplerate;
 	int div = 1;
 
 	while (true) {

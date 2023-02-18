@@ -11,9 +11,6 @@
 #include "CircleBufferWriterThread.h"
 #include "RSPv2.h"
 
-//Config* config = new Config(375000, 8, 4);
-//Config* config = new Config(1000000, 2, 8);
-//Config* config = new Config(500000, 4, 16);
 Config* config = new Config();
 
 SoundCard soundCard(config);
@@ -43,6 +40,10 @@ int main() {
 	switch (config->deviceType) {
 		//RSP
 		case 0:
+			if (config->rsp.api == 3) {
+				config->device = new RSPv2(config, iqSignalsCircleBuffer);
+				break;
+			}
 			config->device = new RSP1(config, iqSignalsCircleBuffer);
 			break;
 		//Hackrf
@@ -57,15 +58,16 @@ int main() {
 	//Инициализируем устройство
 	switch (config->deviceType) {
 		case Config::RSP:
+			if (config->rsp.api == 3) {
+				((RSPv2*)config->device)->init();
+				break;
+			}
 			((RSP1*)config->device)->init();
 			break;
 		case Config::HACKRF:
 			((Hackrf*)config->device)->init();
 			break;
 	}
-
-	//RSPv2* rspv2 = new RSPv2();
-	//rspv2->init();
 
 	fftSpectreHandler->start().detach();
 	circleBufferWriterThread->start().detach();

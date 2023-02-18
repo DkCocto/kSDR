@@ -20,4 +20,5 @@ class CircleBuffer {
 		float read();
 		float* read(int len);
 		int available();
+		void reset();
 };

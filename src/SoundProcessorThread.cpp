@@ -33,8 +33,6 @@ void SoundProcessorThread::initFilters(int filterWidth) {
 
 	firI->init(fir->LOWPASS, fir->BLACKMAN_HARRIS, 256, filterWidth, 0, config->outputSamplerate);
 	firQ->init(fir->LOWPASS, fir->BLACKMAN_HARRIS, 256, filterWidth, 0, config->outputSamplerate);
-	//audioFilter = new FirFilter(Filter::makeRaiseCosine(config->outputSamplerate / config->outputSamplerateDivider, filterWidth, 0.5, config->polyphaseFilterLen), config->polyphaseFilterLen);
-	//audioFilter = new FirFilter(fir->getCoeffs(), 128);
 }
 
 float xm1 = 0, ym1 = 0, xm2 = 0, ym2 = 0;
