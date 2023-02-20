@@ -11,6 +11,7 @@
 #include "ReceiverLogic.h"
 #include "Display.h"
 #include "FIR.h"
+#include "DCRemove.h"
 
 using namespace std;
 

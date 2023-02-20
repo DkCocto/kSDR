@@ -2,6 +2,10 @@
 
 #include "fft3.hpp"
 
+//std::vector<KalmanFilter> kfArray;
+
+float* tmpArray;
+
 FFTSpectreHandler::FFTSpectreHandler(Config* config) {
 	this->config = config;
 
@@ -30,6 +34,13 @@ FFTSpectreHandler::FFTSpectreHandler(Config* config) {
 	memset(superOutput, 0, sizeof(float) * config->fftLen / 2);
 
 	spectreSize = config->fftLen / 2;
+
+	/*for (int i = 0; i < spectreSize; i++) {
+		kfArray.push_back(KalmanFilter(0.001, 0.0001));
+	}*/
+
+	tmpArray = new float[spectreSize];
+
 }
 
 std::queue<std::vector<float>> spectreDataQueue;
@@ -135,16 +146,26 @@ float FFTSpectreHandler::average(float avg, float new_sample, int n) {
 	return tmp;
 }
 
+
+
 void FFTSpectreHandler::dataPostprocess() {
-	for (int i = 0; i < config->fftLen / 2; i++) {
-		float psd = this->psd(realOut[i], imOut[i]) - 60;
+	for (int i = 0; i < spectreSize; i++) {
+		float psd = this->psd(realOut[i], imOut[i]);
 		if (firstRun) {
 			superOutput[i] = psd;
 			firstRun = false;
 		}
 		else {
 			superOutput[i] = average(superOutput[i], psd, spectreSpeed);
+			//superOutput[i] = kfArray.at(i).filter(superOutput[i]);
 		}
+	}
+
+	memcpy(tmpArray, superOutput, sizeof(float) * spectreSize);
+
+	for (int j = 2; j < spectreSize - 2; j++) {
+		//superOutput[j] = (siska[j - 1] + siska[j] + siska[j + 1]) / 3;
+		superOutput[j] = (tmpArray[j - 2] + 2 * tmpArray[j - 1] + 3 * tmpArray[j] + 2 * tmpArray[j + 1] + tmpArray[j + 2]) / 9;
 	}
 }
 
@@ -162,7 +183,7 @@ int FFTSpectreHandler::getSpectreSize() {
 }
 
 float FFTSpectreHandler::psd(float re, float im) {
-	return 10 * log((sqrt(re * re + im * im)));
+	return 10 * log(re * re + im * im);
 }
 
 void FFTSpectreHandler::prepareData() {

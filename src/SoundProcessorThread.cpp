@@ -38,6 +38,9 @@ void SoundProcessorThread::initFilters(int filterWidth) {
 float xm1 = 0, ym1 = 0, xm2 = 0, ym2 = 0;
 float p1 = 0, p2 = 0;
 
+DCRemove dcRemove;
+
+
 void SoundProcessorThread::process() {
 	outputData = new float[(len / 2) / config->outputSamplerateDivider];
 
@@ -66,7 +69,9 @@ void SoundProcessorThread::process() {
 			long count = 0;
 			for (int i = 0; i < len / 2; i++) {
 
-				p1 = data[2 * i];
+				if (viewModel->removeDCBias) dcRemove.process(&data[2 * i], &data[2 * i + 1]);
+
+				/*p1 = data[2 * i];
 				data[2 * i] = p1 - xm1 + 0.9995 * ym1;
 				xm1 = p1;
 				ym1 = data[2 * i];
@@ -74,7 +79,7 @@ void SoundProcessorThread::process() {
 				p2 = data[2 * i + 1];
 				data[2 * i + 1] = p2 - xm2 + 0.9995 * ym2;
 				xm2 = p2;
-				ym2 = data[2 * i + 1];
+				ym2 = data[2 * i + 1];*/
 
 				mixer->setFreq(Display::instance->spectre->receiverLogicNew->getFrequencyDelta());
 				Signal mixedSignal = mixer->mix(data[2 * i], data[2 * i + 1]);

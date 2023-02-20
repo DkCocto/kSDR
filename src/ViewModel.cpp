@@ -20,6 +20,8 @@ ViewModel::ViewModel(Config* config) {
 	receiverMode = config->receiver.modulation;
 	rspModel.gain = config->rsp.gain;
 	rspModel.lna = config->rsp.lna;
+
+	removeDCBias = config->removeDCBias;
 }
 
 ViewModel::~ViewModel() {
@@ -35,6 +37,7 @@ ViewModel::~ViewModel() {
 	config->rsp.gain = rspModel.gain;
 	config->rsp.lna = rspModel.lna;
 
+	config->removeDCBias = removeDCBias;
 
 	config->hackrf.lnaGain = hackRFModel.lnaGain;
 	config->hackrf.vgaGain = hackRFModel.vgaGain;

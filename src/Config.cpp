@@ -155,6 +155,17 @@ void Config::load() {
 
             tinyxml2::XMLElement* pstopBin = pSpectre->FirstChildElement("stopBin");
             stopBin = std::stoi(std::string(pstopBin->GetText()));
+
+            //Проверка на случай если fftLen изменилось, а границы спектра выходят за общую границу FFT
+            if (startBin > (fftLen / 2) || stopBin > (fftLen / 2)) {
+                startBin = 0;
+                stopBin = (fftLen / 2) - 1;
+            }
+
+            tinyxml2::XMLElement* premoveDCBias = pSpectre->FirstChildElement("removeDCBias");
+            removeDCBias = std::stoi(std::string(premoveDCBias->GetText()));
+
+            
         }
     } else {
         printf("Config file not found!");
@@ -241,6 +252,9 @@ void Config::save() {
 
             tinyxml2::XMLElement* pstopBin = pSpectre->FirstChildElement("stopBin");
             pstopBin->SetText(stopBin);
+
+            tinyxml2::XMLElement* premoveDCBias = pSpectre->FirstChildElement("removeDCBias");
+            premoveDCBias->SetText(removeDCBias);
         }
 
         doc.SaveFile(CONFIG_FILENAME);

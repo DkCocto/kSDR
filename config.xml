@@ -5,8 +5,8 @@
 		0: RSP1/RSP1A
 		1: hackrf
 		-->
-        <type>0</type>
-        <decimation>1</decimation>
+        <type>1</type>
+        <decimation>2</decimation>
         <RSP>
             <!-- Total sampling rate = (deviceSamplingRate / deviceDecimationFactor) / decimation
              Example:
@@ -30,30 +30,30 @@
             <!-- 0 1 2 3 4-->
             <lnaGain>3</lnaGain>
             <!-- 0 .. 30 -->
-            <vgaGain>14</vgaGain>
+            <vgaGain>12</vgaGain>
             <!-- 0 .. 40 step 2-->
             <txAmp>20</txAmp>
         </HackRF>
     </Device>
     <Receiver>
-        <startFreq>3700000</startFreq>
-        <lastSelectedFreq>3668000</lastSelectedFreq>
-        <volume>1.179</volume>
-        <filterWidth>2700</filterWidth>
+        <startFreq>14150000</startFreq>
+        <lastSelectedFreq>14152000</lastSelectedFreq>
+        <volume>1.096</volume>
+        <filterWidth>3200</filterWidth>
         <!-- USB:0, LSB:1, AM:2 -->
-        <modulation>1</modulation>
+        <modulation>0</modulation>
     </Receiver>
     <Waterfall>
-        <min>-129.78244</min>
-        <max>-69.873795</max>
+        <min>-129.61028</min>
+        <max>-52.23819</max>
     </Waterfall>
-    <Spectre>
-        <ratio>-48.984932</ratio>
-        <min>-132.45901</min>
-        <speed>13</speed>
+    <Spectre>1<ratio>-7.6055374</ratio>
+        <min>-130.45406</min>
+        <speed>15</speed>
         <!-- Must be a power of 2. The total will be fftLen = fftLen * 1024 -->
-        <fftLen>32</fftLen>
-        <startBin>7655</startBin>
-        <stopBin>8510</stopBin>
+        <fftLen>64</fftLen>
+        <startBin>15116</startBin>
+        <stopBin>17132</stopBin>
+        <removeDCBias>1</removeDCBias>
     </Spectre>
 </Config>

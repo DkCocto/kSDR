@@ -68,4 +68,5 @@ public:
 
 	void setBufferAvailable(int readAvailableBufferCount);
 
+	bool removeDCBias = true;
 };

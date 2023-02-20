@@ -17,8 +17,8 @@ void CircleBufferWriterThread::run() {
 		int available = soundWriterCircleBuffer->available();
 		secondsInBuffer = (float)available / config->outputSamplerate;
 		
-		//Åñëè íà÷èíàåòñÿ çàäåğæêà â çâóêå, òî ñáğîñèòü áóôôåğ. İòî ëèêâèäèğóåò çàäåğæêó â çâóêå.
-		if (secondsInBuffer > 0.05) {
+		//Ğ•ÑĞ»Ğ¸ Ğ½Ğ°Ñ‡Ğ¸Ğ½Ğ°ĞµÑ‚ÑÑ Ğ·Ğ°Ğ´ĞµÑ€Ğ¶ĞºĞ° Ğ² Ğ·Ğ²ÑƒĞºĞµ, Ñ‚Ğ¾ ÑĞ±Ñ€Ğ¾ÑĞ¸Ñ‚ÑŒ Ğ±ÑƒÑ„Ñ„ĞµÑ€. Ğ­Ñ‚Ğ¾ Ğ»Ğ¸ĞºĞ²Ğ¸Ğ´Ğ¸Ñ€ÑƒĞµÑ‚ Ğ·Ğ°Ğ´ĞµÑ€Ğ¶ĞºÑƒ Ğ² Ğ·Ğ²ÑƒĞºĞµ.
+		if (secondsInBuffer > 0.1) {
 			soundWriterCircleBuffer->reset();
 			continue;
 		}

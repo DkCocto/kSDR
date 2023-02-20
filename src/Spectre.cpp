@@ -66,10 +66,10 @@ void Spectre::draw() {
 
 	ImGui::Begin("Spectre");
 
-		//Íà÷àëüíàÿ òî÷êà îêíà
+		//ÐŒÐ°Ñ‡Ð°Ð»ÑŒÐ½Ð°Â¤ Ñ‚Ð¾Ñ‡ÐºÐ° Ð¾ÐºÐ½Ð°
 		ImVec2 startWindowPoint = ImGui::GetCursorScreenPos();
 
-		//Íèæíÿÿ ëåâàÿ òî÷êà îêíà
+		//ÐŒÐ¸Ð¶Ð½Â¤Â¤ Ð»ÐµÐ²Ð°Â¤ Ñ‚Ð¾Ñ‡ÐºÐ° Ð¾ÐºÐ½Ð°
 		ImVec2 windowLeftBottomCorner = ImGui::GetContentRegionAvail();
 
 		windowFrame.UPPER_RIGHT = startWindowPoint;
@@ -108,7 +108,7 @@ void Spectre::draw() {
 
 			float stepX = (windowLeftBottomCorner.x - rightPadding - leftPadding) / reducedSpectreData.size();
 
-			float ratio = ratioKalman->filter((float)spectreHeight / (abs(veryMinSpectreVal) - abs(viewModel->ratio)));
+			float ratio = ratioKalman->filter((float)spectreHeight / (abs(veryMinSpectreVal - viewModel->ratio)));
 
 			float koeff = 0;
 			if (abs(veryMinSpectreVal) * ratio > (float)spectreHeight) {
@@ -351,7 +351,7 @@ void Spectre::handleEvents(ImVec2 startWindowPoint, ImVec2 windowLeftBottomCorne
 		}
 	}
 
-	//Âûïîëíÿåòñÿ åñëè Íàæàòèå ìûøêè ïðîèçîøëî âíóòðè ñïåêòðà è ìûøêà íå áûëà ãäå òî óæå íàæàòà âíå îêíà
+	//Â¬Ñ‹Ð¿Ð¾Ð»Ð½Â¤ÐµÑ‚ÑÂ¤ ÐµÑÐ»Ð¸ ÐŒÐ°Ð¶Ð°Ñ‚Ð¸Ðµ Ð¼Ñ‹ÑˆÐºÐ¸ Ð¿Ñ€Ð¾Ð¸Ð·Ð¾ÑˆÐ»Ð¾ Ð²Ð½ÑƒÑ‚Ñ€Ð¸ ÑÐ¿ÐµÐºÑ‚Ñ€Ð° Ð¸ Ð¼Ñ‹ÑˆÐºÐ° Ð½Ðµ Ð±Ñ‹Ð»Ð° Ð³Ð´Ðµ Ñ‚Ð¾ ÑƒÐ¶Ðµ Ð½Ð°Ð¶Ð°Ñ‚Ð° Ð²Ð½Ðµ Ð¾ÐºÐ½Ð°
 	if (!viewModel->mouseBusy && (ImGui::IsMouseClicked(0) || ImGui::IsMouseClicked(1)) && isMouseOnSpectre) {
 		if (ImGui::IsMouseClicked(0)) {
 			//receiverLogicNew->saveDelta(io.MousePos.x - (startWindowPoint.x + rightPadding));
@@ -362,7 +362,7 @@ void Spectre::handleEvents(ImVec2 startWindowPoint, ImVec2 windowLeftBottomCorne
 		}
 	}
 
-	//Âûïîëíÿåòñÿ åñëè óäåðæàíèå êíîïêè ìûøêè ïðîèçîøëî âíóòðè ñïåêòðà è ìûøêà íå áûëà ãäå òî óæå íàæàòà âíå îêíà
+	//Â¬Ñ‹Ð¿Ð¾Ð»Ð½Â¤ÐµÑ‚ÑÂ¤ ÐµÑÐ»Ð¸ ÑƒÐ´ÐµÑ€Ð¶Ð°Ð½Ð¸Ðµ ÐºÐ½Ð¾Ð¿ÐºÐ¸ Ð¼Ñ‹ÑˆÐºÐ¸ Ð¿Ñ€Ð¾Ð¸Ð·Ð¾ÑˆÐ»Ð¾ Ð²Ð½ÑƒÑ‚Ñ€Ð¸ ÑÐ¿ÐµÐºÑ‚Ñ€Ð° Ð¸ Ð¼Ñ‹ÑˆÐºÐ° Ð½Ðµ Ð±Ñ‹Ð»Ð° Ð³Ð´Ðµ Ñ‚Ð¾ ÑƒÐ¶Ðµ Ð½Ð°Ð¶Ð°Ñ‚Ð° Ð²Ð½Ðµ Ð¾ÐºÐ½Ð°
 	if (!viewModel->mouseBusy && (ImGui::IsMouseDown(0) || ImGui::IsMouseDown(1)) && isMouseOnSpectre) {
 		if (ImGui::IsMouseDown(0)) {
 			//receiverLogicNew->setPosition(io.MousePos.x - (startWindowPoint.x + rightPadding), false);
@@ -379,12 +379,12 @@ void Spectre::handleEvents(ImVec2 startWindowPoint, ImVec2 windowLeftBottomCorne
 		}
 	}
 
-	//Îïðåäåëÿåì ñäâèíóëîñü ëè îêíî ïî x
+	//ÑœÐ¿Ñ€ÐµÐ´ÐµÐ»Â¤ÐµÐ¼ ÑÐ´Ð²Ð¸Ð½ÑƒÐ»Ð¾ÑÑŒ Ð»Ð¸ Ð¾ÐºÐ½Ð¾ Ð¿Ð¾ x
 	if (savedStartWindowX != startWindowPoint.x) {
 		savedStartWindowX = startWindowPoint.x;
 	}
 
-	//Îïðåäåëÿåì èçìåíèëñÿ ëè ðàçìåð îêíà ïî x
+	//ÑœÐ¿Ñ€ÐµÐ´ÐµÐ»Â¤ÐµÐ¼ Ð¸Ð·Ð¼ÐµÐ½Ð¸Ð»ÑÂ¤ Ð»Ð¸ Ñ€Ð°Ð·Ð¼ÐµÑ€ Ð¾ÐºÐ½Ð° Ð¿Ð¾ x
 	if (savedEndWindowX != windowLeftBottomCorner.x) {
 		receiverLogicNew->updateSpectreWidth(savedSpectreWidthInPX, spectreWidthInPX);
 		savedSpectreWidthInPX = spectreWidthInPX;
@@ -406,7 +406,7 @@ void Spectre::drawFreqMarks(ImDrawList* draw_list, ImVec2 startWindowPoint, ImVe
 		GRAY, 2.0f);
 	
 	//Freqs mark line
-	//Îòìåòêè ÷àñòîòû äîëæíû çàâèñèòü îò øèðèíû îêíà ñïåêòðà, ïîäîáðàë òàêóþ çàâèñèìîñòü
+	//ÑœÑ‚Ð¼ÐµÑ‚ÐºÐ¸ Ñ‡Ð°ÑÑ‚Ð¾Ñ‚Ñ‹ Ð´Ð¾Ð»Ð¶Ð½Ñ‹ Ð·Ð°Ð²Ð¸ÑÐ¸Ñ‚ÑŒ Ð¾Ñ‚ ÑˆÐ¸Ñ€Ð¸Ð½Ñ‹ Ð¾ÐºÐ½Ð° ÑÐ¿ÐµÐºÑ‚Ñ€Ð°, Ð¿Ð¾Ð´Ð¾Ð±Ñ€Ð°Ð» Ñ‚Ð°ÐºÑƒÑŽ Ð·Ð°Ð²Ð¸ÑÐ¸Ð¼Ð¾ÑÑ‚ÑŒ
 	int markCount = (int)(0.008 * windowLeftBottomCorner.x) * SPECTRE_FREQ_MARK_COUNT_DIV;
 	
 	FlowingFFTSpectre::FREQ_RANGE freqRange = flowingFFTSpectre->getVisibleFreqRangeFromSamplerate();

@@ -90,6 +90,10 @@ int Display::init() {
 	ImGuiIO& io = ImGui::GetIO();
 	io.FontGlobalScale = 1;
 
+	ImGuiStyle& style = ImGui::GetStyle();
+	style.AntiAliasedLines = true;
+	style.AntiAliasedFill = true;
+
 	//Инициализируем шрифт
 }
 
@@ -174,13 +178,15 @@ void Display::renderImGUIFirst() {
 		}
 		ImGui::SliderFloat("Waterfall max", &viewModel->waterfallMax, -130, 0);
 
-		ImGui::SliderFloat("Spectre ratio", &viewModel->ratio, -150, 0); ImGui::SameLine();
+		ImGui::SliderFloat("Spectre ratio", &viewModel->ratio, -200, 100); ImGui::SameLine();
 		if (ImGui::Button("Spectre Auto")) {
 			spectre->spectreRatioAutoCorrection();
 		}
-		ImGui::SliderFloat("Spectre min val", &viewModel->minDb, -150, 0);
+		ImGui::SliderFloat("Spectre min val", &viewModel->minDb, -200, 0);
 
 		ImGui::SliderInt("Spectre speed", &viewModel->spectreSpeed, 1, 200);
+
+		ImGui::Checkbox("Remove DC", &viewModel->removeDCBias);
 		
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 

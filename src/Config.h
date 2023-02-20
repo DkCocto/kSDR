@@ -68,6 +68,8 @@ public:
 	int startBin = 0;
 	int stopBin = fftLen / 2 - 1;
 
+	int removeDCBias = 1;
+
 	struct Receiver {
 		int modulation = 1;
 	} receiver;

@@ -32,6 +32,7 @@
     <ClCompile Include="src\Config.cpp" />
     <ClCompile Include="src\CosOscillator.cpp" />
     <ClCompile Include="src\CPU.cpp" />
+    <ClCompile Include="src\DCRemove.cpp" />
     <ClCompile Include="src\Delay.cpp" />
     <ClCompile Include="src\Device.cpp" />
     <ClCompile Include="src\Display.cpp" />
@@ -90,6 +91,7 @@
     <ClInclude Include="src\Config.h" />
     <ClInclude Include="src\CosOscillator.h" />
     <ClInclude Include="src\CPU.h" />
+    <ClInclude Include="src\DCRemove.h" />
     <ClInclude Include="src\Delay.h" />
     <ClInclude Include="src\Device.h" />
     <ClInclude Include="src\Display.h" />
