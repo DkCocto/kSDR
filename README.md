@@ -1,9 +1,9 @@
 # kSDR
 Simple Fast SDR receiver app with OpenGL support
 
-Demo videos: <br>
-https://youtu.be/igdQ_OeM0tU <br>
-https://youtu.be/yCoX8FF5DJc
+Demo video: <br>
+
+https://www.youtube.com/watch?v=dhKHVnkqCZA
 
 ![2023-02-01_13-18-52](https://user-images.githubusercontent.com/5113949/216016600-60bd6e26-5792-4ebb-9cea-20fed224fe0d.png)
 
@@ -24,14 +24,8 @@ Work on the application is in full swing. The source codes are completely open.
 
 <b>Important</b><br>
 ------
-If you have an sdr device rsp1/rsp1a or their clones, then in order to run our application you need to install v2 drivers (API 2.13).
-
-Link to download drivers:
-https://www.sdrplay.com/dlfinishs/
-
-In API Section find this file and download it: SDRplay_RSP_API-Windows-2.13.1.exe
-
-If you previously had v3. So they must be removed first.
+If you have an sdr device rsp1/rsp1a or their clones, then in order to run our application you need to configure "config.xml" file and setup a correct 
+api version. Default will be api 3.
 
 Credits
 ---
