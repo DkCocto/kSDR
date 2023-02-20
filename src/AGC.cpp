@@ -51,7 +51,7 @@ double AGC::process(double signal) {
 
     amp = averageAmp->process(threshold / kf.filter(signalAbs));
     
-    //if (amp > 100) amp = 100;
+    if (amp > 100) amp = 100;
 
     ////Выводим коэффициант усиления в модель-контейнер отображения и хранения данных
     Display::instance->viewModel->amp = amp;

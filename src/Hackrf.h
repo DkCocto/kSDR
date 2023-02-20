@@ -5,6 +5,7 @@
 #include "CircleBuffer.h"
 #include "ViewModel.h"
 #include "Device.h"
+#include "Display.h"
 
 
 class Hackrf: public Device {
@@ -18,6 +19,8 @@ class Hackrf: public Device {
 	uint32_t savedLnaGain = -1;
 	uint32_t savedVgaGain = -1;
 	uint8_t savedAmp = 0;
+
+	ViewModel* viewModel;
 
 public:
 
@@ -44,5 +47,11 @@ public:
 	int parse_u32(char* s, uint32_t* const value);
 
 	void enableAmp(uint8_t amp);
+
+	bool isNeedToSetupFreq();
+	bool isNeedToSetupLnaGain();
+	bool isNeedToSetupVgnGain();
+	bool isNeedToSetupAmp();
+	bool isNeedToSetupFilter();
 
 };

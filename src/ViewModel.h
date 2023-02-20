@@ -62,6 +62,7 @@ public:
 		int lnaGain = 0;
 		int vgaGain = 8;
 		int enableAmp = 0;
+		uint32_t basebandFilter = 1750000;
 	} hackRFModel;
 
 	float bufferAvailable = 0;

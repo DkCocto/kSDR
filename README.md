@@ -24,6 +24,17 @@ Work on the application is in full swing. The source codes are completely open.
 
 <b>Important</b><br>
 ------
+
+Before using the application, you need to open the settings file: "config.xml" and set the type of your device in accordance with the instructions given in this file.
+
+Example:
+	<!-- 
+	Device codes
+	0: RSP1/RSP1A
+	1: hackrf
+	-->
+	<type>1</type>
+
 If you have an sdr device rsp1/rsp1a or their clones, then in order to run our application you need to configure "config.xml" file and setup a correct 
 api version. Default will be api 3.
 

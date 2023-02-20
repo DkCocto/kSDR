@@ -158,14 +158,17 @@ void Spectre::draw() {
 
 			//dB mark line
 			float stepInPX = (float)spectreHeight / (float)SPECTRE_DB_MARK_COUNT;
-			float stepdB = (abs(veryMinSpectreVal) - abs(viewModel->ratio)) / SPECTRE_DB_MARK_COUNT;
+			float stepdB = (abs(veryMinSpectreVal - viewModel->ratio)) / SPECTRE_DB_MARK_COUNT;
 
 			for (int i = 0; i < SPECTRE_DB_MARK_COUNT; i++) {
-				draw_list->AddText(
-					ImVec2(startWindowPoint.x + rightPadding - 35, startWindowPoint.y + spectreHeight - i * stepInPX - 15),
-					IM_COL32_WHITE, 
-					std::to_string((int)round(veryMinSpectreVal + i * stepdB)).c_str()
-				);
+				int dbMark = (int)round(veryMinSpectreVal + i * stepdB);
+				if (dbMark <= 0) {
+					draw_list->AddText(
+						ImVec2(startWindowPoint.x + rightPadding - 35, startWindowPoint.y + spectreHeight - i * stepInPX - 15),
+						IM_COL32_WHITE,
+						std::to_string(dbMark).c_str()
+					);
+				}
 			}
 			//---------------
 			
@@ -406,7 +409,7 @@ void Spectre::drawFreqMarks(ImDrawList* draw_list, ImVec2 startWindowPoint, ImVe
 		GRAY, 2.0f);
 	
 	//Freqs mark line
-	//ќтметки частоты должны зависить от ширины окна спектра, подобрал такую зависимость
+	//Отметки частоты должны зависить от ширины окна спектра, подобрал такую зависимость
 	int markCount = (int)(0.008 * windowLeftBottomCorner.x) * SPECTRE_FREQ_MARK_COUNT_DIV;
 	
 	FlowingFFTSpectre::FREQ_RANGE freqRange = flowingFFTSpectre->getVisibleFreqRangeFromSamplerate();

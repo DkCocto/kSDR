@@ -200,17 +200,16 @@ void Display::renderImGUIFirst() {
 		ImGui::Begin("HackRF options");
 			Hackrf* hackrf = (Hackrf*)config->device;
 
-			hackrf->setFreq((uint64_t)viewModel->centerFrequency);
+			if (hackrf->isNeedToSetupFreq()) hackrf->setFreq((uint64_t)viewModel->centerFrequency);
 
 			ImGui::SliderInt("LNA Gain", &viewModel->hackRFModel.lnaGain, 0, 5);
-			hackrf->setLnaGain((uint32_t)(viewModel->hackRFModel.lnaGain * 8));
+			if (hackrf->isNeedToSetupLnaGain()) hackrf->setLnaGain((uint32_t)(viewModel->hackRFModel.lnaGain * 8));
 
 			ImGui::SliderInt("VGA Gain", &viewModel->hackRFModel.vgaGain, 0, 31);
-			hackrf->setVgaGain((uint32_t)(viewModel->hackRFModel.vgaGain * 2));
+			if (hackrf->isNeedToSetupVgnGain()) hackrf->setVgaGain((uint32_t)(viewModel->hackRFModel.vgaGain * 2));
 
 			ImGui::SliderInt("AMP Gain", &viewModel->hackRFModel.enableAmp, 0, 1);
-			//ImGui::Checkbox("AMP", &viewModel->enableAmp);
-			hackrf->enableAmp((uint8_t)viewModel->hackRFModel.enableAmp);
+			if (hackrf->isNeedToSetupAmp()) hackrf->enableAmp((uint8_t)viewModel->hackRFModel.enableAmp);
 
 			const char* items[] = { "1750000", "2500000", "3500000", "5000000", "5500000", "6000000", "7000000", "8000000", "9000000", "10000000", "20000000" };
 			static int item_current_idx = 0; // Here we store our selection data as an index.
@@ -223,7 +222,8 @@ void Display::renderImGUIFirst() {
 						item_current_idx = n;
 						uint32_t baseband;
 						hackrf->parse_u32((char*)items[n], &baseband);
-						hackrf->setBaseband(baseband);
+						viewModel->hackRFModel.basebandFilter = baseband;
+						if (hackrf->isNeedToSetupFilter()) hackrf->setBaseband(viewModel->hackRFModel.basebandFilter);
 					}
 
 					// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
@@ -237,7 +237,7 @@ void Display::renderImGUIFirst() {
 
 	if (config->deviceType == Config::RSP) {
 		ImGui::Begin("RSP options");
-			ImGui::SliderInt("Gain", &viewModel->rspModel.gain, 0, 59);
+			ImGui::SliderInt("Gain", &viewModel->rspModel.gain, 20, 59);
 			ImGui::Checkbox("Disable LNA", &viewModel->rspModel.lna);
 			//ImGui::Checkbox("Gain Control", &viewModel->gainControl);
 		ImGui::End();

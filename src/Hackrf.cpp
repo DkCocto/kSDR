@@ -4,6 +4,26 @@
 
 hackrf_device* device = NULL;
 
+bool Hackrf::isNeedToSetupFreq() {
+	return savedFreq != viewModel->centerFrequency;
+}
+
+bool Hackrf::isNeedToSetupLnaGain() {
+	return savedLnaGain != viewModel->hackRFModel.lnaGain;
+}
+
+bool Hackrf::isNeedToSetupVgnGain() {
+	return savedVgaGain != viewModel->hackRFModel.vgaGain;
+}
+
+bool Hackrf::isNeedToSetupAmp() {
+	return savedAmp != viewModel->hackRFModel.enableAmp;
+}
+
+bool Hackrf::isNeedToSetupFilter() {
+	return savedBaseband = viewModel->hackRFModel.basebandFilter;
+}
+
 Hackrf::Hackrf(Config* config, CircleBuffer* cb) {
 	this->config = config;
 	this->cb = cb;
@@ -69,16 +89,10 @@ int Hackrf::rx_callback(hackrf_transfer* transfer) {
 	return 0;
 }
 
-/*bool Hackrf::isNeedToSetFreq() {
-	return savedFreq != viewModel->centerFrequency;
-}
-
-bool Hackrf::isNeedToLnaGain() {
-	return savedLnaGain != viewModel->lnaGain;
-}*/
-
 
 void Hackrf::init() {
+
+	viewModel = Display::instance->viewModel;
 
 	uint8_t amp = config->hackrf.rxAmp;
 	uint8_t antenna = 0;
@@ -191,63 +205,50 @@ hackrf_error Hackrf::startRX() {
 
 
 void Hackrf::setFreq(uint64_t freq) {
-	if (savedFreq != freq) {
-		//hackrf_error result = (hackrf_error)hackrf_set_freq_explicit(device, 2400000000 - freq, 2400000000, RF_PATH_FILTER_LOW_PASS);
-		hackrf_error result = (hackrf_error)hackrf_set_freq(device, freq);
-		if (result != HACKRF_SUCCESS) {
-			fprintf(stderr,
-				"hackrf_set_freq() failed: %s (%d)\n",
-				hackrf_error_name(result),
-				result);
-		}
-		savedFreq = freq;
+	hackrf_error result = (hackrf_error)hackrf_set_freq(device, freq);
+	if (result != HACKRF_SUCCESS) {
+		fprintf(stderr,
+			"hackrf_set_freq() failed: %s (%d)\n",
+			hackrf_error_name(result),
+			result);
 	}
+	savedFreq = freq;
 }
 
 void Hackrf::setLnaGain(uint32_t gain) {
-	if (savedLnaGain != gain) {
-		hackrf_error result = (hackrf_error)hackrf_set_lna_gain(device, gain);
-		if (result != HACKRF_SUCCESS) {
-			fprintf(stderr,
-				"hackrf_set_lna_gain() failed: %s (%d)\n",
-				hackrf_error_name(result),
-				result);
-		}
-		savedLnaGain = gain;
+	hackrf_error result = (hackrf_error)hackrf_set_lna_gain(device, gain);
+	if (result != HACKRF_SUCCESS) {
+		fprintf(stderr,
+			"hackrf_set_lna_gain() failed: %s (%d)\n",
+			hackrf_error_name(result),
+			result);
 	}
-	
+	savedLnaGain = gain;
 }
 
 void Hackrf::setVgaGain(uint32_t gain) {
-	if (savedVgaGain != gain) {
-		hackrf_error result = (hackrf_error)hackrf_set_vga_gain(device, gain);
-		if (result != HACKRF_SUCCESS) {
-			fprintf(stderr,
-				"hackrf_set_vga_gain() failed: %s (%d)\n",
-				hackrf_error_name(result),
-				result);
-		}
-		savedVgaGain = gain;
+	hackrf_error result = (hackrf_error)hackrf_set_vga_gain(device, gain);
+	if (result != HACKRF_SUCCESS) {
+		fprintf(stderr,
+			"hackrf_set_vga_gain() failed: %s (%d)\n",
+			hackrf_error_name(result),
+			result);
 	}
-	
+	savedVgaGain = gain;
 }
 
 void Hackrf::setBaseband(uint32_t baseband) {
-	if (savedBaseband != baseband) {
-		hackrf_error result = (hackrf_error)hackrf_set_baseband_filter_bandwidth(device, hackrf_compute_baseband_filter_bw(baseband));
-		if (result != HACKRF_SUCCESS) {
-			fprintf(stderr,
-				"hackrf_set_baseband_filter_bandwidth() failed: %s (%d)\n",
-				hackrf_error_name(result),
-				result);
-		}
-		printf("setBaseband\r\n");
-		savedBaseband = baseband;
+	hackrf_error result = (hackrf_error)hackrf_set_baseband_filter_bandwidth(device, hackrf_compute_baseband_filter_bw(baseband));
+	if (result != HACKRF_SUCCESS) {
+		fprintf(stderr,
+			"hackrf_set_baseband_filter_bandwidth() failed: %s (%d)\n",
+			hackrf_error_name(result),
+			result);
 	}
+	savedBaseband = baseband;
 }
 
-int Hackrf::parse_u32(char* s, uint32_t* const value)
-{
+int Hackrf::parse_u32(char* s, uint32_t* const value) {
 	uint_fast8_t base = 10;
 	char* s_end;
 	uint64_t ulong_value;
@@ -277,14 +278,12 @@ int Hackrf::parse_u32(char* s, uint32_t* const value)
 }
 
 void Hackrf::enableAmp(uint8_t amp) {
-	if (savedAmp != amp) {
-		hackrf_error result = (hackrf_error)hackrf_set_amp_enable(device, amp);
-		if (result != HACKRF_SUCCESS) {
-			fprintf(stderr,
-				"hackrf_set_amp_enable() failed: %s (%d)\n",
-				hackrf_error_name(result),
-				result);
-		}
-		savedAmp = amp;
+	hackrf_error result = (hackrf_error)hackrf_set_amp_enable(device, amp);
+	if (result != HACKRF_SUCCESS) {
+		fprintf(stderr,
+			"hackrf_set_amp_enable() failed: %s (%d)\n",
+			hackrf_error_name(result),
+			result);
 	}
+	savedAmp = amp;
 }
