@@ -13,7 +13,8 @@
 #include "Spectre.h"
 #include "CPU.h"
 #include "RSPv2.h"
-
+#include "ListSetting.h"
+#include "functional"
 
 class Display {
 
@@ -34,6 +35,17 @@ private:
 	SMeter* smeter = new SMeter(50, 50, 400, 0.2);
 
 	CPU cpu;
+
+	void showSelectDeviceSetting();
+	void showHackrfSamplingRateSetting();
+
+
+	ListSetting* decimationLS;
+	ListSetting* hackRFsampRateLS;
+	ListSetting* rspSampRateLS;
+	ListSetting* rspDecimationFactorLS;
+	ListSetting* fftLenLS;
+	void initSettings();
 
 public:
 
@@ -67,5 +79,7 @@ public:
 	void initImGUI();
 
 	void renderImGUIFirst();
+
+	void showAlertOKDialog(std::string title, std::string msg);
 
 };

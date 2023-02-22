@@ -52,6 +52,7 @@
     <ClCompile Include="src\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\KalmanFilter.cpp" />
     <ClCompile Include="src\kSDR.cpp" />
+    <ClCompile Include="src\ListSetting.cpp" />
     <ClCompile Include="src\Mixer.cpp" />
     <ClCompile Include="src\Oscillator.cpp" />
     <ClCompile Include="src\PolyPhaseFilter.cpp" />
@@ -115,6 +116,7 @@
     <ClInclude Include="src\imgui\imstb_truetype.h" />
     <ClInclude Include="src\KalmanFilter.h" />
     <ClInclude Include="src\kSDR.h" />
+    <ClInclude Include="src\ListSetting.h" />
     <ClInclude Include="src\Mixer.h" />
     <ClInclude Include="src\Oscillator.h" />
     <ClInclude Include="src\PolyPhaseFilter.h" />
@@ -167,6 +169,8 @@
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <EnableASAN>false</EnableASAN>
+    <EnableFuzzer>false</EnableFuzzer>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -238,6 +242,12 @@
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <Optimization>Full</Optimization>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

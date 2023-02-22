@@ -27,3 +27,32 @@ void Utils::printArray(std::vector<float> v) {
 void Utils::printFloat(float v) {
 	printf("%f\r\n", v);
 }
+
+bool Utils::parse_u32(char* s, uint32_t* const value) {
+	uint_fast8_t base = 10;
+	char* s_end;
+	uint64_t ulong_value;
+
+	if (strlen(s) > 2) {
+		if (s[0] == '0') {
+			if ((s[1] == 'x') || (s[1] == 'X')) {
+				base = 16;
+				s += 2;
+			}
+			else if ((s[1] == 'b') || (s[1] == 'B')) {
+				base = 2;
+				s += 2;
+			}
+		}
+	}
+
+	s_end = s;
+	ulong_value = strtoul(s, &s_end, base);
+	if ((s != s_end) && (*s_end == 0)) {
+		*value = (uint32_t)ulong_value;
+		return true;
+	}
+	else {
+		return false;
+	}
+}

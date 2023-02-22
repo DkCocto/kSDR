@@ -1,7 +1,14 @@
 #pragma once
 
-class Device {
+#include "string"
 
+class Device {
 	public:
-		virtual ~Device();
+		struct STATUS {
+			bool OK = false;
+			std::string err;
+			bool initDone = false;
+		};
+		virtual ~Device(); 
+		STATUS* status;	
 };

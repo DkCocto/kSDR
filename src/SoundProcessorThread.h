@@ -45,6 +45,8 @@ class SoundProcessorThread {
 	FIR* firI = new FIR();
 	FIR* firQ = new FIR();
 
+	DCRemove dcRemove;
+
 public: 
 
 	AGC* agc;

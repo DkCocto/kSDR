@@ -11,18 +11,13 @@
 class AGC {
 
 private:
-    double threshold = 0.009;
+    double threshold = 0.005;
 
     double amp = 1;
 
     Average* averageAmp = new Average(15);
 
     int count = 0;
-
-    //int bufLen = 512;
-    //double* buf = new double[bufLen];
-
-    //std::vector<double> buf;
 
     double signalAbsAverage = 0.0;
 
@@ -39,11 +34,8 @@ public:
 
     AGC(Config* config, FFTSpectreHandler* fftSpectreHandler);
 
-    //double processNew(double signal);
-
     double process(double signal);
 
     double getAmp();
 
-    //double canculateAmplitudeAverage();
 };

@@ -685,13 +685,7 @@ static int parse_version(void)
         return GL3W_ERROR_INIT;
     glGetIntegerv(GL_MAJOR_VERSION, &version.major);
     glGetIntegerv(GL_MINOR_VERSION, &version.minor);
-    if (version.major == 0 && version.minor == 0)
-    {
-        // Query GL_VERSION in desktop GL 2.x, the string will start with "<major>.<minor>"
-        const char* gl_version = (const char*)glGetString(GL_VERSION);
-        sscanf(gl_version, "%d.%d", &version.major, &version.minor);
-    }
-    if (version.major < 2)
+    if (version.major < 3)
         return GL3W_ERROR_OPENGL_VERSION;
     return GL3W_OK;
 }
@@ -715,7 +709,7 @@ int imgl3wInit2(GL3WGetProcAddressProc proc)
 
 int imgl3wIsSupported(int major, int minor)
 {
-    if (major < 2)
+    if (major < 3)
         return 0;
     if (version.major == major)
         return version.minor >= minor;

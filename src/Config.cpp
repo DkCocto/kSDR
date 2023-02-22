@@ -26,7 +26,7 @@ Config::Config() {
 	audioReadFrameLen							= (outputSamplerateDivider * 2) * 32;
 	audioWriteFrameLen							= (outputSamplerateDivider * 2) * 32;
 
-	circleBufferLen								= 2 * inputSamplerate;
+	circleBufferLen								= 4 * inputSamplerate;
 
 	hilbertTransformLen							= 255;
 	polyphaseFilterLen							= 128;
@@ -65,8 +65,11 @@ void Config::load() {
                     deviceType = HACKRF;
             }
         
+            delayedDeviceType = deviceType;
+
             tinyxml2::XMLElement* psamplingRateDiv = pDevice->FirstChildElement("decimation");
             inputSamplerateDivider = std::stoi(std::string(psamplingRateDiv->GetText()));
+            delayedInputSamplerateDivider = inputSamplerateDivider;
 
             tinyxml2::XMLElement* pHackRF = pDevice->FirstChildElement("HackRF");
             if (NULL != pHackRF) {
@@ -148,7 +151,8 @@ void Config::load() {
             spectreSpeed = std::stof(std::string(pspeed->GetText()));
 
             tinyxml2::XMLElement* pfftLen = pSpectre->FirstChildElement("fftLen");
-            fftLen = std::stoi(std::string(pfftLen->GetText())) * 1024;
+            fftLen = std::stoi(std::string(pfftLen->GetText()));
+            delayedFFTLen = fftLen;
 
             tinyxml2::XMLElement* pstartBin = pSpectre->FirstChildElement("startBin");
             startBin = std::stoi(std::string(pstartBin->GetText()));
@@ -183,9 +187,20 @@ void Config::save() {
         tinyxml2::XMLElement* pDevice = pRootElement->FirstChildElement("Device");
         if (NULL != pDevice) {
 
+            tinyxml2::XMLElement* ptype = pDevice->FirstChildElement("type");
+            if (delayedDeviceType == RSP) ptype->SetText(0);
+            else if (delayedDeviceType == HACKRF) ptype->SetText(1);
+            else ptype->SetText(0);
+
+            tinyxml2::XMLElement* psamplingRateDiv = pDevice->FirstChildElement("decimation");
+            psamplingRateDiv->SetText(delayedInputSamplerateDivider);
+
             tinyxml2::XMLElement* pHackRF = pDevice->FirstChildElement("HackRF");
             if (NULL != pHackRF) {
                 //tinyxml2::XMLElement* pbasebandFilter = pHackRF->FirstChildElement("basebandFilter");
+
+                tinyxml2::XMLElement* pdeviceSamplingRate = pHackRF->FirstChildElement("deviceSamplingRate");
+                pdeviceSamplingRate->SetText(hackrf.deviceSamplingRate);
 
                 tinyxml2::XMLElement* prxAmp = pHackRF->FirstChildElement("rxAmp");
                 prxAmp->SetText(hackrf.rxAmp);
@@ -201,11 +216,20 @@ void Config::save() {
 
             tinyxml2::XMLElement* pRSP = pDevice->FirstChildElement("RSP");
             if (NULL != pRSP) {
+                tinyxml2::XMLElement* pdeviceSamplingRate = pRSP->FirstChildElement("deviceSamplingRate");
+                pdeviceSamplingRate->SetText(rsp.deviceSamplingRate);
+
                 tinyxml2::XMLElement* pgain = pRSP->FirstChildElement("gain");
                 pgain->SetText(rsp.gain);
 
                 tinyxml2::XMLElement* plna = pRSP->FirstChildElement("disableLna");
                 plna->SetText(rsp.lna);
+
+                tinyxml2::XMLElement* pdeviceDecimationFactor = pRSP->FirstChildElement("deviceDecimationFactor");
+                pdeviceDecimationFactor->SetText(rsp.deviceDecimationFactor);
+
+                tinyxml2::XMLElement* papi = pRSP->FirstChildElement("api");
+                papi->SetText(rsp.api);
             }
         }
 
@@ -255,12 +279,28 @@ void Config::save() {
 
             tinyxml2::XMLElement* premoveDCBias = pSpectre->FirstChildElement("removeDCBias");
             premoveDCBias->SetText(removeDCBias);
+
+            tinyxml2::XMLElement* pfftLen = pSpectre->FirstChildElement("fftLen");
+            pfftLen->SetText(delayedFFTLen);
         }
 
         doc.SaveFile(CONFIG_FILENAME);
     }
     else {
         printf("Config file not found!");
+    }
+}
+
+void Config::setDevice(int deviceID) {
+    switch (deviceID) {
+        case 0:
+            delayedDeviceType = RSP;
+            break;
+        case 1:
+            delayedDeviceType = HACKRF;
+            break;
+        default:
+            delayedDeviceType = RSP;
     }
 }
 

@@ -31,15 +31,9 @@ void SoundProcessorThread::initFilters(int filterWidth) {
 	firFilterQ.initCoeffs(config->inputSamplerate, filterWidth, config->outputSamplerateDivider, config->polyphaseFilterLen);
 	fir->init(fir->LOWPASS, fir->BLACKMAN_HARRIS, 256, filterWidth, 0, config->outputSamplerate);
 
-	firI->init(fir->LOWPASS, fir->BLACKMAN_HARRIS, 256, filterWidth, 0, config->outputSamplerate);
-	firQ->init(fir->LOWPASS, fir->BLACKMAN_HARRIS, 256, filterWidth, 0, config->outputSamplerate);
+	firI->init(fir->LOWPASS, fir->BARTLETT, 256, filterWidth, 0, config->outputSamplerate);
+	firQ->init(fir->LOWPASS, fir->BARTLETT, 256, filterWidth, 0, config->outputSamplerate);
 }
-
-float xm1 = 0, ym1 = 0, xm2 = 0, ym2 = 0;
-float p1 = 0, p2 = 0;
-
-DCRemove dcRemove;
-
 
 void SoundProcessorThread::process() {
 	outputData = new float[(len / 2) / config->outputSamplerateDivider];
@@ -71,24 +65,8 @@ void SoundProcessorThread::process() {
 
 				if (viewModel->removeDCBias) dcRemove.process(&data[2 * i], &data[2 * i + 1]);
 
-				/*p1 = data[2 * i];
-				data[2 * i] = p1 - xm1 + 0.9995 * ym1;
-				xm1 = p1;
-				ym1 = data[2 * i];
-
-				p2 = data[2 * i + 1];
-				data[2 * i + 1] = p2 - xm2 + 0.9995 * ym2;
-				xm2 = p2;
-				ym2 = data[2 * i + 1];*/
-
 				mixer->setFreq(Display::instance->spectre->receiverLogicNew->getFrequencyDelta());
 				Signal mixedSignal = mixer->mix(data[2 * i], data[2 * i + 1]);
-
-				//Уменьшаем силу выходного сигнала после смесителя, чтобы фильтры не перегружались от сильных сигналов
-				//if (Display::instance->viewModel->att) {
-					//mixedSignal.I *= 0.01;
-					//mixedSignal.Q *= 0.01;
-				//}
 
 				decimateBufferI[decimationCount] = mixedSignal.I;
 				decimateBufferQ[decimationCount] = mixedSignal.Q;

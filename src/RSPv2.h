@@ -33,7 +33,7 @@ public:
 
     RSPv2(Config* config, CircleBuffer* cb);
     ~RSPv2();
-    void init();
+    bool init();
     void closeApi();
     void updateFreq();
     void updateGain();

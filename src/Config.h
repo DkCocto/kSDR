@@ -18,6 +18,7 @@ public:
 	int inputSamplerate;
 
 	int inputSamplerateDivider = 1;
+	int delayedInputSamplerateDivider = inputSamplerateDivider;
 
 	int outputSamplerate;
 
@@ -43,6 +44,8 @@ public:
 	int polyphaseFilterLen;
 
 	int fftLen = 64 * 1024;
+	int delayedFFTLen = fftLen;
+
 	float fftBandwidth;
 
 	int defaultFilterWidth = 2700;
@@ -77,7 +80,7 @@ public:
 	enum DeviceType {
 		RSP,
 		HACKRF
-	} deviceType;
+	} deviceType, delayedDeviceType;
 
 	struct HackRF {
 		int deviceSamplingRate = 4000000;
@@ -100,6 +103,8 @@ public:
 
 	void load();
 	void save();
+
+	void setDevice(int deviceID);
 
 private:
 	void calcOutputSamplerate();

@@ -18,7 +18,7 @@ void CircleBufferWriterThread::run() {
 		secondsInBuffer = (float)available / config->outputSamplerate;
 		
 		//Если начинается задержка в звуке, то сбросить буффер. Это ликвидирует задержку в звуке.
-		if (secondsInBuffer > 0.1) {
+		if (secondsInBuffer > 0.3) {
 			soundWriterCircleBuffer->reset();
 			continue;
 		}
@@ -28,7 +28,7 @@ void CircleBufferWriterThread::run() {
 			soundCard->write(data, len);
 			delete data;
 		} else {
-			std::this_thread::sleep_for(std::chrono::milliseconds(5));
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		}
 	}
 }

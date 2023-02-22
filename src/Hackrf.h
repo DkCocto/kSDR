@@ -31,7 +31,7 @@ public:
 
 	static int rx_callback(hackrf_transfer* transfer);
 
-	void init();
+	bool init();
 
 	void stopRX();
 
@@ -42,7 +42,9 @@ public:
 	void setLnaGain(uint32_t gain);
 
 	void setVgaGain(uint32_t gain);
-	void setBaseband(uint32_t baseband);
+	void setBaseband(int baseband);
+
+	void setConfiguration();
 
 	int parse_u32(char* s, uint32_t* const value);
 

@@ -3,7 +3,7 @@
 #include "Compressor/SimpleComp.h"
 
 
-KalmanFilter kf(1, 0.00000004);
+KalmanFilter kf(1, 0.00000009);
 
 //chunkware_simple::SimpleComp sc;
 

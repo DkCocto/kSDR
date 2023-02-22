@@ -5,7 +5,7 @@
 		0: RSP1/RSP1A
 		1: hackrf
 		-->
-        <type>1</type>
+        <type>0</type>
         <decimation>2</decimation>
         <RSP>
             <!-- Total sampling rate = (deviceSamplingRate / deviceDecimationFactor) / decimation
@@ -15,45 +15,45 @@
             	decimation = 2
             	Total sampling rate = (2000000 / 2) / 2 = 500000 
 			-->
-            <deviceSamplingRate>4000000</deviceSamplingRate>
+            <deviceSamplingRate>10000000</deviceSamplingRate>
             <deviceDecimationFactor>2</deviceDecimationFactor>
-            <gain>53</gain>
+            <gain>59</gain>
             <!-- Api can be 2 (v2) and 3 (v3)-->
             <api>3</api>
             <disableLna>1</disableLna>
         </RSP>
         <HackRF>
             <!-- App sampling rate will be: deviceSamplingRate / decimation -->
-            <deviceSamplingRate>4000000</deviceSamplingRate>
+            <deviceSamplingRate>8000000</deviceSamplingRate>
             <basebandFilter>1750000</basebandFilter>
             <rxAmp>0</rxAmp>
             <!-- 0 1 2 3 4-->
             <lnaGain>2</lnaGain>
             <!-- 0 .. 30 -->
-            <vgaGain>9</vgaGain>
+            <vgaGain>12</vgaGain>
             <!-- 0 .. 40 step 2-->
             <txAmp>20</txAmp>
         </HackRF>
     </Device>
     <Receiver>
         <startFreq>3700000</startFreq>
-        <lastSelectedFreq>3678000</lastSelectedFreq>
-        <volume>1.096</volume>
+        <lastSelectedFreq>3623000</lastSelectedFreq>
+        <volume>1.205</volume>
         <filterWidth>2700</filterWidth>
         <!-- USB:0, LSB:1, AM:2 -->
         <modulation>1</modulation>
     </Receiver>
     <Waterfall>
-        <min>-113.8233</min>
-        <max>-44.791401</max>
+        <min>-132.12776</min>
+        <max>-67.781212</max>
     </Waterfall>
-    <Spectre>1<ratio>-16.915634</ratio>
-        <min>-116.99695</min>
+    <Spectre>1<ratio>-38.353676</ratio>
+        <min>-135.39822</min>
         <speed>15</speed>
         <!-- Must be a power of 2. The total will be fftLen = fftLen * 1024 -->
-        <fftLen>64</fftLen>
-        <startBin>14272</startBin>
-        <stopBin>18495</stopBin>
+        <fftLen>65536</fftLen>
+        <startBin>14882</startBin>
+        <stopBin>17569</stopBin>
         <removeDCBias>1</removeDCBias>
     </Spectre>
 </Config>

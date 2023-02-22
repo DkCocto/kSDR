@@ -9,11 +9,11 @@ bool Hackrf::isNeedToSetupFreq() {
 }
 
 bool Hackrf::isNeedToSetupLnaGain() {
-	return savedLnaGain != viewModel->hackRFModel.lnaGain;
+	return savedLnaGain != viewModel->hackRFModel.lnaGain * 8;
 }
 
 bool Hackrf::isNeedToSetupVgnGain() {
-	return savedVgaGain != viewModel->hackRFModel.vgaGain;
+	return savedVgaGain != viewModel->hackRFModel.vgaGain * 2;
 }
 
 bool Hackrf::isNeedToSetupAmp() {
@@ -21,7 +21,7 @@ bool Hackrf::isNeedToSetupAmp() {
 }
 
 bool Hackrf::isNeedToSetupFilter() {
-	return savedBaseband = viewModel->hackRFModel.basebandFilter;
+	return savedBaseband != viewModel->hackRFModel.basebandFilter;
 }
 
 Hackrf::Hackrf(Config* config, CircleBuffer* cb) {
@@ -90,7 +90,8 @@ int Hackrf::rx_callback(hackrf_transfer* transfer) {
 }
 
 
-void Hackrf::init() {
+bool Hackrf::init() {
+	status = new STATUS();
 
 	viewModel = Display::instance->viewModel;
 
@@ -128,8 +129,6 @@ void Hackrf::init() {
 			hackrf_error_name(result),
 			result);
 	}
-
-
 
 	result = (hackrf_error)hackrf_set_freq(device, freq_hz);
 	if (result != HACKRF_SUCCESS) {
@@ -187,12 +186,16 @@ void Hackrf::init() {
 
 	result = startRX();
 	if (result != HACKRF_SUCCESS) {
-		fprintf(stderr,
-			"hackrf_start_rx() failed: %s (%d)\n",
-			hackrf_error_name(result),
-			result);
+		status->OK = false;
+		status->err.append("hackrf_start_rx() failed: ");
+		status->err.append(hackrf_error_name(result));
+		status->err.append("\n Error code: ");
+		status->err.append(std::to_string(result));
+	} else {
+		status->OK = true;
 	}
 
+	return status->OK;
 }
 
 void Hackrf::stopRX() {
@@ -237,7 +240,7 @@ void Hackrf::setVgaGain(uint32_t gain) {
 	savedVgaGain = gain;
 }
 
-void Hackrf::setBaseband(uint32_t baseband) {
+void Hackrf::setBaseband(int baseband) {
 	hackrf_error result = (hackrf_error)hackrf_set_baseband_filter_bandwidth(device, hackrf_compute_baseband_filter_bw(baseband));
 	if (result != HACKRF_SUCCESS) {
 		fprintf(stderr,
@@ -248,33 +251,12 @@ void Hackrf::setBaseband(uint32_t baseband) {
 	savedBaseband = baseband;
 }
 
-int Hackrf::parse_u32(char* s, uint32_t* const value) {
-	uint_fast8_t base = 10;
-	char* s_end;
-	uint64_t ulong_value;
-
-	if (strlen(s) > 2) {
-		if (s[0] == '0') {
-			if ((s[1] == 'x') || (s[1] == 'X')) {
-				base = 16;
-				s += 2;
-			}
-			else if ((s[1] == 'b') || (s[1] == 'B')) {
-				base = 2;
-				s += 2;
-			}
-		}
-	}
-
-	s_end = s;
-	ulong_value = strtoul(s, &s_end, base);
-	if ((s != s_end) && (*s_end == 0)) {
-		*value = (uint32_t)ulong_value;
-		return HACKRF_SUCCESS;
-	}
-	else {
-		return HACKRF_ERROR_INVALID_PARAM;
-	}
+void Hackrf::setConfiguration() {
+	if (isNeedToSetupFreq()) setFreq((uint64_t)viewModel->centerFrequency);
+	if (isNeedToSetupLnaGain()) setLnaGain((uint32_t)(viewModel->hackRFModel.lnaGain * 8));
+	if (isNeedToSetupVgnGain()) setVgaGain((uint32_t)(viewModel->hackRFModel.vgaGain * 2));
+	if (isNeedToSetupAmp()) enableAmp((uint8_t)viewModel->hackRFModel.enableAmp);
+	if (isNeedToSetupFilter()) setBaseband(viewModel->hackRFModel.basebandFilter);
 }
 
 void Hackrf::enableAmp(uint8_t amp) {

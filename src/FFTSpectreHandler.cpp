@@ -163,9 +163,9 @@ void FFTSpectreHandler::dataPostprocess() {
 
 	memcpy(tmpArray, superOutput, sizeof(float) * spectreSize);
 
-	for (int j = 2; j < spectreSize - 2; j++) {
-		//superOutput[j] = (siska[j - 1] + siska[j] + siska[j + 1]) / 3;
-		superOutput[j] = (tmpArray[j - 2] + 2 * tmpArray[j - 1] + 3 * tmpArray[j] + 2 * tmpArray[j + 1] + tmpArray[j + 2]) / 9;
+	for (int j = 1; j < spectreSize - 1; j++) {
+		superOutput[j] = (tmpArray[j - 1] + tmpArray[j] + tmpArray[j + 1]) / 3;
+		//superOutput[j] = (tmpArray[j - 2] + 2 * tmpArray[j - 1] + 3 * tmpArray[j] + 2 * tmpArray[j + 1] + tmpArray[j + 2]) / 9;
 	}
 }
 
