@@ -5,7 +5,6 @@
 #include "Device.h"
 #include "Config.h"
 #include "CircleBuffer.h"
-#include "ViewModel.h"
 #include "Display.h"
 
 class RSPv2: public Device {

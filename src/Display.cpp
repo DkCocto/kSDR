@@ -54,7 +54,7 @@ int Display::init() {
 	glfwSetTime(0);
 
 	// Create a GLFWwindow object
-	window = glfwCreateWindow(1920, 1080, "kSDR", nullptr, nullptr);
+	window = glfwCreateWindow(config->app.winWidth, config->app.winHeight, "kSDR", nullptr, nullptr);
 	if (window == nullptr) {
 		printf("Failed to create GLFW window\r\n");
 		glfwTerminate();
@@ -152,6 +152,10 @@ void Display::renderImGUIFirst() {
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 
+	//Store window size
+	config->app.winWidth = width;
+	config->app.winHeight = height;
+
 	//Проверка которая исключает настройку приемника при перетягивании стороннего окна в область окна спектра
 	if (ImGui::IsMouseDown(0)) {
 		if (!spectre->isMouseOnSpectreRegion(
@@ -164,6 +168,8 @@ void Display::renderImGUIFirst() {
 	}
 
 	ImGui::Begin(APP_NAME);
+
+		initSettings();
 
 		ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
 		if (ImGui::BeginTabBar("MyTabBar", tab_bar_flags)) {
@@ -309,7 +315,7 @@ void Display::renderImGUIFirst() {
 						}
 						ImGui::EndCombo();
 					}
-					if (config->device->status->OK) ((Hackrf*)config->device)->setConfiguration();
+					if (config->device->status->isOK) ((Hackrf*)config->device)->setConfiguration();
 				}
 
 				if (config->deviceType == Config::RSP) {
@@ -317,6 +323,12 @@ void Display::renderImGUIFirst() {
 					ImGui::Checkbox("Disable LNA", &viewModel->rspModel.lna);
 					//ImGui::Checkbox("Gain Control", &viewModel->gainControl);
 				}
+
+				if (config->deviceType == Config::RTL) {
+					rtlDeviceGainLS->drawSetting();
+					delete rtlDeviceGainLS;
+				}
+
 				ImGui::EndTabItem();
 			}
 			if (ImGui::BeginTabItem("Settings")) {
@@ -324,11 +336,16 @@ void Display::renderImGUIFirst() {
 				ImGui::Text("After changing the settings marked with an asterisk, you need to restart the application.\n");
 
 				showSelectDeviceSetting();
-				
-				initSettings();
 
 				decimationLS->drawSetting();
 				delete decimationLS;
+
+				if (config->deviceType == Config::RTL) {
+					ImGui::Text("\nRTL Settings:");
+
+					rtlSampRateLS->drawSetting();
+					delete rtlSampRateLS;
+				}
 
 				if (config->deviceType == Config::HACKRF) {
 					ImGui::Text("\nHackRF Settings:");
@@ -338,6 +355,7 @@ void Display::renderImGUIFirst() {
 				}
 				
 				if (config->deviceType == Config::RSP) {
+
 					ImGui::Text("\nRSP Settings:");
 
 					rspSampRateLS->drawSetting();
@@ -350,6 +368,11 @@ void Display::renderImGUIFirst() {
 					ImGui::Checkbox("Use APIv3 (instead of v2)", &useRspApiv3);
 					config->rsp.api = (useRspApiv3 == true) ? 3 : 2;
 				}
+
+				ImGui::Text("\nFrequency shift:");
+
+				ImGui::InputInt("Shift in Hz", &config->receiver.frequencyShift);
+				ImGui::Checkbox("Enable shift", &config->receiver.enableFrequencyShift);
 
 				ImGui::Text("\nOther:");
 
@@ -365,8 +388,9 @@ void Display::renderImGUIFirst() {
 		ImGui::Separator();
 		ImGui::TreePop();
 		
-		//Если вкладка опций устройства hackrf не выбрана, то все равно устанавливаем конфигурацию на устройство
-		if (config->deviceType == Config::HACKRF && config->device->status->OK) ((Hackrf*)config->device)->setConfiguration();
+		//Если вкладка опций устройства не выбрана, то все равно устанавливаем конфигурацию на устройство
+		if (config->deviceType == Config::HACKRF && config->device->status->isOK) ((Hackrf*)config->device)->setConfiguration();
+		if (config->deviceType == Config::RTL && config->device->status->isOK) ((RTLDevice*)config->device)->setConfiguration();
 
 	ImGui::End();
 
@@ -387,15 +411,15 @@ void Display::renderImGUIFirst() {
 
 	//printf("%d %d %d\r\n", !config->device->status->OK, config->device->status->initDone, !errorInitDeviceUserInformed);
 
-	showAlertOKDialog(std::string("Warning"), std::string("Application couldn't init a selected device.\nPlease, go to settings and select the correct device or plug your device to USB port.\n\nReturned answer:\n\n").append(config->device->status->err));
-	if (!config->device->status->OK && config->device->status->initDone && !errorInitDeviceUserInformed) {
+	showAlertOKDialog(std::string("Warning"), std::string("Application couldn't init a selected device.\nPlease, go to settings and select the correct device or plug your device to USB port.\nMake sure you have selected the correct api version in the settings for RSP devices.\n\nReturned answer:\n\n").append(config->device->status->err));
+	if (!config->device->status->isOK && config->device->status->isInitProcessOccured && !errorInitDeviceUserInformed) {
 		ImGui::OpenPopup(std::string("Warning").c_str());
 		errorInitDeviceUserInformed = true;
 	}
 }
 
 void Display::showSelectDeviceSetting() {
-	const char* items[] = { "RSP1/RSP1A", "HackRF" };
+	const char* items[] = { "RSP1/RSP1A", "HackRF", "RTLSDR" };
 	static int item_current_idx = config->deviceType; // Here we store our selection data as an index.
 	const char* combo_preview_value = items[item_current_idx];  // Pass in the preview value visible before opening the combo (it could be anything)
 	if (ImGui::BeginCombo("Device (*)", combo_preview_value, 0)) {
@@ -410,8 +434,6 @@ void Display::showSelectDeviceSetting() {
 		ImGui::EndCombo();
 	}
 }
-
-#include "map"
 
 void Display::showHackrfSamplingRateSetting() {
 	std::map<int, std::string> samplingRateMap = { 
@@ -455,7 +477,6 @@ void Display::showAlertOKDialog(std::string title, std::string msg) {
 }
 
 void Display::initSettings() {
-	//-------HackRF settings
 	std::map<int, std::string> decimationMap;
 	for (int i = 1, j = 0; i <= 64; i++) {
 		if (config->deviceType == Config::HACKRF) {
@@ -471,50 +492,105 @@ void Display::initSettings() {
 				j++;
 			}
 		}
-	}
-	decimationLS = new ListSetting(config, decimationMap, "Decimation", true);
-	decimationLS->bindVariable(&config->delayedInputSamplerateDivider);
-
-	std::map<int, std::string> hackRFsamplingRateMap = {
-		{0 , "2000000"},
-		{1 , "4000000"},
-		{2 , "5000000"},
-		{3 , "8000000"},
-		{4 , "10000000"},
-		{5 , "12500000"},
-		{6 , "16000000"},
-		{7 , "20000000"}
-	};
-
-	hackRFsampRateLS = new ListSetting(config, hackRFsamplingRateMap, "HackRF Sampling rate", true);
-	hackRFsampRateLS->bindVariable(&config->hackrf.deviceSamplingRate);
-	//--------------------
-
-	//-------RSP settings-
-	std::map<int, std::string> rspSamplingRateMap = {
-		{0 , "2000000"},
-		{1 , "3000000"},
-		{2 , "4000000"},
-		{3 , "6000000"},
-		{4 , "7000000"},
-		{5 , "8000000"},
-		{6 , "10000000"}
-	};
-
-	rspSampRateLS = new ListSetting(config, rspSamplingRateMap, "RSP Sampling rate", true);
-	rspSampRateLS->bindVariable(&config->rsp.deviceSamplingRate);
-
-	std::map<int, std::string> rspDecimationFactorMap;
-	for (int i = 1, j = 0; i <= 32; i++) {
-		if (config->rsp.deviceSamplingRate % i == 0 && (i & (i - 1)) == 0) {
-			rspDecimationFactorMap.insert(pair<int, std::string>{j, to_string(i)});
-			j++;
+		if (config->deviceType == Config::RTL) {
+			if (config->rtl.deviceSamplingRate % i == 0) {
+				decimationMap.insert(pair<int, std::string>{j, to_string(i)});
+				j++;
+			}
 		}
 	}
 
-	rspDecimationFactorLS = new ListSetting(config, rspDecimationFactorMap, "Decimation factor", true);
-	rspDecimationFactorLS->bindVariable(&config->rsp.deviceDecimationFactor);
-	//--------------------
+	decimationLS = new ListSetting(config, decimationMap, "Decimation", true);
+	decimationLS->bindVariable(&config->delayedInputSamplerateDivider);
+
+	if (config->deviceType == Config::HACKRF) {
+		//-------HackRF settings
+		std::map<int, std::string> hackRFsamplingRateMap = {
+			{0 , "2000000"},
+			{1 , "4000000"},
+			{2 , "5000000"},
+			{3 , "8000000"},
+			{4 , "10000000"},
+			{5 , "12500000"},
+			{6 , "16000000"},
+			{7 , "20000000"}
+		};
+
+		hackRFsampRateLS = new ListSetting(config, hackRFsamplingRateMap, "HackRF Sampling rate", true);
+		hackRFsampRateLS->bindVariable(&config->hackrf.deviceSamplingRate);
+		//--------------------
+	}
+
+	if (config->deviceType == Config::RSP) {
+		//-------RSP settings-
+		std::map<int, std::string> rspSamplingRateMap = {
+			{0 , "2000000"},
+			{1 , "3000000"},
+			{2 , "4000000"},
+			{3 , "6000000"},
+			{4 , "7000000"},
+			{5 , "8000000"},
+			{6 , "10000000"}
+		};
+
+		rspSampRateLS = new ListSetting(config, rspSamplingRateMap, "RSP Sampling rate", true);
+		rspSampRateLS->bindVariable(&config->rsp.deviceSamplingRate);
+
+		std::map<int, std::string> rspDecimationFactorMap;
+		for (int i = 1, j = 0; i <= 32; i++) {
+			if (config->rsp.deviceSamplingRate % i == 0 && (i & (i - 1)) == 0) {
+				rspDecimationFactorMap.insert(pair<int, std::string>{j, to_string(i)});
+				j++;
+			}
+		}
+
+		rspDecimationFactorLS = new ListSetting(config, rspDecimationFactorMap, "Decimation factor", true);
+		rspDecimationFactorLS->bindVariable(&config->rsp.deviceDecimationFactor);
+		//--------------------
+	}
+
+	if (config->deviceType == Config::RTL) {
+		//-10, 15, 40, 65, 90, 115, 140, 165, 190,
+		//215, 240, 290, 340, 420, 430, 450, 470, 490
+		std::map<int, std::string> rtlGainMap = {
+			{0 , "-10"},
+			{1 , "15"},
+			{2 , "40"},
+			{3 , "65"},
+			{4 , "90"},
+			{5 , "115"},
+			{6 , "140"},
+			{7 , "165"},
+			{8 , "190"},
+			{9 , "215"},
+			{10 , "240"},
+			{11 , "290"},
+			{12 , "340"},
+			{13 , "420"},
+			{14 , "430"},
+			{15 , "450"},
+			{16 , "470"},
+			{17 , "490"}
+		};
+		rtlDeviceGainLS = new ListSetting(config, rtlGainMap, "Gain", false);
+		rtlDeviceGainLS->bindVariable(&config->rtl.gain);
+
+		//225001 - 300000 Hz
+		//900001 - 3200000 Hz
+		std::map<int, std::string> rtlSampRateMap = {
+			{0 , "250000"},
+			{1 , "300000"},
+			{2 , "1000000"},
+			{3 , "1500000"},
+			{4 , "2000000"},
+			{5 , "2500000"},
+			{6 , "3000000"},
+			{7 , "3200000"}
+		};
+
+		rtlSampRateLS = new ListSetting(config, rtlSampRateMap, "Sampling rate", false);
+		rtlSampRateLS->bindVariable(&config->rtl.deviceSamplingRate);
+	}
 
 	//--------------Other-
 		std::map<int, std::string> fftLenMap;

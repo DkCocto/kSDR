@@ -3,12 +3,14 @@
 #include "string"
 
 class Device {
+
 	public:
 		struct STATUS {
-			bool OK = false;
+			bool isOK = false;
 			std::string err;
-			bool initDone = false;
+			bool isInitProcessOccured = false;
 		};
+		Device();
 		virtual ~Device(); 
 		STATUS* status;	
 };

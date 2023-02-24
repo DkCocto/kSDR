@@ -5,7 +5,6 @@
 #include "CircleBuffer.h"
 #include "Config.h"
 #include "Display.h"
-#include "ViewModel.h"
 
 class RSP1: public Device {
 
@@ -14,11 +13,12 @@ class RSP1: public Device {
     double savedFreq;
     int savedGain;
     bool savedLna;
-    ViewModel* viewModel;
 
     bool isNeedToSetFreq();
     bool isNeedToSetGain();
     bool isNeedToSetLna();
+
+    ViewModel* viewModel;
 
 public: 
     CircleBuffer* cb;
@@ -33,7 +33,7 @@ public:
 
     static void gainCallback(unsigned int gRdB, unsigned int lnaGRdB, void* cbContext);
 
-    void init();
+    bool init();
 
     void setFreq(double freq);
     void setGain(int gain, bool lna);

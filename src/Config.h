@@ -75,11 +75,14 @@ public:
 
 	struct Receiver {
 		int modulation = 1;
+		int frequencyShift = 0;
+		bool enableFrequencyShift = 0;
 	} receiver;
 
 	enum DeviceType {
 		RSP,
-		HACKRF
+		HACKRF,
+		RTL
 	} deviceType, delayedDeviceType;
 
 	struct HackRF {
@@ -98,6 +101,16 @@ public:
 		int lna = 0;
 		char api = 2;
 	} rsp;
+
+	struct RTL {
+		int deviceSamplingRate = 500000;
+		int gain = 50;
+	} rtl;
+
+	struct App {
+		int winWidth = 1920;
+		int winHeight = 1080;
+	} app;
 
 	//--------------------------------------
 

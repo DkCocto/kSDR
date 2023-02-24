@@ -28,7 +28,7 @@ void RSP1::streamCallback(short* xi, short* xq, unsigned int firstSampleNum, int
 
     if (rsp1->isNeedToSetGain() || rsp1->isNeedToSetLna()) rsp1->setGain(rsp1->viewModel->rspModel.gain, rsp1->viewModel->rspModel.lna);
 
-    if (rsp1->isNeedToSetFreq()) rsp1->setFreq(rsp1->viewModel->centerFrequency);
+    if (rsp1->isNeedToSetFreq()) rsp1->setFreq(rsp1->viewModel->centerFrequency + ((config->receiver.enableFrequencyShift == true) ? config->receiver.frequencyShift : 0));
 
 }
 
@@ -39,8 +39,9 @@ void RSP1::streamCallback(short* xi, short* xq, unsigned int firstSampleNum, int
     //return;
 //}
 
-void RSP1::init() {
+bool RSP1::init() {
     viewModel = Display::instance->viewModel;
+
     mir_sdr_DeviceT devices[4];
     unsigned int numDevs;
     int devAvail = 0;
@@ -51,7 +52,7 @@ void RSP1::init() {
     mir_sdr_ErrT r;
     int gainR = viewModel->rspModel.gain;
     //uint32_t samp_rate = config->inputSamplerate * config->inputSamplerateDivider;
-    uint32_t frequency = config->startFrequency;
+    uint32_t frequency = config->startFrequency + ((config->receiver.enableFrequencyShift == true) ? config->receiver.frequencyShift : 0);
     savedFreq = frequency;
     int bwkHz = mir_sdr_BW_0_600;
     int ifkHz = 0;
@@ -72,13 +73,18 @@ void RSP1::init() {
     }
 
     if (devAvail == 0) {
-        fprintf(stderr, "ERROR: No RSP devices available.\n");
-        exit(1);
+        status->err.append("ERROR: No RSP devices available.");
+        status->isOK = false;
+        status->isInitProcessOccured = true;
+        return status->isOK;
     }
 
     if (devices[device].devAvail != 1) {
-        fprintf(stderr, "ERROR: RSP selected (%d) is not available.\n", (device + 1));
-        exit(1);
+        status->err.append("ERROR: RSP selected (%d) is not available.");
+        //fprintf(stderr, "ERROR: RSP selected (%d) is not available.\n", (device + 1));
+        status->isOK = false;
+        status->isInitProcessOccured = true;
+        return status->isOK;
     }
 
     mir_sdr_SetDeviceIdx(device);
@@ -97,15 +103,23 @@ void RSP1::init() {
         grMode, &samplesPerPacket, RSP1::streamCallback, NULL, (void*)config);
 
     if (r != mir_sdr_Success) {
-        fprintf(stderr, "Failed to start SDRplay RSP device.\n");
-        exit(1);
+        status->err.append("Failed to start SDRplay RSP device.");
+        //fprintf(stderr, "Failed to start SDRplay RSP device.\n");
+        status->isOK = false;
+        status->isInitProcessOccured = true;
+        return status->isOK;
     }
 
+    status->isOK = true;
+    status->isInitProcessOccured = true;
+
+    return status->isOK;
     //mir_sdr_AgcControl(mir_sdr_AGC_5HZ, setPoint, 0, 0, 0, 0, rspLNA);
 }
 
 void RSP1::setFreq(double freq) {
     mir_sdr_SetRf(freq, 1, 0);
+    printf("Frequency set: %d\r\n", (int)freq);
     savedFreq = freq;
 }
 
@@ -125,7 +139,7 @@ void RSP1::disableGain() {
 }
 
 bool RSP1::isNeedToSetFreq() {
-    return savedFreq != viewModel->centerFrequency;
+    return savedFreq != (viewModel->centerFrequency + (double)((config->receiver.enableFrequencyShift == true) ? config->receiver.frequencyShift : 0));
 }
 
 bool RSP1::isNeedToSetGain() {

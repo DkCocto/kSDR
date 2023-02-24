@@ -5,7 +5,7 @@
 hackrf_device* device = NULL;
 
 bool Hackrf::isNeedToSetupFreq() {
-	return savedFreq != viewModel->centerFrequency;
+	return savedFreq != (viewModel->centerFrequency + ((config->receiver.enableFrequencyShift == true) ? config->receiver.frequencyShift : 0));
 }
 
 bool Hackrf::isNeedToSetupLnaGain() {
@@ -91,8 +91,6 @@ int Hackrf::rx_callback(hackrf_transfer* transfer) {
 
 
 bool Hackrf::init() {
-	status = new STATUS();
-
 	viewModel = Display::instance->viewModel;
 
 	uint8_t amp = config->hackrf.rxAmp;
@@ -118,7 +116,7 @@ bool Hackrf::init() {
 			result);
 	}
 	
-	int64_t freq_hz = config->startFrequency;
+	int64_t freq_hz = config->startFrequency + ((config->receiver.enableFrequencyShift == true) ? config->receiver.frequencyShift : 0);
 
 	//result = (hackrf_error)hackrf_set_freq(device, freq_hz);
 	//result = (hackrf_error)hackrf_set_freq_explicit(device, 2408100000, 2401000000, RF_PATH_FILTER_LOW_PASS);
@@ -186,16 +184,16 @@ bool Hackrf::init() {
 
 	result = startRX();
 	if (result != HACKRF_SUCCESS) {
-		status->OK = false;
+		status->isOK = false;
 		status->err.append("hackrf_start_rx() failed: ");
 		status->err.append(hackrf_error_name(result));
 		status->err.append("\n Error code: ");
 		status->err.append(std::to_string(result));
 	} else {
-		status->OK = true;
+		status->isOK = true;
 	}
 
-	return status->OK;
+	return status->isOK;
 }
 
 void Hackrf::stopRX() {
@@ -215,6 +213,7 @@ void Hackrf::setFreq(uint64_t freq) {
 			hackrf_error_name(result),
 			result);
 	}
+	printf("Frequency set: %d\r\n", (int)freq);
 	savedFreq = freq;
 }
 
@@ -252,7 +251,7 @@ void Hackrf::setBaseband(int baseband) {
 }
 
 void Hackrf::setConfiguration() {
-	if (isNeedToSetupFreq()) setFreq((uint64_t)viewModel->centerFrequency);
+	if (isNeedToSetupFreq()) setFreq((uint64_t)(viewModel->centerFrequency + ((config->receiver.enableFrequencyShift == true) ? config->receiver.frequencyShift : 0)));
 	if (isNeedToSetupLnaGain()) setLnaGain((uint32_t)(viewModel->hackRFModel.lnaGain * 8));
 	if (isNeedToSetupVgnGain()) setVgaGain((uint32_t)(viewModel->hackRFModel.vgaGain * 2));
 	if (isNeedToSetupAmp()) enableAmp((uint8_t)viewModel->hackRFModel.enableAmp);

@@ -17,7 +17,6 @@ private:
 
 	Config* config;
 	
-
 	//»нициализируем оконный массив с размерностью длины массива буфера спектра (возвращаетс¤ массив длиной +1)
 	WindowBlackman* wb;
 	WindowBlackmanHarris* wbh;
@@ -74,11 +73,6 @@ public:
 
 	std::thread start();
 	void run();
-
-
-
-	
-
 
 
 };

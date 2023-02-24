@@ -56,7 +56,7 @@ RSPv2::RSPv2(Config* config, CircleBuffer* cb) {
 }
 
 RSPv2::~RSPv2() {
-    if (status->OK) {
+    if (status->isOK) {
         sdrplay_api_Uninit(chosenDevice->dev);
         sdrplay_api_ReleaseDevice(chosenDevice);
     }
@@ -66,7 +66,6 @@ RSPv2::~RSPv2() {
 
 bool RSPv2::init() {
     viewModel = Display::instance->viewModel;
-    status = new STATUS();
 
     unsigned int ndev;
     int i;
@@ -79,34 +78,34 @@ bool RSPv2::init() {
     if ((err = sdrplay_api_Open()) != sdrplay_api_Success) {
         status->err.append("sdrplay_api_Open failed: ");
         status->err.append(sdrplay_api_GetErrorString(err));
-        status->OK = false;
-        status->initDone = true;
-        return status->OK;
+        status->isOK = false;
+        status->isInitProcessOccured = true;
+        return status->isOK;
     } else {
 
         if ((err = sdrplay_api_DebugEnable(NULL, (sdrplay_api_DbgLvl_t)1)) != sdrplay_api_Success) {
             status->err.append("sdrplay_api_DebugEnable failed: ");
             status->err.append(sdrplay_api_GetErrorString(err));
-            status->OK = false;
-            status->initDone = true;
-            return status->OK;
+            status->isOK = false;
+            status->isInitProcessOccured = true;
+            return status->isOK;
         }
 
         if ((err = sdrplay_api_ApiVersion(&ver)) != sdrplay_api_Success) {
             status->err.append("sdrplay_api_ApiVersion failed: ");
             status->err.append(sdrplay_api_GetErrorString(err));
-            status->OK = false;
-            status->initDone = true;
-            return status->OK;
+            status->isOK = false;
+            status->isInitProcessOccured = true;
+            return status->isOK;
         }
 
         if (ver != SDRPLAY_API_VERSION) {
             status->err.append("API version don't match");
             status->err.append(sdrplay_api_GetErrorString(err));
-            status->OK = false;
-            status->initDone = true;
+            status->isOK = false;
+            status->isInitProcessOccured = true;
             closeApi();
-            return status->OK;
+            return status->isOK;
             //printf("API version don't match (local=%.2f dll=%.2f)\n", SDRPLAY_API_VERSION, ver);
         }
 
@@ -116,11 +115,11 @@ bool RSPv2::init() {
         if ((err = sdrplay_api_GetDevices(devs, &ndev, sizeof(devs) / sizeof(sdrplay_api_DeviceT))) != sdrplay_api_Success) {
             status->err.append("sdrplay_api_GetDevices failed: ");
             status->err.append(sdrplay_api_GetErrorString(err));
-            status->OK = false;
-            status->initDone = true;
+            status->isOK = false;
+            status->isInitProcessOccured = true;
             sdrplay_api_UnlockDeviceApi();
             closeApi();
-            return status->OK;
+            return status->isOK;
         }
         printf("MaxDevs=%d NumDevs=%d\n", sizeof(devs) / sizeof(sdrplay_api_DeviceT), ndev);
 
@@ -146,13 +145,13 @@ bool RSPv2::init() {
         if ((err = sdrplay_api_SelectDevice(chosenDevice)) != sdrplay_api_Success) {            
             status->err.append("sdrplay_api_SelectDevice failed: ");
             status->err.append(sdrplay_api_GetErrorString(err));
-            status->OK = false;
-            status->initDone = true;
+            status->isOK = false;
+            status->isInitProcessOccured = true;
 
             //printf("sdrplay_api_SelectDevice failed %s\n", sdrplay_api_GetErrorString(err));
             sdrplay_api_UnlockDeviceApi();
             sdrplay_api_Close();
-            return status->OK;
+            return status->isOK;
         }
 
         sdrplay_api_UnlockDeviceApi();
@@ -161,19 +160,19 @@ bool RSPv2::init() {
         if ((err = sdrplay_api_GetDeviceParams(chosenDevice->dev, &deviceParams)) != sdrplay_api_Success) {
             status->err.append("sdrplay_api_GetDeviceParams failed failed: ");
             status->err.append(sdrplay_api_GetErrorString(err));
-            status->OK = false;
-            status->initDone = true;
+            status->isOK = false;
+            status->isInitProcessOccured = true;
             sdrplay_api_Close();
-            return status->OK;
+            return status->isOK;
         }
 
         // Check for NULL pointers before changing settings
         if (deviceParams == NULL) {
             status->err.append("sdrplay_api_GetDeviceParams returned NULL deviceParams pointer");
-            status->OK = false;
-            status->initDone = true;
+            status->isOK = false;
+            status->isInitProcessOccured = true;
             sdrplay_api_Close();
-            return status->OK;
+            return status->isOK;
         }
 
         deviceParams->devParams->fsFreq.fsHz = config->rsp.deviceSamplingRate;
@@ -182,7 +181,7 @@ bool RSPv2::init() {
         // Configure tuner parameters (depends on selected Tuner which set of parameters to use)
         chParams = (chosenDevice->tuner == sdrplay_api_Tuner_B) ? deviceParams->rxChannelB : deviceParams->rxChannelA;
         if (chParams != NULL) {
-            chParams->tunerParams.rfFreq.rfHz = config->startFrequency;
+            chParams->tunerParams.rfFreq.rfHz = config->startFrequency + ((config->receiver.enableFrequencyShift == true) ? config->receiver.frequencyShift : 0);
             chParams->tunerParams.bwType = sdrplay_api_BW_0_600;
 
             chParams->tunerParams.ifType = sdrplay_api_IF_Zero;
@@ -194,10 +193,10 @@ bool RSPv2::init() {
             chParams->ctrlParams.agc.enable = sdrplay_api_AGC_DISABLE; 
         } else {
             status->err.append("sdrplay_api_GetDeviceParams returned NULL chParams pointer");
-            status->OK = false;
-            status->initDone = true;
+            status->isOK = false;
+            status->isInitProcessOccured = true;
             sdrplay_api_Close();
-            return status->OK;
+            return status->isOK;
         }
 
         cbFns.StreamACbFn = RSPv2::StreamACallback;
@@ -207,14 +206,14 @@ bool RSPv2::init() {
         if ((err = sdrplay_api_Init(chosenDevice->dev, &cbFns, (void*)config)) != sdrplay_api_Success) {
             status->err.append("sdrplay_api_Init failed: ");
             status->err.append(sdrplay_api_GetErrorString(err));
-            status->OK = false;
-            status->initDone = true;
+            status->isOK = false;
+            status->isInitProcessOccured = true;
             sdrplay_api_Close();
-            return status->OK;
+            return status->isOK;
         }
     }
-    status->OK = true;
-    status->initDone = true;
+    status->isOK = true;
+    status->isInitProcessOccured = true;
     return true;
 }
 
@@ -223,9 +222,10 @@ void RSPv2::closeApi() {
 }
 
 void RSPv2::updateFreq() {
-    deviceParams->rxChannelA->tunerParams.rfFreq = sdrplay_api_RfFreqT{ (double)viewModel->centerFrequency , 0 };
+    deviceParams->rxChannelA->tunerParams.rfFreq = sdrplay_api_RfFreqT{ (double)(viewModel->centerFrequency + ((config->receiver.enableFrequencyShift == true) ? config->receiver.frequencyShift : 0)), 0 };
     sdrplay_api_Update(chosenDevice->dev, chosenDevice->tuner, sdrplay_api_Update_Tuner_Frf, sdrplay_api_Update_Ext1_None);
-    savedFreq = viewModel->centerFrequency;
+    printf("Frequency set: %d\r\n", viewModel->centerFrequency + ((config->receiver.enableFrequencyShift == true) ? config->receiver.frequencyShift : 0));
+    savedFreq = viewModel->centerFrequency + ((config->receiver.enableFrequencyShift == true) ? config->receiver.frequencyShift : 0);
 }
 
 void RSPv2::updateGain() {
@@ -236,11 +236,11 @@ void RSPv2::updateGain() {
 }
 
 bool RSPv2::isNeedToFreq() {
-    return savedFreq != viewModel->centerFrequency;
+    return savedFreq != (viewModel->centerFrequency + ((config->receiver.enableFrequencyShift == true) ? config->receiver.frequencyShift : 0));
 }
 
 bool RSPv2::isNeedToGain() {
-    return savedGain != viewModel->rspModel.gain;
+    return savedGain != (viewModel->rspModel.gain);
 }
 
 bool RSPv2::isNeedToLna() {

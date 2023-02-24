@@ -7,6 +7,7 @@
 #include "Display.h"
 #include "RSP1.h"
 #include "Hackrf.h"
+#include "RTLDevice.h"
 #include "SoundProcessorThread.h"
 #include "CircleBufferWriterThread.h"
 #include "RSPv2.h"
@@ -50,6 +51,10 @@ int main() {
 		case 1:
 			config->device = new Hackrf(config, iqSignalsCircleBuffer);
 			break;
+		//RTL
+		case 2:
+			config->device = new RTLDevice(config, iqSignalsCircleBuffer);
+			break;
 	}
 
 	//Инициализируем звуковую карту
@@ -66,6 +71,9 @@ int main() {
 			break;
 		case Config::HACKRF:
 			((Hackrf*)config->device)->init();
+			break;
+		case Config::RTL:
+			((RTLDevice*)config->device)->init();
 			break;
 	}
 

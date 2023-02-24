@@ -13,6 +13,9 @@ Config::Config() {
         case HACKRF:
             inputSamplerate = hackrf.deviceSamplingRate / inputSamplerateDivider;
             break;
+        case RTL:
+            inputSamplerate = rtl.deviceSamplingRate / inputSamplerateDivider;
+            break;
         default:
             inputSamplerate = 4000000;
     }
@@ -50,6 +53,15 @@ void Config::load() {
 
     if (NULL != pRootElement) {
 
+        tinyxml2::XMLElement* pApp = pRootElement->FirstChildElement("App");
+        if (NULL != pApp) {
+            tinyxml2::XMLElement* pwindowWidth = pApp->FirstChildElement("windowWidth");
+            app.winWidth = std::stoi(std::string(pwindowWidth->GetText()));
+
+            tinyxml2::XMLElement* pwindowHeight = pApp->FirstChildElement("windowHeight");
+            app.winHeight = std::stoi(std::string(pwindowHeight->GetText()));
+        }
+
         tinyxml2::XMLElement* pDevice = pRootElement->FirstChildElement("Device");
         if (NULL != pDevice) {
             tinyxml2::XMLElement* ptype = pDevice->FirstChildElement("type");
@@ -60,6 +72,9 @@ void Config::load() {
                     break;
                 case 1:
                     deviceType = HACKRF;
+                    break;
+                case 2:
+                    deviceType = RTL;
                     break;
                 default:
                     deviceType = HACKRF;
@@ -110,6 +125,14 @@ void Config::load() {
                 rsp.lna = std::stoi(std::string(plna->GetText()));
             }
 
+            tinyxml2::XMLElement* pRTL = pDevice->FirstChildElement("RTL");
+            if (NULL != pRTL) {
+                tinyxml2::XMLElement* pdeviceSamplingRate = pRTL->FirstChildElement("deviceSamplingRate");
+                rtl.deviceSamplingRate = std::stoi(std::string(pdeviceSamplingRate->GetText()));
+
+                tinyxml2::XMLElement* pgain = pRTL->FirstChildElement("gain");
+                rtl.gain = std::stoi(std::string(pgain->GetText()));
+            }
         }
 
         tinyxml2::XMLElement* pReceiver = pRootElement->FirstChildElement("Receiver");
@@ -128,6 +151,12 @@ void Config::load() {
 
             tinyxml2::XMLElement* pmodulation = pReceiver->FirstChildElement("modulation");
             receiver.modulation = std::stoi(std::string(pmodulation->GetText()));
+
+            tinyxml2::XMLElement* penableFrequencyShift = pReceiver->FirstChildElement("enableFrequencyShift");
+            receiver.enableFrequencyShift = (std::stoi(std::string(penableFrequencyShift->GetText())) == 1) ? true : false;
+
+            tinyxml2::XMLElement* pfrequencyShift = pReceiver->FirstChildElement("frequencyShift");
+            receiver.frequencyShift = std::stoi(std::string(pfrequencyShift->GetText()));
         }
 
         tinyxml2::XMLElement* pWaterfall = pRootElement->FirstChildElement("Waterfall");
@@ -184,12 +213,23 @@ void Config::save() {
     tinyxml2::XMLElement* pRootElement = doc.RootElement();
 
     if (NULL != pRootElement) {
+
+        tinyxml2::XMLElement* pApp = pRootElement->FirstChildElement("App");
+        if (NULL != pApp) {
+            tinyxml2::XMLElement* pwindowWidth = pApp->FirstChildElement("windowWidth");
+            pwindowWidth->SetText(app.winWidth);
+
+            tinyxml2::XMLElement* pwindowHeight = pApp->FirstChildElement("windowHeight");
+            pwindowHeight->SetText(app.winHeight);
+        }
+
         tinyxml2::XMLElement* pDevice = pRootElement->FirstChildElement("Device");
         if (NULL != pDevice) {
 
             tinyxml2::XMLElement* ptype = pDevice->FirstChildElement("type");
             if (delayedDeviceType == RSP) ptype->SetText(0);
             else if (delayedDeviceType == HACKRF) ptype->SetText(1);
+            else if (delayedDeviceType == RTL) ptype->SetText(2);
             else ptype->SetText(0);
 
             tinyxml2::XMLElement* psamplingRateDiv = pDevice->FirstChildElement("decimation");
@@ -231,6 +271,15 @@ void Config::save() {
                 tinyxml2::XMLElement* papi = pRSP->FirstChildElement("api");
                 papi->SetText(rsp.api);
             }
+
+            tinyxml2::XMLElement* pRTL = pDevice->FirstChildElement("RTL");
+            if (NULL != pRTL) {
+                tinyxml2::XMLElement* pdeviceSamplingRate = pRTL->FirstChildElement("deviceSamplingRate");
+                pdeviceSamplingRate->SetText(rtl.deviceSamplingRate);
+
+                tinyxml2::XMLElement* pgain = pRTL->FirstChildElement("gain");
+                pgain->SetText(rtl.gain);
+            }
         }
 
         tinyxml2::XMLElement* pReceiver = pRootElement->FirstChildElement("Receiver");
@@ -249,6 +298,12 @@ void Config::save() {
 
             tinyxml2::XMLElement* pmodulation = pReceiver->FirstChildElement("modulation");
             pmodulation->SetText(receiver.modulation);
+
+            tinyxml2::XMLElement* penableFrequencyShift = pReceiver->FirstChildElement("enableFrequencyShift");
+            penableFrequencyShift->SetText((receiver.enableFrequencyShift == true) ? "1": "0");
+
+            tinyxml2::XMLElement* pfrequencyShift = pReceiver->FirstChildElement("frequencyShift");
+            pfrequencyShift->SetText(receiver.frequencyShift);
         }
 
         tinyxml2::XMLElement* pWaterfall = pRootElement->FirstChildElement("Waterfall");
@@ -298,6 +353,9 @@ void Config::setDevice(int deviceID) {
             break;
         case 1:
             delayedDeviceType = HACKRF;
+            break;
+        case 2:
+            delayedDeviceType = RTL;
             break;
         default:
             delayedDeviceType = RSP;

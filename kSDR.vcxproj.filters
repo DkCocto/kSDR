@@ -183,6 +183,9 @@
     <ClCompile Include="src\ListSetting.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="src\RTLDevice.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Config.h">
@@ -369,6 +372,9 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="src\ListSetting.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RTLDevice.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

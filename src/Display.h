@@ -15,6 +15,8 @@
 #include "RSPv2.h"
 #include "ListSetting.h"
 #include "functional"
+#include "map"
+#include "RTLDevice.h"
 
 class Display {
 
@@ -45,6 +47,9 @@ private:
 	ListSetting* rspSampRateLS;
 	ListSetting* rspDecimationFactorLS;
 	ListSetting* fftLenLS;
+	ListSetting* rtlDeviceGainLS;
+	ListSetting* rtlSampRateLS;
+
 	void initSettings();
 
 public:
