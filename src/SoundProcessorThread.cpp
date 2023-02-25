@@ -24,6 +24,8 @@ SoundProcessorThread::SoundProcessorThread(Config* config, CircleBuffer* iqSigna
 	//Инициализация полифазных фильтров
 	initFilters(config->defaultFilterWidth);
 
+	//audioFilterFM.init(audioFilterFM.LOWPASS, audioFilterFM.BARTLETT, 256, 200000, 0, config->outputSamplerate);
+
 }
 
 void SoundProcessorThread::initFilters(int filterWidth) {
@@ -45,6 +47,8 @@ void SoundProcessorThread::process() {
 	float* data;
 
 	ViewModel* viewModel = Display::instance->viewModel;
+
+	FMDemodulator fmDemodulator;
 
 	while (true) {
 		
@@ -81,31 +85,39 @@ void SoundProcessorThread::process() {
 					int mode = USB;
 
 					mode = viewModel->receiverMode;
+					//mode = FM;
 
 					double audio = 0;
 
 					switch (mode) {
-					case USB:
-						audioQ = hilbertTransform->filter(audioQ);
-						audioI = delay->filter(audioI);
-						audio = audioI - audioQ; // LSB
-						break;
-					case LSB:
-						audioQ = hilbertTransform->filter(audioQ);
-						audioI = delay->filter(audioI);
-						audio = audioI + audioQ; // USB
-						break;
-					case AM:
-						audioI = firI->proc(audioI);
-						audioQ = firQ->proc(audioQ);
-						audio = sqrt(audioI * audioI + audioQ * audioQ);
-						break;
+						case USB:
+							audioQ = hilbertTransform->filter(audioQ);
+							audioI = delay->filter(audioI);
+							audio = audioI - audioQ; // LSB
+							break;
+						case LSB:
+							audioQ = hilbertTransform->filter(audioQ);
+							audioI = delay->filter(audioI);
+							audio = audioI + audioQ; // USB
+							break;
+						case AM:
+							audioI = firI->proc(audioI);
+							audioQ = firQ->proc(audioQ);
+							audio = sqrt(audioI * audioI + audioQ * audioQ);
+							break;
+						case FM:
+							audioI = firI->proc(audioI);
+							audioQ = firQ->proc(audioQ);
+							audio = fmDemodulator.demodulate(audioI, audioQ);
+							//audio = audioFilterFM.proc(audio);
+							break;
 					}
-					//audio = audioFilter->filter(audio);
+					//-------------------audio = audioFilter->filter(audio);
 					audio = fir->proc(audio);
 					audio = agc->process(audio);
 					//Если AM, то немного усилим сигнал
 					if (mode == AM) audio *= 5.0f;
+					if (mode == FM) audio *= 5.0f;
 					outputData[count] = audio * Display::instance->viewModel->volume;
 					count++;
 				}

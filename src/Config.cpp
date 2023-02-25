@@ -22,7 +22,7 @@ Config::Config() {
 
 	calcOutputSamplerate();
 
-	bufferWriteAudioLen							= (outputSamplerateDivider * 2) * 2;
+	bufferWriteAudioLen							= (outputSamplerateDivider * 2) * 32;
 
 	readSoundProcessorBufferLen					= fftLen; //fftLen
 
@@ -198,7 +198,25 @@ void Config::load() {
             tinyxml2::XMLElement* premoveDCBias = pSpectre->FirstChildElement("removeDCBias");
             removeDCBias = std::stoi(std::string(premoveDCBias->GetText()));
 
-            
+        }
+
+        tinyxml2::XMLElement* pColorTheme = pRootElement->FirstChildElement("ColorTheme");
+        if (NULL != pColorTheme) {
+            tinyxml2::XMLElement* pspectreFillColor = pColorTheme->FirstChildElement("spectreFillColor");
+            //std::stoll (std::string(pspectreFillColor->GetText()));
+            colorTheme.spectreFillColor = std::stoll(std::string(pspectreFillColor->GetText()));
+
+            tinyxml2::XMLElement* pspectreProfileColor = pColorTheme->FirstChildElement("spectreProfileColor");
+            colorTheme.spectreProfileColor = std::stoll(std::string(pspectreProfileColor->GetText()));
+
+            tinyxml2::XMLElement* pmainBGColor = pColorTheme->FirstChildElement("mainBGColor");
+            colorTheme.mainBGColor = std::stoll(std::string(pmainBGColor->GetText()));
+
+            tinyxml2::XMLElement* pwindowsBGColor = pColorTheme->FirstChildElement("windowsBGColor");
+            colorTheme.windowsBGColor = std::stoll(std::string(pwindowsBGColor->GetText()));
+
+            tinyxml2::XMLElement* pwindowsTitleBGColor = pColorTheme->FirstChildElement("windowsTitleBGColor");
+            colorTheme.windowsTitleBGColor = std::stoll(std::string(pwindowsTitleBGColor->GetText()));
         }
     } else {
         printf("Config file not found!");
@@ -337,6 +355,24 @@ void Config::save() {
 
             tinyxml2::XMLElement* pfftLen = pSpectre->FirstChildElement("fftLen");
             pfftLen->SetText(delayedFFTLen);
+        }
+
+        tinyxml2::XMLElement* pColorTheme = pRootElement->FirstChildElement("ColorTheme");
+        if (NULL != pColorTheme) {
+            tinyxml2::XMLElement* pspectreFillColor = pColorTheme->FirstChildElement("spectreFillColor");
+            pspectreFillColor->SetText(colorTheme.spectreFillColor);
+
+            tinyxml2::XMLElement* pspectreProfileColor = pColorTheme->FirstChildElement("spectreProfileColor");
+            pspectreProfileColor->SetText(colorTheme.spectreProfileColor);
+
+            tinyxml2::XMLElement* pmainBGColor = pColorTheme->FirstChildElement("mainBGColor");
+            pmainBGColor->SetText(colorTheme.mainBGColor);
+
+            tinyxml2::XMLElement* pwindowsBGColor = pColorTheme->FirstChildElement("windowsBGColor");
+            pwindowsBGColor->SetText(colorTheme.windowsBGColor);
+
+            tinyxml2::XMLElement* pwindowsTitleBGColor = pColorTheme->FirstChildElement("windowsTitleBGColor");
+            pwindowsTitleBGColor->SetText(colorTheme.windowsTitleBGColor);
         }
 
         doc.SaveFile(CONFIG_FILENAME);

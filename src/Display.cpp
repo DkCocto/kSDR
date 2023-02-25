@@ -1,5 +1,7 @@
 #include "Display.h"
 
+#include "format"
+
 void Display::framebufferReSizeCallback(GLFWwindow* window, int width, int height) {
 	glViewport(0, 0, width, height);
 	if (Display::instance != NULL) {
@@ -101,7 +103,9 @@ void Display::mainLoop() {
 		// Check if any events have been activated (key pressed, mouse moved etc.) and call corresponding response functions
 		glfwPollEvents();
 
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		ImVec4 bgColor = ImGui::ColorConvertU32ToFloat4(config->colorTheme.mainBGColor);
+
+		glClearColor(bgColor.x, bgColor.y, bgColor.z, bgColor.w);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		//fftSpectreHandler->getSemaphore()->lock();
@@ -141,7 +145,9 @@ void Display::initImGUI() {
 	viewModel->fontMyRegular = io.Fonts->AddFontFromFileTTF("DroidSansMono.ttf", 18);
 	viewModel->fontBigRegular = io.Fonts->AddFontFromFileTTF("DroidSansMono.ttf", 42);
 
-	ImGui::StyleColorsDark();
+	//ImGui::StyleColorsDark();
+	//ImGui::StyleColorsLight();
+	ImGui::StyleColorsClassic();
 
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init(glsl_version);
@@ -167,6 +173,9 @@ void Display::renderImGUIFirst() {
 		viewModel->mouseBusy = false;
 	}
 
+	ImGui::PushStyleColor(ImGuiCol_WindowBg, ImGui::ColorConvertU32ToFloat4(config->colorTheme.windowsBGColor));
+	//ImGui::PushStyleColor(ImGuiCol_TitleBgActive, ImGui::ColorConvertU32ToFloat4(config->colorTheme.windowsTitleBGColor));
+
 	ImGui::Begin(APP_NAME);
 
 		initSettings();
@@ -174,20 +183,18 @@ void Display::renderImGUIFirst() {
 		ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
 		if (ImGui::BeginTabBar("MyTabBar", tab_bar_flags)) {
 			if (ImGui::BeginTabItem("Controls")) {
+				if (ImGui::Button("Waterfall Auto")) spectre->waterfallAutoColorCorrection(); ImGui::SameLine();
+				if (ImGui::Button("Spectre Auto")) spectre->spectreRatioAutoCorrection();
 				ImGui::SliderInt("Frequency", &viewModel->centerFrequency, 1000000, 30000000);
 
-				ImGui::SliderInt("Filter width", &viewModel->filterWidth, 0, 12000);
+				ImGui::SliderInt("Filter width", &viewModel->filterWidth, 0, 300000);
 
-				ImGui::SliderFloat("Waterfall min", &viewModel->waterfallMin, -130, 0); ImGui::SameLine();
-				if (ImGui::Button("Waterfall Auto")) {
-					spectre->waterfallAutoColorCorrection();
-				}
+				ImGui::SliderFloat("Waterfall min", &viewModel->waterfallMin, -130, 0);
+
 				ImGui::SliderFloat("Waterfall max", &viewModel->waterfallMax, -130, 0);
 
-				ImGui::SliderFloat("Spectre ratio", &viewModel->ratio, -200, 100); ImGui::SameLine();
-				if (ImGui::Button("Spectre Auto")) {
-					spectre->spectreRatioAutoCorrection();
-				}
+				ImGui::SliderFloat("Spectre ratio", &viewModel->ratio, -200, 100);
+
 				ImGui::SliderFloat("Spectre min val", &viewModel->minDb, -200, 0);
 
 				ImGui::SliderInt("Spectre speed", &viewModel->spectreSpeed, 1, 200);
@@ -233,7 +240,8 @@ void Display::renderImGUIFirst() {
 
 				ImGui::RadioButton("USB", &viewModel->receiverMode, USB); ImGui::SameLine();
 				ImGui::RadioButton("LSB", &viewModel->receiverMode, LSB); ImGui::SameLine();
-				ImGui::RadioButton("AM", &viewModel->receiverMode, AM);
+				ImGui::RadioButton("AM", &viewModel->receiverMode, AM); ImGui::SameLine();
+				ImGui::RadioButton("FM", &viewModel->receiverMode, FM);
 
 				if (ImGui::Button("100")) {
 					viewModel->filterWidth = 100;
@@ -381,6 +389,14 @@ void Display::renderImGUIFirst() {
 
 				ImGui::Checkbox("Remove DC", &viewModel->removeDCBias);
 
+				ImGui::Text("\nColor theme:");
+
+				showColorPicker(string("Windows Background"), &config->colorTheme.windowsBGColor);
+				showColorPicker(string("Main Background"), &config->colorTheme.mainBGColor);
+				//showColorPicker(string("Window Title Background"), &config->colorTheme.windowsTitleBGColor);
+				showColorPicker(string("Spectre Fill"), &config->colorTheme.spectreFillColor);
+				showColorPicker(string("Spectre Profile"), &config->colorTheme.spectreProfileColor);
+
 				ImGui::EndTabItem();
 			}
 			ImGui::EndTabBar();
@@ -416,6 +432,8 @@ void Display::renderImGUIFirst() {
 		ImGui::OpenPopup(std::string("Warning").c_str());
 		errorInitDeviceUserInformed = true;
 	}
+
+	ImGui::PopStyleColor();
 }
 
 void Display::showSelectDeviceSetting() {
@@ -474,6 +492,28 @@ void Display::showAlertOKDialog(std::string title, std::string msg) {
 		ImGui::SetItemDefaultFocus();
 		ImGui::EndPopup();
 	}
+}
+
+void Display::showColorPicker(string title, unsigned int *configVal) {
+	static bool hdr = false;
+	static bool drag_and_drop = false;
+	static bool alpha_half_preview = false;
+	static bool options_menu = false;
+	static bool alpha_preview = false;
+
+	ImGuiColorEditFlags misc_flags = (hdr ? ImGuiColorEditFlags_HDR : 0) | (drag_and_drop ? 0 : ImGuiColorEditFlags_NoDragDrop) | (alpha_half_preview ? ImGuiColorEditFlags_AlphaPreviewHalf : (alpha_preview ? ImGuiColorEditFlags_AlphaPreview : 0)) | (options_menu ? 0 : ImGuiColorEditFlags_NoOptions);
+	//static ImVec4 color = ImVec4(114.0f / 255.0f, 144.0f / 255.0f, 154.0f / 255.0f, 1.0f);
+
+	ImVec4 color = ImGui::ColorConvertU32ToFloat4(*configVal);
+
+	ImGui::ColorEdit3(title.c_str(), (float*)&color, misc_flags);
+
+	//unsigned long rgb = (r<<16)|(g<<8)|b; 
+
+	*configVal = ImGui::ColorConvertFloat4ToU32(color);
+
+	//std::string s = std::format("{:x}", ccc);
+	//printf("%s\r\n", s.c_str());
 }
 
 void Display::initSettings() {

@@ -52,6 +52,8 @@ private:
 
 	void initSettings();
 
+	void showColorPicker(string title, unsigned int* configVal);
+
 public:
 
 	static Display* instance;

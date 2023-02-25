@@ -41,6 +41,7 @@
     <ClCompile Include="src\FIR.cpp" />
     <ClCompile Include="src\FirFilter.cpp" />
     <ClCompile Include="src\FlowingFFTSpectre.cpp" />
+    <ClCompile Include="src\FMDemodulator.cpp" />
     <ClCompile Include="src\Hackrf.cpp" />
     <ClCompile Include="src\HilbertTransform.cpp" />
     <ClCompile Include="src\imgui\imgui.cpp" />
@@ -104,6 +105,7 @@
     <ClInclude Include="src\FIR.h" />
     <ClInclude Include="src\FirFilter.h" />
     <ClInclude Include="src\FlowingFFTSpectre.h" />
+    <ClInclude Include="src\FMDemodulator.h" />
     <ClInclude Include="src\Hackrf.h" />
     <ClInclude Include="src\HilbertTransform.h" />
     <ClInclude Include="src\imgui\imconfig.h" />
@@ -249,7 +251,8 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
-      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

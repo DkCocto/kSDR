@@ -1812,6 +1812,9 @@ static void ShowDemoWindowWidgets()
             ImGui::OpenPopup("mypicker");
             backup_color = color;
         }
+
+
+
         if (ImGui::BeginPopup("mypicker"))
         {
             ImGui::Text("MY CUSTOM COLOR PICKER WITH AN AMAZING PALETTE!");

@@ -20,9 +20,9 @@
             	decimation = 2
             	Total sampling rate = (2000000 / 2) / 2 = 500000 
 			-->
-            <deviceSamplingRate>4000000</deviceSamplingRate>
+            <deviceSamplingRate>6000000</deviceSamplingRate>
             <deviceDecimationFactor>1</deviceDecimationFactor>
-            <gain>56</gain>
+            <gain>59</gain>
             <!-- Api can be 2 (v2) and 3 (v3)-->
             <api>3</api>
             <disableLna>1</disableLna>
@@ -33,7 +33,7 @@
             <basebandFilter>1750000</basebandFilter>
             <rxAmp>0</rxAmp>
             <!-- 0 1 2 3 4-->
-            <lnaGain>3</lnaGain>
+            <lnaGain>2</lnaGain>
             <!-- 0 .. 30 -->
             <vgaGain>13</vgaGain>
             <!-- 0 .. 40 step 2-->
@@ -41,30 +41,38 @@
         </HackRF>
         <RTL>
             <deviceSamplingRate>3200000</deviceSamplingRate>
-            <gain>340</gain>
+            <gain>-10</gain>
         </RTL>
     </Device>
     <Receiver>
-        <startFreq>7100000</startFreq>
-        <lastSelectedFreq>7060000</lastSelectedFreq>
-        <volume>1.205</volume>
+        <startFreq>3700000</startFreq>
+        <lastSelectedFreq>3685290.5</lastSelectedFreq>
+        <volume>1.251</volume>
         <filterWidth>2700</filterWidth>
-        <!-- USB:0, LSB:1, AM:2 -->
+        <!-- USB:0, LSB:1, AM:2, FM:3 -->
         <modulation>1</modulation>
         <enableFrequencyShift>0</enableFrequencyShift>
-        <frequencyShift>52434810</frequencyShift>
+        <frequencyShift>100000000</frequencyShift>
     </Receiver>
     <Waterfall>
-        <min>-104.55306</min>
-        <max>-41.502232</max>
+        <min>-111.42949</min>
+        <max>-51.634178</max>
     </Waterfall>
-    <Spectre>1<ratio>-10.819798</ratio>
-        <min>-108.17283</min>
-        <speed>15</speed>
+    <Spectre>
+        <ratio>-18.778637</ratio>
+        <min>-114.39888</min>
+        <speed>12</speed>
         <!-- Must be a power of 2. The total will be fftLen = fftLen * 1024 -->
         <fftLen>65536</fftLen>
-        <startBin>15130</startBin>
-        <stopBin>18175</stopBin>
+        <startBin>14745</startBin>
+        <stopBin>17464</stopBin>
         <removeDCBias>1</removeDCBias>
     </Spectre>
+    <ColorTheme>
+        <spectreFillColor>4288302153</spectreFillColor>
+        <spectreProfileColor>4290108112</spectreProfileColor>
+        <mainBGColor>4281216558</mainBGColor>
+        <windowsBGColor>4281080595</windowsBGColor>
+        <windowsTitleBGColor>4284887578</windowsTitleBGColor>
+    </ColorTheme>
 </Config>

@@ -27,24 +27,6 @@ bool Hackrf::isNeedToSetupFilter() {
 Hackrf::Hackrf(Config* config, CircleBuffer* cb) {
 	this->config = config;
 	this->cb = cb;
-
-	hackrf_error result = (hackrf_error)hackrf_init();
-	if (result != HACKRF_SUCCESS) {
-		fprintf(stderr,
-			"hackrf_init() failed: %s (%d)\n",
-			hackrf_error_name(result),
-			result);
-	}
-
-	const char* serial_number = NULL;
-	//result = (hackrf_error)hackrf_open_by_serial(serial_number, &device);
-	result = (hackrf_error)hackrf_open(&device);
-	if (result != HACKRF_SUCCESS) {
-		fprintf(stderr,
-			"hackrf_open() failed: %s (%d)\n",
-			hackrf_error_name(result),
-			result);
-	}
 }
 
 Hackrf::~Hackrf() {
@@ -105,91 +87,109 @@ bool Hackrf::init() {
 
 	hackrf_error result;
 
-	hackrf_set_hw_sync_mode(device, (uint8_t)0);
-	//hackrf_set_sample_rate_manual
-	//hackrf_set_sample_rate
+	result = (hackrf_error)hackrf_init();
+	if (result != HACKRF_SUCCESS) {
+		status->err.append("hackrf_init() failed: ");
+		status->err.append(hackrf_error_name(result));
+		status->isInitProcessOccured = true;
+		status->isOK = false;
+		return status->isOK;
+	}
+
+	const char* serial_number = NULL;
+	//result = (hackrf_error)hackrf_open_by_serial(serial_number, &device);
+	result = (hackrf_error)hackrf_open(&device);
+	if (result != HACKRF_SUCCESS) {
+		status->err.append("hackrf_open() failed: ");
+		status->err.append(hackrf_error_name(result));
+		status->isInitProcessOccured = true;
+		status->isOK = false;
+		return status->isOK;
+	}
+
+	result = (hackrf_error)hackrf_set_hw_sync_mode(device, (uint8_t)0);
+	if (result != HACKRF_SUCCESS) {
+		status->err.append("hackrf_set_hw_sync_mode() failed: ");
+		status->err.append(hackrf_error_name(result));
+		status->isInitProcessOccured = true;
+		status->isOK = false;
+		return status->isOK;
+	}
+
 	result = (hackrf_error)hackrf_set_sample_rate(device, config->hackrf.deviceSamplingRate);
 	if (result != HACKRF_SUCCESS) {
-		fprintf(stderr,
-			"hackrf_set_sample_rate() failed: %s (%d)\n",
-			hackrf_error_name(result),
-			result);
+		status->err.append("hackrf_set_sample_rate() failed: ");
+		status->err.append(hackrf_error_name(result));
+		status->isInitProcessOccured = true;
+		status->isOK = false;
+		return status->isOK;
 	}
 	
 	int64_t freq_hz = config->startFrequency + ((config->receiver.enableFrequencyShift == true) ? config->receiver.frequencyShift : 0);
 
-	//result = (hackrf_error)hackrf_set_freq(device, freq_hz);
-	//result = (hackrf_error)hackrf_set_freq_explicit(device, 2408100000, 2401000000, RF_PATH_FILTER_LOW_PASS);
-
-	if (result != HACKRF_SUCCESS) {
-		fprintf(stderr,
-			"hackrf_set_freq() failed: %s (%d)\n",
-			hackrf_error_name(result),
-			result);
-	}
-
 	result = (hackrf_error)hackrf_set_freq(device, freq_hz);
 	if (result != HACKRF_SUCCESS) {
-		fprintf(stderr,
-			"hackrf_set_freq() failed: %s (%d)\n",
-			hackrf_error_name(result),
-			result);
+		status->err.append("hackrf_set_freq() failed: ");
+		status->err.append(hackrf_error_name(result));
+		status->isInitProcessOccured = true;
+		status->isOK = false;
+		return status->isOK;
 	}
 
 	result = (hackrf_error)hackrf_set_amp_enable(device, amp);
 	if (result != HACKRF_SUCCESS) {
-		fprintf(stderr,
-			"hackrf_set_amp_enable() failed: %s (%d)\n",
-			hackrf_error_name(result),
-			result);
+		status->err.append("hackrf_set_amp_enable() failed: ");
+		status->err.append(hackrf_error_name(result));
+		status->isInitProcessOccured = true;
+		status->isOK = false;
+		return status->isOK;
 	}
 
 	result = (hackrf_error)hackrf_set_antenna_enable(device, antenna);
 	if (result != HACKRF_SUCCESS) {
-		fprintf(stderr,
-			"hackrf_set_antenna_enable() failed: %s (%d)\n",
-			hackrf_error_name(result),
-			result);
+		status->err.append("hackrf_set_antenna_enable() failed: ");
+		status->err.append(hackrf_error_name(result));
+		status->isInitProcessOccured = true;
+		status->isOK = false;
+		return status->isOK;
 	}
-
-	//printf("%d \r\n", hackrf_compute_baseband_filter_bw(baseband));
 
 	result = (hackrf_error)hackrf_set_vga_gain(device, vga_gain);
 	if (result != HACKRF_SUCCESS) {
-		fprintf(stderr,
-			"hackrf_set_vga_gain() failed: %s (%d)\n",
-			hackrf_error_name(result),
-			result);
+		status->err.append("hackrf_set_vga_gain() failed: ");
+		status->err.append(hackrf_error_name(result));
+		status->isInitProcessOccured = true;
+		status->isOK = false;
+		return status->isOK;
 	}
 	result = (hackrf_error)hackrf_set_lna_gain(device, lna_gain);
 	if (result != HACKRF_SUCCESS) {
-		fprintf(stderr,
-			"hackrf_set_lna_gain() failed: %s (%d)\n",
-			hackrf_error_name(result),
-			result);
+		status->err.append("hackrf_set_lna_gain() failed: ");
+		status->err.append(hackrf_error_name(result));
+		status->isInitProcessOccured = true;
+		status->isOK = false;
+		return status->isOK;
 	}
 
 	result = (hackrf_error)hackrf_set_baseband_filter_bandwidth(device, hackrf_compute_baseband_filter_bw(baseband));
 	if (result != HACKRF_SUCCESS) {
-		fprintf(stderr,
-			"hackrf_set_baseband_filter_bandwidth() failed: %s (%d)\n",
-			hackrf_error_name(result),
-			result);
+		status->err.append("hackrf_set_baseband_filter_bandwidth() failed: ");
+		status->err.append(hackrf_error_name(result));
+		status->isInitProcessOccured = true;
+		status->isOK = false;
+		return status->isOK;
 	}
-
-	hackrf_set_txvga_gain(device, 0);
-
-	/* range 0-47 step 1db */
-	//hackrf_set_txvga_gain(device, 0);
 
 	result = startRX();
 	if (result != HACKRF_SUCCESS) {
 		status->isOK = false;
+		status->isInitProcessOccured = true;
 		status->err.append("hackrf_start_rx() failed: ");
 		status->err.append(hackrf_error_name(result));
 		status->err.append("\n Error code: ");
 		status->err.append(std::to_string(result));
 	} else {
+		status->isInitProcessOccured = true;
 		status->isOK = true;
 	}
 

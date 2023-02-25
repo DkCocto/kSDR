@@ -148,10 +148,10 @@ void Spectre::draw() {
 
 				ImVec2* polygon = new ImVec2[]{ lineX1 , lineX2 , lineX3 , lineX4 };
 
-				draw_list->AddConvexPolyFilled(polygon, 4, SPECTRE_COLOR);
+				draw_list->AddConvexPolyFilled(polygon, 4, config->colorTheme.spectreFillColor);
 				delete[] polygon;
 
-				draw_list->AddLine(lineX1, lineX2, SPECTRE_CONTUR_COLOR, 2.0f);
+				draw_list->AddLine(lineX1, lineX2, config->colorTheme.spectreProfileColor, 2.0f);
 			}
 			
 			reducedSpectreData.clear();

@@ -18,3 +18,4 @@ struct Signal {
 #define USB		0
 #define LSB		1
 #define AM		2
+#define FM		3

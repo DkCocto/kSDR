@@ -12,6 +12,7 @@
 #include "Display.h"
 #include "FIR.h"
 #include "DCRemove.h"
+#include "FMDemodulator.h"
 
 using namespace std;
 
@@ -44,6 +45,7 @@ class SoundProcessorThread {
 	FIR* fir = new FIR();
 	FIR* firI = new FIR();
 	FIR* firQ = new FIR();
+	//FIR audioFilterFM;
 
 	DCRemove dcRemove;
 

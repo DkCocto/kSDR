@@ -7,6 +7,8 @@
 #include "tinyxml2/tinyxml2.h"
 #include "string"
 
+//using namespace std;
+
 class Config {
 
 public:
@@ -111,6 +113,14 @@ public:
 		int winWidth = 1920;
 		int winHeight = 1080;
 	} app;
+
+	struct ColorTheme {
+		unsigned int spectreFillColor = 0xFFFFFFFF;
+		unsigned int spectreProfileColor = 0xFFFFFFFF;
+		unsigned int mainBGColor = 0xFFFFFFFF;
+		unsigned int windowsBGColor = 0xFFFFFFFF;
+		unsigned int windowsTitleBGColor = 0xFFFFFFFF;
+	} colorTheme;
 
 	//--------------------------------------
 
