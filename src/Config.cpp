@@ -157,6 +157,22 @@ void Config::load() {
 
             tinyxml2::XMLElement* pfrequencyShift = pReceiver->FirstChildElement("frequencyShift");
             receiver.frequencyShift = std::stoi(std::string(pfrequencyShift->GetText()));
+
+            tinyxml2::XMLElement* pAgc = pReceiver->FirstChildElement("Agc");
+            if (NULL != pAgc) {
+                tinyxml2::XMLElement* pthreshold = pAgc->FirstChildElement("threshold");
+                receiver.agc.threshold = std::stod(std::string(pthreshold->GetText()));
+            
+                tinyxml2::XMLElement* patackSpeedMs = pAgc->FirstChildElement("atackSpeedMs");
+                receiver.agc.atackSpeedMs = std::stod(std::string(patackSpeedMs->GetText()));
+
+                tinyxml2::XMLElement* pholdingTimeMs = pAgc->FirstChildElement("holdingTimeMs");
+                receiver.agc.holdingTimeMs = std::stod(std::string(pholdingTimeMs->GetText()));
+
+                tinyxml2::XMLElement* preleaseSpeed = pAgc->FirstChildElement("releaseSpeed");
+                receiver.agc.releaseSpeed = std::stod(std::string(preleaseSpeed->GetText()));
+            }
+
         }
 
         tinyxml2::XMLElement* pWaterfall = pRootElement->FirstChildElement("Waterfall");
@@ -322,6 +338,21 @@ void Config::save() {
 
             tinyxml2::XMLElement* pfrequencyShift = pReceiver->FirstChildElement("frequencyShift");
             pfrequencyShift->SetText(receiver.frequencyShift);
+
+            tinyxml2::XMLElement* pAgc = pReceiver->FirstChildElement("Agc");
+            if (NULL != pAgc) {
+                tinyxml2::XMLElement* pthreshold = pAgc->FirstChildElement("threshold");
+                pthreshold->SetText(receiver.agc.threshold);
+
+                tinyxml2::XMLElement* patackSpeedMs = pAgc->FirstChildElement("atackSpeedMs");
+                patackSpeedMs->SetText(receiver.agc.atackSpeedMs);
+
+                tinyxml2::XMLElement* pholdingTimeMs = pAgc->FirstChildElement("holdingTimeMs");
+                pholdingTimeMs->SetText(receiver.agc.holdingTimeMs);
+
+                tinyxml2::XMLElement* preleaseSpeed = pAgc->FirstChildElement("releaseSpeed");
+                preleaseSpeed->SetText(receiver.agc.releaseSpeed);
+            }
         }
 
         tinyxml2::XMLElement* pWaterfall = pRootElement->FirstChildElement("Waterfall");
@@ -406,7 +437,7 @@ void Config::calcOutputSamplerate() {
 		div *= 2;
 		if (sampleRate % div != 0) break;
 		else {
-			if (sampleRate / div <= 44000) break;
+			if (sampleRate / div <= 96000) break;
 		}
 	}
 	outputSamplerateDivider = div;

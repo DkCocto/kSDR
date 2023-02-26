@@ -11,11 +11,12 @@
 class AGC {
 
 private:
-    double threshold = 0.005;
+    double threshold = 0.05;
 
     double amp = 1;
 
     Average* averageAmp = new Average(15);
+    Average* avg = new Average(150);
 
     int count = 0;
 
@@ -35,6 +36,12 @@ public:
     AGC(Config* config, FFTSpectreHandler* fftSpectreHandler);
 
     double process(double signal);
+
+    double processNew(double signal);
+
+    void atack(double signal, double speed);
+
+    void releaseAtack(double signal, double speed);
 
     double getAmp();
 

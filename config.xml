@@ -11,7 +11,7 @@
 		2: rtlsdr
 		-->
         <type>1</type>
-        <decimation>2</decimation>
+        <decimation>1</decimation>
         <RSP>
             <!-- Total sampling rate = (deviceSamplingRate / deviceDecimationFactor) / decimation
              Example:
@@ -35,7 +35,7 @@
             <!-- 0 1 2 3 4-->
             <lnaGain>2</lnaGain>
             <!-- 0 .. 30 -->
-            <vgaGain>13</vgaGain>
+            <vgaGain>11</vgaGain>
             <!-- 0 .. 40 step 2-->
             <txAmp>20</txAmp>
         </HackRF>
@@ -45,34 +45,40 @@
         </RTL>
     </Device>
     <Receiver>
-        <startFreq>3700000</startFreq>
-        <lastSelectedFreq>3685290.5</lastSelectedFreq>
-        <volume>1.251</volume>
+        <startFreq>3356891</startFreq>
+        <lastSelectedFreq>3671200</lastSelectedFreq>
+        <volume>1.2309999</volume>
         <filterWidth>2700</filterWidth>
-        <!-- USB:0, LSB:1, AM:2, FM:3 -->
+        <!-- USB:0, LSB:1, AM:2, nFM:3 -->
         <modulation>1</modulation>
         <enableFrequencyShift>0</enableFrequencyShift>
         <frequencyShift>100000000</frequencyShift>
+        <Agc>
+            <threshold>0.060000001220032573</threshold>
+            <atackSpeedMs>1</atackSpeedMs>
+            <holdingTimeMs>500</holdingTimeMs>
+            <releaseSpeed>5.0000000000000002e-05</releaseSpeed>
+        </Agc>
     </Receiver>
     <Waterfall>
-        <min>-111.42949</min>
-        <max>-51.634178</max>
+        <min>-104.03674</min>
+        <max>-44.574654</max>
     </Waterfall>
     <Spectre>
-        <ratio>-18.778637</ratio>
-        <min>-114.39888</min>
-        <speed>12</speed>
+        <ratio>-20.447361</ratio>
+        <min>-107.18524</min>
+        <speed>14</speed>
         <!-- Must be a power of 2. The total will be fftLen = fftLen * 1024 -->
-        <fftLen>65536</fftLen>
-        <startBin>14745</startBin>
-        <stopBin>17464</stopBin>
+        <fftLen>131072</fftLen>
+        <startBin>36178</startBin>
+        <stopBin>39851</stopBin>
         <removeDCBias>1</removeDCBias>
     </Spectre>
     <ColorTheme>
-        <spectreFillColor>4288302153</spectreFillColor>
-        <spectreProfileColor>4290108112</spectreProfileColor>
+        <spectreFillColor>4286069305</spectreFillColor>
+        <spectreProfileColor>4290756800</spectreProfileColor>
         <mainBGColor>4281216558</mainBGColor>
-        <windowsBGColor>4281080595</windowsBGColor>
+        <windowsBGColor>4281015574</windowsBGColor>
         <windowsTitleBGColor>4284887578</windowsTitleBGColor>
     </ColorTheme>
 </Config>

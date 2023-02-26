@@ -65,7 +65,6 @@ void Spectre::draw() {
 	ImGuiIO& io = ImGui::GetIO();
 
 	ImGui::Begin("Spectre");
-
 		//Ќачальна¤ точка окна
 		ImVec2 startWindowPoint = ImGui::GetCursorScreenPos();
 
@@ -86,6 +85,11 @@ void Spectre::draw() {
 		ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
 		ImGui::BeginChild("Spectre1", ImVec2(ImGui::GetContentRegionAvail().x, spectreHeight), false, ImGuiWindowFlags_NoMove);
+
+		ImGui::SetCursorPos(ImVec2(spectreWidthInPX - 160, 0));
+		if (ImGui::Button("Waterfall Auto")) waterfallAutoColorCorrection(); ImGui::SameLine();
+		if (ImGui::Button("Spectre Auto")) spectreRatioAutoCorrection();
+		ImGui::SetCursorPos(ImVec2(0, 0));
 
 			storeSignaldB(fullSpectreData);
 

@@ -183,11 +183,9 @@ void Display::renderImGUIFirst() {
 		ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
 		if (ImGui::BeginTabBar("MyTabBar", tab_bar_flags)) {
 			if (ImGui::BeginTabItem("Controls")) {
-				if (ImGui::Button("Waterfall Auto")) spectre->waterfallAutoColorCorrection(); ImGui::SameLine();
-				if (ImGui::Button("Spectre Auto")) spectre->spectreRatioAutoCorrection();
 				ImGui::SliderInt("Frequency", &viewModel->centerFrequency, 1000000, 30000000);
 
-				ImGui::SliderInt("Filter width", &viewModel->filterWidth, 0, 300000);
+				ImGui::SliderInt("Filter width", &viewModel->filterWidth, 0, 12000);
 
 				ImGui::SliderFloat("Waterfall min", &viewModel->waterfallMin, -130, 0);
 
@@ -241,7 +239,7 @@ void Display::renderImGUIFirst() {
 				ImGui::RadioButton("USB", &viewModel->receiverMode, USB); ImGui::SameLine();
 				ImGui::RadioButton("LSB", &viewModel->receiverMode, LSB); ImGui::SameLine();
 				ImGui::RadioButton("AM", &viewModel->receiverMode, AM); ImGui::SameLine();
-				ImGui::RadioButton("FM", &viewModel->receiverMode, FM);
+				ImGui::RadioButton("nFM", &viewModel->receiverMode, nFM);
 
 				if (ImGui::Button("100")) {
 					viewModel->filterWidth = 100;
@@ -388,6 +386,13 @@ void Display::renderImGUIFirst() {
 				delete fftLenLS;
 
 				ImGui::Checkbox("Remove DC", &viewModel->removeDCBias);
+
+				ImGui::Text("\nAGC settings:");
+
+				ImGui::InputDouble("Sound threshold", &config->receiver.agc.threshold, 0.001f, 0.1f, "%.3f");
+				ImGui::InputDouble("Atack time (ms)", &config->receiver.agc.atackSpeedMs, 0.1f, 0.1f, "%.1f");
+				ImGui::InputDouble("Hold time (ms)", &config->receiver.agc.holdingTimeMs, 0.1f, 0.1f, "%.1f");
+				ImGui::InputDouble("Release time (ms)", &config->receiver.agc.releaseSpeed, 0.00001f, 0.1f, "%.7f");
 
 				ImGui::Text("\nColor theme:");
 

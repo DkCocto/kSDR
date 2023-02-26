@@ -105,7 +105,7 @@ void SoundProcessorThread::process() {
 							audioQ = firQ->proc(audioQ);
 							audio = sqrt(audioI * audioI + audioQ * audioQ);
 							break;
-						case FM:
+						case nFM:
 							audioI = firI->proc(audioI);
 							audioQ = firQ->proc(audioQ);
 							audio = fmDemodulator.demodulate(audioI, audioQ);
@@ -114,10 +114,11 @@ void SoundProcessorThread::process() {
 					}
 					//-------------------audio = audioFilter->filter(audio);
 					audio = fir->proc(audio);
-					audio = agc->process(audio);
+					//audio = agc->process(audio);
+					audio = agc->processNew(audio);
 					//Если AM, то немного усилим сигнал
-					if (mode == AM) audio *= 5.0f;
-					if (mode == FM) audio *= 5.0f;
+					if (mode == AM) audio *= 3.0f;
+					if (mode == nFM) audio *= 2.0f;
 					outputData[count] = audio * Display::instance->viewModel->volume;
 					count++;
 				}

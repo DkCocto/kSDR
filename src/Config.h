@@ -79,6 +79,14 @@ public:
 		int modulation = 1;
 		int frequencyShift = 0;
 		bool enableFrequencyShift = 0;
+
+		struct AGC {
+			double threshold = 0.01;
+			double atackSpeedMs = 1.0;
+			double holdingTimeMs = 100;
+			double releaseSpeed = 0.00005;
+		} agc;
+
 	} receiver;
 
 	enum DeviceType {
