@@ -56,3 +56,10 @@ bool Utils::parse_u32(char* s, uint32_t* const value) {
 		return false;
 	}
 }
+
+std::string Utils::getPrittyFreq(int freq) {
+	std::ostringstream ss;
+	ss.imbue(std::locale(std::locale::classic(), new MyNumPunct));
+	ss << freq;
+	return ss.str();
+}

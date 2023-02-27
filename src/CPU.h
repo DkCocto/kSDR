@@ -9,7 +9,7 @@ class CPU {
     int numProcessors;
     HANDLE self;
 
-    KalmanFilter* kalman = new KalmanFilter(1, 0.001);
+    KalmanFilter* kalman = new KalmanFilter(1, 0.01);
 
 public:
     CPU();

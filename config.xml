@@ -11,7 +11,7 @@
 		2: rtlsdr
 		-->
         <type>1</type>
-        <decimation>1</decimation>
+        <decimation>2</decimation>
         <RSP>
             <!-- Total sampling rate = (deviceSamplingRate / deviceDecimationFactor) / decimation
              Example:
@@ -20,9 +20,9 @@
             	decimation = 2
             	Total sampling rate = (2000000 / 2) / 2 = 500000 
 			-->
-            <deviceSamplingRate>6000000</deviceSamplingRate>
+            <deviceSamplingRate>4000000</deviceSamplingRate>
             <deviceDecimationFactor>1</deviceDecimationFactor>
-            <gain>59</gain>
+            <gain>43</gain>
             <!-- Api can be 2 (v2) and 3 (v3)-->
             <api>3</api>
             <disableLna>1</disableLna>
@@ -35,7 +35,7 @@
             <!-- 0 1 2 3 4-->
             <lnaGain>2</lnaGain>
             <!-- 0 .. 30 -->
-            <vgaGain>11</vgaGain>
+            <vgaGain>12</vgaGain>
             <!-- 0 .. 40 step 2-->
             <txAmp>20</txAmp>
         </HackRF>
@@ -45,33 +45,33 @@
         </RTL>
     </Device>
     <Receiver>
-        <startFreq>3356891</startFreq>
-        <lastSelectedFreq>3671200</lastSelectedFreq>
-        <volume>1.2309999</volume>
-        <filterWidth>2700</filterWidth>
+        <startFreq>3700000</startFreq>
+        <lastSelectedFreq>3667000</lastSelectedFreq>
+        <volume>1.2079999</volume>
+        <filterWidth>3200</filterWidth>
         <!-- USB:0, LSB:1, AM:2, nFM:3 -->
         <modulation>1</modulation>
         <enableFrequencyShift>0</enableFrequencyShift>
         <frequencyShift>100000000</frequencyShift>
         <Agc>
-            <threshold>0.060000001220032573</threshold>
-            <atackSpeedMs>1</atackSpeedMs>
+            <threshold>0.05000000074505806</threshold>
+            <atackSpeedMs>0.51000000745058061</atackSpeedMs>
             <holdingTimeMs>500</holdingTimeMs>
-            <releaseSpeed>5.0000000000000002e-05</releaseSpeed>
+            <releaseSpeed>5.0000003789318735e-05</releaseSpeed>
         </Agc>
     </Receiver>
     <Waterfall>
-        <min>-104.03674</min>
-        <max>-44.574654</max>
+        <min>-129.92354</min>
+        <max>-78.87616</max>
     </Waterfall>
     <Spectre>
-        <ratio>-20.447361</ratio>
-        <min>-107.18524</min>
-        <speed>14</speed>
+        <ratio>-58.940819</ratio>
+        <min>-132.36328</min>
+        <speed>18</speed>
         <!-- Must be a power of 2. The total will be fftLen = fftLen * 1024 -->
-        <fftLen>131072</fftLen>
-        <startBin>36178</startBin>
-        <stopBin>39851</stopBin>
+        <fftLen>65536</fftLen>
+        <startBin>15148</startBin>
+        <stopBin>20248</stopBin>
         <removeDCBias>1</removeDCBias>
     </Spectre>
     <ColorTheme>
@@ -80,5 +80,6 @@
         <mainBGColor>4281216558</mainBGColor>
         <windowsBGColor>4281015574</windowsBGColor>
         <windowsTitleBGColor>4284887578</windowsTitleBGColor>
+        <receiveRegionColor>2293836188</receiveRegionColor>
     </ColorTheme>
 </Config>

@@ -65,7 +65,7 @@ public:
 	float spectreRatio = 0;
 	float spectreMin = 0;
 	int spectreSpeed = 0;
-	float lastSelectedFreq = startFrequency;
+	float lastSelectedFreq = (float)startFrequency;
 	float volume = 1;
 
 	int filterWidth = defaultFilterWidth;
@@ -128,6 +128,7 @@ public:
 		unsigned int mainBGColor = 0xFFFFFFFF;
 		unsigned int windowsBGColor = 0xFFFFFFFF;
 		unsigned int windowsTitleBGColor = 0xFFFFFFFF;
+		unsigned int receiveRegionColor = 0xFFFFFFFF;
 	} colorTheme;
 
 	//--------------------------------------

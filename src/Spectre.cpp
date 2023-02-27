@@ -6,6 +6,8 @@
 #define BLUE						IM_COL32(88, 88, 231, 255)
 #define GREEN						IM_COL32(0, 204, 0, 80)
 
+#define BASE_COLOR					IM_COL32(10, 10, 10, 100)
+
 #define VIOLET						IM_COL32(72, 3, 111, 160)
 #define RED							IM_COL32(166, 0, 0, 80)
 #define YELLOW						IM_COL32(255, 255, 0, 255)
@@ -17,9 +19,9 @@
 #define SPECTRE_DB_MARK_COUNT		10
 
 //Upper right (spectreX1, spectreY1), down left (spectreX2, spectreY2)
-bool Spectre::isMouseOnSpectreRegion(int spectreX1, int spectreY1, int spectreX2, int spectreY2) {
+bool Spectre::isMouseOnRegion(int X1, int Y1, int X2, int Y2) {
 	ImGuiIO& io = ImGui::GetIO();
-	if (io.MousePos.x >= spectreX1 && io.MousePos.x <= spectreX2 && io.MousePos.y >= spectreY1 && io.MousePos.y <= spectreY2) return true;
+	if (io.MousePos.x >= X1 && io.MousePos.x <= X2 && io.MousePos.y >= Y1 && io.MousePos.y <= Y2) return true;
 	return false;
 }
 
@@ -217,24 +219,19 @@ void Spectre::draw() {
 				ImVec2(startWindowPoint.x + rightPadding + receiverLogicNew->getPositionPX(), startWindowPoint.y + windowLeftBottomCorner.y + 10),
 				GRAY, 2.0f);
 
-			std::string freq = std::to_string((int)receiverLogicNew->getSelectedFreqNew());
-			const char* t2 = " Hz";
-
-			char* s = new char[freq.length() + strlen(t2) + 1];
-			strcpy(s, freq.c_str());
-			strcat(s, t2);
+			std::string freq = (Utils::getPrittyFreq((int)receiverLogicNew->getSelectedFreqNew())).append(" Hz");
 
 			ImGui::PushFont(viewModel->fontBigRegular);
 			draw_list->AddText(
 				ImVec2(
 					startWindowPoint.x + rightPadding + receiverLogicNew->getPositionPX() + 20,
-					startWindowPoint.y + 10
+					startWindowPoint.y + 22
 				),
 				IM_COL32_WHITE,
-				s
+				freq.c_str()
 			);
 			ImGui::PopFont();
-			delete[] s;
+			//delete[] s;
 
 			float delta = receiverLogicNew->getFilterWidthAbs(viewModel->filterWidth);
 
@@ -244,7 +241,7 @@ void Spectre::draw() {
 				draw_list->AddRectFilled(
 					ImVec2(startWindowPoint.x + rightPadding + receiverLogicNew->getPositionPX(), startWindowPoint.y - 10),
 					ImVec2(startWindowPoint.x + rightPadding + receiverLogicNew->getPositionPX() + delta, startWindowPoint.y + windowLeftBottomCorner.y + 10),
-					RED, 0);
+					config->colorTheme.receiveRegionColor, 0);
 
 				break;
 			case LSB:
@@ -252,7 +249,7 @@ void Spectre::draw() {
 				draw_list->AddRectFilled(
 					ImVec2(startWindowPoint.x + rightPadding + receiverLogicNew->getPositionPX() - delta, startWindowPoint.y - 10),
 					ImVec2(startWindowPoint.x + rightPadding + receiverLogicNew->getPositionPX(), startWindowPoint.y + windowLeftBottomCorner.y + 10),
-					RED, 0);
+					config->colorTheme.receiveRegionColor, 0);
 
 				break;
 			case AM:
@@ -260,12 +257,14 @@ void Spectre::draw() {
 				draw_list->AddRectFilled(
 					ImVec2(startWindowPoint.x + rightPadding + receiverLogicNew->getPositionPX() - delta, startWindowPoint.y - 10),
 					ImVec2(startWindowPoint.x + rightPadding + receiverLogicNew->getPositionPX() + delta, startWindowPoint.y + windowLeftBottomCorner.y + 10),
-					RED, 0);
+					config->colorTheme.receiveRegionColor, 0);
 
 				break;
 			}
 			//--
 		ImGui::EndChild();
+
+		drawFreqPointerMark(startWindowPoint, windowLeftBottomCorner, spectreWidthInPX, draw_list);
 
 	ImGui::End();
 	countFrames++;
@@ -283,10 +282,7 @@ void Spectre::storeSignaldB(float* spectreData) {
 
 	float sum = 0.0;
 	int len = r.B - r.A;
-	//printf("%i %i\r\n", r.A, r.B);
 	if (len > 0) {
-		//Utils::printArray(spectre, 64);
-		//printf("%i %i\r\n", r.A, r.B);
 
 		float max = -1000.0;
 
@@ -316,7 +312,7 @@ Spectre::MIN_MAX Spectre::getMinMaxInSpectre(std::vector<float> spectreData, int
 }
 
 void Spectre::handleEvents(ImVec2 startWindowPoint, ImVec2 windowLeftBottomCorner, int spectreWidthInPX) {
-	bool isMouseOnSpectre = isMouseOnSpectreRegion(startWindowPoint.x + rightPadding, startWindowPoint.y, startWindowPoint.x + windowLeftBottomCorner.x - leftPadding, startWindowPoint.y + windowLeftBottomCorner.y);
+	bool isMouseOnSpectre = isMouseOnRegion(startWindowPoint.x + rightPadding, startWindowPoint.y, startWindowPoint.x + windowLeftBottomCorner.x - leftPadding, startWindowPoint.y + windowLeftBottomCorner.y);
 	
 	ImGuiIO& io = ImGui::GetIO();
 	if (!viewModel->mouseBusy && isMouseOnSpectre) {
@@ -423,10 +419,11 @@ void Spectre::drawFreqMarks(ImDrawList* draw_list, ImVec2 startWindowPoint, ImVe
 
 	for (int i = 0; i <= markCount; i++) {
 		if (i % SPECTRE_FREQ_MARK_COUNT_DIV == 0) {
+			//std::to_string().c_str()
 			draw_list->AddText(
-				ImVec2(startWindowPoint.x + rightPadding + i * stepInPX - 20.0, startWindowPoint.y + spectreHeight + 10.0),
+				ImVec2(startWindowPoint.x + rightPadding + i * stepInPX - 30.0, startWindowPoint.y + spectreHeight + 10.0),
 				IM_COL32_WHITE,
-				std::to_string((int)(flowingFFTSpectre->getVisibleStartFrequency() + (float)i * freqStep)).c_str()
+				Utils::getPrittyFreq((int)(flowingFFTSpectre->getVisibleStartFrequency() + (float)i * freqStep)).c_str()
 			);
 			draw_list->AddLine(
 				ImVec2(startWindowPoint.x + rightPadding + i * stepInPX, startWindowPoint.y + spectreHeight - 2),
@@ -443,4 +440,46 @@ void Spectre::drawFreqMarks(ImDrawList* draw_list, ImVec2 startWindowPoint, ImVe
 		}
 	}
 	//-----------------------------
+}
+
+void Spectre::drawFreqPointerMark(ImVec2 startWindowPoint, ImVec2 windowLeftBottomCorner, int spectreWidthInPX, ImDrawList* draw_list) {
+	ImGuiIO& io = ImGui::GetIO();
+	
+	int baseX = 20;
+	int baseY = 20;
+	int baseWidth = 130;
+	int baseHeight = 40;
+
+	if (!viewModel->mouseBusy && 
+		isMouseOnRegion(startWindowPoint.x + rightPadding, startWindowPoint.y, startWindowPoint.x + windowLeftBottomCorner.x - leftPadding, startWindowPoint.y + windowLeftBottomCorner.y) == true &&
+		io.MousePos.y < startWindowPoint.y + windowLeftBottomCorner.y - baseHeight - 10) {
+
+
+		ImVec2 lineX1(
+			io.MousePos.x + baseX,
+			io.MousePos.y + baseY
+		);
+		ImVec2 lineX2(
+			io.MousePos.x + baseX + baseWidth,
+			io.MousePos.y + baseY
+		);
+
+		ImVec2 lineX3(
+			io.MousePos.x + baseX + baseWidth,
+			io.MousePos.y + baseY + baseHeight
+		);
+
+		ImVec2 lineX4(
+			io.MousePos.x + baseX,
+			io.MousePos.y + baseY + baseHeight
+		);
+
+		ImVec2* polygon = new ImVec2[]{ lineX1 , lineX2 , lineX3 , lineX4 };
+
+		draw_list->AddConvexPolyFilled(polygon, 4, BASE_COLOR);
+
+		ImGui::SetCursorPos(ImVec2(io.MousePos.x - (startWindowPoint.x + rightPadding) + 105, io.MousePos.y - startWindowPoint.y + 62));
+		ImGui::Text(Utils::getPrittyFreq((int)receiverLogicNew->getFreqByPosOnSpectrePx(io.MousePos.x - (startWindowPoint.x + rightPadding))).c_str());
+		ImGui::SetCursorPos(ImVec2(0, 0));
+	}
 }

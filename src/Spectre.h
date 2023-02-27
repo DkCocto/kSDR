@@ -51,6 +51,8 @@ private:
 
 	void drawFreqMarks(ImDrawList* draw_list, ImVec2 startWindowPoint, ImVec2 windowLeftBottomCorner, int spectreWidthInPX, int spectreHeight);
 
+	void drawFreqPointerMark(ImVec2 startWindowPoint, ImVec2 windowLeftBottomCorner, int spectreWidthInPX, ImDrawList* draw_list);
+
 public:
 
 	MIN_MAX getMinMaxInSpectre();
@@ -62,7 +64,7 @@ public:
 
 	void storeSignaldB(float* spectreData);
 
-	bool isMouseOnSpectreRegion(int spectreX1, int spectreY1, int spectreX2, int spectreY2);
+	bool isMouseOnRegion(int spectreX1, int spectreY1, int spectreX2, int spectreY2);
 
 	WINDOW_FRAME windowFrame{ ImVec2(0, 0), ImVec2(0, 0) };
 

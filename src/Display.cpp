@@ -1,7 +1,5 @@
 #include "Display.h"
 
-#include "format"
-
 void Display::framebufferReSizeCallback(GLFWwindow* window, int width, int height) {
 	glViewport(0, 0, width, height);
 	if (Display::instance != NULL) {
@@ -88,6 +86,18 @@ int Display::init() {
 
 	glLineWidth(1.5);
 
+	int channels, width, height;
+	unsigned char* pixels = stbi_load("icon.png", &width, &height, &channels, 4); //rgba channels 
+	
+	GLFWimage images[1];
+	images[0].width = width;
+	images[0].height = height;
+	images[0].pixels = pixels;
+
+	glfwSetWindowIcon(window, 1, images);
+	
+	stbi_image_free(images[0].pixels);
+
 	ImGuiIO& io = ImGui::GetIO();
 	io.FontGlobalScale = 1;
 
@@ -164,7 +174,7 @@ void Display::renderImGUIFirst() {
 
 	//Проверка которая исключает настройку приемника при перетягивании стороннего окна в область окна спектра
 	if (ImGui::IsMouseDown(0)) {
-		if (!spectre->isMouseOnSpectreRegion(
+		if (!spectre->isMouseOnRegion(
 			spectre->windowFrame.UPPER_RIGHT.x,
 			spectre->windowFrame.UPPER_RIGHT.y,
 			spectre->windowFrame.BOTTOM_LEFT.x,
@@ -371,7 +381,7 @@ void Display::renderImGUIFirst() {
 					delete rspDecimationFactorLS;
 
 					bool useRspApiv3 = (config->rsp.api == 3) ? true : false;
-					ImGui::Checkbox("Use APIv3 (instead of v2)", &useRspApiv3);
+					ImGui::Checkbox("Use APIv3 (instead of v2) (*)", &useRspApiv3);
 					config->rsp.api = (useRspApiv3 == true) ? 3 : 2;
 				}
 
@@ -380,6 +390,22 @@ void Display::renderImGUIFirst() {
 				ImGui::InputInt("Shift in Hz", &config->receiver.frequencyShift);
 				ImGui::Checkbox("Enable shift", &config->receiver.enableFrequencyShift);
 
+				ImGui::Text("\nAGC settings:");
+
+				ImGui::InputDouble("Sound threshold", &config->receiver.agc.threshold, 0.001f, 0.1f, "%.3f");
+				ImGui::InputDouble("Atack time (ms)", &config->receiver.agc.atackSpeedMs, 0.1f, 0.1f, "%.1f");
+				ImGui::InputDouble("Hold time (ms)", &config->receiver.agc.holdingTimeMs, 0.1f, 0.1f, "%.1f");
+				ImGui::InputDouble("Release time", &config->receiver.agc.releaseSpeed, 0.00001f, 0.1f, "%.7f");
+
+				ImGui::Text("\nColor theme:");
+
+				showColorPicker(string("Windows Background"), &config->colorTheme.windowsBGColor, false);
+				showColorPicker(string("Main Background"), &config->colorTheme.mainBGColor, false);
+				//showColorPicker(string("Window Title Background"), &config->colorTheme.windowsTitleBGColor);
+				showColorPicker(string("Spectre Fill"), &config->colorTheme.spectreFillColor, false);
+				showColorPicker(string("Spectre Profile"), &config->colorTheme.spectreProfileColor, false);
+				showColorPicker(string("Receive Region"), &config->colorTheme.receiveRegionColor, true);
+
 				ImGui::Text("\nOther:");
 
 				fftLenLS->drawSetting();
@@ -387,23 +413,20 @@ void Display::renderImGUIFirst() {
 
 				ImGui::Checkbox("Remove DC", &viewModel->removeDCBias);
 
-				ImGui::Text("\nAGC settings:");
+				ImGui::EndTabItem();
+			}
 
-				ImGui::InputDouble("Sound threshold", &config->receiver.agc.threshold, 0.001f, 0.1f, "%.3f");
-				ImGui::InputDouble("Atack time (ms)", &config->receiver.agc.atackSpeedMs, 0.1f, 0.1f, "%.1f");
-				ImGui::InputDouble("Hold time (ms)", &config->receiver.agc.holdingTimeMs, 0.1f, 0.1f, "%.1f");
-				ImGui::InputDouble("Release time (ms)", &config->receiver.agc.releaseSpeed, 0.00001f, 0.1f, "%.7f");
+			if (ImGui::BeginTabItem("About")) {
+				string msg;
+				msg.append(APP_NAME).append("\n\n");
+				msg.append("For all questions related to our software,\nplease contact our email box: dkcocto@gmail.com.\n\n");
+				msg.append("We will be glad to hear your wishes and suggestions.");
 
-				ImGui::Text("\nColor theme:");
-
-				showColorPicker(string("Windows Background"), &config->colorTheme.windowsBGColor);
-				showColorPicker(string("Main Background"), &config->colorTheme.mainBGColor);
-				//showColorPicker(string("Window Title Background"), &config->colorTheme.windowsTitleBGColor);
-				showColorPicker(string("Spectre Fill"), &config->colorTheme.spectreFillColor);
-				showColorPicker(string("Spectre Profile"), &config->colorTheme.spectreProfileColor);
+				ImGui::Text(msg.c_str());
 
 				ImGui::EndTabItem();
 			}
+
 			ImGui::EndTabBar();
 		}
 		ImGui::Separator();
@@ -499,7 +522,7 @@ void Display::showAlertOKDialog(std::string title, std::string msg) {
 	}
 }
 
-void Display::showColorPicker(string title, unsigned int *configVal) {
+void Display::showColorPicker(string title, unsigned int *configVal, bool withTransparency) {
 	static bool hdr = false;
 	static bool drag_and_drop = false;
 	static bool alpha_half_preview = false;
@@ -511,7 +534,11 @@ void Display::showColorPicker(string title, unsigned int *configVal) {
 
 	ImVec4 color = ImGui::ColorConvertU32ToFloat4(*configVal);
 
-	ImGui::ColorEdit3(title.c_str(), (float*)&color, misc_flags);
+	if (!withTransparency) {
+		ImGui::ColorEdit3(title.c_str(), (float*)&color, misc_flags);
+	} else {
+		ImGui::ColorEdit4(title.c_str(), (float*)&color, misc_flags);
+	}
 
 	//unsigned long rgb = (r<<16)|(g<<8)|b; 
 

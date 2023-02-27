@@ -1,4 +1,4 @@
-#pragma once;
+#pragma once
 
 #include "Hackrf.h"
 #include "FlowingFFTSpectre.h"
@@ -17,6 +17,8 @@
 #include "functional"
 #include "map"
 #include "RTLDevice.h"
+
+#include <stb/stb_image.h>
 
 class Display {
 
@@ -52,7 +54,7 @@ private:
 
 	void initSettings();
 
-	void showColorPicker(string title, unsigned int* configVal);
+	void showColorPicker(string title, unsigned int* configVal, bool withTransparency);
 
 public:
 

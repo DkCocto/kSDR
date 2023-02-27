@@ -79,17 +79,15 @@ void FFTSpectreHandler::putData(float* data) {
 float* FFTSpectreHandler::getOutputCopy(int startPos, int len) {
 	//memset(dataCopy, 0.001, sizeof(float) * len);
 
-	//spectreDataMutex.lock();
+	spectreDataMutex.lock();
 	float* output = getOutput();
 	//float* output = &myQueueDisplay.front()[0];
-
-	int spectreSize = getSpectreSize();
 
 	float* buffer = new float[spectreSize];
 	memcpy(buffer, output + (spectreSize / 2), sizeof(output) * (spectreSize / 2));
 	memcpy(buffer + (spectreSize / 2), output, sizeof(output) * (spectreSize / 2));
 
-	//spectreDataMutex.unlock();
+	spectreDataMutex.unlock();
 
 	float* dataCopy = new float[len];
 

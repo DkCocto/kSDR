@@ -193,7 +193,7 @@ void Config::load() {
             spectreMin = std::stof(std::string(pspectreMin->GetText()));
 
             tinyxml2::XMLElement* pspeed = pSpectre->FirstChildElement("speed");
-            spectreSpeed = std::stof(std::string(pspeed->GetText()));
+            spectreSpeed = std::stoi(std::string(pspeed->GetText()));
 
             tinyxml2::XMLElement* pfftLen = pSpectre->FirstChildElement("fftLen");
             fftLen = std::stoi(std::string(pfftLen->GetText()));
@@ -233,6 +233,9 @@ void Config::load() {
 
             tinyxml2::XMLElement* pwindowsTitleBGColor = pColorTheme->FirstChildElement("windowsTitleBGColor");
             colorTheme.windowsTitleBGColor = std::stoll(std::string(pwindowsTitleBGColor->GetText()));
+
+            tinyxml2::XMLElement* preceiveRegionColor = pColorTheme->FirstChildElement("receiveRegionColor");
+            colorTheme.receiveRegionColor = std::stoll(std::string(preceiveRegionColor->GetText()));
         }
     } else {
         printf("Config file not found!");
@@ -404,6 +407,9 @@ void Config::save() {
 
             tinyxml2::XMLElement* pwindowsTitleBGColor = pColorTheme->FirstChildElement("windowsTitleBGColor");
             pwindowsTitleBGColor->SetText(colorTheme.windowsTitleBGColor);
+
+            tinyxml2::XMLElement* preceiveRegionColor = pColorTheme->FirstChildElement("receiveRegionColor");
+            preceiveRegionColor->SetText(colorTheme.receiveRegionColor);
         }
 
         doc.SaveFile(CONFIG_FILENAME);

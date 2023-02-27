@@ -22,14 +22,14 @@ void SMeter::drawGrid(ImDrawList* draw_list) {
 	width = canvas_sz.x - 2 * x;
 
 	//Верхняя линия s метра часть белая
-	draw_list->AddLine(ImVec2(canvas_p0.x + x, canvas_p0.y + y), ImVec2(canvas_p0.x + width + x - step * 6, canvas_p0.y + y), IM_COL32_WHITE, 1.0f);
+	draw_list->AddLine(ImVec2(canvas_p0.x + x, canvas_p0.y + y), ImVec2(canvas_p0.x + width + x - step * 6.0, canvas_p0.y + y), IM_COL32_WHITE, 1.0f);
 	//Верхняя линия s метра часть где сигнал зашкаливает
-	draw_list->AddLine(ImVec2(canvas_p0.x + x + step * 9, canvas_p0.y + y), ImVec2(canvas_p0.x + width + x, canvas_p0.y + y), RED, 1.0f);
+	draw_list->AddLine(ImVec2(canvas_p0.x + x + step * 9.0, canvas_p0.y + y), ImVec2(canvas_p0.x + width + x, canvas_p0.y + y), RED, 1.0f);
 
 	//Нижняя линия s метра часть белая
-	draw_list->AddLine(ImVec2(canvas_p0.x + x, canvas_p0.y + y + LEVEL_THICKNESS + LEVEL_PADDING_TOP + LEVEL_PADDING_BOTTOM), ImVec2(canvas_p0.x + width + x - step * 6, canvas_p0.y + y + LEVEL_THICKNESS + LEVEL_PADDING_BOTTOM + LEVEL_PADDING_TOP), IM_COL32_WHITE, 1.0f);
+	draw_list->AddLine(ImVec2(canvas_p0.x + x, canvas_p0.y + y + LEVEL_THICKNESS + LEVEL_PADDING_TOP + LEVEL_PADDING_BOTTOM), ImVec2(canvas_p0.x + width + x - step * 6.0, canvas_p0.y + y + LEVEL_THICKNESS + LEVEL_PADDING_BOTTOM + LEVEL_PADDING_TOP), IM_COL32_WHITE, 1.0f);
 	//Нижняя линия s метра часть где сигнал зашкаливает
-	draw_list->AddLine(ImVec2(canvas_p0.x + x + step * 9, canvas_p0.y + y + LEVEL_THICKNESS + LEVEL_PADDING_TOP + LEVEL_PADDING_BOTTOM), ImVec2(canvas_p0.x + width + x, canvas_p0.y + y + LEVEL_THICKNESS + LEVEL_PADDING_BOTTOM + LEVEL_PADDING_TOP), RED, 1.0f);
+	draw_list->AddLine(ImVec2(canvas_p0.x + x + step * 9.0, canvas_p0.y + y + LEVEL_THICKNESS + LEVEL_PADDING_TOP + LEVEL_PADDING_BOTTOM), ImVec2(canvas_p0.x + width + x, canvas_p0.y + y + LEVEL_THICKNESS + LEVEL_PADDING_BOTTOM + LEVEL_PADDING_TOP), RED, 1.0f);
 
 	for (int i = 0; i <= 15; i++) {
 		if (i == 0 || i % 2 != 0) {
@@ -159,16 +159,16 @@ const char * SMeter::getLevelDecodedString(double dBValue) {
 	int level = (int)fromdBToLevel(dBValue);
 
 	if (level <= 1) return "S0";
-	if (level >= 1 && level < 2) return "S1";
-	if (level >= 2 && level < 3) return "S2";
-	if (level >= 3 && level < 4) return "S3";
-	if (level >= 4 && level < 5) return "S4";
-	if (level >= 5 && level < 6) return "S5";
-	if (level >= 6 && level < 7) return "S6";
-	if (level >= 7 && level < 8) return "S7";
-	if (level >= 8 && level < 9) return "S8";
-	if (level >= 9 && level < 10) return "S9";
-	if (level >= 10) return "S9++";
+	else if (level >= 1 && level < 2) return "S1";
+	else if (level >= 2 && level < 3) return "S2";
+	else if (level >= 3 && level < 4) return "S3";
+	else if (level >= 4 && level < 5) return "S4";
+	else if (level >= 5 && level < 6) return "S5";
+	else if (level >= 6 && level < 7) return "S6";
+	else if (level >= 7 && level < 8) return "S7";
+	else if (level >= 8 && level < 9) return "S8";
+	else if (level >= 9 && level < 10) return "S9";
+	else return "S9++";
 }
 
 SMeter::SMeter(double offsetX, double offsetY, double width, double height) {

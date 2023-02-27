@@ -20,17 +20,6 @@ private:
 	float receiverPosOnBin = 0; //позиция на которой находится маркер приёма в виде номера spectre data bin 
 	int savedPositionDelta = 0;
 
-	//float spectreWidth = 0; //Ширина спектра в пикселях
-	//Позиция приёма на текущем спектре
-	//float position = 0;
-
-	//int selectedBin = 0;
-
-	//int delta = 0;
-	
-
-
-
 public:
 
 	ReceiverLogicNew(Config* config, ViewModel* viewModel, FlowingFFTSpectre* flowingFFTSpectre);
@@ -53,16 +42,11 @@ public:
 
 	float getPositionOnBin();
 
-	//void setPosition(float position, bool withoutDelta);
-
 	void updateSpectreWidth(float oldSpectreWidth, float newSpectreWidth);
 
 	float getFilterWidthAbs(int filterWidth);
 
-	//float getSelectedFreq();
-
-	//int getPosition();
-	//void saveDelta(int x);
+	float getFreqByPosOnSpectrePx(int px);
 
 	struct ReceiveBinArea {
 		int A;
@@ -70,7 +54,4 @@ public:
 	};
 
 	ReceiveBinArea getReceiveBinsArea(int filterWidth, int receiverMode);
-
-	//void setFreq(float freq);
-
 };

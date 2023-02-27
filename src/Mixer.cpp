@@ -14,7 +14,7 @@ void Mixer::setFreq(int freq) {
 Signal Mixer::mix(double I, double Q) {
 	complexSignal = complexOscillator->next();
 	complexSignal->normalize();
-	Signal signal{ I * complexSignal->I + Q * complexSignal->Q , Q * complexSignal->I - I * complexSignal->Q };
+	Signal signal{ (float)(I * complexSignal->I + Q * complexSignal->Q) , (float)(Q * complexSignal->I - I * complexSignal->Q) };
 	delete complexSignal;
 	return signal;
 }

@@ -95,7 +95,6 @@ ReceiverLogicNew::ReceiveBinArea ReceiverLogicNew::getReceiveBinsArea(int filter
 		case USB:
 			A = receiverPosOnBin;
 			B = A + deltaBin; // (receiverPosOnPx + filterWidthPX) / (spectreWidthPx / totalBin);
-			//printf("%i %i delta=%i\r\n", A, B, deltaBin);
 			if (B > totalBin) B = totalBin;
 			break;
 		case LSB:
@@ -118,4 +117,10 @@ ReceiverLogicNew::ReceiveBinArea ReceiverLogicNew::getReceiveBinsArea(int filter
 float ReceiverLogicNew::getFilterWidthAbs(int filterWidth) {
 	FlowingFFTSpectre::FREQ_RANGE freqRange = flowingFFTSpectre->getVisibleFreqRangeFromSamplerate();
 	return ((float)filterWidth * spectreWidthPx) / (freqRange.second - freqRange.first);
+}
+
+float ReceiverLogicNew::getFreqByPosOnSpectrePx(int px) {
+	FlowingFFTSpectre::FREQ_RANGE freqRange = flowingFFTSpectre->getVisibleFreqsRangeAbsolute();
+	double freq = round((int)freqRange.first + (px * ((int)freqRange.second - (int)freqRange.first)) / (int)spectreWidthPx);
+	return freq;
 }

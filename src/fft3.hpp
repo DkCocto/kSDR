@@ -80,8 +80,8 @@ void fft_core(float* input_real, float* input_imag, uint64_t size, uint64_t gap,
             float b_real = output_real[i+size/2];
             float b_imag = output_imag[i+size/2];
             
-            float twiddle_real = cos(2*M_PI*i/size);
-            float twiddle_imag = sin(2*M_PI*i/size)*(forwards?-1:1);
+            float twiddle_real = (float)cos(2*M_PI*i/size);
+            float twiddle_imag = (float)sin(2*M_PI*i/size)*(forwards?-1:1);
             // complex multiplication (vector angle summing and length multiplication)
             float bias_real = b_real*twiddle_real - b_imag*twiddle_imag;
             float bias_imag = b_imag*twiddle_real + b_real*twiddle_imag;
@@ -111,8 +111,8 @@ void half_normalize_fft(float* input_real, float* input_imag, uint64_t size)
 {
     for(uint64_t i = 0; i < size; i++)
     {
-        input_real[i] /= sqrt(size);
-        input_imag[i] /= sqrt(size);
+        input_real[i] /= sqrt((double)size);
+        input_imag[i] /= sqrt((double)size);
     }
 }
 void fft3(float* input_real, float* input_imag, uint64_t size, float* output_real, float* output_imag)
