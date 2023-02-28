@@ -35,7 +35,7 @@
             <!-- 0 1 2 3 4-->
             <lnaGain>2</lnaGain>
             <!-- 0 .. 30 -->
-            <vgaGain>12</vgaGain>
+            <vgaGain>9</vgaGain>
             <!-- 0 .. 40 step 2-->
             <txAmp>20</txAmp>
         </HackRF>
@@ -45,33 +45,33 @@
         </RTL>
     </Device>
     <Receiver>
-        <startFreq>3700000</startFreq>
-        <lastSelectedFreq>3667000</lastSelectedFreq>
+        <startFreq>7100000</startFreq>
+        <lastSelectedFreq>7065000</lastSelectedFreq>
         <volume>1.2079999</volume>
-        <filterWidth>3200</filterWidth>
+        <filterWidth>2700</filterWidth>
         <!-- USB:0, LSB:1, AM:2, nFM:3 -->
         <modulation>1</modulation>
         <enableFrequencyShift>0</enableFrequencyShift>
         <frequencyShift>100000000</frequencyShift>
         <Agc>
             <threshold>0.05000000074505806</threshold>
-            <atackSpeedMs>0.51000000745058061</atackSpeedMs>
+            <atackSpeedMs>0.29999999999999999</atackSpeedMs>
             <holdingTimeMs>500</holdingTimeMs>
             <releaseSpeed>5.0000003789318735e-05</releaseSpeed>
         </Agc>
     </Receiver>
     <Waterfall>
-        <min>-129.92354</min>
-        <max>-78.87616</max>
+        <min>-134.36244</min>
+        <max>-64.128349</max>
     </Waterfall>
     <Spectre>
-        <ratio>-58.940819</ratio>
-        <min>-132.36328</min>
-        <speed>18</speed>
+        <ratio>-27.612762</ratio>
+        <min>-135.71472</min>
+        <speed>14</speed>
         <!-- Must be a power of 2. The total will be fftLen = fftLen * 1024 -->
         <fftLen>65536</fftLen>
-        <startBin>15148</startBin>
-        <stopBin>20248</stopBin>
+        <startBin>14626</startBin>
+        <stopBin>17556</stopBin>
         <removeDCBias>1</removeDCBias>
     </Spectre>
     <ColorTheme>

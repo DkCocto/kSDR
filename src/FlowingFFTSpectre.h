@@ -61,6 +61,8 @@ public:
 
 	float getFreqOfOneSpectreBin();
 
+	void setReceivedFreqToSpectreCenter();
+
 	//desiredBins should be div by 2
 	std::vector<float> getReducedSpectre(float* fullSpectreData, int fullSpectreDataLen, int desiredBins);
 

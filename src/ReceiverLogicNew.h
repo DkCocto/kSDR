@@ -48,6 +48,8 @@ public:
 
 	float getFreqByPosOnSpectrePx(int px);
 
+	void setReceivedFreqToSpectreCenter();
+
 	struct ReceiveBinArea {
 		int A;
 		int B;

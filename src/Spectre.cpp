@@ -88,9 +88,10 @@ void Spectre::draw() {
 
 		ImGui::BeginChild("Spectre1", ImVec2(ImGui::GetContentRegionAvail().x, spectreHeight), false, ImGuiWindowFlags_NoMove);
 
-		ImGui::SetCursorPos(ImVec2(spectreWidthInPX - 160, 0));
+		ImGui::SetCursorPos(ImVec2(spectreWidthInPX - 200, 0));
 		if (ImGui::Button("Waterfall Auto")) waterfallAutoColorCorrection(); ImGui::SameLine();
-		if (ImGui::Button("Spectre Auto")) spectreRatioAutoCorrection();
+		if (ImGui::Button("Spectre Auto")) spectreRatioAutoCorrection(); ImGui::SameLine();
+		if (ImGui::Button("<|>")) receiverLogicNew->setReceivedFreqToSpectreCenter();
 		ImGui::SetCursorPos(ImVec2(0, 0));
 
 			storeSignaldB(fullSpectreData);
@@ -170,7 +171,7 @@ void Spectre::draw() {
 				int dbMark = (int)round(veryMinSpectreVal + i * stepdB);
 				if (dbMark <= 0) {
 					draw_list->AddText(
-						ImVec2(startWindowPoint.x + rightPadding - 35, startWindowPoint.y + spectreHeight - i * stepInPX - 15),
+						ImVec2(startWindowPoint.x + rightPadding - 40, startWindowPoint.y + spectreHeight - i * stepInPX - 15),
 						IM_COL32_WHITE,
 						std::to_string(dbMark).c_str()
 					);

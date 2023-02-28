@@ -197,9 +197,9 @@ void Display::renderImGUIFirst() {
 
 				ImGui::SliderInt("Filter width", &viewModel->filterWidth, 0, 12000);
 
-				ImGui::SliderFloat("Waterfall min", &viewModel->waterfallMin, -130, 0);
+				ImGui::SliderFloat("Waterfall min", &viewModel->waterfallMin, -150, 0);
 
-				ImGui::SliderFloat("Waterfall max", &viewModel->waterfallMax, -130, 0);
+				ImGui::SliderFloat("Waterfall max", &viewModel->waterfallMax, -150, 30);
 
 				ImGui::SliderFloat("Spectre ratio", &viewModel->ratio, -200, 100);
 

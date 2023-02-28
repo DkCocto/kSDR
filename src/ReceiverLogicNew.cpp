@@ -8,6 +8,10 @@ float ReceiverLogicNew::getCenterFrequency() {
 	return this->centerFrequency;
 }
 
+/// <summary>
+/// Set frequency delta
+/// </summary>
+/// <param name="frequencyDelta"></param>
 void ReceiverLogicNew::setFrequencyDelta(float frequencyDelta) {
 	this->frequencyDelta = frequencyDelta;
 
@@ -123,4 +127,20 @@ float ReceiverLogicNew::getFreqByPosOnSpectrePx(int px) {
 	FlowingFFTSpectre::FREQ_RANGE freqRange = flowingFFTSpectre->getVisibleFreqsRangeAbsolute();
 	double freq = round((int)freqRange.first + (px * ((int)freqRange.second - (int)freqRange.first)) / (int)spectreWidthPx);
 	return freq;
+}
+
+void ReceiverLogicNew::setReceivedFreqToSpectreCenter() {
+	int spectreLenBin = flowingFFTSpectre->getLen();
+	int positionOnBin = getPositionOnBin();
+
+	int totalSpectreSize = flowingFFTSpectre->getSpectreHandler()->getSpectreSize();
+
+	int delta = spectreLenBin / 2;
+
+	int B = (positionOnBin + delta < totalSpectreSize) ? positionOnBin + delta : totalSpectreSize;
+	int A = (positionOnBin - delta >= 0) ? positionOnBin - delta : 0;
+
+	flowingFFTSpectre->setPos(A, B);
+
+	setFreq(getSelectedFreqNew());
 }
