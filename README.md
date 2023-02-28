@@ -3,7 +3,7 @@ Simple Fast SDR receiver app with OpenGL support
 
 Demo video: <br>
 
-https://www.youtube.com/watch?v=dhKHVnkqCZA
+https://youtu.be/4ObKWxbEVy8
 
 ![screen](https://user-images.githubusercontent.com/5113949/221380701-bf05f874-b837-4bfe-bb12-778277fea342.jpg)
 
