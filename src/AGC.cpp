@@ -2,7 +2,7 @@
 #include <ctime>
 #include "Compressor/SimpleComp.h"
 
-KalmanFilter kf(1, 0.00000009);
+//KalmanFilter kf(1, 0.00000009);
 
 AGC::AGC(Config* config, FFTSpectreHandler* fftSpectreHandler) {
     this->fftSpectreHandler = fftSpectreHandler;
@@ -41,7 +41,7 @@ int savedClock = 0;*/
     return signal * savedAmp;
 }*/
 
-double AGC::process(double signal) {
+/*double AGC::process(double signal) {
     double signalAbs = abs(signal);
 
     if (signalAbs > 1 || isnan(signal)) return 0;
@@ -54,12 +54,11 @@ double AGC::process(double signal) {
     Display::instance->viewModel->amp = amp;
 
     return signal * amp;
-}
+}*/
 
 int count = 0;
 
 double AGC::processNew(double signal) {
-
     if (signal * amp > config->receiver.agc.threshold) {
         double speed = (abs(amp - (config->receiver.agc.threshold / signal))) / ((config->receiver.agc.atackSpeedMs * config->outputSamplerate) / 1000);
         atack(signal, speed);

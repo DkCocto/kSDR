@@ -19,10 +19,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="chucha\AudioFFT.cpp" />
     <ClCompile Include="src\AGC.cpp" />
     <ClCompile Include="src\CircleBuffer.cpp" />
     <ClCompile Include="src\CircleBufferReaderThread.cpp" />
     <ClCompile Include="src\CircleBufferWriterThread.cpp" />
+    <ClCompile Include="src\ColoredSpectreBG.cpp" />
     <ClCompile Include="src\ComplexOscillator.cpp" />
     <ClCompile Include="src\ComplexSignal.cpp" />
     <ClCompile Include="src\Compressor\SimpleComp.cpp" />
@@ -77,12 +79,14 @@
     <ClCompile Include="src\WindowBlackmanHarris.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="chucha\AudioFFT.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="src\AGC.h" />
     <ClInclude Include="src\Average.h" />
     <ClInclude Include="src\CircleBuffer.h" />
     <ClInclude Include="src\CircleBufferReaderThread.h" />
     <ClInclude Include="src\CircleBufferWriterThread.h" />
+    <ClInclude Include="src\ColoredSpectreBG.h" />
     <ClInclude Include="src\ComplexOscillator.h" />
     <ClInclude Include="src\ComplexSignal.h" />
     <ClInclude Include="src\Compressor\SimpleComp.h" />
@@ -228,13 +232,19 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
+      <Optimization>Custom</Optimization>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\dev\Visual Studio\kSDR\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AddModuleNamesToAssembly>%(AddModuleNamesToAssembly)</AddModuleNamesToAssembly>
-      <AdditionalDependencies>mir_sdr_api.lib;rtlsdr.lib;portaudio_static_x86.lib;glfw3.lib;opengl32.lib;hackrf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libfftw3-3.lib;rtlsdr.lib;mir_sdr_api.lib;portaudio_static_x86.lib;glfw3.lib;opengl32.lib;hackrf.lib;pthreadVSE2.lib;sdrplay_api.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <EntryPointSymbol>
+      </EntryPointSymbol>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -253,15 +263,19 @@
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <OmitFramePointers>true</OmitFramePointers>
+      <FloatingPointModel>Precise</FloatingPointModel>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\dev\Visual Studio\kSDR\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>rtlsdr.lib;mir_sdr_api.lib;portaudio_static_x86.lib;glfw3.lib;opengl32.lib;hackrf.lib;pthreadVSE2.lib;sdrplay_api.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
+      <AdditionalDependencies>libfftw3-3.lib;rtlsdr.lib;mir_sdr_api.lib;portaudio_static_x86.lib;glfw3.lib;opengl32.lib;hackrf.lib;pthreadVSE2.lib;sdrplay_api.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <EntryPointSymbol>
+      </EntryPointSymbol>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

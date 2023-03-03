@@ -31,7 +31,7 @@ SoundProcessorThread::SoundProcessorThread(Config* config, CircleBuffer* iqSigna
 void SoundProcessorThread::initFilters(int filterWidth) {
 	firFilterI.initCoeffs(config->inputSamplerate, filterWidth, config->outputSamplerateDivider, config->polyphaseFilterLen);
 	firFilterQ.initCoeffs(config->inputSamplerate, filterWidth, config->outputSamplerateDivider, config->polyphaseFilterLen);
-	fir->init(fir->LOWPASS, fir->BLACKMAN_HARRIS, 256, filterWidth, 0, config->outputSamplerate);
+	fir->init(fir->LOWPASS, fir->BLACKMAN_HARRIS, 512, filterWidth, 0, config->outputSamplerate);
 
 	firI->init(fir->LOWPASS, fir->BARTLETT, 256, filterWidth, 0, config->outputSamplerate);
 	firQ->init(fir->LOWPASS, fir->BARTLETT, 256, filterWidth, 0, config->outputSamplerate);
@@ -44,7 +44,7 @@ void SoundProcessorThread::process() {
 
 	short decimationCount = 0;
 
-	float* data;
+	float* data = new float[len];
 
 	ViewModel* viewModel = Display::instance->viewModel;
 
@@ -62,7 +62,7 @@ void SoundProcessorThread::process() {
 		int available = iqSignalsCircleBuffer->available();
 		viewModel->setBufferAvailable(available);
 		if (available >= len) {
-			data = iqSignalsCircleBuffer->read(len);
+			iqSignalsCircleBuffer->read(data, len);
 
 			long count = 0;
 			for (int i = 0; i < len / 2; i++) {
@@ -119,19 +119,19 @@ void SoundProcessorThread::process() {
 					//Если AM, то немного усилим сигнал
 					if (mode == AM) audio *= 3.0f;
 					if (mode == nFM) audio *= 2.0f;
-					outputData[count] = audio * Display::instance->viewModel->volume;
+					outputData[count] = audio * viewModel->volume;
 					count++;
 				}
 		
 			}
 
 			soundWriterCircleBuffer->write(outputData, (len / 2) / config->outputSamplerateDivider);
-			fftSpectreHandler->setSpectreSpeed(Display::instance->viewModel->spectreSpeed);
+			//fftSpectreHandler->setSpectreSpeed(Display::instance->viewModel->spectreSpeed);
 			fftSpectreHandler->putData(data);
-			delete data;
+			//delete data;
 		} else {
 			//printf("SoundProcessorThread: Waiting for iqSignalsCircleBuffer...\r\n");
-			std::this_thread::sleep_for(std::chrono::milliseconds(10));
+			std::this_thread::sleep_for(std::chrono::nanoseconds(1));
 		}
 	}
 }

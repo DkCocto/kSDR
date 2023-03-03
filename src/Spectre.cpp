@@ -2,6 +2,9 @@
 #include "string"
 #include "vector"
 
+#include <chrono>
+#include "iostream"
+
 #define GRAY						IM_COL32(95, 95, 95, 255)
 #define BLUE						IM_COL32(88, 88, 231, 255)
 #define GREEN						IM_COL32(0, 204, 0, 80)
@@ -26,12 +29,12 @@ bool Spectre::isMouseOnRegion(int X1, int Y1, int X2, int Y2) {
 }
 
 void Spectre::waterfallAutoColorCorrection() {
-	viewModel->waterfallMin = m.average - 12;
-	viewModel->waterfallMax = m.max + 15;
+	viewModel->waterfallMin = m.min;
+	viewModel->waterfallMax = m.average + (m.max - m.min) + 3;
 }
 
 void Spectre::spectreRatioAutoCorrection() {
-	viewModel->minDb = m.average - 15;
+	viewModel->minDb = m.average - 20;
 	viewModel->ratio = m.max + 40;
 }
 
@@ -60,6 +63,9 @@ int countFrames = 0;
 
 bool isFirstFrame = true;
 
+ImVec2 startWindowPoint;
+ImVec2 windowLeftBottomCorner;
+
 void Spectre::draw() {
 
 	receiverLogicNew->setCenterFrequency(viewModel->centerFrequency);
@@ -68,27 +74,27 @@ void Spectre::draw() {
 
 	ImGui::Begin("Spectre");
 		//Ќачальна¤ точка окна
-		ImVec2 startWindowPoint = ImGui::GetCursorScreenPos();
+		startWindowPoint = ImGui::GetCursorScreenPos();
 
 		//Ќижн¤¤ лева¤ точка окна
-		ImVec2 windowLeftBottomCorner = ImGui::GetContentRegionAvail();
+		windowLeftBottomCorner = ImGui::GetContentRegionAvail();
 
 		windowFrame.UPPER_RIGHT = startWindowPoint;
 		windowFrame.BOTTOM_LEFT = ImVec2(startWindowPoint.x + windowLeftBottomCorner.x, startWindowPoint.y + windowLeftBottomCorner.y);
 
-		int spectreHeight = windowLeftBottomCorner.y / 2.0;
+		spectreHeight = windowLeftBottomCorner.y / 2.0;
+		spectreWidth = windowLeftBottomCorner.x - rightPadding - leftPadding;
 
-		int spectreWidthInPX = windowLeftBottomCorner.x - rightPadding - leftPadding;
-
-		handleEvents(startWindowPoint, windowLeftBottomCorner, spectreWidthInPX);
+		handleEvents(startWindowPoint, windowLeftBottomCorner, spectreWidth);
 
 		float* fullSpectreData = flowingFFTSpectre->getSpectreHandler()->getOutputCopy(0, flowingFFTSpectre->getSpectreHandler()->getSpectreSize());
 
 		ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
+
 		ImGui::BeginChild("Spectre1", ImVec2(ImGui::GetContentRegionAvail().x, spectreHeight), false, ImGuiWindowFlags_NoMove);
 
-		ImGui::SetCursorPos(ImVec2(spectreWidthInPX - 200, 0));
+		ImGui::SetCursorPos(ImVec2(spectreWidth - 250, 10));
 		if (ImGui::Button("Waterfall Auto")) waterfallAutoColorCorrection(); ImGui::SameLine();
 		if (ImGui::Button("Spectre Auto")) spectreRatioAutoCorrection(); ImGui::SameLine();
 		if (ImGui::Button("<|>")) receiverLogicNew->setReceivedFreqToSpectreCenter();
@@ -96,72 +102,7 @@ void Spectre::draw() {
 
 			storeSignaldB(fullSpectreData);
 
-			int spectreSize = flowingFFTSpectre->getLen();
-
-			std::vector<float> reducedSpectreData = flowingFFTSpectre->getReducedSpectre(
-																	fullSpectreData, 
-																	flowingFFTSpectre->getSpectreHandler()->getSpectreSize(), 
-																	config->visibleSpectreBinCount
-																	);
-
-			m = getMinMaxInSpectre(reducedSpectreData, reducedSpectreData.size());
-
-			//viewModel->serviceField1 = m.average;
-
-			//if (veryMinSpectreVal > m.min) veryMinSpectreVal = m.min;
-			veryMinSpectreVal = viewModel->minDb;
-			viewModel->serviceField2 = viewModel->minDb;
-			if (veryMaxSpectreVal < m.max) veryMaxSpectreVal = m.max;
-
-			float stepX = (windowLeftBottomCorner.x - rightPadding - leftPadding) / reducedSpectreData.size();
-
-			float ratio = ratioKalman->filter((float)spectreHeight / (abs(veryMinSpectreVal - viewModel->ratio)));
-
-			float koeff = 0;
-			if (abs(veryMinSpectreVal) * ratio > (float)spectreHeight) {
-				koeff = (-1.0) * (abs(veryMinSpectreVal) * ratio - (float)spectreHeight);
-			} else {
-				koeff = (float)spectreHeight - abs(veryMinSpectreVal) * ratio;
-			}
-
-			koeff = spectreTranferKalman->filter(koeff);
-
-			for (int i = 0; i < reducedSpectreData.size() - 1; i++) {
-
-				float y1 = round(startWindowPoint.y - reducedSpectreData[i] * ratio + koeff);
-				if (y1 >= startWindowPoint.y + spectreHeight) y1 = startWindowPoint.y + spectreHeight;
-
-				float y2 = round(startWindowPoint.y - reducedSpectreData[i + 1] * ratio + koeff);
-				if (y2 >= startWindowPoint.y + spectreHeight) y2 = startWindowPoint.y + spectreHeight;
-			
-				ImVec2 lineX1(
-					startWindowPoint.x + round(i * stepX) + rightPadding, 
-					y1
-				);
-				ImVec2 lineX2(
-					startWindowPoint.x + round((i + 1) * stepX) + rightPadding,
-					y2
-				);
-
-				ImVec2 lineX3(
-					startWindowPoint.x + round((i + 1) * stepX) + rightPadding,
-					startWindowPoint.y + spectreHeight
-				);
-
-				ImVec2 lineX4(
-					startWindowPoint.x + round(i * stepX) + rightPadding,
-					startWindowPoint.y + spectreHeight
-				);
-
-				ImVec2* polygon = new ImVec2[]{ lineX1 , lineX2 , lineX3 , lineX4 };
-
-				draw_list->AddConvexPolyFilled(polygon, 4, config->colorTheme.spectreFillColor);
-				delete[] polygon;
-
-				draw_list->AddLine(lineX1, lineX2, config->colorTheme.spectreProfileColor, 2.0f);
-			}
-			
-			reducedSpectreData.clear();
+			drawSpectreContour(fullSpectreData, draw_list);
 
 			//dB mark line
 			float stepInPX = (float)spectreHeight / (float)SPECTRE_DB_MARK_COUNT;
@@ -179,7 +120,7 @@ void Spectre::draw() {
 			}
 			//---------------
 			
-			drawFreqMarks(draw_list, startWindowPoint, windowLeftBottomCorner, spectreWidthInPX, spectreHeight);
+			drawFreqMarks(draw_list, startWindowPoint, windowLeftBottomCorner, spectreWidth, spectreHeight);
 
 		ImGui::EndChild();
 
@@ -187,18 +128,20 @@ void Spectre::draw() {
 			
 			int waterfallLineHeight = 1;
 			
-			if (countFrames % 1 == 0) {
+			//if (countFrames % 1 == 0) {
 				//waterfall->setMinMaxValue(m.min, m.max);
-				waterfall->setMinMaxValue(viewModel->waterfallMin, viewModel->waterfallMax);
-				float* spectreData = flowingFFTSpectre->getData();
-				waterfall->putData(spectreData, waterfallLineHeight);
-				delete[] spectreData;
-				countFrames = 0;
-			}
+			waterfall->setMinMaxValue(viewModel->waterfallMin, viewModel->waterfallMax);
+			float* spectreData = flowingFFTSpectre->getData();
+			waterfall->putData(spectreData, waterfallLineHeight);
+			delete[] spectreData;
+				//countFrames = 0;
+			//}
 
 			int waterfallHeight = windowLeftBottomCorner.y - spectreHeight - waterfallPaddingTop;
 
-			stepX = spectreWidthInPX / (spectreSize / waterfall->getDiv());
+			int spectreSize = flowingFFTSpectre->getLen();
+
+			float stepX = spectreWidth / (spectreSize / waterfall->getDiv());
 			float stepY = (float)(waterfallHeight + waterfallPaddingTop) / (float)waterfall->getSize();
 
 			for (int i = 0; i < waterfall->getSize(); i++) {
@@ -226,7 +169,7 @@ void Spectre::draw() {
 			draw_list->AddText(
 				ImVec2(
 					startWindowPoint.x + rightPadding + receiverLogicNew->getPositionPX() + 20,
-					startWindowPoint.y + 22
+					startWindowPoint.y + 30
 				),
 				IM_COL32_WHITE,
 				freq.c_str()
@@ -265,7 +208,7 @@ void Spectre::draw() {
 			//--
 		ImGui::EndChild();
 
-		drawFreqPointerMark(startWindowPoint, windowLeftBottomCorner, spectreWidthInPX, draw_list);
+		drawFreqPointerMark(startWindowPoint, windowLeftBottomCorner, spectreWidth, draw_list);
 
 	ImGui::End();
 	countFrames++;
@@ -358,7 +301,6 @@ void Spectre::handleEvents(ImVec2 startWindowPoint, ImVec2 windowLeftBottomCorne
 	//¬ыполн¤етс¤ если Ќажатие мышки произошло внутри спектра и мышка не была где то уже нажата вне окна
 	if (!viewModel->mouseBusy && (ImGui::IsMouseClicked(0) || ImGui::IsMouseClicked(1)) && isMouseOnSpectre) {
 		if (ImGui::IsMouseClicked(0)) {
-			//receiverLogicNew->saveDelta(io.MousePos.x - (startWindowPoint.x + rightPadding));
 			receiverLogicNew->saveSpectrePositionDelta(io.MousePos.x - (startWindowPoint.x + rightPadding));
 		}
 		if (ImGui::IsMouseClicked(1)) {
@@ -369,15 +311,12 @@ void Spectre::handleEvents(ImVec2 startWindowPoint, ImVec2 windowLeftBottomCorne
 	//¬ыполн¤етс¤ если удержание кнопки мышки произошло внутри спектра и мышка не была где то уже нажата вне окна
 	if (!viewModel->mouseBusy && (ImGui::IsMouseDown(0) || ImGui::IsMouseDown(1)) && isMouseOnSpectre) {
 		if (ImGui::IsMouseDown(0)) {
-			//receiverLogicNew->setPosition(io.MousePos.x - (startWindowPoint.x + rightPadding), false);
 			receiverLogicNew->setFrequencyDeltaFromSavedPosition(io.MousePos.x - (startWindowPoint.x + rightPadding));
 		}
 		if (ImGui::IsMouseDown(1)) {
 
 			float newCenterFreq = flowingFFTSpectre->moveSpectreByMouse(spectreWidthInPX, io.MousePos.x - (startWindowPoint.x + rightPadding));
 
-			//viewModel->centerFrequency = round(newCenterFreq);
-			//receiverLogicNew->setCenterFrequency(viewModel->centerFrequency);
 			receiverLogicNew->setFrequencyDelta(receiverLogicNew->getFrequencyDelta());
 			waterfall->clear();
 		}
@@ -443,6 +382,211 @@ void Spectre::drawFreqMarks(ImDrawList* draw_list, ImVec2 startWindowPoint, ImVe
 	//-----------------------------
 }
 
+void Spectre::drawSpectreContour(float* fullSpectreData, ImDrawList* draw_list) {
+	if (config->spectre.style == 2) {
+		coloredSpectreBG.generateImage(waterfall, ColoredSpectreBG::params{ 100, spectreHeight, viewModel->waterfallMin * config->spectre.bottomCoeff, viewModel->waterfallMax * config->spectre.topCoeff, viewModel->waterfallMin, viewModel->waterfallMax });
+		draw_list->AddImage(
+			(void*)(intptr_t)coloredSpectreBG.getImage(),
+			ImVec2(
+				startWindowPoint.x,
+				startWindowPoint.y - 8
+			),
+			ImVec2(
+				startWindowPoint.x + rightPadding + spectreWidth,
+				startWindowPoint.y + spectreHeight
+			)
+		);
+	}
+
+	std::vector<float> reducedSpectreData = flowingFFTSpectre->getReducedSpectre(
+		fullSpectreData,
+		flowingFFTSpectre->getSpectreHandler()->getSpectreSize(),
+		config->visibleSpectreBinCount
+	);
+
+
+	m = getMinMaxInSpectre(reducedSpectreData, reducedSpectreData.size());
+
+
+	veryMinSpectreVal = viewModel->minDb;
+	if (veryMaxSpectreVal < m.max) veryMaxSpectreVal = m.max;
+
+	float stepX = (float)(windowLeftBottomCorner.x - rightPadding - leftPadding) / (float)(reducedSpectreData.size() - 1.0f);
+
+	float ratio = ratioKalman->filter((float)spectreHeight / (abs(veryMinSpectreVal - viewModel->ratio)));
+
+	float koeff = 0;
+	if (abs(veryMinSpectreVal) * ratio > (float)spectreHeight) {
+		koeff = (-1.0) * (abs(veryMinSpectreVal) * ratio - (float)spectreHeight);
+	}
+	else {
+		koeff = (float)spectreHeight - abs(veryMinSpectreVal) * ratio;
+	}
+
+	koeff = spectreTranferKalman->filter(koeff);
+
+
+	if (config->spectre.style == 0 || config->spectre.style == 1) {
+		//Waterfall::RGB minRGB = waterfall->getColorForPowerInSpectre(viewModel->waterfallMin);
+		//Waterfall::RGB maxRGB = waterfall->getColorForPowerInSpectre(-30);	
+
+		draw_list->AddRectFilledMultiColor(
+			ImVec2(
+				startWindowPoint.x + rightPadding,
+				startWindowPoint.y - 8
+			),
+			ImVec2(
+				startWindowPoint.x + spectreWidth + leftPadding,
+				startWindowPoint.y + spectreHeight
+			),
+			config->colorTheme.spectreFillColor,
+			config->colorTheme.spectreFillColor,
+			IM_COL32_BLACK,
+			IM_COL32_BLACK
+		);
+	}
+
+	//auto begin = std::chrono::steady_clock::now();
+
+	for (int i = 0; i < reducedSpectreData.size() - 1; i++) {
+
+		float y1 = round(startWindowPoint.y - reducedSpectreData[i] * ratio + koeff);
+		if (y1 >= startWindowPoint.y + spectreHeight) y1 = startWindowPoint.y + spectreHeight;
+
+		float y2 = round(startWindowPoint.y - reducedSpectreData[i + 1] * ratio + koeff);
+		if (y2 >= startWindowPoint.y + spectreHeight) y2 = startWindowPoint.y + spectreHeight;
+
+		if (config->spectre.style == 0) {
+
+			ImVec2 lineX1(
+				startWindowPoint.x + round(i * stepX) + rightPadding,
+				y1
+			);
+			ImVec2 lineX2(
+				startWindowPoint.x + round((i + 1) * stepX) + rightPadding,
+				y2
+			);
+
+			ImVec2 lineX3(
+				startWindowPoint.x + round((i + 1) * stepX) + rightPadding,
+				startWindowPoint.y + spectreHeight
+			);
+
+			ImVec2 lineX4(
+				startWindowPoint.x + round(i * stepX) + rightPadding,
+				startWindowPoint.y + spectreHeight
+			);
+
+			ImVec2* polygon = new ImVec2[]{ lineX1 , lineX2 , lineX3 , lineX4 };
+			draw_list->AddConvexPolyFilled(polygon, 4, config->colorTheme.spectreFillColor);
+			delete[] polygon;
+
+			lineX1 = ImVec2 (
+				startWindowPoint.x + round(i * stepX) + rightPadding,
+				y1 - 1.5f
+			);
+			lineX2 = ImVec2 (
+				startWindowPoint.x + round((i + 1) * stepX) + rightPadding,
+				y2 - 1.5f
+			);
+
+			if (config->spectre.contourShowsPower) {
+				Waterfall::RGB powerRGB = waterfall->getColorForPowerInSpectre(reducedSpectreData[i], viewModel->waterfallMin * config->spectre.bottomCoeff, viewModel->waterfallMax * config->spectre.topCoeff);
+				draw_list->AddLine(lineX1, lineX2, IM_COL32(powerRGB.r, powerRGB.g, powerRGB.b, 255), 1.5f);
+			} else {
+				draw_list->AddLine(lineX1, lineX2, config->colorTheme.spectreProfileColor, 1.5f);
+			}
+
+		}
+
+		if (config->spectre.style == 2) {
+			ImVec2 lineX1(
+				startWindowPoint.x + round(i * stepX) + rightPadding,
+				y1
+			);
+			ImVec2 lineX2(
+				startWindowPoint.x + round((i + 1.0) * stepX) + rightPadding,
+				y2
+			);
+
+			ImVec2 lineX3(
+				startWindowPoint.x + round((i + 1.0) * stepX) + rightPadding,
+				startWindowPoint.y - 8
+			);
+
+			ImVec2 lineX4(
+				startWindowPoint.x + round(i * stepX) + rightPadding,
+				startWindowPoint.y - 8
+			);
+
+			ImVec2* polygon = new ImVec2[]{ lineX3 , lineX4 , lineX1 , lineX2 };
+			draw_list->AddConvexPolyFilled(polygon, 4, config->colorTheme.windowsBGColor);
+			delete[] polygon;
+
+			ImVec2 profiledX1(
+				startWindowPoint.x + round(i * stepX) + rightPadding,
+				y1 + 1.5f
+			);
+			ImVec2 profiledX2(
+				startWindowPoint.x + round((i + 1.0) * stepX) + rightPadding,
+				y2 + 1.5f
+			);
+
+			draw_list->AddLine(profiledX1, profiledX2, config->colorTheme.spectreProfileColor, 0.5f);
+		}
+
+		if (config->spectre.style == 1) {
+			ImVec2 lineX1(
+				startWindowPoint.x + round(i * stepX) + rightPadding,
+				y1
+			);
+			ImVec2 lineX2(
+				startWindowPoint.x + round((i + 1) * stepX) + rightPadding,
+				y2
+			);
+
+			if (config->spectre.contourShowsPower) {
+				Waterfall::RGB powerRGB = waterfall->getColorForPowerInSpectre(reducedSpectreData[i], viewModel->waterfallMin * config->spectre.bottomCoeff, viewModel->waterfallMax * config->spectre.topCoeff);
+				draw_list->AddLine(lineX1, lineX2, IM_COL32(powerRGB.r, powerRGB.g, powerRGB.b, 255), 1.5f);
+			}
+			else {
+				draw_list->AddLine(lineX1, lineX2, config->colorTheme.spectreProfileColor, 1.5f);
+			}
+		}
+
+		//
+
+		//ImVec2* polygon = new ImVec2[]{ lineX3 , lineX4 , lineX1 , lineX2 };
+
+		//IM_COL32(powerRGB.r, powerRGB.g, powerRGB.b, 255)
+
+
+
+
+		/*Waterfall::RGB minRGB = waterfall->getColorForPowerInSpectre(-30);
+		Waterfall::RGB maxRGB = waterfall->getColorForPowerInSpectre(-100);*/
+
+		/*draw_list->AddRectFilledMultiColor(
+			lineX1,
+			lineX3,
+			IM_COL32(powerRGB.r, powerRGB.g, powerRGB.b, 255),
+			IM_COL32(powerRGB.r, powerRGB.g, powerRGB.b, 255),
+			IM_COL32_BLACK,
+			IM_COL32_BLACK
+			);*/
+
+			// config->colorTheme.spectreProfileColor
+
+			//draw_list->AddLine(lineX1, lineX2, IM_COL32(powerRGB.r, powerRGB.g, powerRGB.b, 255), 2.0f);
+	}
+
+	//auto end = std::chrono::steady_clock::now();
+	//auto elapsed_ms = std::chrono::duration_cast<std::chrono::microseconds>(end - begin);
+	//std::cout << "The time: " << elapsed_ms.count() << " micros\n";
+
+	//reducedSpectreData.clear();
+}
+
 void Spectre::drawFreqPointerMark(ImVec2 startWindowPoint, ImVec2 windowLeftBottomCorner, int spectreWidthInPX, ImDrawList* draw_list) {
 	ImGuiIO& io = ImGui::GetIO();
 	
@@ -475,9 +619,13 @@ void Spectre::drawFreqPointerMark(ImVec2 startWindowPoint, ImVec2 windowLeftBott
 			io.MousePos.y + baseY + baseHeight
 		);
 
-		ImVec2* polygon = new ImVec2[]{ lineX1 , lineX2 , lineX3 , lineX4 };
+		//ImVec2* polygon = new ImVec2[]{ lineX1 , lineX2 , lineX3 , lineX4 };
 
-		draw_list->AddConvexPolyFilled(polygon, 4, BASE_COLOR);
+		std::unique_ptr<ImVec2[]> polygonPtr(new ImVec2[]{ lineX1 , lineX2 , lineX3 , lineX4 });
+
+		draw_list->AddConvexPolyFilled(polygonPtr.get(), 4, BASE_COLOR);
+
+		//delete [] polygon;
 
 		ImGui::SetCursorPos(ImVec2(io.MousePos.x - (startWindowPoint.x + rightPadding) + 105, io.MousePos.y - startWindowPoint.y + 62));
 		ImGui::Text(Utils::getPrittyFreq((int)receiverLogicNew->getFreqByPosOnSpectrePx(io.MousePos.x - (startWindowPoint.x + rightPadding))).c_str());

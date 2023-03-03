@@ -10,6 +10,7 @@
 #include "ViewModel.h"
 #include "KalmanFilter.h"
 #include "Waterfall.h"
+#include "ColoredSpectreBG.h"
 
 class Spectre {
 
@@ -27,6 +28,11 @@ class Spectre {
 	
 
 	Config* config;
+
+	ColoredSpectreBG coloredSpectreBG;
+
+	int spectreWidth = 0;
+	int spectreHeight = 0;
 
 public:
 	struct MIN_MAX {
@@ -50,6 +56,8 @@ private:
 	void handleEvents(ImVec2 startWindowPoint, ImVec2 windowLeftBottomCorner, int spectreWidthInPX);
 
 	void drawFreqMarks(ImDrawList* draw_list, ImVec2 startWindowPoint, ImVec2 windowLeftBottomCorner, int spectreWidthInPX, int spectreHeight);
+
+	void drawSpectreContour(float* fullSpectreData, ImDrawList* draw_list);
 
 	void drawFreqPointerMark(ImVec2 startWindowPoint, ImVec2 windowLeftBottomCorner, int spectreWidthInPX, ImDrawList* draw_list);
 

@@ -118,7 +118,7 @@ void half_normalize_fft(float* input_real, float* input_imag, uint64_t size)
 void fft3(float* input_real, float* input_imag, uint64_t size, float* output_real, float* output_imag)
 {
     fft_core(input_real, input_imag, size, 1, output_real, output_imag, 1);
-    half_normalize_fft(output_real, output_imag, size); // allows calling fft() four times to result in the original signal with no amplitude change
+    normalize_fft(output_real, output_imag, size); // allows calling fft() four times to result in the original signal with no amplitude change
 }
 void ifft(float* input_real, float* input_imag, uint64_t size, float* output_real, float* output_imag)
 {

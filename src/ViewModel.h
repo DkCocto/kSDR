@@ -50,8 +50,6 @@ public:
 
 	bool mouseBusy = false;
 
-	int spectreSpeed = 20;
-
 	bool att = false;
 
 	//ImFont* fontStandard;

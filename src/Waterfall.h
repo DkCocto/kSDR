@@ -14,14 +14,11 @@ class Waterfall {
 	//int minColor = 0x1B1BB3; //blue
 	//int minColor = 0x020C22;
 	//int minColor = 0x0e0e0e; //interface color
-	int minColor = 0x0e0e0e;
-	int maxColor = 0xFFE800; //yellow
+	//int minColor = 0x0e0e0e;
+	//int maxColor = 0xFFE800; //yellow
 	//int maxColor = 0xFF0000; //red
 	//int maxColor = 0x00CC00; //red
 
-
-	float minValue = -100;
-	float maxValue = -40;
 
 	unsigned int depth = 4;
 
@@ -34,6 +31,9 @@ class Waterfall {
 public:
 
 	Waterfall(Config* config, FlowingFFTSpectre* flowingFFTSpectre, ViewModel* viewModel);
+
+	float minValue = -100;
+	float maxValue = -40;
 
 	typedef struct RGB {
 		int r;
@@ -59,7 +59,7 @@ public:
 
 	int interpolate(int color1, int color2, float fraction);
 
-	RGB getColorForPowerInSpectre(float power);
+	RGB getColorForPowerInSpectre(float power, float minValue, float maxValue);
 
 	void setMinMaxValue(float min, float max);
 

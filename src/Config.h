@@ -7,8 +7,6 @@
 #include "tinyxml2/tinyxml2.h"
 #include "string"
 
-//using namespace std;
-
 class Config {
 
 public:
@@ -57,14 +55,13 @@ public:
 	Config();
 	~Config();
 
-	int visibleSpectreBinCount = 2048;
+	int visibleSpectreBinCount = 4096;
 
 	//This data will be stored in config xml
 	float waterfallMin = 0;
 	float waterfallMax = 0;
 	float spectreRatio = 0;
 	float spectreMin = 0;
-	int spectreSpeed = 0;
 	float lastSelectedFreq = (float)startFrequency;
 	float volume = 1;
 
@@ -74,6 +71,19 @@ public:
 	int stopBin = fftLen / 2 - 1;
 
 	int removeDCBias = 1;
+
+	struct Spectre {
+		int style = 0;
+		bool contourShowsPower = 0;
+		float bottomCoeff = 1;
+		float topCoeff = 1;
+		bool hangAndDecay = false;
+		float decaySpeed = 0.1f;
+		float decaySpeedDelta = 1.01f;
+		int spectreSpeed = 8;
+		int spectreSpeed2 = 5;
+		int smoothingDepth = 2;
+	} spectre;
 
 	struct Receiver {
 		int modulation = 1;

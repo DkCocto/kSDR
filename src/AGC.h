@@ -35,7 +35,7 @@ public:
 
     AGC(Config* config, FFTSpectreHandler* fftSpectreHandler);
 
-    double process(double signal);
+    //double process(double signal);
 
     double processNew(double signal);
 

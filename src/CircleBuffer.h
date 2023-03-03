@@ -19,6 +19,7 @@ class CircleBuffer {
 		void write(uint8_t buf[], int bufLen);
 		float read();
 		float* read(int len);
+		void read(float* data, int len);
 		int available();
 		void reset();
 };

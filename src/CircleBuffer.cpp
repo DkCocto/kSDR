@@ -39,7 +39,6 @@ void CircleBuffer::write(uint8_t* buf, int bufLen) {
 float CircleBuffer::read() {
 	if (readPointer == writePointer) {
 		printf("Nothing to read! Buffer is empty.");
-		//throw "Nothing to read! Buffer is empty.";
 	}
 	readPointer++;
 	if (readPointer > size - 1) readPointer = 0;
@@ -50,36 +49,19 @@ float CircleBuffer::read() {
 float* CircleBuffer::read(int len) {
 	int countDone = 0;
 	float* b = new float[len];
-	/*while (available() < len) {
-		std::this_thread::sleep_for(std::chrono::nanoseconds(1));
-	}*/
-
-	/*if (readPointer + len > size - 1) {
-		int over = readPointer + len - (size - 1);
-		memcpy(b, buf + readPointer, sizeof(float) * ((size - 1) - readPointer));
-		memcpy(b, buf, sizeof(float) * over);
-
-	} else {
-		memcpy(b, buf + readPointer, sizeof(float) * len);
-	}*/
 
 	for (int i = 0; i < len; i++) {
 		b[i] = read();
 	}
 	return b;
+}
 
-	//while (true) {
-	//	if (available() > 0) {
-	//		b[countDone] = read();
-	//		countDone++;
-	//		if (countDone > len - 1) {
-	//			m.unlock();
-	//			return b;
-	//		}
-	//	}
-	//}
-	//m.unlock();
-	//return b;
+void CircleBuffer::read(float* data, int len) {
+	int countDone = 0;
+
+	for (int i = 0; i < len; i++) {
+		data[i] = read();
+	}
 }
 
 int CircleBuffer::available() {

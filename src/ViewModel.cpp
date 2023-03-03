@@ -12,7 +12,6 @@ ViewModel::ViewModel(Config* config) {
 	waterfallMax = config->waterfallMax;
 	ratio = config->spectreRatio;
 	minDb = config->spectreMin;
-	spectreSpeed = config->spectreSpeed;
 	hackRFModel.lnaGain = config->hackrf.lnaGain;
 	hackRFModel.vgaGain = config->hackrf.vgaGain;
 	hackRFModel.enableAmp = config->hackrf.rxAmp;
@@ -29,7 +28,6 @@ ViewModel::~ViewModel() {
 	config->waterfallMax = waterfallMax;
 	config->spectreRatio = ratio;
 	config->spectreMin = minDb;
-	config->spectreSpeed = spectreSpeed;
 	config->startFrequency = centerFrequency;
 	config->volume = volume;
 	config->filterWidth = filterWidth;

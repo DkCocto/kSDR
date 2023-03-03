@@ -44,13 +44,15 @@ private:
 	void showHackrfSamplingRateSetting();
 
 
-	ListSetting* decimationLS;
-	ListSetting* hackRFsampRateLS;
-	ListSetting* rspSampRateLS;
-	ListSetting* rspDecimationFactorLS;
-	ListSetting* fftLenLS;
-	ListSetting* rtlDeviceGainLS;
-	ListSetting* rtlSampRateLS;
+	std::unique_ptr<ListSetting> decimationLS;
+	std::unique_ptr<ListSetting> hackRFsampRateLS;
+	std::unique_ptr<ListSetting> rspSampRateLS;
+	std::unique_ptr<ListSetting> rspDecimationFactorLS;
+	std::unique_ptr<ListSetting> fftLenLS;
+	std::unique_ptr<ListSetting> smoothingDepthLS;
+	std::unique_ptr<ListSetting> spectreStyleLS;
+	std::unique_ptr<ListSetting> rtlDeviceGainLS;
+	std::unique_ptr<ListSetting> rtlSampRateLS;
 
 	void initSettings();
 

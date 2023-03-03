@@ -22,12 +22,12 @@ Config::Config() {
 
 	calcOutputSamplerate();
 
-	bufferWriteAudioLen							= (outputSamplerateDivider * 2) * 32;
+	bufferWriteAudioLen							= (outputSamplerateDivider * 2) * 16;
 
 	readSoundProcessorBufferLen					= fftLen; //fftLen
 
-	audioReadFrameLen							= (outputSamplerateDivider * 2) * 32;
-	audioWriteFrameLen							= (outputSamplerateDivider * 2) * 32;
+	audioReadFrameLen							= (outputSamplerateDivider * 2) * 16;
+	audioWriteFrameLen							= (outputSamplerateDivider * 2) * 16;
 
 	circleBufferLen								= 4 * inputSamplerate;
 
@@ -176,7 +176,7 @@ void Config::load() {
         }
 
         tinyxml2::XMLElement* pWaterfall = pRootElement->FirstChildElement("Waterfall");
-        if (NULL != pReceiver) {
+        if (NULL != pWaterfall) {
             tinyxml2::XMLElement* pmin = pWaterfall->FirstChildElement("min");
             waterfallMin = std::stof(std::string(pmin->GetText()));
 
@@ -185,7 +185,7 @@ void Config::load() {
         }
 
         tinyxml2::XMLElement* pSpectre = pRootElement->FirstChildElement("Spectre");
-        if (NULL != pReceiver) {
+        if (NULL != pSpectre) {
             tinyxml2::XMLElement* pratio = pSpectre->FirstChildElement("ratio");
             spectreRatio = std::stof(std::string(pratio->GetText()));
                 
@@ -193,7 +193,10 @@ void Config::load() {
             spectreMin = std::stof(std::string(pspectreMin->GetText()));
 
             tinyxml2::XMLElement* pspeed = pSpectre->FirstChildElement("speed");
-            spectreSpeed = std::stoi(std::string(pspeed->GetText()));
+            spectre.spectreSpeed = std::stoi(std::string(pspeed->GetText()));
+
+            tinyxml2::XMLElement* pspeed2 = pSpectre->FirstChildElement("speed2");
+            spectre.spectreSpeed2 = std::stoi(std::string(pspeed2->GetText()));
 
             tinyxml2::XMLElement* pfftLen = pSpectre->FirstChildElement("fftLen");
             fftLen = std::stoi(std::string(pfftLen->GetText()));
@@ -214,6 +217,29 @@ void Config::load() {
             tinyxml2::XMLElement* premoveDCBias = pSpectre->FirstChildElement("removeDCBias");
             removeDCBias = std::stoi(std::string(premoveDCBias->GetText()));
 
+            tinyxml2::XMLElement* pstyle = pSpectre->FirstChildElement("style");
+            spectre.style = std::stoi(std::string(pstyle->GetText()));
+
+            tinyxml2::XMLElement* pcontourShowsPower = pSpectre->FirstChildElement("contourShowsPower");
+            spectre.contourShowsPower = (std::stoi(std::string(pcontourShowsPower->GetText())) == 1) ? true : false;
+
+            tinyxml2::XMLElement* pbottomCoeff = pSpectre->FirstChildElement("bottomCoeff");
+            spectre.bottomCoeff = std::stof(std::string(pbottomCoeff->GetText()));
+
+            tinyxml2::XMLElement* ptopCoeff = pSpectre->FirstChildElement("topCoeff");
+            spectre.topCoeff = std::stof(std::string(ptopCoeff->GetText()));
+
+            tinyxml2::XMLElement* psmoothing = pSpectre->FirstChildElement("hangAndDecay");
+            spectre.hangAndDecay = (std::stoi(std::string(psmoothing->GetText())) == 1) ? true : false;
+
+            tinyxml2::XMLElement* pdecaySpeedDelta = pSpectre->FirstChildElement("decaySpeedDelta");
+            spectre.decaySpeedDelta = std::stof(std::string(pdecaySpeedDelta->GetText()));
+
+            tinyxml2::XMLElement* pdecaySpeed = pSpectre->FirstChildElement("decaySpeed");
+            spectre.decaySpeed = std::stof(std::string(pdecaySpeed->GetText()));
+
+            tinyxml2::XMLElement* psmoothingDepth = pSpectre->FirstChildElement("smoothingDepth");
+            spectre.smoothingDepth = std::stoi(std::string(psmoothingDepth->GetText()));
         }
 
         tinyxml2::XMLElement* pColorTheme = pRootElement->FirstChildElement("ColorTheme");
@@ -359,7 +385,7 @@ void Config::save() {
         }
 
         tinyxml2::XMLElement* pWaterfall = pRootElement->FirstChildElement("Waterfall");
-        if (NULL != pReceiver) {
+        if (NULL != pWaterfall) {
             tinyxml2::XMLElement* pmin = pWaterfall->FirstChildElement("min");
             pmin->SetText(waterfallMin);
 
@@ -368,7 +394,7 @@ void Config::save() {
         }
 
         tinyxml2::XMLElement* pSpectre = pRootElement->FirstChildElement("Spectre");
-        if (NULL != pReceiver) {
+        if (NULL != pSpectre) {
             tinyxml2::XMLElement* pratio = pSpectre->FirstChildElement("ratio");
             pratio->SetText(spectreRatio);
 
@@ -376,7 +402,10 @@ void Config::save() {
             pspectreMin->SetText(spectreMin);
 
             tinyxml2::XMLElement* pspeed = pSpectre->FirstChildElement("speed");
-            pspeed->SetText(spectreSpeed);
+            pspeed->SetText(spectre.spectreSpeed);
+
+            tinyxml2::XMLElement* pspeed2 = pSpectre->FirstChildElement("speed2");
+            pspeed2->SetText(spectre.spectreSpeed2);
 
             tinyxml2::XMLElement* pstartBin = pSpectre->FirstChildElement("startBin");
             pstartBin->SetText(startBin);
@@ -389,6 +418,30 @@ void Config::save() {
 
             tinyxml2::XMLElement* pfftLen = pSpectre->FirstChildElement("fftLen");
             pfftLen->SetText(delayedFFTLen);
+
+            tinyxml2::XMLElement* pstyle = pSpectre->FirstChildElement("style");
+            pstyle->SetText(spectre.style);
+
+            tinyxml2::XMLElement* pcontourShowsPower = pSpectre->FirstChildElement("contourShowsPower");
+            pcontourShowsPower->SetText((spectre.contourShowsPower == true) ? "1" : "0");
+
+            tinyxml2::XMLElement* pbottomCoeff = pSpectre->FirstChildElement("bottomCoeff");
+            pbottomCoeff->SetText(spectre.bottomCoeff);
+
+            tinyxml2::XMLElement* ptopCoeff = pSpectre->FirstChildElement("topCoeff");
+            ptopCoeff->SetText(spectre.topCoeff);
+
+            tinyxml2::XMLElement* psmoothing = pSpectre->FirstChildElement("hangAndDecay");
+            psmoothing->SetText((spectre.hangAndDecay == true) ? "1" : "0");
+
+            tinyxml2::XMLElement* pdecaySpeedDelta = pSpectre->FirstChildElement("decaySpeedDelta");
+            pdecaySpeedDelta->SetText(spectre.decaySpeedDelta);
+
+            tinyxml2::XMLElement* pdecaySpeed = pSpectre->FirstChildElement("decaySpeed");
+            pdecaySpeed->SetText(spectre.decaySpeed);
+
+            tinyxml2::XMLElement* psmoothingDepth = pSpectre->FirstChildElement("smoothingDepth");
+            psmoothingDepth->SetText(spectre.smoothingDepth);
         }
 
         tinyxml2::XMLElement* pColorTheme = pRootElement->FirstChildElement("ColorTheme");

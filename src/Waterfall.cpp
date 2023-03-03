@@ -39,7 +39,7 @@ void Waterfall::putData(float* spectreData, int lineHeight) {
 
 	for (unsigned int ix = 0; ix < height; ++ix) {
 		for (unsigned int iy = 0; iy < width; ++iy) {
-			Waterfall::RGB rgb = getColorForPowerInSpectre(output[iy]);
+			Waterfall::RGB rgb = getColorForPowerInSpectre(output[iy], minValue - 6, maxValue + 10);
 
 			checkImage[ix * width * depth + iy * depth + 0] = rgb.r;   //red
 			checkImage[ix * width * depth + iy * depth + 1] = rgb.g;   //green
@@ -112,9 +112,9 @@ int Waterfall::interpolate(int color1, int color2, float fraction) {
 	unsigned char   b1 = color1 & 0xff;
 	unsigned char   b2 = color2 & 0xff;
 
-	float f = (1.0 - cos(fraction * M_PI)) * 0.5f;
+	//float f = (1.0 - cos(fraction * M_PI)) * 0.5f;
 
-	//float f = fraction * fraction;
+	float f = fraction * fraction;
 
 	//float f = sqrt(fraction);
 
@@ -123,11 +123,12 @@ int Waterfall::interpolate(int color1, int color2, float fraction) {
 		(int)((b2 - b1) * f + b1);
 }
 
-Waterfall::RGB Waterfall::getColorForPowerInSpectre(float power) {
+Waterfall::RGB Waterfall::getColorForPowerInSpectre(float power, float minValue, float maxValue) {
 	float fraction = (1.0 / (maxValue - minValue)) * power - (minValue / (maxValue - minValue));
 
 	float f = (1.0 - cos(fraction * M_PI)) * 0.5f;
 	//float f = fraction * fraction;
+	//float f = fraction;
 	//int interpolatedColor = interpolate(minColor, maxColor, fraction);
 	//RGB rgb = convertColor(interpolatedColor);
 
@@ -140,7 +141,7 @@ Waterfall::RGB Waterfall::getColorForPowerInSpectre(float power) {
 	double g = 0.0; 
 	double b = 0.0;
 	
-	double l = (f - (0)) / (1.0 - 0) * (700. - 400.0) + 400.0;
+	double l = (f - (0)) / (1.0 - 0) * (680. - 400.0) + 400.0;
 
 	if ((l >= 400.0) && (l < 410.0)) { t = (l - 400.0) / (410.0 - 400.0); r = +(0.33 * t) - (0.20 * t * t); }
 	else if ((l >= 410.0) && (l < 475.0)) { t = (l - 410.0) / (475.0 - 410.0); r = 0.14 - (0.13 * t * t); }
@@ -155,8 +156,6 @@ Waterfall::RGB Waterfall::getColorForPowerInSpectre(float power) {
 
 
 	RGB rgb{ (int)(255.0 * r), (int)(255.0 * g), (int)(255.0 * b) };
-	//printf("%f %f %f\r\n", rgb_.r, rgb_.g, rgb_.b);
-	
 
 	return rgb;
 }

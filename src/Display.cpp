@@ -41,8 +41,6 @@ Display::Display(Config* config, FFTSpectreHandler* fftSH) {
 	viewModel = new ViewModel(config);
 	this->flowingFFTSpectre = new FlowingFFTSpectre(config, viewModel, fftSH);
 	spectre = new Spectre(config, viewModel, flowingFFTSpectre);
-
-	initSettings();
 }
 
 bool errorInitDeviceUserInformed = false;
@@ -82,9 +80,9 @@ int Display::init() {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	glEnable(GL_LINE_SMOOTH);
+	//glEnable(GL_LINE_SMOOTH);
 
-	glLineWidth(1.5);
+	//glLineWidth(1.5);
 
 	int channels, width, height;
 	unsigned char* pixels = stbi_load("icon.png", &width, &height, &channels, 4); //rgba channels 
@@ -103,7 +101,7 @@ int Display::init() {
 
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.AntiAliasedLines = true;
-	style.AntiAliasedFill = true;
+	//style.AntiAliasedFill = true;
 }
 
 void Display::mainLoop() {
@@ -186,9 +184,9 @@ void Display::renderImGUIFirst() {
 	ImGui::PushStyleColor(ImGuiCol_WindowBg, ImGui::ColorConvertU32ToFloat4(config->colorTheme.windowsBGColor));
 	//ImGui::PushStyleColor(ImGuiCol_TitleBgActive, ImGui::ColorConvertU32ToFloat4(config->colorTheme.windowsTitleBGColor));
 
-	ImGui::Begin(APP_NAME);
+	initSettings();
 
-		initSettings();
+	ImGui::Begin(APP_NAME);
 
 		ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
 		if (ImGui::BeginTabBar("MyTabBar", tab_bar_flags)) {
@@ -205,7 +203,8 @@ void Display::renderImGUIFirst() {
 
 				ImGui::SliderFloat("Spectre min val", &viewModel->minDb, -200, 0);
 
-				ImGui::SliderInt("Spectre speed", &viewModel->spectreSpeed, 1, 200);
+				ImGui::SliderInt("Spectre speed", &config->spectre.spectreSpeed, 1, 50);
+				ImGui::SliderInt("Spectre speed 2", &config->spectre.spectreSpeed2, 1, 50);
 
 				ImGui::EndTabItem();
 			}
@@ -342,7 +341,6 @@ void Display::renderImGUIFirst() {
 
 				if (config->deviceType == Config::RTL) {
 					rtlDeviceGainLS->drawSetting();
-					delete rtlDeviceGainLS;
 				}
 
 				ImGui::EndTabItem();
@@ -354,20 +352,17 @@ void Display::renderImGUIFirst() {
 				showSelectDeviceSetting();
 
 				decimationLS->drawSetting();
-				delete decimationLS;
 
 				if (config->deviceType == Config::RTL) {
 					ImGui::Text("\nRTL Settings:");
 
 					rtlSampRateLS->drawSetting();
-					delete rtlSampRateLS;
 				}
 
 				if (config->deviceType == Config::HACKRF) {
 					ImGui::Text("\nHackRF Settings:");
 
 					hackRFsampRateLS->drawSetting();
-					delete hackRFsampRateLS;
 				}
 				
 				if (config->deviceType == Config::RSP) {
@@ -375,10 +370,8 @@ void Display::renderImGUIFirst() {
 					ImGui::Text("\nRSP Settings:");
 
 					rspSampRateLS->drawSetting();
-					delete rspSampRateLS;
 
 					rspDecimationFactorLS->drawSetting();
-					delete rspDecimationFactorLS;
 
 					bool useRspApiv3 = (config->rsp.api == 3) ? true : false;
 					ImGui::Checkbox("Use APIv3 (instead of v2) (*)", &useRspApiv3);
@@ -406,10 +399,21 @@ void Display::renderImGUIFirst() {
 				showColorPicker(string("Spectre Profile"), &config->colorTheme.spectreProfileColor, false);
 				showColorPicker(string("Receive Region"), &config->colorTheme.receiveRegionColor, true);
 
+				ImGui::Text("\nSpectre:");
+				spectreStyleLS->drawSetting();
+				ImGui::Checkbox("Contour shows signal power", &config->spectre.contourShowsPower);
+				ImGui::SliderFloat("Top coeff", &config->spectre.topCoeff, 0.5f, 1.5f);
+				ImGui::SliderFloat("Bottom coeff", &config->spectre.bottomCoeff, 0.5f, 1.5f);
+				smoothingDepthLS->drawSetting();
+				ImGui::Checkbox("Hang&Decay", &config->spectre.hangAndDecay);
+				if (config->spectre.hangAndDecay) {
+					ImGui::SliderFloat("Decay speed", &config->spectre.decaySpeed, 0, 2);
+					ImGui::SliderFloat("Decay speed delta", &config->spectre.decaySpeedDelta, 0, 2);
+				}
+
 				ImGui::Text("\nOther:");
 
 				fftLenLS->drawSetting();
-				delete fftLenLS;
 
 				ImGui::Checkbox("Remove DC", &viewModel->removeDCBias);
 
@@ -429,8 +433,8 @@ void Display::renderImGUIFirst() {
 
 			ImGui::EndTabBar();
 		}
-		ImGui::Separator();
-		ImGui::TreePop();
+		//ImGui::Separator();
+		//ImGui::TreePop();
 		
 		//Если вкладка опций устройства не выбрана, то все равно устанавливаем конфигурацию на устройство
 		if (config->deviceType == Config::HACKRF && config->device->status->isOK) ((Hackrf*)config->device)->setConfiguration();
@@ -452,8 +456,6 @@ void Display::renderImGUIFirst() {
 		ImGui::Text("Service field2: %f", viewModel->serviceField2);
 		ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	ImGui::End();
-
-	//printf("%d %d %d\r\n", !config->device->status->OK, config->device->status->initDone, !errorInitDeviceUserInformed);
 
 	showAlertOKDialog(std::string("Warning"), std::string("Application couldn't init a selected device.\nPlease, go to settings and select the correct device or plug your device to USB port.\nMake sure you have selected the correct api version in the settings for RSP devices.\n\nReturned answer:\n\n").append(config->device->status->err));
 	if (!config->device->status->isOK && config->device->status->isInitProcessOccured && !errorInitDeviceUserInformed) {
@@ -549,6 +551,9 @@ void Display::showColorPicker(string title, unsigned int *configVal, bool withTr
 }
 
 void Display::initSettings() {
+
+	//auto begin = std::chrono::steady_clock::now();
+
 	std::map<int, std::string> decimationMap;
 	for (int i = 1, j = 0; i <= 64; i++) {
 		if (config->deviceType == Config::HACKRF) {
@@ -572,7 +577,7 @@ void Display::initSettings() {
 		}
 	}
 
-	decimationLS = new ListSetting(config, decimationMap, "Decimation", true);
+	decimationLS = std::make_unique<ListSetting>(config, decimationMap, "Decimation", true);
 	decimationLS->bindVariable(&config->delayedInputSamplerateDivider);
 
 	if (config->deviceType == Config::HACKRF) {
@@ -588,7 +593,7 @@ void Display::initSettings() {
 			{7 , "20000000"}
 		};
 
-		hackRFsampRateLS = new ListSetting(config, hackRFsamplingRateMap, "HackRF Sampling rate", true);
+		hackRFsampRateLS = std::make_unique<ListSetting>(config, hackRFsamplingRateMap, "HackRF Sampling rate", true);
 		hackRFsampRateLS->bindVariable(&config->hackrf.deviceSamplingRate);
 		//--------------------
 	}
@@ -605,7 +610,7 @@ void Display::initSettings() {
 			{6 , "10000000"}
 		};
 
-		rspSampRateLS = new ListSetting(config, rspSamplingRateMap, "RSP Sampling rate", true);
+		rspSampRateLS = std::make_unique<ListSetting>(config, rspSamplingRateMap, "RSP Sampling rate", true);
 		rspSampRateLS->bindVariable(&config->rsp.deviceSamplingRate);
 
 		std::map<int, std::string> rspDecimationFactorMap;
@@ -616,7 +621,7 @@ void Display::initSettings() {
 			}
 		}
 
-		rspDecimationFactorLS = new ListSetting(config, rspDecimationFactorMap, "Decimation factor", true);
+		rspDecimationFactorLS = std::make_unique<ListSetting>(config, rspDecimationFactorMap, "Decimation factor", true);
 		rspDecimationFactorLS->bindVariable(&config->rsp.deviceDecimationFactor);
 		//--------------------
 	}
@@ -644,7 +649,7 @@ void Display::initSettings() {
 			{16 , "470"},
 			{17 , "490"}
 		};
-		rtlDeviceGainLS = new ListSetting(config, rtlGainMap, "Gain", false);
+		rtlDeviceGainLS = std::make_unique<ListSetting>(config, rtlGainMap, "Gain", false);
 		rtlDeviceGainLS->bindVariable(&config->rtl.gain);
 
 		//225001 - 300000 Hz
@@ -660,20 +665,46 @@ void Display::initSettings() {
 			{7 , "3200000"}
 		};
 
-		rtlSampRateLS = new ListSetting(config, rtlSampRateMap, "Sampling rate", false);
+		rtlSampRateLS = std::make_unique<ListSetting>(config, rtlSampRateMap, "Sampling rate", false);
 		rtlSampRateLS->bindVariable(&config->rtl.deviceSamplingRate);
 	}
 
-	//--------------Other-
-		std::map<int, std::string> fftLenMap;
-		fftLenMap.insert(pair<int, string> {0, "8192"});
-		fftLenMap.insert(pair<int, string> {1, "16384"});
-		fftLenMap.insert(pair<int, string> {2, "32768"});
-		fftLenMap.insert(pair<int, string> {3, "65536"});
-		fftLenMap.insert(pair<int, string> {4, "131072"});
-		fftLenMap.insert(pair<int, string> {5, "262144"});
-		fftLenMap.insert(pair<int, string> {6, "524288"});
-		fftLenLS = new ListSetting(config, fftLenMap, "FFT length", true);
-		fftLenLS->bindVariable(&config->delayedFFTLen);
+	//-------------Spectre
+	std::map<int, std::string> spectreStyleMap;
+	spectreStyleMap.insert(pair<int, string> {0, "0"});
+	spectreStyleMap.insert(pair<int, string> {1, "1"});
+	spectreStyleMap.insert(pair<int, string> {2, "2"});
+	spectreStyleLS = std::make_unique<ListSetting>(config, spectreStyleMap, "Spectre style", true);
+	spectreStyleLS->bindVariable(&config->spectre.style);
+
+	std::map<int, std::string> smoothingDepthMap;
+	smoothingDepthMap.insert(pair<int, string> {0, "0"});
+	smoothingDepthMap.insert(pair<int, string> {1, "1"});
+	smoothingDepthMap.insert(pair<int, string> {2, "2"});
+	smoothingDepthMap.insert(pair<int, string> {3, "3"});
+	smoothingDepthMap.insert(pair<int, string> {4, "4"});
+	smoothingDepthMap.insert(pair<int, string> {5, "5"});
+	smoothingDepthMap.insert(pair<int, string> {6, "6"});
+	smoothingDepthMap.insert(pair<int, string> {7, "7"});
+	smoothingDepthMap.insert(pair<int, string> {8, "8"});
+	smoothingDepthLS = std::make_unique<ListSetting>(config, smoothingDepthMap, "Smoothing depth", false);
+	smoothingDepthLS->bindVariable(&config->spectre.smoothingDepth);
 	//--------------------
+
+	//--------------Other-
+	std::map<int, std::string> fftLenMap;
+	fftLenMap.insert(pair<int, string> {0, "8192"});
+	fftLenMap.insert(pair<int, string> {1, "16384"});
+	fftLenMap.insert(pair<int, string> {2, "32768"});
+	fftLenMap.insert(pair<int, string> {3, "65536"});
+	fftLenMap.insert(pair<int, string> {4, "131072"});
+	fftLenMap.insert(pair<int, string> {5, "262144"});
+	fftLenMap.insert(pair<int, string> {6, "524288"});
+	fftLenLS = std::make_unique<ListSetting>(config, fftLenMap, "FFT length", true);
+	fftLenLS->bindVariable(&config->delayedFFTLen);
+	//--------------------
+
+	/*auto end = std::chrono::steady_clock::now();
+	auto elapsed_ms = std::chrono::duration_cast<std::chrono::microseconds>(end - begin);
+	std::cout << "The time: " << elapsed_ms.count() << " micros\n";*/
 }

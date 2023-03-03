@@ -30,8 +30,6 @@ void ListSetting::drawSetting() {
 
 	int item_current_idx = getSelectedSetting(); // Here we store our selection data as an index.
 
-	//printf("%d\r\n", item_current_idx);
-
 	const char* combo_preview_value = items[item_current_idx];  // Pass in the preview value visible before opening the combo (it could be anything)
 	string title = string(settingName);
 	if (needToRestart) title.append(" (*)");
@@ -50,6 +48,7 @@ void ListSetting::drawSetting() {
 	}
 
 	delete itemsArray;
+	
 }
 
 int ListSetting::getSelectedSetting() {
