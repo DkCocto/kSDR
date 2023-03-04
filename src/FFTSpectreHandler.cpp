@@ -62,47 +62,31 @@ FFTSpectreHandler::FFTSpectreHandler(Config* config) {
 //std::queue<std::vector<float>> spectreDataQueue;
 std::mutex spectreDataMutex;
 
-bool readyToCalculate = false;
+bool ready = false;
 
 void FFTSpectreHandler::run() {
 	while (true) {
-		//if (readyToCalculate) {
-			/*if (spectreDataMutex.try_lock()) {
-				std::this_thread::sleep_for(std::chrono::milliseconds(1));
-				continue;
-			}*/
+		if (ready) {
 			spectreDataMutex.lock();
-			printf("KAKA\n");
 			processFFT();
-			//readyToCalculate = false;
+			ready = false;
 			//не забываем ставить unlock()!!!
 			spectreDataMutex.unlock();
-			std::this_thread::sleep_for(std::chrono::milliseconds(10));
-		//}
-		//else {
-		//}
-
-		//else {
-			//std::this_thread::sleep_for(std::chrono::milliseconds(1));
-		//}
+		} else {
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		}
 	}
 }
 
 void FFTSpectreHandler::putData(float* data) {
 	if (!spectreDataMutex.try_lock()) {
-		printf("blocked\n");
 		return;
 	}
-	printf("sisya\n");
-
-	for (int i = 0; i < config->fftLen; i++) {
-		dataBuffer[i] = data[i];
-	}
-
-	//memcpy(dataBuffer, data, sizeof(float) * config->fftLen);
+	
+	memcpy(dataBuffer, data, sizeof(float) * config->fftLen);
 
 	spectreDataMutex.unlock(); // не забываем ставить unlock()!!!
-	//readyToCalculate = true;
+	ready = true;
 }
 
 float* FFTSpectreHandler::getOutputCopy(int startPos, int len) {
