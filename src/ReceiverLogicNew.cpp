@@ -30,8 +30,8 @@ void ReceiverLogicNew::setFrequencyDeltaBySpectrePosPx(float positionInSpectrePx
 	
 
 	float pos = receiverPosOnBin * flowingFFTSpectre->getFreqOfOneSpectreBin();
-	if (pos > config->inputSamplerate / 2) frequencyDelta = pos - config->inputSamplerate / 2;
-	else if (pos < config->inputSamplerate / 2) frequencyDelta = (-1) * (config->inputSamplerate / 2 - pos);
+	if (pos > config->inputSamplerate / 2.0f) frequencyDelta = pos - config->inputSamplerate / 2.0f;
+	else if (pos < config->inputSamplerate / 2.0f) frequencyDelta = (-1.0f) * (config->inputSamplerate / 2.0f - pos);
 	else frequencyDelta = 0;
 }
 

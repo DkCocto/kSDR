@@ -9,6 +9,8 @@ void ComplexSignal::multiply(double val) {
 	Q = Q * val;
 }
 
+ComplexSignal::ComplexSignal() { }
+
 ComplexSignal::ComplexSignal(double I, double Q) {
 	this->I = I;
 	this->Q = Q;
@@ -16,7 +18,7 @@ ComplexSignal::ComplexSignal(double I, double Q) {
 
 void ComplexSignal::normalize() {
 	double m = magnitude();
-	if (m != 0) {
-		multiply(1 / m);
+	if (m != 0.0) {
+		multiply(1.0 / m);
 	}
 }

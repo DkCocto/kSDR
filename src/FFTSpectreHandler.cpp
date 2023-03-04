@@ -1,11 +1,7 @@
 #include "FFTSpectreHandler.h"
 
-//#include "fft3.hpp"
-//std::vector<KalmanFilter> kfArray;
-
 float* tmpArray;
 float* tmpArray2;
-float* tmpArray3;
 
 FFTSpectreHandler::~FFTSpectreHandler() {
 	fftw_destroy_plan(fftwPlan);
@@ -40,6 +36,9 @@ FFTSpectreHandler::FFTSpectreHandler(Config* config) {
 	superOutput = new float[spectreSize];
 	memset(superOutput, -100, sizeof(float) * spectreSize);
 
+	outputWaterfall = new float[spectreSize];
+	memset(outputWaterfall, -100, sizeof(float) * spectreSize);
+
 	/*for (int i = 0; i < spectreSize; i++) {
 		kfArray.push_back(KalmanFilter(1.0f, 0.1f));
 	}*/
@@ -56,7 +55,6 @@ FFTSpectreHandler::FFTSpectreHandler(Config* config) {
 
 	speedDelta = new float[spectreSize];
 	//memset(speedDelta, 1, sizeof(float) * spectreSize);
-	//fft.init(config->fftLen);
 }
 
 //std::queue<std::vector<float>> spectreDataQueue;
@@ -73,7 +71,7 @@ void FFTSpectreHandler::run() {
 			//не забываем ставить unlock()!!!
 			spectreDataMutex.unlock();
 		} else {
-			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+			std::this_thread::sleep_for(std::chrono::microseconds(10));
 		}
 	}
 }
@@ -82,20 +80,21 @@ void FFTSpectreHandler::putData(float* data) {
 	if (!spectreDataMutex.try_lock()) {
 		return;
 	}
-	
 	memcpy(dataBuffer, data, sizeof(float) * config->fftLen);
 
 	spectreDataMutex.unlock(); // не забываем ставить unlock()!!!
 	ready = true;
 }
 
-float* FFTSpectreHandler::getOutputCopy(int startPos, int len) {
+float* FFTSpectreHandler::getOutputCopy(int startPos, int len, bool forWaterfall) {
 	float* buffer = new float[spectreSize];
-	float* output = getOutput();
+
 	//spectreDataMutex.lock();
 
-	memcpy(buffer, output + (spectreSize / 2), sizeof(output) * (spectreSize / 2));
-	memcpy(buffer + (spectreSize / 2), output, sizeof(output) * (spectreSize / 2));
+	float* data = (forWaterfall == true) ? outputWaterfall : superOutput;
+
+	memcpy(buffer, data + (spectreSize / 2), sizeof(data) * (spectreSize / 2));
+	memcpy(buffer + (spectreSize / 2), data, sizeof(data) * (spectreSize / 2));
 
 	//spectreDataMutex.unlock();
 
@@ -191,11 +190,15 @@ void FFTSpectreHandler::dataPostprocess() {
 
 	for (int n = 0; n <= config->spectre.smoothingDepth; n++) {
 		for (int j = 0; j < spectreSize; j++) {
-			if (j >= 2 && j < spectreSize - 2) {
-				tmpArray2[j] = (tmpArray[j - 2] + 2.0f * tmpArray[j - 1] + 3.0f * tmpArray[j] + 2.0f * tmpArray[j + 1] + tmpArray[j + 2]) / 9.0f;
+			if (j >= 1 && j < spectreSize - 1) {
+				tmpArray2[j] = (tmpArray[j - 1] + tmpArray[j] + tmpArray[j + 1]) / 3;
+				//tmpArray2[j] = (tmpArray[j - 2] + 2.0f * tmpArray[j - 1] + 3.0f * tmpArray[j] + 2.0f * tmpArray[j + 1] + tmpArray[j + 2]) / 9.0f;
 			}
 			else {
 				tmpArray2[j] = tmpArray[j];
+			}
+			if (n == 0) {
+				outputWaterfall[j] = tmpArray2[j];
 			}
 			if (n == config->spectre.smoothingDepth) {
 				if (config->spectre.hangAndDecay) {
@@ -211,30 +214,9 @@ void FFTSpectreHandler::dataPostprocess() {
 					superOutput[j] = average(superOutput[j], tmpArray2[j], config->spectre.spectreSpeed2);
 				}
 			}
-			//Utils::printFloat(superOutput[j]);
 		}
 		if (n != config->spectre.smoothingDepth) memcpy(tmpArray, tmpArray2, sizeof(float) * spectreSize);
 	}
-
-	/*for (int j = 0; j < spectreSize; j++) {
-		//if (j >= 1 && j < spectreSize - 1) pipiska(((tmpArray[j - 1] + tmpArray[j] + tmpArray[j + 1]) / 3.0f), j);
-		//if (j >= 2 && j < spectreSize - 2) pipiska((tmpArray2[j - 2] + 2 * tmpArray2[j - 1] + 3 * tmpArray2[j] + 2 * tmpArray2[j + 1] + tmpArray2[j + 2]) / 9.0, j);
-		//else pipiska(tmpArray2[j], j);
-		if (j >= 3 && j < spectreSize - 3) {
-			//pipiska((tmpArray[i - 2] + 2 * tmpArray[i - 1] + 3 * tmpArray[i] + 2 * tmpArray[i + 1] + tmpArray[i + 2]) / 9.0, i);
-			pipiska((tmpArray2[j - 3] + 2 * tmpArray2[j - 2] + 3 * tmpArray2[j - 1] + 4 * tmpArray2[j] + 3 * tmpArray2[j + 1] + 2 * tmpArray2[j + 2] + tmpArray2[j + 3]) / 16.0, j);
-		}
-		else pipiska(tmpArray2[j], j);
-	}*/
-}
-
-Semaphore* FFTSpectreHandler::getSemaphore() {
-	return semaphore;
-}
-
-
-float* FFTSpectreHandler::getOutput() {
-	return superOutput;
 }
 
 int FFTSpectreHandler::getSpectreSize() {

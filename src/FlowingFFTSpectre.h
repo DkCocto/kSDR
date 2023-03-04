@@ -32,6 +32,7 @@ public:
 	FlowingFFTSpectre(Config* config, ViewModel* viewModel, FFTSpectreHandler* fftSH);
 	~FlowingFFTSpectre();
 	float* getData();
+	float* getWaterfallData();
 	void setPos(int A, int B);
 	int getLen();
 	int getAbsoluteSpectreLen();
@@ -61,9 +62,9 @@ public:
 
 	float getFreqOfOneSpectreBin();
 
-	void setReceivedFreqToSpectreCenter();
+	//void setReceivedFreqToSpectreCenter();
 
 	//desiredBins should be div by 2
-	std::vector<float> getReducedSpectre(float* fullSpectreData, int fullSpectreDataLen, int desiredBins);
+	std::vector<float> getReducedSpectre(float* fullSpectreData, int fullSpectreDataLen, int desiredBins, bool forWaterfall);
 
 };

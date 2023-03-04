@@ -3,11 +3,11 @@
 #include "ComplexOscillator.h"
 
 class Mixer {
-	ComplexOscillator* complexOscillator;
+	ComplexOscillator complexOscillator;
 
 	int freq = 0;
 
-	ComplexSignal* complexSignal;
+	ComplexSignal complexSignal;
 
 public:
 

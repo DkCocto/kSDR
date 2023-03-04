@@ -22,20 +22,20 @@
 #define SPECTRE_DB_MARK_COUNT		10
 
 //Upper right (spectreX1, spectreY1), down left (spectreX2, spectreY2)
-bool Spectre::isMouseOnRegion(int X1, int Y1, int X2, int Y2) {
+bool Spectre::isMouseOnRegion(Spectre::Region region) {
 	ImGuiIO& io = ImGui::GetIO();
-	if (io.MousePos.x >= X1 && io.MousePos.x <= X2 && io.MousePos.y >= Y1 && io.MousePos.y <= Y2) return true;
+	if (io.MousePos.x >= region.x1.x && io.MousePos.x <= region.x2.x && io.MousePos.y >= region.x1.y && io.MousePos.y <= region.x2.y) return true;
 	return false;
 }
 
 void Spectre::waterfallAutoColorCorrection() {
-	viewModel->waterfallMin = m.min;
-	viewModel->waterfallMax = m.average + (m.max - m.min) + 3;
+	viewModel->waterfallMin = minMax.min;
+	viewModel->waterfallMax = minMax.average + (minMax.max - minMax.min) + 3;
 }
 
 void Spectre::spectreRatioAutoCorrection() {
-	viewModel->minDb = m.average - 20;
-	viewModel->ratio = m.max + 40;
+	viewModel->minDb = minMax.average - 20;
+	viewModel->ratio = minMax.max + 40;
 }
 
 Spectre::Spectre(Config* config, ViewModel* viewModel, FlowingFFTSpectre* flowingFFTSpectre) {
@@ -87,7 +87,7 @@ void Spectre::draw() {
 
 		handleEvents(startWindowPoint, windowLeftBottomCorner, spectreWidth);
 
-		float* fullSpectreData = flowingFFTSpectre->getSpectreHandler()->getOutputCopy(0, flowingFFTSpectre->getSpectreHandler()->getSpectreSize());
+		float* fullSpectreData = flowingFFTSpectre->getSpectreHandler()->getOutputCopy(0, flowingFFTSpectre->getSpectreHandler()->getSpectreSize(), false);
 
 		ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
@@ -125,17 +125,14 @@ void Spectre::draw() {
 		ImGui::EndChild();
 
 		ImGui::BeginChild("Waterfall", ImVec2(ImGui::GetContentRegionAvail().x, windowLeftBottomCorner.y - spectreHeight - 5), false, ImGuiWindowFlags_NoMove);
-			
-			int waterfallLineHeight = 1;
-			
-			//if (countFrames % 1 == 0) {
-				//waterfall->setMinMaxValue(m.min, m.max);
+			//int waterfallLineHeight = 1;
+		
+
 			waterfall->setMinMaxValue(viewModel->waterfallMin, viewModel->waterfallMax);
-			float* spectreData = flowingFFTSpectre->getData();
-			waterfall->putData(spectreData, waterfallLineHeight);
-			delete[] spectreData;
-				//countFrames = 0;
-			//}
+			waterfall->update();
+			//float* spectreData = flowingFFTSpectre->getWaterfallData();
+			//waterfall->putData(reducedSpectreData, waterfallLineHeight);
+			//delete[] spectreData;
 
 			int waterfallHeight = windowLeftBottomCorner.y - spectreHeight - waterfallPaddingTop;
 
@@ -175,7 +172,6 @@ void Spectre::draw() {
 				freq.c_str()
 			);
 			ImGui::PopFont();
-			//delete[] s;
 
 			float delta = receiverLogicNew->getFilterWidthAbs(viewModel->filterWidth);
 
@@ -211,7 +207,6 @@ void Spectre::draw() {
 		drawFreqPointerMark(startWindowPoint, windowLeftBottomCorner, spectreWidth, draw_list);
 
 	ImGui::End();
-	countFrames++;
 
 	delete[] fullSpectreData;
 
@@ -240,7 +235,7 @@ void Spectre::storeSignaldB(float* spectreData) {
 }
 
 Spectre::MIN_MAX Spectre::getMinMaxInSpectre() {
-	return m;
+	return minMax;
 }
 
 Spectre::MIN_MAX Spectre::getMinMaxInSpectre(std::vector<float> spectreData, int len) {
@@ -256,9 +251,20 @@ Spectre::MIN_MAX Spectre::getMinMaxInSpectre(std::vector<float> spectreData, int
 }
 
 void Spectre::handleEvents(ImVec2 startWindowPoint, ImVec2 windowLeftBottomCorner, int spectreWidthInPX) {
-	bool isMouseOnSpectre = isMouseOnRegion(startWindowPoint.x + rightPadding, startWindowPoint.y, startWindowPoint.x + windowLeftBottomCorner.x - leftPadding, startWindowPoint.y + windowLeftBottomCorner.y);
-	
+	bool isMouseOnSpectre = isMouseOnRegion(
+		Region { 
+			ImVec2 (startWindowPoint.x + rightPadding, startWindowPoint.y), 
+			ImVec2 (startWindowPoint.x + windowLeftBottomCorner.x - leftPadding, startWindowPoint.y + spectreHeight)  // windowLeftBottomCorner.y
+		});
+
+	bool isMouseOnWaterfall = isMouseOnRegion(
+		Region{
+			ImVec2(startWindowPoint.x + rightPadding, startWindowPoint.y + spectreHeight),
+			ImVec2(startWindowPoint.x + windowLeftBottomCorner.x - leftPadding, startWindowPoint.y + 2 * spectreHeight)  // windowLeftBottomCorner.y
+		});
+
 	ImGuiIO& io = ImGui::GetIO();
+
 	if (!viewModel->mouseBusy && isMouseOnSpectre) {
 
 		bool ctrlPressed = false;
@@ -308,13 +314,19 @@ void Spectre::handleEvents(ImVec2 startWindowPoint, ImVec2 windowLeftBottomCorne
 		}
 	}
 
+	if (!viewModel->mouseBusy && (ImGui::IsMouseDown(0) || ImGui::IsMouseDown(1)) && isMouseOnWaterfall) {
+		if (ImGui::IsMouseDown(0)) {
+			float freq = receiverLogicNew->getFreqByPosOnSpectrePx(io.MousePos.x - (startWindowPoint.x + rightPadding));
+			receiverLogicNew->setFreq(freq);
+		}
+	}
+
 	//¬ыполн¤етс¤ если удержание кнопки мышки произошло внутри спектра и мышка не была где то уже нажата вне окна
 	if (!viewModel->mouseBusy && (ImGui::IsMouseDown(0) || ImGui::IsMouseDown(1)) && isMouseOnSpectre) {
 		if (ImGui::IsMouseDown(0)) {
 			receiverLogicNew->setFrequencyDeltaFromSavedPosition(io.MousePos.x - (startWindowPoint.x + rightPadding));
 		}
 		if (ImGui::IsMouseDown(1)) {
-
 			float newCenterFreq = flowingFFTSpectre->moveSpectreByMouse(spectreWidthInPX, io.MousePos.x - (startWindowPoint.x + rightPadding));
 
 			receiverLogicNew->setFrequencyDelta(receiverLogicNew->getFrequencyDelta());
@@ -383,6 +395,15 @@ void Spectre::drawFreqMarks(ImDrawList* draw_list, ImVec2 startWindowPoint, ImVe
 }
 
 void Spectre::drawSpectreContour(float* fullSpectreData, ImDrawList* draw_list) {
+	std::vector<float> reducedSpectreData = flowingFFTSpectre->getReducedSpectre(
+		fullSpectreData,
+		flowingFFTSpectre->getSpectreHandler()->getSpectreSize(),
+		config->visibleSpectreBinCount,
+		false
+	);
+
+	minMax = getMinMaxInSpectre(reducedSpectreData, reducedSpectreData.size());
+
 	if (config->spectre.style == 2) {
 		coloredSpectreBG.generateImage(waterfall, ColoredSpectreBG::params{ 100, spectreHeight, viewModel->waterfallMin * config->spectre.bottomCoeff, viewModel->waterfallMax * config->spectre.topCoeff, viewModel->waterfallMin, viewModel->waterfallMax });
 		draw_list->AddImage(
@@ -398,18 +419,9 @@ void Spectre::drawSpectreContour(float* fullSpectreData, ImDrawList* draw_list) 
 		);
 	}
 
-	std::vector<float> reducedSpectreData = flowingFFTSpectre->getReducedSpectre(
-		fullSpectreData,
-		flowingFFTSpectre->getSpectreHandler()->getSpectreSize(),
-		config->visibleSpectreBinCount
-	);
-
-
-	m = getMinMaxInSpectre(reducedSpectreData, reducedSpectreData.size());
-
 
 	veryMinSpectreVal = viewModel->minDb;
-	if (veryMaxSpectreVal < m.max) veryMaxSpectreVal = m.max;
+	if (veryMaxSpectreVal < minMax.max) veryMaxSpectreVal = minMax.max;
 
 	float stepX = (float)(windowLeftBottomCorner.x - rightPadding - leftPadding) / (float)(reducedSpectreData.size() - 1.0f);
 
@@ -596,7 +608,7 @@ void Spectre::drawFreqPointerMark(ImVec2 startWindowPoint, ImVec2 windowLeftBott
 	int baseHeight = 40;
 
 	if (!viewModel->mouseBusy && 
-		isMouseOnRegion(startWindowPoint.x + rightPadding, startWindowPoint.y, startWindowPoint.x + windowLeftBottomCorner.x - leftPadding, startWindowPoint.y + windowLeftBottomCorner.y) == true &&
+		isMouseOnRegion(Region{ ImVec2(startWindowPoint.x + rightPadding, startWindowPoint.y), ImVec2(startWindowPoint.x + windowLeftBottomCorner.x - leftPadding, startWindowPoint.y + windowLeftBottomCorner.y) } ) == true &&
 		io.MousePos.y < startWindowPoint.y + windowLeftBottomCorner.y - baseHeight - 10) {
 
 

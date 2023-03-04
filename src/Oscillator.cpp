@@ -1,5 +1,7 @@
 #include "Oscillator.h"
 
+Oscillator::Oscillator() { }
+
 Oscillator::Oscillator(int freq, int samplingRate) {
 	this->freq = freq;
 	this->samplingRate = samplingRate;
@@ -13,5 +15,5 @@ void Oscillator::setFreq(int freq) {
 
 void Oscillator::init() {
 	phase = 0.0;
-	phaseIncrement = (2 * M_PI / samplingRate) * freq;
+	phaseIncrement = (2.0 * M_PI / (double)samplingRate) * (double)freq;
 }

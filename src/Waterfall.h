@@ -5,7 +5,7 @@
 
 class Waterfall {
 
-	float div = 1;
+	int div = 1;
 
 	int size = 400;
 
@@ -27,6 +27,10 @@ class Waterfall {
 	FlowingFFTSpectre* flowingFFTSpectre;
 
 	ViewModel* viewModel;
+
+	int lineHeight = 1;
+
+	Config* config;
 
 public:
 
@@ -51,7 +55,7 @@ public:
 
 	float getDiv();
 
-	void putData(float* spectreData, int lineHeight);
+	void update();
 
 	int getSize();
 

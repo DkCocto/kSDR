@@ -47,6 +47,7 @@ void SoundProcessorThread::process() {
 	float* data = new float[len];
 
 	ViewModel* viewModel = Display::instance->viewModel;
+	ReceiverLogicNew* receiverLogicNew = Display::instance->spectre->receiverLogicNew;
 
 	FMDemodulator fmDemodulator;
 
@@ -69,7 +70,7 @@ void SoundProcessorThread::process() {
 
 				if (viewModel->removeDCBias) dcRemove.process(&data[2 * i], &data[2 * i + 1]);
 
-				mixer->setFreq(Display::instance->spectre->receiverLogicNew->getFrequencyDelta());
+				mixer->setFreq(receiverLogicNew->getFrequencyDelta());
 				Signal mixedSignal = mixer->mix(data[2 * i], data[2 * i + 1]);
 
 				decimateBufferI[decimationCount] = mixedSignal.I;
@@ -131,7 +132,7 @@ void SoundProcessorThread::process() {
 			//delete data;
 		} else {
 			//printf("SoundProcessorThread: Waiting for iqSignalsCircleBuffer...\r\n");
-			std::this_thread::sleep_for(std::chrono::nanoseconds(1));
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		}
 	}
 }

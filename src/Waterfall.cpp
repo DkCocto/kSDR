@@ -4,41 +4,51 @@ Waterfall::Waterfall(Config* config, FlowingFFTSpectre* flowingFFTSpectre, ViewM
 	this->flowingFFTSpectre = flowingFFTSpectre;
 	memset(texturesArray, 0, sizeof(texturesArray) * size);
 	this->viewModel = viewModel;
+	this->config = config;
 }
 
 float Waterfall::getDiv() {
 	return div;
 }
 
-void Waterfall::putData(float* spectreData, int lineHeight) {
-	float sum = 0;
+void Waterfall::update() {
 
-	float* output = new float[flowingFFTSpectre->getLen() / div];
+	float* fullSpectreData = flowingFFTSpectre->getSpectreHandler()->getOutputCopy(0, flowingFFTSpectre->getSpectreHandler()->getSpectreSize(), true);
+
+	std::vector<float> waterfallData = flowingFFTSpectre->getReducedSpectre(
+		fullSpectreData,
+		flowingFFTSpectre->getSpectreHandler()->getSpectreSize(),
+		config->visibleSpectreBinCount,
+		true);
+
+	delete[] fullSpectreData;
+
+	float sum = 0.0f;
+
+	float* output = new float[waterfallData.size() / div];
 
 	int start = 1;							 //1
-	int stop = flowingFFTSpectre->getLen();	 //flowingFFTSpectre->getLen()
+	int stop = waterfallData.size();	 //flowingFFTSpectre->getLen()
 
 	//printf("%d %d %d \r\n", flowingFFTSpectre->getLen(), flowingFFTSpectre->getA(), flowingFFTSpectre->getB());
 
 	for (int i = start; i <= stop; i++) {
 
-		//i += flowingFFTSpectre->getA();
+		sum += waterfallData[i - 1];
 
-		sum += spectreData[i - 1];
-
-		if (i % (int)div == 0) {
-			output[i / (int)div - 1] = sum / div;
+		if (i % div == 0) {
+			output[i / div - 1] = sum / (float)div;
 			sum = 0;
 		}
 	}
 
 	int height = lineHeight;
-	int width = flowingFFTSpectre->getLen() / div;
+	int width = waterfallData.size() / div;
 
 	GLubyte* checkImage = new GLubyte[width * height * depth];
 
-	for (unsigned int ix = 0; ix < height; ++ix) {
-		for (unsigned int iy = 0; iy < width; ++iy) {
+	for (int ix = 0; ix < height; ++ix) {
+		for (int iy = 0; iy < width; ++iy) {
 			Waterfall::RGB rgb = getColorForPowerInSpectre(output[iy], minValue - 6, maxValue + 10);
 
 			checkImage[ix * width * depth + iy * depth + 0] = rgb.r;   //red

@@ -9,8 +9,10 @@ class ComplexSignal {
 
 public: 
 
-	double I = 0;
-	double Q = 0;
+	double I = 0.0;
+	double Q = 0.0;
+
+	ComplexSignal();
 
 	ComplexSignal(double I, double Q);
 

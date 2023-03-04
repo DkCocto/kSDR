@@ -34,6 +34,7 @@ class Spectre {
 	int spectreWidth = 0;
 	int spectreHeight = 0;
 
+	
 public:
 	struct MIN_MAX {
 		float min;
@@ -41,8 +42,13 @@ public:
 		float average;
 	};
 
+	struct Region {
+		ImVec2 x1;
+		ImVec2 x2;
+	};
+
 private:
-	MIN_MAX m;
+	MIN_MAX minMax;
 
 	struct WINDOW_FRAME {
 		ImVec2 UPPER_RIGHT;
@@ -72,7 +78,7 @@ public:
 
 	void storeSignaldB(float* spectreData);
 
-	bool isMouseOnRegion(int spectreX1, int spectreY1, int spectreX2, int spectreY2);
+	bool isMouseOnRegion(Spectre::Region region);
 
 	WINDOW_FRAME windowFrame{ ImVec2(0, 0), ImVec2(0, 0) };
 

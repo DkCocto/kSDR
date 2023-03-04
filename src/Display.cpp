@@ -173,10 +173,11 @@ void Display::renderImGUIFirst() {
 	//Проверка которая исключает настройку приемника при перетягивании стороннего окна в область окна спектра
 	if (ImGui::IsMouseDown(0)) {
 		if (!spectre->isMouseOnRegion(
-			spectre->windowFrame.UPPER_RIGHT.x,
-			spectre->windowFrame.UPPER_RIGHT.y,
-			spectre->windowFrame.BOTTOM_LEFT.x,
-			spectre->windowFrame.BOTTOM_LEFT.y)) viewModel->mouseBusy = true;
+			Spectre::Region{ 
+				ImVec2(spectre->windowFrame.UPPER_RIGHT.x, spectre->windowFrame.UPPER_RIGHT.y),
+				ImVec2(spectre->windowFrame.BOTTOM_LEFT.x, spectre->windowFrame.BOTTOM_LEFT.y) }
+			)
+		) viewModel->mouseBusy = true;
 	} else {
 		viewModel->mouseBusy = false;
 	}
@@ -197,7 +198,7 @@ void Display::renderImGUIFirst() {
 
 				ImGui::SliderFloat("Waterfall min", &viewModel->waterfallMin, -150, 0);
 
-				ImGui::SliderFloat("Waterfall max", &viewModel->waterfallMax, -150, 30);
+				ImGui::SliderFloat("Waterfall max", &viewModel->waterfallMax, -150, 100);
 
 				ImGui::SliderFloat("Spectre ratio", &viewModel->ratio, -200, 100);
 
@@ -304,6 +305,8 @@ void Display::renderImGUIFirst() {
 			if (ImGui::BeginTabItem("Device Options")) {
 				if (config->deviceType == Config::HACKRF) {
 
+					hackRFsampRateLS->drawSetting();
+
 					ImGui::SliderInt("LNA Gain", &viewModel->hackRFModel.lnaGain, 0, 5);
 
 					ImGui::SliderInt("VGA Gain", &viewModel->hackRFModel.vgaGain, 0, 31);
@@ -334,12 +337,23 @@ void Display::renderImGUIFirst() {
 				}
 
 				if (config->deviceType == Config::RSP) {
+					ImGui::Text("\nRSP Settings:");
+
+					rspSampRateLS->drawSetting();
+
+					rspDecimationFactorLS->drawSetting();
+
+					bool useRspApiv3 = (config->rsp.api == 3) ? true : false;
+					ImGui::Checkbox("Use APIv3 (instead of v2) (*)", &useRspApiv3);
+					config->rsp.api = (useRspApiv3 == true) ? 3 : 2;
+
 					ImGui::SliderInt("Gain", &viewModel->rspModel.gain, 20, 59);
 					ImGui::Checkbox("Disable LNA", &viewModel->rspModel.lna);
 					//ImGui::Checkbox("Gain Control", &viewModel->gainControl);
 				}
 
 				if (config->deviceType == Config::RTL) {
+					rtlSampRateLS->drawSetting();
 					rtlDeviceGainLS->drawSetting();
 				}
 
@@ -353,35 +367,14 @@ void Display::renderImGUIFirst() {
 
 				decimationLS->drawSetting();
 
-				if (config->deviceType == Config::RTL) {
-					ImGui::Text("\nRTL Settings:");
-
-					rtlSampRateLS->drawSetting();
-				}
-
-				if (config->deviceType == Config::HACKRF) {
-					ImGui::Text("\nHackRF Settings:");
-
-					hackRFsampRateLS->drawSetting();
-				}
-				
-				if (config->deviceType == Config::RSP) {
-
-					ImGui::Text("\nRSP Settings:");
-
-					rspSampRateLS->drawSetting();
-
-					rspDecimationFactorLS->drawSetting();
-
-					bool useRspApiv3 = (config->rsp.api == 3) ? true : false;
-					ImGui::Checkbox("Use APIv3 (instead of v2) (*)", &useRspApiv3);
-					config->rsp.api = (useRspApiv3 == true) ? 3 : 2;
-				}
+				ImGui::Separator();
 
 				ImGui::Text("\nFrequency shift:");
 
 				ImGui::InputInt("Shift in Hz", &config->receiver.frequencyShift);
 				ImGui::Checkbox("Enable shift", &config->receiver.enableFrequencyShift);
+
+				ImGui::Separator();
 
 				ImGui::Text("\nAGC settings:");
 
@@ -389,6 +382,8 @@ void Display::renderImGUIFirst() {
 				ImGui::InputDouble("Atack time (ms)", &config->receiver.agc.atackSpeedMs, 0.1f, 0.1f, "%.1f");
 				ImGui::InputDouble("Hold time (ms)", &config->receiver.agc.holdingTimeMs, 0.1f, 0.1f, "%.1f");
 				ImGui::InputDouble("Release time", &config->receiver.agc.releaseSpeed, 0.00001f, 0.1f, "%.7f");
+
+				ImGui::Separator();
 
 				ImGui::Text("\nColor theme:");
 
@@ -399,7 +394,9 @@ void Display::renderImGUIFirst() {
 				showColorPicker(string("Spectre Profile"), &config->colorTheme.spectreProfileColor, false);
 				showColorPicker(string("Receive Region"), &config->colorTheme.receiveRegionColor, true);
 
-				ImGui::Text("\nSpectre:");
+				ImGui::Separator();
+
+				ImGui::Text("\nSpectre settings:");
 				spectreStyleLS->drawSetting();
 				ImGui::Checkbox("Contour shows signal power", &config->spectre.contourShowsPower);
 				ImGui::SliderFloat("Top coeff", &config->spectre.topCoeff, 0.5f, 1.5f);
@@ -410,6 +407,8 @@ void Display::renderImGUIFirst() {
 					ImGui::SliderFloat("Decay speed", &config->spectre.decaySpeed, 0, 2);
 					ImGui::SliderFloat("Decay speed delta", &config->spectre.decaySpeedDelta, 0, 2);
 				}
+
+				ImGui::Separator();
 
 				ImGui::Text("\nOther:");
 
@@ -593,7 +592,7 @@ void Display::initSettings() {
 			{7 , "20000000"}
 		};
 
-		hackRFsampRateLS = std::make_unique<ListSetting>(config, hackRFsamplingRateMap, "HackRF Sampling rate", true);
+		hackRFsampRateLS = std::make_unique<ListSetting>(config, hackRFsamplingRateMap, "Hackrf sampling rate", true);
 		hackRFsampRateLS->bindVariable(&config->hackrf.deviceSamplingRate);
 		//--------------------
 	}
@@ -610,7 +609,7 @@ void Display::initSettings() {
 			{6 , "10000000"}
 		};
 
-		rspSampRateLS = std::make_unique<ListSetting>(config, rspSamplingRateMap, "RSP Sampling rate", true);
+		rspSampRateLS = std::make_unique<ListSetting>(config, rspSamplingRateMap, "Sampling rate", true);
 		rspSampRateLS->bindVariable(&config->rsp.deviceSamplingRate);
 
 		std::map<int, std::string> rspDecimationFactorMap;

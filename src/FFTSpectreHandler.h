@@ -42,8 +42,9 @@ private:
 	//float output[complexLen * 2];
 	
 	float* superOutput;
+	float* outputWaterfall;
 
-	Semaphore* semaphore = new Semaphore();
+	//Semaphore* semaphore = new Semaphore();
 
 	bool firstRun = true;
 
@@ -54,7 +55,6 @@ private:
 	void processFFT();
 	float average(float avg, float new_sample, int n);
 	void dataPostprocess();
-	float* getOutput();
 
 	int spectreSize = 0;
 
@@ -77,10 +77,8 @@ public:
 
 	FFTSpectreHandler(Config* config);
 	~FFTSpectreHandler();
-	Semaphore* getSemaphore();
-	float* getOutputCopy(int startPos, int len);
+	float* getOutputCopy(int startPos, int len, bool forWaterfall);
 	void putData(float* data);
-	void pipiska(float val, int index);
 
 	int getSpectreSize();
 	//void setSpectreSpeed(int speed);
