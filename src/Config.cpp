@@ -2,6 +2,7 @@
 
 Config::Config() {
     load();
+    loadMemory();
 
 	inputChannelNumber							= 1;
 	outputChannelNumber							= 1;
@@ -182,6 +183,9 @@ void Config::load() {
 
             tinyxml2::XMLElement* pmax = pWaterfall->FirstChildElement("max");
             waterfallMax = std::stof(std::string(pmax->GetText()));
+
+            tinyxml2::XMLElement* pspeed = pWaterfall->FirstChildElement("speed");
+            waterfall.speed = std::stoi(std::string(pspeed->GetText()));
         }
 
         tinyxml2::XMLElement* pSpectre = pRootElement->FirstChildElement("Spectre");
@@ -264,7 +268,79 @@ void Config::load() {
             colorTheme.receiveRegionColor = std::stoll(std::string(preceiveRegionColor->GetText()));
         }
     } else {
-        printf("Config file not found!");
+        printf("Config file not found!\r\n");
+    }
+}
+
+void Config::loadMemory() {
+    memoryVector.clear();
+    tinyxml2::XMLDocument doc;
+
+    doc.LoadFile(CONFIG_FILENAME);
+
+    tinyxml2::XMLElement* pRootElement = doc.RootElement();
+
+    if (NULL != pRootElement) {
+        tinyxml2::XMLElement* pMemory = pRootElement->FirstChildElement("Memory");
+        if (NULL != pMemory) {
+            //printf("pMemory found\n");
+            //int count = 0;
+            auto precord = pMemory->FirstChildElement("record");
+            if (precord != NULL) {
+                while (precord != NULL) {
+                    auto pdesc = precord->FirstChildElement("desc");
+                    auto pfreq = precord->FirstChildElement("freq");
+                    auto pmodulation = precord->FirstChildElement("modulation");
+                    auto pfilterWidth = precord->FirstChildElement("filterWidth");
+                    memoryVector.push_back(
+                        MemoryRecord{
+                            pdesc->GetText(),
+                            std::stof(pfreq->GetText()),
+                            std::stoi(pmodulation->GetText()),
+                            std::stoi(pfilterWidth->GetText())
+                        }
+                    );
+                    //printf("%s %f %d %d\n", memoryVector[count].desc.c_str(), memoryVector[count].freq, memoryVector[count].modulation, memoryVector[count].filterWidth);
+                    //count++;
+                    precord = precord->NextSiblingElement();
+                }
+            }
+        }
+    } else {
+        printf("Config file not found!\r\n");
+    }
+}
+void Config::saveMemory() {
+    tinyxml2::XMLDocument doc;
+
+    doc.LoadFile(CONFIG_FILENAME);
+
+    auto pRootElement = doc.RootElement();
+
+    if (NULL != pRootElement) {
+        auto pMemory = pRootElement->FirstChildElement("Memory");
+        if (NULL != pMemory) {
+            pMemory->DeleteChildren();
+
+            for (int i = 0; i < memoryVector.size(); i++) {
+                auto precord = pMemory->InsertNewChildElement("record");
+
+                auto pdesc = precord->InsertNewChildElement("desc");
+                pdesc->SetText(memoryVector[i].desc.c_str());
+
+                auto pfreq = precord->InsertNewChildElement("freq");
+                pfreq->SetText(std::string(std::to_string((int)memoryVector[i].freq)).c_str());
+
+                auto pmodulation = precord->InsertNewChildElement("modulation");
+                pmodulation->SetText(std::string(std::to_string(memoryVector[i].modulation)).c_str());
+
+                auto pfilterWidth = precord->InsertNewChildElement("filterWidth");
+                pfilterWidth->SetText(std::string(std::to_string(memoryVector[i].filterWidth)).c_str());
+            }
+        }
+        doc.SaveFile(CONFIG_FILENAME);
+    } else {
+        printf("Config file not found!\r\n");
     }
 }
 
@@ -391,6 +467,9 @@ void Config::save() {
 
             tinyxml2::XMLElement* pmax = pWaterfall->FirstChildElement("max");
             pmax->SetText(waterfallMax);
+
+            tinyxml2::XMLElement* pspeed = pWaterfall->FirstChildElement("speed");
+            pspeed->SetText(waterfall.speed);
         }
 
         tinyxml2::XMLElement* pSpectre = pRootElement->FirstChildElement("Spectre");
@@ -468,7 +547,7 @@ void Config::save() {
         doc.SaveFile(CONFIG_FILENAME);
     }
     else {
-        printf("Config file not found!");
+        printf("Config file not found!\r\n");
     }
 }
 
@@ -486,6 +565,24 @@ void Config::setDevice(int deviceID) {
         default:
             delayedDeviceType = RSP;
     }
+}
+
+void Config::storeRecord(MemoryRecord memRec) {
+    memoryVector.push_back(memRec);
+    saveMemory();
+    loadMemory();
+}
+
+void Config::editRecord(MemoryRecord correctedMemRec, int index) {
+    memoryVector[index] = correctedMemRec;
+    saveMemory();
+    loadMemory();
+}
+
+void Config::deleteRecord(int index) {
+    memoryVector.erase(std::next(std::begin(memoryVector), index));
+    saveMemory();
+    loadMemory();
 }
 
 void Config::calcOutputSamplerate() {

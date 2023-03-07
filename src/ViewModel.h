@@ -39,6 +39,8 @@ public:
 
 	//bool gainControl = false;
 
+	int goToFreq = 0;
+
 	double serviceField1 = 0;
 	double serviceField2 = 0;
 

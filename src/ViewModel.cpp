@@ -5,6 +5,7 @@ ViewModel::ViewModel(Config* config) {
 	centerFrequency = config->startFrequency;
 	filterWidth = config->defaultFilterWidth;
 	volume = config->volume;
+	goToFreq = centerFrequency;
 
 
 	//from xml

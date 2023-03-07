@@ -66,6 +66,8 @@ bool isFirstFrame = true;
 ImVec2 startWindowPoint;
 ImVec2 windowLeftBottomCorner;
 
+bool controlButtonHovered = false;
+
 void Spectre::draw() {
 
 	receiverLogicNew->setCenterFrequency(viewModel->centerFrequency);
@@ -91,13 +93,36 @@ void Spectre::draw() {
 
 		ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
-
 		ImGui::BeginChild("Spectre1", ImVec2(ImGui::GetContentRegionAvail().x, spectreHeight), false, ImGuiWindowFlags_NoMove);
 
-		ImGui::SetCursorPos(ImVec2(spectreWidth - 250, 10));
-		if (ImGui::Button("Waterfall Auto")) waterfallAutoColorCorrection(); ImGui::SameLine();
-		if (ImGui::Button("Spectre Auto")) spectreRatioAutoCorrection(); ImGui::SameLine();
-		if (ImGui::Button("<|>")) receiverLogicNew->setReceivedFreqToSpectreCenter();
+		ImGui::SetCursorPos(ImVec2(spectreWidth - 280, 10));
+		
+		if (ImGui::Button("Waterfall Auto")) waterfallAutoColorCorrection();
+		bool waterFallAutoHovered = ImGui::IsItemHovered();
+		ImGui::SameLine();
+
+		if (ImGui::Button("Spectre Auto")) spectreRatioAutoCorrection();
+		bool spectreAutoHovered = ImGui::IsItemHovered();
+		ImGui::SameLine();
+
+		if (ImGui::Button("<|>")) { receiverLogicNew->setReceivedFreqToSpectreCenter(); waterfall->clear();	}
+		bool freqToCenterButtonHovered = ImGui::IsItemHovered();
+		ImGui::SameLine();
+
+		ImGui::TextDisabled("(?)");
+		if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort)) {
+			ImGui::BeginTooltip();
+			ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+			ImGui::TextUnformatted(
+				"Help:\nCtrl + Mouse wheel: zoomIn/zoomOut\nMouse wheel: +- 100 hz\nLMB + drag: tunning\nLMB on the spectre + drag: set frequency/tunning\nRMB + drag: moving the spectre\n\nLMB: left mouse button\nRMB: right mouse button");
+			ImGui::PopTextWrapPos();
+			ImGui::EndTooltip();
+		}
+
+		if (waterFallAutoHovered || spectreAutoHovered || freqToCenterButtonHovered) disableControl(); else enableControl();
+
+
+
 		ImGui::SetCursorPos(ImVec2(0, 0));
 
 			storeSignaldB(fullSpectreData);
@@ -126,10 +151,11 @@ void Spectre::draw() {
 
 		ImGui::BeginChild("Waterfall", ImVec2(ImGui::GetContentRegionAvail().x, windowLeftBottomCorner.y - spectreHeight - 5), false, ImGuiWindowFlags_NoMove);
 			//int waterfallLineHeight = 1;
-		
-
-			waterfall->setMinMaxValue(viewModel->waterfallMin, viewModel->waterfallMax);
-			waterfall->update();
+			
+			if (countFrames % config->waterfall.speed == 0) {
+				waterfall->setMinMaxValue(viewModel->waterfallMin, viewModel->waterfallMax);
+				waterfall->update();
+			}
 			//float* spectreData = flowingFFTSpectre->getWaterfallData();
 			//waterfall->putData(reducedSpectreData, waterfallLineHeight);
 			//delete[] spectreData;
@@ -154,10 +180,12 @@ void Spectre::draw() {
 					));
 			}
 
+			int receiverPosAbsolute = startWindowPoint.x + rightPadding + receiverLogicNew->getPositionPX();
+
 			//receive region
 			draw_list->AddLine(
-				ImVec2(startWindowPoint.x + rightPadding + receiverLogicNew->getPositionPX(), startWindowPoint.y - 10),
-				ImVec2(startWindowPoint.x + rightPadding + receiverLogicNew->getPositionPX(), startWindowPoint.y + windowLeftBottomCorner.y + 10),
+				ImVec2(receiverPosAbsolute, startWindowPoint.y - 10),
+				ImVec2(receiverPosAbsolute, startWindowPoint.y + windowLeftBottomCorner.y + 10),
 				GRAY, 2.0f);
 
 			std::string freq = (Utils::getPrittyFreq((int)receiverLogicNew->getSelectedFreqNew())).append(" Hz");
@@ -165,7 +193,7 @@ void Spectre::draw() {
 			ImGui::PushFont(viewModel->fontBigRegular);
 			draw_list->AddText(
 				ImVec2(
-					startWindowPoint.x + rightPadding + receiverLogicNew->getPositionPX() + 20,
+					(windowLeftBottomCorner.x - leftPadding - receiverPosAbsolute > 280) ? receiverPosAbsolute + 50 : receiverPosAbsolute - 300,
 					startWindowPoint.y + 30
 				),
 				IM_COL32_WHITE,
@@ -214,6 +242,7 @@ void Spectre::draw() {
 		receiverLogicNew->setFreq(config->lastSelectedFreq); //load last selected freq
 		isFirstFrame = false;
 	}
+	countFrames++;
 }
 
 void Spectre::storeSignaldB(float* spectreData) {
@@ -238,6 +267,14 @@ Spectre::MIN_MAX Spectre::getMinMaxInSpectre() {
 	return minMax;
 }
 
+void Spectre::disableControl() {
+	this->disableControl_ = true;
+}
+
+void Spectre::enableControl() {
+	this->disableControl_ = false;
+}
+
 Spectre::MIN_MAX Spectre::getMinMaxInSpectre(std::vector<float> spectreData, int len) {
 	float min = 1000.0;
 	float max = -1000.0;
@@ -247,10 +284,12 @@ Spectre::MIN_MAX Spectre::getMinMaxInSpectre(std::vector<float> spectreData, int
 		if (spectreData[i] > max) max = spectreData[i];
 		sum += spectreData[i];
 	}
-	return MIN_MAX{ min, max, sum / len };
+	return MIN_MAX { min, max, sum / len };
 }
 
 void Spectre::handleEvents(ImVec2 startWindowPoint, ImVec2 windowLeftBottomCorner, int spectreWidthInPX) {
+	if (disableControl_) return;
+
 	bool isMouseOnSpectre = isMouseOnRegion(
 		Region { 
 			ImVec2 (startWindowPoint.x + rightPadding, startWindowPoint.y), 
@@ -265,7 +304,7 @@ void Spectre::handleEvents(ImVec2 startWindowPoint, ImVec2 windowLeftBottomCorne
 
 	ImGuiIO& io = ImGui::GetIO();
 
-	if (!viewModel->mouseBusy && isMouseOnSpectre) {
+	if (!viewModel->mouseBusy && (isMouseOnSpectre || isMouseOnWaterfall)) {
 
 		bool ctrlPressed = false;
 
@@ -288,10 +327,10 @@ void Spectre::handleEvents(ImVec2 startWindowPoint, ImVec2 windowLeftBottomCorne
 				if (mouseWheelVal > 0) receiverLogicNew->setFreq(mouseWheelStep * selectedFreqShortByStep + mouseWheelVal * mouseWheelStep);
 				else {
 					if (selectedFreq - selectedFreqShortByStep * mouseWheelStep > 0) {
-						receiverLogicNew->setFreq(mouseWheelStep* selectedFreqShortByStep);
+						receiverLogicNew->setFreq(mouseWheelStep * selectedFreqShortByStep);
 					}
 					else {
-						receiverLogicNew->setFreq(mouseWheelStep* selectedFreqShortByStep + mouseWheelVal * mouseWheelStep);
+						receiverLogicNew->setFreq(mouseWheelStep * selectedFreqShortByStep + mouseWheelVal * mouseWheelStep);
 					}
 				}
 			}
@@ -305,29 +344,30 @@ void Spectre::handleEvents(ImVec2 startWindowPoint, ImVec2 windowLeftBottomCorne
 	}
 
 	//¬ыполн¤етс¤ если Ќажатие мышки произошло внутри спектра и мышка не была где то уже нажата вне окна
-	if (!viewModel->mouseBusy && (ImGui::IsMouseClicked(0) || ImGui::IsMouseClicked(1)) && isMouseOnSpectre) {
-		if (ImGui::IsMouseClicked(0)) {
-			receiverLogicNew->saveSpectrePositionDelta(io.MousePos.x - (startWindowPoint.x + rightPadding));
+	if (!viewModel->mouseBusy && (ImGui::IsMouseClicked(0) || ImGui::IsMouseClicked(1)) && (isMouseOnSpectre || isMouseOnWaterfall)) {
+		if (ImGui::IsMouseClicked(0) && isMouseOnSpectre && !isMouseOnWaterfall) {
+			receiverLogicNew->saveSpectrePositionDelta(getMousePosXOnSpectreWindow());
 		}
-		if (ImGui::IsMouseClicked(1)) {
-			flowingFFTSpectre->prepareForMovingSpectreByMouse(io.MousePos.x - (startWindowPoint.x + rightPadding));
+		if (ImGui::IsMouseClicked(1) && (isMouseOnWaterfall || isMouseOnSpectre)) {
+			flowingFFTSpectre->prepareForMovingSpectreByMouse(getMousePosXOnSpectreWindow());
 		}
 	}
 
-	if (!viewModel->mouseBusy && (ImGui::IsMouseDown(0) || ImGui::IsMouseDown(1)) && isMouseOnWaterfall) {
+	if (!viewModel->mouseBusy && ImGui::IsMouseDown(0) && isMouseOnWaterfall) {
 		if (ImGui::IsMouseDown(0)) {
-			float freq = receiverLogicNew->getFreqByPosOnSpectrePx(io.MousePos.x - (startWindowPoint.x + rightPadding));
+			int cursorPos = getMousePosXOnSpectreWindow();
+			float freq = receiverLogicNew->getFreqByPosOnSpectrePx(cursorPos);
 			receiverLogicNew->setFreq(freq);
 		}
 	}
 
 	//¬ыполн¤етс¤ если удержание кнопки мышки произошло внутри спектра и мышка не была где то уже нажата вне окна
-	if (!viewModel->mouseBusy && (ImGui::IsMouseDown(0) || ImGui::IsMouseDown(1)) && isMouseOnSpectre) {
-		if (ImGui::IsMouseDown(0)) {
-			receiverLogicNew->setFrequencyDeltaFromSavedPosition(io.MousePos.x - (startWindowPoint.x + rightPadding));
+	if (!viewModel->mouseBusy && (ImGui::IsMouseDown(0) || ImGui::IsMouseDown(1)) && (isMouseOnSpectre || isMouseOnWaterfall)) {
+		if (ImGui::IsMouseDown(0) && isMouseOnSpectre && !isMouseOnWaterfall) {
+			receiverLogicNew->setFrequencyDeltaFromSavedPosition((float)getMousePosXOnSpectreWindow());
 		}
-		if (ImGui::IsMouseDown(1)) {
-			float newCenterFreq = flowingFFTSpectre->moveSpectreByMouse(spectreWidthInPX, io.MousePos.x - (startWindowPoint.x + rightPadding));
+		if (ImGui::IsMouseDown(1) && (isMouseOnWaterfall || isMouseOnSpectre)) {
+			float newCenterFreq = flowingFFTSpectre->moveSpectreByMouse(spectreWidthInPX, getMousePosXOnSpectreWindow());
 
 			receiverLogicNew->setFrequencyDelta(receiverLogicNew->getFrequencyDelta());
 			waterfall->clear();
@@ -345,6 +385,11 @@ void Spectre::handleEvents(ImVec2 startWindowPoint, ImVec2 windowLeftBottomCorne
 		savedSpectreWidthInPX = spectreWidthInPX;
 		savedEndWindowX = windowLeftBottomCorner.x;
 	}
+}
+
+int Spectre::getMousePosXOnSpectreWindow() {
+	ImGuiIO& io = ImGui::GetIO();
+	return io.MousePos.x - (startWindowPoint.x + rightPadding);
 }
 
 void Spectre::drawFreqMarks(ImDrawList* draw_list, ImVec2 startWindowPoint, ImVec2 windowLeftBottomCorner, int spectreWidthInPX, int spectreHeight) {
@@ -503,7 +548,7 @@ void Spectre::drawSpectreContour(float* fullSpectreData, ImDrawList* draw_list) 
 			);
 
 			if (config->spectre.contourShowsPower) {
-				Waterfall::RGB powerRGB = waterfall->getColorForPowerInSpectre(reducedSpectreData[i], viewModel->waterfallMin * config->spectre.bottomCoeff, viewModel->waterfallMax * config->spectre.topCoeff);
+				Waterfall::RGB powerRGB = waterfall->getColorForPowerInSpectre(reducedSpectreData[i], viewModel->waterfallMin * config->spectre.topCoeff, viewModel->waterfallMax * config->spectre.bottomCoeff);
 				draw_list->AddLine(lineX1, lineX2, IM_COL32(powerRGB.r, powerRGB.g, powerRGB.b, 255), 1.5f);
 			} else {
 				draw_list->AddLine(lineX1, lineX2, config->colorTheme.spectreProfileColor, 1.5f);
@@ -558,38 +603,13 @@ void Spectre::drawSpectreContour(float* fullSpectreData, ImDrawList* draw_list) 
 			);
 
 			if (config->spectre.contourShowsPower) {
-				Waterfall::RGB powerRGB = waterfall->getColorForPowerInSpectre(reducedSpectreData[i], viewModel->waterfallMin * config->spectre.bottomCoeff, viewModel->waterfallMax * config->spectre.topCoeff);
+				Waterfall::RGB powerRGB = waterfall->getColorForPowerInSpectre(reducedSpectreData[i], viewModel->waterfallMin * config->spectre.topCoeff, viewModel->waterfallMax * config->spectre.bottomCoeff);
 				draw_list->AddLine(lineX1, lineX2, IM_COL32(powerRGB.r, powerRGB.g, powerRGB.b, 255), 1.5f);
 			}
 			else {
 				draw_list->AddLine(lineX1, lineX2, config->colorTheme.spectreProfileColor, 1.5f);
 			}
 		}
-
-		//
-
-		//ImVec2* polygon = new ImVec2[]{ lineX3 , lineX4 , lineX1 , lineX2 };
-
-		//IM_COL32(powerRGB.r, powerRGB.g, powerRGB.b, 255)
-
-
-
-
-		/*Waterfall::RGB minRGB = waterfall->getColorForPowerInSpectre(-30);
-		Waterfall::RGB maxRGB = waterfall->getColorForPowerInSpectre(-100);*/
-
-		/*draw_list->AddRectFilledMultiColor(
-			lineX1,
-			lineX3,
-			IM_COL32(powerRGB.r, powerRGB.g, powerRGB.b, 255),
-			IM_COL32(powerRGB.r, powerRGB.g, powerRGB.b, 255),
-			IM_COL32_BLACK,
-			IM_COL32_BLACK
-			);*/
-
-			// config->colorTheme.spectreProfileColor
-
-			//draw_list->AddLine(lineX1, lineX2, IM_COL32(powerRGB.r, powerRGB.g, powerRGB.b, 255), 2.0f);
 	}
 
 	//auto end = std::chrono::steady_clock::now();

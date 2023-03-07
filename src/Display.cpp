@@ -30,8 +30,6 @@ void Display::mouseButtonCallback(GLFWwindow* window, int button, int action, in
 		if (!io.WantCaptureMouse) {
 			Display::instance->whichMouseBtnPressed = button;
 			Display::instance->isMouseBtnPressed = action;
-
-			//if (button == GLFW_MOUSE_BUTTON_1 && action == GLFW_PRESS) Display::instance->receiver->storeDeltaXPos(Display::instance->mouseX);
 		}
 	}
 }
@@ -41,6 +39,7 @@ Display::Display(Config* config, FFTSpectreHandler* fftSH) {
 	viewModel = new ViewModel(config);
 	this->flowingFFTSpectre = new FlowingFFTSpectre(config, viewModel, fftSH);
 	spectre = new Spectre(config, viewModel, flowingFFTSpectre);
+	memoryRecordUserInterface = MemoryRecordUserInterface(config, viewModel, spectre);
 }
 
 bool errorInitDeviceUserInformed = false;
@@ -50,6 +49,16 @@ int Display::init() {
 	glfwInit();
 
 	glfwSetTime(0);
+
+	/*int i;
+	GLFWmonitor** monitors = glfwGetMonitors(&i);
+
+	const GLFWvidmode* mode = glfwGetVideoMode(monitors[0]);
+
+	glfwWindowHint(GLFW_RED_BITS, mode->redBits);
+	glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
+	glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
+	glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);*/
 
 	// Create a GLFWwindow object
 	window = glfwCreateWindow(config->app.winWidth, config->app.winHeight, "kSDR", nullptr, nullptr);
@@ -64,8 +73,6 @@ int Display::init() {
 	glfwGetFramebufferSize(window, &width, &height);
 	glViewport(0, 0, width, height);
 	glfwSwapInterval(1);
-
-	//receiver = new ReceiverLogic(config, width);
 
 	glfwSetFramebufferSizeCallback(window, framebufferReSizeCallback);
 	glfwSetWindowSizeCallback(window, windowSizeCallback);
@@ -107,7 +114,6 @@ int Display::init() {
 void Display::mainLoop() {
 	// Game loop
 	while (!glfwWindowShouldClose(window)) {
-		
 		// Check if any events have been activated (key pressed, mouse moved etc.) and call corresponding response functions
 		glfwPollEvents();
 
@@ -116,10 +122,7 @@ void Display::mainLoop() {
 		glClearColor(bgColor.x, bgColor.y, bgColor.z, bgColor.w);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		//fftSpectreHandler->getSemaphore()->lock();
 		renderImGUIFirst();
-		//fftSpectreHandler->getSemaphore()->unlock();
-		//drawScene();
 
 		// Rendering
 		ImGui::Render();
@@ -129,7 +132,6 @@ void Display::mainLoop() {
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		glfwSwapBuffers(window);
-
 	}
 
 	glfwTerminate();
@@ -192,65 +194,58 @@ void Display::renderImGUIFirst() {
 		ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
 		if (ImGui::BeginTabBar("MyTabBar", tab_bar_flags)) {
 			if (ImGui::BeginTabItem("Controls")) {
-				ImGui::SliderInt("Frequency", &viewModel->centerFrequency, 1000000, 30000000);
+				ImGui::Spacing();
 
-				ImGui::SliderInt("Filter width", &viewModel->filterWidth, 0, 12000);
+				ImGui::SeparatorText("Receiver");
 
-				ImGui::SliderFloat("Waterfall min", &viewModel->waterfallMin, -150, 0);
+				if (ImGui::Button("GO")) {
+					spectre->receiverLogicNew->setFreq((float)viewModel->goToFreq);
+				}
+				ImGui::SameLine();
+				ImGui::InputInt("Go to freq", &viewModel->goToFreq, 500, 1000);
 
-				ImGui::SliderFloat("Waterfall max", &viewModel->waterfallMax, -150, 100);
-
-				ImGui::SliderFloat("Spectre ratio", &viewModel->ratio, -200, 100);
-
-				ImGui::SliderFloat("Spectre min val", &viewModel->minDb, -200, 0);
-
-				ImGui::SliderInt("Spectre speed", &config->spectre.spectreSpeed, 1, 50);
-				ImGui::SliderInt("Spectre speed 2", &config->spectre.spectreSpeed2, 1, 50);
-
-				ImGui::EndTabItem();
-			}
-			if (ImGui::BeginTabItem("Mode")) {
-				if (ImGui::Button("160m")) {
-					viewModel->centerFrequency = 1900000;
-				}
-				ImGui::SameLine();
-				if (ImGui::Button("80m")) {
-					viewModel->centerFrequency = 3700000;
-				}
-				ImGui::SameLine();
-				if (ImGui::Button("40m")) {
-					viewModel->centerFrequency = 7100000;
-				}
-				ImGui::SameLine();
-				if (ImGui::Button("30m")) {
-					viewModel->centerFrequency = 10325000;
-				}
-				ImGui::SameLine();
-				if (ImGui::Button("20m")) {
-					viewModel->centerFrequency = 14150000;
-				}
-				ImGui::SameLine();
-				if (ImGui::Button("17m")) {
-					viewModel->centerFrequency = 18100000;
-				}
-				ImGui::SameLine();
-				if (ImGui::Button("15m")) {
-					viewModel->centerFrequency = 21100000;
-				}
-				ImGui::SameLine();
-				if (ImGui::Button("12m")) {
-					viewModel->centerFrequency = 24900000;
-				}
-				ImGui::SameLine();
-				if (ImGui::Button("10m")) {
-					viewModel->centerFrequency = 28500000;
-				}
+				ImGui::SliderInt("Center freq", &viewModel->centerFrequency, 1000000, 30000000);
 
 				ImGui::RadioButton("USB", &viewModel->receiverMode, USB); ImGui::SameLine();
 				ImGui::RadioButton("LSB", &viewModel->receiverMode, LSB); ImGui::SameLine();
 				ImGui::RadioButton("AM", &viewModel->receiverMode, AM); ImGui::SameLine();
 				ImGui::RadioButton("nFM", &viewModel->receiverMode, nFM);
 
+				ImGui::SliderFloat("Volume", &viewModel->volume, 0, 5);
+
+				if (ImGui::Button("160m")) spectre->receiverLogicNew->setFreq(1900000); ImGui::SameLine();
+				if (ImGui::Button("80m")) spectre->receiverLogicNew->setFreq(3700000); ImGui::SameLine();
+				if (ImGui::Button("40m")) spectre->receiverLogicNew->setFreq(7100000); ImGui::SameLine();
+				if (ImGui::Button("30m")) spectre->receiverLogicNew->setFreq(7100000); ImGui::SameLine();
+				if (ImGui::Button("20m")) spectre->receiverLogicNew->setFreq(14150000);	ImGui::SameLine();
+				if (ImGui::Button("17m")) spectre->receiverLogicNew->setFreq(18100000); ImGui::SameLine();
+				if (ImGui::Button("15m")) spectre->receiverLogicNew->setFreq(21100000);	ImGui::SameLine();
+				if (ImGui::Button("12m")) spectre->receiverLogicNew->setFreq(24900000); ImGui::SameLine();
+				if (ImGui::Button("10m")) spectre->receiverLogicNew->setFreq(28500000);
+
+				if (ImGui::Button("+")) {
+					flowingFFTSpectre->zoomIn(100);
+					spectre->receiverLogicNew->setFrequencyDelta(spectre->receiverLogicNew->getFrequencyDelta());
+				} ImGui::SameLine();
+				if (ImGui::Button("-")) {
+					flowingFFTSpectre->zoomOut(100);
+					spectre->receiverLogicNew->setFrequencyDelta(spectre->receiverLogicNew->getFrequencyDelta());
+				} ImGui::SameLine();
+				if (ImGui::Button("<-")) {
+					flowingFFTSpectre->move(-100);
+					spectre->receiverLogicNew->setFrequencyDelta(spectre->receiverLogicNew->getFrequencyDelta());
+				} ImGui::SameLine();
+				if (ImGui::Button("->")) {
+					flowingFFTSpectre->move(100);
+					spectre->receiverLogicNew->setFrequencyDelta(spectre->receiverLogicNew->getFrequencyDelta());
+				}
+
+				ImGui::Spacing();
+
+				ImGui::SeparatorText("Filter");
+
+				ImGui::SliderInt("Filter width", &viewModel->filterWidth, 0, 12000); 
+				
 				if (ImGui::Button("100")) {
 					viewModel->filterWidth = 100;
 				}
@@ -282,27 +277,33 @@ void Display::renderImGUIFirst() {
 				if (ImGui::Button("12.0k")) {
 					viewModel->filterWidth = 12000;
 				}
-				ImGui::SliderFloat("Volume", &viewModel->volume, 0, 5);
+				
+				ImGui::Spacing();
 
-				if (ImGui::Button("+")) {
-					flowingFFTSpectre->zoomIn(100);
-					spectre->receiverLogicNew->setFrequencyDelta(spectre->receiverLogicNew->getFrequencyDelta());
-				} ImGui::SameLine();
-				if (ImGui::Button("-")) {
-					flowingFFTSpectre->zoomOut(100);
-					spectre->receiverLogicNew->setFrequencyDelta(spectre->receiverLogicNew->getFrequencyDelta());
-				} ImGui::SameLine();
-				if (ImGui::Button("<-")) {
-					flowingFFTSpectre->move(-100);
-					spectre->receiverLogicNew->setFrequencyDelta(spectre->receiverLogicNew->getFrequencyDelta());
-				} ImGui::SameLine();
-				if (ImGui::Button("->")) {
-					flowingFFTSpectre->move(100);
-					spectre->receiverLogicNew->setFrequencyDelta(spectre->receiverLogicNew->getFrequencyDelta());
-				}
+				ImGui::SeparatorText("Waterfall");
+
+				ImGui::SliderFloat("Waterfall min", &viewModel->waterfallMin, -150, 0);
+
+				ImGui::SliderFloat("Waterfall max", &viewModel->waterfallMax, -150, 100); ImGui::Spacing();
+
+				ImGui::SeparatorText("Spectre");
+
+				ImGui::SliderFloat("Spectre ratio", &viewModel->ratio, -200, 100);
+
+				ImGui::SliderFloat("Spectre min val", &viewModel->minDb, -200, 0);
+
+				ImGui::SliderInt("Spectre speed", &config->spectre.spectreSpeed, 1, 50);
+				ImGui::SliderInt("Spectre speed 2", &config->spectre.spectreSpeed2, 1, 50); ImGui::Spacing();
+
+				ImGui::EndTabItem();
+			}
+			if (ImGui::BeginTabItem("Memory")) {
+				ImGui::Spacing();
+				memoryRecordUserInterface.drawMemoryBlock();
 				ImGui::EndTabItem();
 			}
 			if (ImGui::BeginTabItem("Device Options")) {
+				ImGui::Spacing();
 				if (config->deviceType == Config::HACKRF) {
 
 					hackRFsampRateLS->drawSetting();
@@ -360,32 +361,29 @@ void Display::renderImGUIFirst() {
 				ImGui::EndTabItem();
 			}
 			if (ImGui::BeginTabItem("Settings")) {
-
+				ImGui::Spacing();
 				ImGui::Text("After changing the settings marked with an asterisk, you need to restart the application.\n");
 
 				showSelectDeviceSetting();
 
 				decimationLS->drawSetting();
 
-				ImGui::Separator();
-
-				ImGui::Text("\nFrequency shift:");
+				ImGui::Spacing();
+				ImGui::SeparatorText("Frequency shift");
 
 				ImGui::InputInt("Shift in Hz", &config->receiver.frequencyShift);
 				ImGui::Checkbox("Enable shift", &config->receiver.enableFrequencyShift);
 
-				ImGui::Separator();
-
-				ImGui::Text("\nAGC settings:");
+				ImGui::Spacing();
+				ImGui::SeparatorText("AGC settings");
 
 				ImGui::InputDouble("Sound threshold", &config->receiver.agc.threshold, 0.001f, 0.1f, "%.3f");
 				ImGui::InputDouble("Atack time (ms)", &config->receiver.agc.atackSpeedMs, 0.1f, 0.1f, "%.1f");
 				ImGui::InputDouble("Hold time (ms)", &config->receiver.agc.holdingTimeMs, 0.1f, 0.1f, "%.1f");
 				ImGui::InputDouble("Release time", &config->receiver.agc.releaseSpeed, 0.00001f, 0.1f, "%.7f");
 
-				ImGui::Separator();
-
-				ImGui::Text("\nColor theme:");
+				ImGui::Spacing();
+				ImGui::SeparatorText("Color theme");
 
 				showColorPicker(string("Windows Background"), &config->colorTheme.windowsBGColor, false);
 				showColorPicker(string("Main Background"), &config->colorTheme.mainBGColor, false);
@@ -394,35 +392,37 @@ void Display::renderImGUIFirst() {
 				showColorPicker(string("Spectre Profile"), &config->colorTheme.spectreProfileColor, false);
 				showColorPicker(string("Receive Region"), &config->colorTheme.receiveRegionColor, true);
 
-				ImGui::Separator();
+				ImGui::Spacing();
+				ImGui::SeparatorText("Spectre settings");
 
-				ImGui::Text("\nSpectre settings:");
 				spectreStyleLS->drawSetting();
 				ImGui::Checkbox("Contour shows signal power", &config->spectre.contourShowsPower);
 				ImGui::SliderFloat("Top coeff", &config->spectre.topCoeff, 0.5f, 1.5f);
 				ImGui::SliderFloat("Bottom coeff", &config->spectre.bottomCoeff, 0.5f, 1.5f);
 				smoothingDepthLS->drawSetting();
 				ImGui::Checkbox("Hang&Decay", &config->spectre.hangAndDecay);
-				if (config->spectre.hangAndDecay) {
+				ImGui::BeginDisabled(!config->spectre.hangAndDecay);
 					ImGui::SliderFloat("Decay speed", &config->spectre.decaySpeed, 0, 2);
 					ImGui::SliderFloat("Decay speed delta", &config->spectre.decaySpeedDelta, 0, 2);
-				}
+				ImGui::EndDisabled();
 
-				ImGui::Separator();
-
-				ImGui::Text("\nOther:");
+				ImGui::Spacing();
+				ImGui::SeparatorText("Other");
 
 				fftLenLS->drawSetting();
 
 				ImGui::Checkbox("Remove DC", &viewModel->removeDCBias);
 
+				waterfallSpeedLS->drawSetting();
+
 				ImGui::EndTabItem();
 			}
 
 			if (ImGui::BeginTabItem("About")) {
+				ImGui::Spacing();
 				string msg;
 				msg.append(APP_NAME).append("\n\n");
-				msg.append("For all questions related to our software,\nplease contact our email box: dkcocto@gmail.com.\n\n");
+				msg.append("For all questions related to our software,\nplease, contact our email box: dkcocto@gmail.com.\n\n");
 				msg.append("We will be glad to hear your wishes and suggestions.");
 
 				ImGui::Text(msg.c_str());
@@ -701,6 +701,14 @@ void Display::initSettings() {
 	fftLenMap.insert(pair<int, string> {6, "524288"});
 	fftLenLS = std::make_unique<ListSetting>(config, fftLenMap, "FFT length", true);
 	fftLenLS->bindVariable(&config->delayedFFTLen);
+
+
+	std::map<int, std::string> waterfallSpeedMap;
+	waterfallSpeedMap.insert(pair<int, string> {0, "1"});
+	waterfallSpeedMap.insert(pair<int, string> {1, "2"});
+	waterfallSpeedMap.insert(pair<int, string> {2, "3"});
+	waterfallSpeedLS = std::make_unique<ListSetting>(config, waterfallSpeedMap, "Waterfall speed", false);
+	waterfallSpeedLS->bindVariable(&config->waterfall.speed);
 	//--------------------
 
 	/*auto end = std::chrono::steady_clock::now();

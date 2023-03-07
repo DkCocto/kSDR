@@ -45,47 +45,46 @@
         </RTL>
     </Device>
     <Receiver>
-        <startFreq>6955000</startFreq>
-        <lastSelectedFreq>7095073.5</lastSelectedFreq>
-        <volume>1.205</volume>
-        <filterWidth>2700</filterWidth>
+        <startFreq>10360000</startFreq>
+        <lastSelectedFreq>10460000</lastSelectedFreq>
+        <volume>1.247</volume>
+        <filterWidth>5779</filterWidth>
         <!-- USB:0, LSB:1, AM:2, nFM:3 -->
-        <modulation>1</modulation>
+        <modulation>0</modulation>
         <enableFrequencyShift>0</enableFrequencyShift>
         <frequencyShift>100000000</frequencyShift>
         <Agc>
             <threshold>0.060000001220032573</threshold>
             <atackSpeedMs>0.21000000298023225</atackSpeedMs>
             <holdingTimeMs>800</holdingTimeMs>
-            <releaseSpeed>5.0000003789318735e-05</releaseSpeed>
+            <releaseSpeed>3.0000004294561232e-05</releaseSpeed>
         </Agc>
     </Receiver>
     <Waterfall>
-        <min>-96.93692</min>
-        <max>-25.678135</max>
-        <speed>1</speed>
+        <min>-105.08511</min>
+        <max>-40.678059</max>
     </Waterfall>
     <Spectre>
-        <ratio>-10.327656</ratio>
-        <min>-105.6845</min>
-        <speed>6</speed>
+        <ratio>-23.322445</ratio>
+        <min>-117.68726</min>
+        <speed>5</speed>
         <speed2>4</speed2>
         <!-- Must be a power of 2. The total will be fftLen = fftLen * 1024 -->
         <fftLen>262144</fftLen>
-        <startBin>67410</startBin>
-        <stopBin>70992</stopBin>
+        <startBin>66008</startBin>
+        <stopBin>70306</stopBin>
         <removeDCBias>1</removeDCBias>
         <style>1</style>
         <contourShowsPower>0</contourShowsPower>
         <bottomCoeff>0.87099999</bottomCoeff>
         <topCoeff>1.215</topCoeff>
         <hangAndDecay>1</hangAndDecay>
-        <decaySpeed>0.026000001</decaySpeed>
-        <decaySpeedDelta>1.234</decaySpeedDelta>
+        <decaySpeed>0.043000001</decaySpeed>
+        <decaySpeedDelta>0.99000001</decaySpeedDelta>
         <smoothingDepth>2</smoothingDepth>
     </Spectre>
     <ColorTheme>
-        <spectreFillColor>4286078227</spectreFillColor>
+        <spectreFillColor>4279661089</spectreFillColor>
         <spectreProfileColor>4291151301</spectreProfileColor>
         <mainBGColor>4291923064</mainBGColor>
         <windowsBGColor>4280552203</windowsBGColor>
@@ -94,22 +93,28 @@
     </ColorTheme>
     <Memory>
         <record>
-            <desc>UA1</desc>
+            <desc>UA 7055</desc>
             <freq>7055000</freq>
             <modulation>1</modulation>
             <filterWidth>2700</filterWidth>
         </record>
         <record>
-            <desc>UA2</desc>
-            <freq>7050000</freq>
+            <desc>UA 7080</desc>
+            <freq>7080000</freq>
             <modulation>1</modulation>
             <filterWidth>2700</filterWidth>
         </record>
         <record>
-            <desc>Boltovnya</desc>
-            <freq>10474900</freq>
+            <desc>UA 10460</desc>
+            <freq>10460000</freq>
             <modulation>0</modulation>
             <filterWidth>2700</filterWidth>
+        </record>
+        <record>
+            <desc>Polnaya noga</desc>
+            <freq>10800000</freq>
+            <modulation>0</modulation>
+            <filterWidth>3300</filterWidth>
         </record>
     </Memory>
 </Config>

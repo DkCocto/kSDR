@@ -54,6 +54,7 @@ public:
 	};
 	FREQ_RANGE getVisibleFreqRangeFromSamplerate();
 	FREQ_RANGE getVisibleFreqsRangeAbsolute();
+	FREQ_RANGE getTotalFreqsRange();
 	float getVisibleStartFrequency();
 	int getA();
 	int getB();

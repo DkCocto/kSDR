@@ -13,12 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Исходные файлы\Compressor">
-      <UniqueIdentifier>{11a7c523-ee4d-4408-8eaf-8617c59d5cb0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Файлы заголовков\Compressor">
-      <UniqueIdentifier>{e1349074-6c21-4fd4-ad4e-c3af66a09a5e}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Config.cpp">
@@ -159,18 +153,6 @@
     <ClCompile Include="src\AGC.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="src\Compressor\SimpleComp.cpp">
-      <Filter>Исходные файлы\Compressor</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Compressor\SimpleEnvelope.cpp">
-      <Filter>Исходные файлы\Compressor</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Compressor\SimpleGate.cpp">
-      <Filter>Исходные файлы\Compressor</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Compressor\SimpleLimit.cpp">
-      <Filter>Исходные файлы\Compressor</Filter>
-    </ClCompile>
     <ClCompile Include="src\Device.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
@@ -193,6 +175,12 @@
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="chucha\AudioFFT.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\imgui\imgui_stdlib.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MemoryRecordUserInterface.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
@@ -353,24 +341,6 @@
     <ClInclude Include="src\FIR.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="src\Compressor\SimpleComp.h">
-      <Filter>Файлы заголовков\Compressor</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Compressor\SimpleEnvelope.h">
-      <Filter>Файлы заголовков\Compressor</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Compressor\SimpleGain.h">
-      <Filter>Файлы заголовков\Compressor</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Compressor\SimpleGate.h">
-      <Filter>Файлы заголовков\Compressor</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Compressor\SimpleHeader.h">
-      <Filter>Файлы заголовков\Compressor</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Compressor\SimpleLimit.h">
-      <Filter>Файлы заголовков\Compressor</Filter>
-    </ClInclude>
     <ClInclude Include="src\Device.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
@@ -395,6 +365,12 @@
     <ClInclude Include="chucha\AudioFFT.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="src\imgui\imgui_stdlib.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MemoryRecordUserInterface.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="kSDR.rc">
@@ -405,16 +381,5 @@
     <Image Include="res\icon.ico">
       <Filter>Файлы ресурсов</Filter>
     </Image>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="src\Compressor\SimpleCompProcess.inl">
-      <Filter>Файлы заголовков\Compressor</Filter>
-    </None>
-    <None Include="src\Compressor\SimpleGateProcess.inl">
-      <Filter>Файлы заголовков\Compressor</Filter>
-    </None>
-    <None Include="src\Compressor\SimpleLimitProcess.inl">
-      <Filter>Файлы заголовков\Compressor</Filter>
-    </None>
   </ItemGroup>
 </Project>

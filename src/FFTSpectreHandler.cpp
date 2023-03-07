@@ -190,9 +190,9 @@ void FFTSpectreHandler::dataPostprocess() {
 
 	for (int n = 0; n <= config->spectre.smoothingDepth; n++) {
 		for (int j = 0; j < spectreSize; j++) {
-			if (j >= 1 && j < spectreSize - 1) {
-				tmpArray2[j] = (tmpArray[j - 1] + tmpArray[j] + tmpArray[j + 1]) / 3;
-				//tmpArray2[j] = (tmpArray[j - 2] + 2.0f * tmpArray[j - 1] + 3.0f * tmpArray[j] + 2.0f * tmpArray[j + 1] + tmpArray[j + 2]) / 9.0f;
+			if (j >= 2 && j < spectreSize - 2) {
+				//tmpArray2[j] = (tmpArray[j - 1] + tmpArray[j] + tmpArray[j + 1]) / 3;
+				tmpArray2[j] = (tmpArray[j - 2] + 2.0f * tmpArray[j - 1] + 3.0f * tmpArray[j] + 2.0f * tmpArray[j + 1] + tmpArray[j + 2]) / 9.0f;
 			}
 			else {
 				tmpArray2[j] = tmpArray[j];

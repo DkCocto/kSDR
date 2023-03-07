@@ -7,6 +7,7 @@
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
+#include "imgui/imgui_stdlib.h"
 #include "ViewModel.h"
 #include "KalmanFilter.h"
 #include "SMeter.h"
@@ -17,6 +18,7 @@
 #include "functional"
 #include "map"
 #include "RTLDevice.h"
+#include "MemoryRecordUserInterface.h"
 
 #include <stb/stb_image.h>
 
@@ -49,6 +51,7 @@ private:
 	std::unique_ptr<ListSetting> rspSampRateLS;
 	std::unique_ptr<ListSetting> rspDecimationFactorLS;
 	std::unique_ptr<ListSetting> fftLenLS;
+	std::unique_ptr<ListSetting> waterfallSpeedLS;
 	std::unique_ptr<ListSetting> smoothingDepthLS;
 	std::unique_ptr<ListSetting> spectreStyleLS;
 	std::unique_ptr<ListSetting> rtlDeviceGainLS;
@@ -57,6 +60,8 @@ private:
 	void initSettings();
 
 	void showColorPicker(string title, unsigned int* configVal, bool withTransparency);
+
+	MemoryRecordUserInterface memoryRecordUserInterface;
 
 public:
 

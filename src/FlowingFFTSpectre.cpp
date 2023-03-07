@@ -141,6 +141,17 @@ FlowingFFTSpectre::FREQ_RANGE FlowingFFTSpectre::getVisibleFreqsRangeAbsolute() 
 	return freqRange;
 }
 
+/// <summary>
+/// Returns the frequency range that the receiver is currently digitizing.
+/// </summary>
+/// <returns></returns>
+FlowingFFTSpectre::FREQ_RANGE FlowingFFTSpectre::getTotalFreqsRange() {
+	FREQ_RANGE freqRange {};
+	freqRange.first = (float)(viewModel->centerFrequency - (config->inputSamplerate / 2));
+	freqRange.second = (float)(viewModel->centerFrequency + (config->inputSamplerate / 2));
+	return freqRange;
+}
+
 float FlowingFFTSpectre::getVisibleStartFrequency() {
 	return getAbsoluteFreqBySpectrePos(A);
 }
@@ -177,7 +188,7 @@ float FlowingFFTSpectre::moveSpectreByMouse(float spectreWidthInPx, float mouseS
 float FlowingFFTSpectre::getFreqOfOneSpectreBin() {
 	FlowingFFTSpectre::FREQ_RANGE freqRange = getVisibleFreqRangeFromSamplerate();
 	float spectreFreqWidth = freqRange.second - freqRange.first;
-	return spectreFreqWidth / getLen();
+	return spectreFreqWidth / (float)getLen();
 }
 
 std::vector<float> FlowingFFTSpectre::getReducedSpectre(float* fullSpectreData, int fullSpectreDataLen, int desiredBins, bool forWaterfall) {

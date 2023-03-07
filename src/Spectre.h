@@ -26,7 +26,6 @@ class Spectre {
 	KalmanFilter* ratioKalman;
 	KalmanFilter* spectreTranferKalman;
 	
-
 	Config* config;
 
 	ColoredSpectreBG coloredSpectreBG;
@@ -34,6 +33,7 @@ class Spectre {
 	int spectreWidth = 0;
 	int spectreHeight = 0;
 
+	bool disableControl_ = false;
 	
 public:
 	struct MIN_MAX {
@@ -47,6 +47,9 @@ public:
 		ImVec2 x2;
 	};
 
+	void disableControl();
+	void enableControl();
+
 private:
 	MIN_MAX minMax;
 
@@ -57,9 +60,9 @@ private:
 
 	Spectre::MIN_MAX getMinMaxInSpectre(std::vector<float> spectreData, int len);
 
-	Waterfall* waterfall;
-
 	void handleEvents(ImVec2 startWindowPoint, ImVec2 windowLeftBottomCorner, int spectreWidthInPX);
+
+	int getMousePosXOnSpectreWindow();
 
 	void drawFreqMarks(ImDrawList* draw_list, ImVec2 startWindowPoint, ImVec2 windowLeftBottomCorner, int spectreWidthInPX, int spectreHeight);
 
@@ -68,6 +71,8 @@ private:
 	void drawFreqPointerMark(ImVec2 startWindowPoint, ImVec2 windowLeftBottomCorner, int spectreWidthInPX, ImDrawList* draw_list);
 
 public:
+
+	Waterfall* waterfall;
 
 	MIN_MAX getMinMaxInSpectre();
 

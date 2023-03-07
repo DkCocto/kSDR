@@ -6,6 +6,7 @@
 #include "stdio.h"
 #include "tinyxml2/tinyxml2.h"
 #include "string"
+#include "vector"
 
 class Config {
 
@@ -71,6 +72,19 @@ public:
 	int stopBin = fftLen / 2 - 1;
 
 	int removeDCBias = 1;
+
+	struct Waterfall {
+		int speed = 1;
+	} waterfall;
+
+	struct MemoryRecord {
+		std::string desc;
+		float freq;
+		int modulation = 1;
+		int filterWidth;
+	};
+
+	std::vector<MemoryRecord> memoryVector;
 
 	struct Spectre {
 		int style = 0;
@@ -145,8 +159,14 @@ public:
 
 	void load();
 	void save();
+	void loadMemory();
+	void saveMemory();
 
 	void setDevice(int deviceID);
+
+	void storeRecord(MemoryRecord memRec);
+	void editRecord(MemoryRecord correctedMemRec, int index);
+	void deleteRecord(int index);
 
 private:
 	void calcOutputSamplerate();
