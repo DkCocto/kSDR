@@ -12,6 +12,9 @@
 #include "Waterfall.h"
 #include "ColoredSpectreBG.h"
 
+constexpr auto DISABLE_CONTROL_SPECTRE_BUTTONS = 0;
+constexpr auto DISABLE_CONTROL_DIALOG = 1;
+
 class Spectre {
 
 	int rightPadding = 40;
@@ -47,8 +50,8 @@ public:
 		ImVec2 x2;
 	};
 
-	void disableControl();
-	void enableControl();
+	void disableControl(int id);
+	void enableControl(int id);
 
 private:
 	MIN_MAX minMax;

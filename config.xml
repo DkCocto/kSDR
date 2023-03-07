@@ -11,7 +11,7 @@
 		2: rtlsdr
 		-->
         <type>1</type>
-        <decimation>1</decimation>
+        <decimation>2</decimation>
         <RSP>
             <!-- Total sampling rate = (deviceSamplingRate / deviceDecimationFactor) / decimation
              Example:
@@ -35,7 +35,7 @@
             <!-- 0 1 2 3 4-->
             <lnaGain>2</lnaGain>
             <!-- 0 .. 30 -->
-            <vgaGain>13</vgaGain>
+            <vgaGain>11</vgaGain>
             <!-- 0 .. 40 step 2-->
             <txAmp>20</txAmp>
         </HackRF>
@@ -45,8 +45,8 @@
         </RTL>
     </Device>
     <Receiver>
-        <startFreq>6955000</startFreq>
-        <lastSelectedFreq>7095073.5</lastSelectedFreq>
+        <startFreq>3400000</startFreq>
+        <lastSelectedFreq>3660430</lastSelectedFreq>
         <volume>1.205</volume>
         <filterWidth>2700</filterWidth>
         <!-- USB:0, LSB:1, AM:2, nFM:3 -->
@@ -61,19 +61,19 @@
         </Agc>
     </Receiver>
     <Waterfall>
-        <min>-96.93692</min>
-        <max>-25.678135</max>
+        <min>-118.14265</min>
+        <max>-41.785957</max>
         <speed>1</speed>
     </Waterfall>
     <Spectre>
-        <ratio>-10.327656</ratio>
-        <min>-105.6845</min>
+        <ratio>-14.172844</ratio>
+        <min>-128.75577</min>
         <speed>6</speed>
         <speed2>4</speed2>
         <!-- Must be a power of 2. The total will be fftLen = fftLen * 1024 -->
-        <fftLen>262144</fftLen>
-        <startBin>67410</startBin>
-        <stopBin>70992</stopBin>
+        <fftLen>131072</fftLen>
+        <startBin>37308</startBin>
+        <stopBin>40752</stopBin>
         <removeDCBias>1</removeDCBias>
         <style>1</style>
         <contourShowsPower>0</contourShowsPower>
