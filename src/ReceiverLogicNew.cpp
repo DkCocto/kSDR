@@ -74,7 +74,7 @@ ReceiverLogicNew::ReceiverLogicNew(Config* config, ViewModel* viewModel, Flowing
 	this->flowingFFTSpectre = flowingFFTSpectre;
 }
 
-constexpr auto SHIFT = 300000.0f;
+constexpr auto SHIFT = 100000.0f;
 /// <summary>
 /// Go to current freq. The received freq will be displayed in the middle of the spectrum.
 /// </summary>

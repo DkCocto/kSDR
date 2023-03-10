@@ -60,6 +60,9 @@ int Hackrf::rx_callback(hackrf_transfer* transfer) {
 			float I = (((float)transfer->buffer[2 * i] / 130.0f) - 1.0f);
 			float Q = (((float)transfer->buffer[2 * i + 1] / 130.0f) - 1.0f);
 
+			//printf("%f\r\n", I);
+			//printf("%f\r\n", Q);
+
 			hackrf->cb->write(I);
 			hackrf->cb->write(Q);
 		//}

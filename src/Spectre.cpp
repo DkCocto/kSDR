@@ -95,21 +95,14 @@ void Spectre::draw() {
 
 		ImGui::BeginChild("Spectre1", ImVec2(ImGui::GetContentRegionAvail().x, spectreHeight), false, ImGuiWindowFlags_NoMove);
 
-		ImGui::SetCursorPos(ImVec2(spectreWidth - 90, 10));
+		ImGui::SetCursorPos(ImVec2(spectreWidth - 280, 10));
 		
-		/*if (ImGui::Button("Waterfall Auto")) waterfallAutoColorCorrection();
+		if (ImGui::Button("Waterfall Auto")) waterfallAutoColorCorrection();
 		bool waterFallAutoHovered = ImGui::IsItemHovered();
 		ImGui::SameLine();
 
 		if (ImGui::Button("Spectre Auto")) spectreRatioAutoCorrection();
 		bool spectreAutoHovered = ImGui::IsItemHovered();
-		ImGui::SameLine();*/
-
-		if (ImGui::Button("Auto")) {
-			spectreRatioAutoCorrection();
-			waterfallAutoColorCorrection();
-		}
-		bool spectreAutoButtonHovered = ImGui::IsItemHovered();
 		ImGui::SameLine();
 
 		if (ImGui::Button("<|>")) { receiverLogicNew->setReceivedFreqToSpectreCenter(); waterfall->clear();	}
@@ -126,9 +119,9 @@ void Spectre::draw() {
 			ImGui::EndTooltip();
 		}
 
-		if (spectreAutoButtonHovered || freqToCenterButtonHovered) disableControl(DISABLE_CONTROL_SPECTRE_BUTTONS); else {
-			enableControl(DISABLE_CONTROL_SPECTRE_BUTTONS);
-		}
+		if (waterFallAutoHovered || spectreAutoHovered || freqToCenterButtonHovered) disableControl(); else enableControl();
+
+
 
 		ImGui::SetCursorPos(ImVec2(0, 0));
 
@@ -274,18 +267,12 @@ Spectre::MIN_MAX Spectre::getMinMaxInSpectre() {
 	return minMax;
 }
 
-int disabledForId = -1;
-
-void Spectre::disableControl(int id) {
-	if (disableControl_) return;
-	else {
-		this->disableControl_ = true;
-		disabledForId = id;
-	}
+void Spectre::disableControl() {
+	this->disableControl_ = true;
 }
 
-void Spectre::enableControl(int id) {
-	if (disableControl_ && (disabledForId == id)) this->disableControl_ = false;
+void Spectre::enableControl() {
+	this->disableControl_ = false;
 }
 
 Spectre::MIN_MAX Spectre::getMinMaxInSpectre(std::vector<float> spectreData, int len) {

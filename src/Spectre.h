@@ -47,8 +47,8 @@ public:
 		ImVec2 x2;
 	};
 
-	void disableControl(int id);
-	void enableControl(int id);
+	void disableControl();
+	void enableControl();
 
 private:
 	MIN_MAX minMax;
