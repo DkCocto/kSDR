@@ -10,7 +10,11 @@
 		1: hackrf
 		2: rtlsdr
 		-->
+<<<<<<< HEAD
         <type>0</type>
+=======
+        <type>1</type>
+>>>>>>> parent of c8a13c9 (Update)
         <decimation>1</decimation>
         <RSP>
             <!-- Total sampling rate = (deviceSamplingRate / deviceDecimationFactor) / decimation
@@ -36,7 +40,11 @@
             <!-- 0 1 2 3 4-->
             <lnaGain>4</lnaGain>
             <!-- 0 .. 30 -->
+<<<<<<< HEAD
             <vgaGain>21</vgaGain>
+=======
+            <vgaGain>13</vgaGain>
+>>>>>>> parent of c8a13c9 (Update)
             <!-- 0 .. 40 step 2-->
             <txAmp>20</txAmp>
         </HackRF>
@@ -46,9 +54,15 @@
         </RTL>
     </Device>
     <Receiver>
+<<<<<<< HEAD
         <startFreq>6770802</startFreq>
         <lastSelectedFreq>6997974</lastSelectedFreq>
         <volume>1.107</volume>
+=======
+        <startFreq>6955000</startFreq>
+        <lastSelectedFreq>7095073.5</lastSelectedFreq>
+        <volume>1.205</volume>
+>>>>>>> parent of c8a13c9 (Update)
         <filterWidth>2700</filterWidth>
         <!-- USB:0, LSB:1, AM:2, nFM:3 -->
         <modulation>1</modulation>
@@ -62,6 +76,7 @@
         </Agc>
     </Receiver>
     <Waterfall>
+<<<<<<< HEAD
         <min>-115.34889</min>
         <max>-51.991798</max>
         <speed>2</speed>
@@ -75,6 +90,21 @@
         <fftLen>131072</fftLen>
         <startBin>36274</startBin>
         <stopBin>38080</stopBin>
+=======
+        <min>-96.93692</min>
+        <max>-25.678135</max>
+        <speed>1</speed>
+    </Waterfall>
+    <Spectre>
+        <ratio>-10.327656</ratio>
+        <min>-105.6845</min>
+        <speed>6</speed>
+        <speed2>4</speed2>
+        <!-- Must be a power of 2. The total will be fftLen = fftLen * 1024 -->
+        <fftLen>262144</fftLen>
+        <startBin>67410</startBin>
+        <stopBin>70992</stopBin>
+>>>>>>> parent of c8a13c9 (Update)
         <removeDCBias>1</removeDCBias>
         <style>1</style>
         <contourShowsPower>0</contourShowsPower>
