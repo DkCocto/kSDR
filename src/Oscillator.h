@@ -3,7 +3,7 @@
 #include "Env.h"
 
 class Oscillator {
-	int freq = 0.0;
+	int freq = 0;
 	int samplingRate = 0.0;
 
 public:

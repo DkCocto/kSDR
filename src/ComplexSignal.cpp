@@ -17,7 +17,7 @@ ComplexSignal::ComplexSignal(double I, double Q) {
 }
 
 void ComplexSignal::normalize() {
-	double m = magnitude();
+	float m = magnitude();
 	if (m != 0.0) {
 		multiply(1.0 / m);
 	}

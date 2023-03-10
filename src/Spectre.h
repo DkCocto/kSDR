@@ -12,9 +12,6 @@
 #include "Waterfall.h"
 #include "ColoredSpectreBG.h"
 
-constexpr auto DISABLE_CONTROL_SPECTRE_BUTTONS = 0;
-constexpr auto DISABLE_CONTROL_DIALOG = 1;
-
 class Spectre {
 
 	int rightPadding = 40;

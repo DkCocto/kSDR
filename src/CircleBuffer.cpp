@@ -1,7 +1,4 @@
 #include "CircleBuffer.h"
-#include "chrono"
-#include "thread"
-#include "Delay.h"
 
 CircleBuffer::CircleBuffer(int size) {
 	buf = new float[size];
@@ -20,22 +17,6 @@ void CircleBuffer::write(float buf[], int bufLen) {
 	}
 }
 
-void CircleBuffer::write(uint8_t* buf, int bufLen) {
-	for (int i = 0; i < bufLen - 1; i++) {
-		//printf("%f\r\n", (buf[i] - 127.5) / 128.0);
-		//write(buf[i] * (1.f / 255.f));
-
-		//write((float)(buf[i] - 1) / 127.0);
-
-		//write(((buf[i] - 128.0f) / 128.0f));
-
-		if (i % 4 == 0) {
-			write(0.01 * ((buf[i] - 127.0f) / 128.0f));
-			write(0.01 * ((buf[i + 1] - 127.0f) / 128.0f));
-		}
-	}
-}
-
 float CircleBuffer::read() {
 	if (readPointer == writePointer) {
 		printf("Nothing to read! Buffer is empty.");
@@ -47,7 +28,6 @@ float CircleBuffer::read() {
 
 
 float* CircleBuffer::read(int len) {
-	int countDone = 0;
 	float* b = new float[len];
 
 	for (int i = 0; i < len; i++) {
@@ -57,8 +37,6 @@ float* CircleBuffer::read(int len) {
 }
 
 void CircleBuffer::read(float* data, int len) {
-	int countDone = 0;
-
 	for (int i = 0; i < len; i++) {
 		data[i] = read();
 	}

@@ -60,7 +60,6 @@ void SoundCard::open() {
 	////------------------
 
 
-
 	//Sound output stream
 	err = Pa_OpenStream(
 		&outputStream,

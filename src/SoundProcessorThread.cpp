@@ -1,4 +1,5 @@
 #include "SoundProcessorThread.h"
+#include "WindowBlackmanHarris.h"
 
 SoundProcessorThread::SoundProcessorThread(Config* config, CircleBuffer* iqSignalsCircleBuffer, CircleBuffer* sWCB, FFTSpectreHandler* fftSpectreHandler) {
 	this->config = config;
@@ -24,17 +25,16 @@ SoundProcessorThread::SoundProcessorThread(Config* config, CircleBuffer* iqSigna
 	//Инициализация полифазных фильтров
 	initFilters(config->defaultFilterWidth);
 
-	//audioFilterFM.init(audioFilterFM.LOWPASS, audioFilterFM.BARTLETT, 256, 200000, 0, config->outputSamplerate);
-
 }
 
 void SoundProcessorThread::initFilters(int filterWidth) {
 	firFilterI.initCoeffs(config->inputSamplerate, filterWidth, config->outputSamplerateDivider, config->polyphaseFilterLen);
 	firFilterQ.initCoeffs(config->inputSamplerate, filterWidth, config->outputSamplerateDivider, config->polyphaseFilterLen);
-	fir->init(fir->LOWPASS, fir->BLACKMAN_HARRIS, 512, filterWidth, 0, config->outputSamplerate);
+	
+	audioFir->init(audioFir->LOWPASS, audioFir->BLACKMAN_HARRIS, 512, filterWidth, 0, config->outputSamplerate);
 
-	firI->init(fir->LOWPASS, fir->BARTLETT, 256, filterWidth, 0, config->outputSamplerate);
-	firQ->init(fir->LOWPASS, fir->BARTLETT, 256, filterWidth, 0, config->outputSamplerate);
+	firI->init(firI->LOWPASS, firI->BARTLETT, 256, filterWidth, 0, config->outputSamplerate);
+	firQ->init(firQ->LOWPASS, firQ->BARTLETT, 256, filterWidth, 0, config->outputSamplerate);
 }
 
 void SoundProcessorThread::process() {
@@ -52,7 +52,6 @@ void SoundProcessorThread::process() {
 	FMDemodulator fmDemodulator;
 
 	while (true) {
-		
 		//Обработка ширины фильтра
 		if (storedFilterWidth != viewModel->filterWidth) {
 			storedFilterWidth = viewModel->filterWidth;
@@ -72,7 +71,7 @@ void SoundProcessorThread::process() {
 
 				mixer->setFreq(receiverLogicNew->getFrequencyDelta());
 				Signal mixedSignal = mixer->mix(data[2 * i], data[2 * i + 1]);
-
+				
 				decimateBufferI[decimationCount] = mixedSignal.I;
 				decimateBufferQ[decimationCount] = mixedSignal.Q;
 
@@ -80,6 +79,7 @@ void SoundProcessorThread::process() {
 
 				if (i % config->outputSamplerateDivider == 0) {
 					decimationCount = 0;
+
 					double audioI = firFilterI.filter(decimateBufferI, config->outputSamplerateDivider);
 					double audioQ = firFilterQ.filter(decimateBufferQ, config->outputSamplerateDivider);
 
@@ -114,7 +114,7 @@ void SoundProcessorThread::process() {
 							break;
 					}
 					//-------------------audio = audioFilter->filter(audio);
-					audio = fir->proc(audio);
+					audio = audioFir->proc(audio);
 					//audio = agc->process(audio);
 					audio = agc->processNew(audio);
 					//Если AM, то немного усилим сигнал
@@ -123,13 +123,9 @@ void SoundProcessorThread::process() {
 					outputData[count] = audio * viewModel->volume;
 					count++;
 				}
-		
 			}
-
 			soundWriterCircleBuffer->write(outputData, (len / 2) / config->outputSamplerateDivider);
-			//fftSpectreHandler->setSpectreSpeed(Display::instance->viewModel->spectreSpeed);
 			fftSpectreHandler->putData(data);
-			//delete data;
 		} else {
 			//printf("SoundProcessorThread: Waiting for iqSignalsCircleBuffer...\r\n");
 			std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -139,5 +135,7 @@ void SoundProcessorThread::process() {
 
 std::thread SoundProcessorThread::start() {
 	std::thread p(&SoundProcessorThread::process, this);
+	//SetThreadPriority(p.native_handle(), THREAD_PRIORITY_HIGHEST);
+	//DWORD result = ::SetThreadIdealProcessor(p.native_handle(), 1);
 	return p;
 }

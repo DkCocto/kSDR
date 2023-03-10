@@ -15,7 +15,7 @@ class CircleBuffer {
 		int writePointer = -1;
 		CircleBuffer(int size);
 		void write(float val);
-		void write(float* buf, int bufLen);
+		void write(float buf[], int bufLen);
 		void write(uint8_t buf[], int bufLen);
 		float read();
 		float* read(int len);

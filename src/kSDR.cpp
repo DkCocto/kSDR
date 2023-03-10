@@ -11,6 +11,7 @@
 #include "SoundProcessorThread.h"
 #include "CircleBufferWriterThread.h"
 #include "RSPv2.h"
+#include "SpeedCount.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
@@ -40,7 +41,6 @@ Display& d = *display;
 Display* Display::instance = &d;
 
 int main() {
-
 	switch (config->deviceType) {
 		//RSP
 		case 0:
@@ -60,9 +60,6 @@ int main() {
 			break;
 	}
 
-	//Инициализируем звуковую карту
-	soundCard.open();
-
 	//Инициализируем устройство
 	switch (config->deviceType) {
 		case Config::RSP:
@@ -79,6 +76,9 @@ int main() {
 			((RTLDevice*)config->device)->init();
 			break;
 	}
+
+	//Инициализируем звуковую карту
+	soundCard.open();
 
 	fftSpectreHandler->start().detach();
 	circleBufferWriterThread->start().detach();

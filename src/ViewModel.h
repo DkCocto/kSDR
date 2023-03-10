@@ -41,6 +41,8 @@ public:
 
 	int goToFreq = 0;
 
+	//int test = 2300000;
+
 	double serviceField1 = 0;
 	double serviceField2 = 0;
 

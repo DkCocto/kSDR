@@ -7,6 +7,8 @@ private:
 
 public:
      
+    Average() { }
+
     Average(double len) {
         this->len = len;
     }

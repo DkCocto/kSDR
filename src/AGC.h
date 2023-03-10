@@ -2,11 +2,6 @@
 
 #include "Display.h"
 #include "ReceiverLogic.h"
-#include "Average.h"
-#include "cstring"
-#include "cmath"
-#include "vector"
-#include "KalmanFilter.h"
 
 class AGC {
 
@@ -14,9 +9,6 @@ private:
     double threshold = 0.05;
 
     double amp = 1;
-
-    Average* averageAmp = new Average(15);
-    Average* avg = new Average(150);
 
     int count = 0;
 
@@ -34,8 +26,6 @@ private:
 public:
 
     AGC(Config* config, FFTSpectreHandler* fftSpectreHandler);
-
-    //double process(double signal);
 
     double processNew(double signal);
 

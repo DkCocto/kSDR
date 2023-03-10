@@ -9,13 +9,12 @@ class ComplexSignal {
 
 public: 
 
-	double I = 0.0;
-	double Q = 0.0;
+	double I = 0.0f;
+	double Q = 0.0f;
 
 	ComplexSignal();
 
 	ComplexSignal(double I, double Q);
 
 	void normalize();
-
 };

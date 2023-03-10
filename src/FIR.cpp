@@ -116,10 +116,10 @@ double FIR::proc(double sample) {
 
     // ограничение амплитуды
     /*if (out > 0) {
-        out += 0.5;
+        out += 0.0005;
         if (out > 32767) out = 32767;
     } else {
-        out -= 0.5;
+        out -= 0.0005;
         if (out < -32768) out = -32768;
     }*/
     return out;

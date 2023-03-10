@@ -97,6 +97,7 @@ public:
 		int spectreSpeed = 8;
 		int spectreSpeed2 = 5;
 		int smoothingDepth = 2;
+		int spectreCorrectionDb = -50;
 	} spectre;
 
 	struct Receiver {
@@ -134,6 +135,7 @@ public:
 		int gain = 50;
 		int lna = 0;
 		char api = 2;
+		int basebandFilter = 600000;
 	} rsp;
 
 	struct RTL {

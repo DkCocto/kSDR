@@ -12,6 +12,9 @@
 #include "KalmanFilter.h"
 #include "fftw/fftw3.h"
 #include "iostream"
+#include "Windows.h"
+#include "future"
+#include "ViewModel.h"
 
 //#include "AudioFFT.h"
 
@@ -75,16 +78,23 @@ private:
 
 public:
 
+	ViewModel* vM;
+
 	FFTSpectreHandler(Config* config);
+
 	~FFTSpectreHandler();
 	float* getOutputCopy(int startPos, int len, bool forWaterfall);
 	void putData(float* data);
+
+	void receivingData1(bool val);
 
 	int getSpectreSize();
 	//void setSpectreSpeed(int speed);
 
 	std::thread start();
 	void run();
+
+	void receivingData(bool val);
 
 
 };

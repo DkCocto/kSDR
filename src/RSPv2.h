@@ -27,6 +27,7 @@ class RSPv2: public Device {
     double savedFreq;
     int savedLna;
     int savedGain;
+    int savedBasebandFilter;
 
 public:
 
@@ -36,8 +37,10 @@ public:
     void closeApi();
     void updateFreq();
     void updateGain();
+    void updateBasebandFilter();
     bool isNeedToFreq();
     bool isNeedToGain();
     bool isNeedToLna();
+    bool isNeedToBasebandFilter();
 
 };

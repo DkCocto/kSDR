@@ -21,7 +21,7 @@ bool Hackrf::isNeedToSetupAmp() {
 }
 
 bool Hackrf::isNeedToSetupFilter() {
-	return savedBaseband != viewModel->hackRFModel.basebandFilter;
+	return savedBaseband != config->hackrf.basebandFilter;
 }
 
 Hackrf::Hackrf(Config* config, CircleBuffer* cb) {
@@ -50,11 +50,11 @@ int Hackrf::rx_callback(hackrf_transfer* transfer) {
 
 	Config* config = (Config*)transfer->rx_ctx;
 	Hackrf* hackrf = (Hackrf*)config->device;
-
-	for (int i = 0; i < (bytes_to_write / 2 - 1); i++) { 
-
-		if (i % config->inputSamplerateDivider == 0) {
-			transfer->buffer[2 * i] ^= (uint8_t)0x80;			
+	for (int i = 0; i < (bytes_to_write / 2 - 1); i++) {
+		//hackrf->count++;
+		//if (hackrf->count == i) {
+			//hackrf->count = -1;
+			transfer->buffer[2 * i] ^= (uint8_t)0x80;
 			transfer->buffer[2 * i + 1] ^= (uint8_t)0x80;
 
 			float I = (((float)transfer->buffer[2 * i] / 130.0f) - 1.0f);
@@ -62,7 +62,17 @@ int Hackrf::rx_callback(hackrf_transfer* transfer) {
 
 			hackrf->cb->write(I);
 			hackrf->cb->write(Q);
-		}
+		//}
+		/*if (i % config->inputSamplerateDivider == 0) {
+			transfer->buffer[2 * i] ^= (uint8_t)0x80;			
+			transfer->buffer[2 * i + 1] ^= (uint8_t)0x80;
+
+			float I = ((float)transfer->buffer[2 * i]) * 1.0f / 128.0f;
+			float Q = ((float)transfer->buffer[2 * i + 1]) * 1.0f / 128.0f;
+
+			hackrf->cb->write(I);
+			hackrf->cb->write(Q);
+		}*/
 	}
 
 	return 0;
@@ -203,6 +213,12 @@ hackrf_error Hackrf::startRX() {
 
 
 void Hackrf::setFreq(uint64_t freq) {
+
+	//lo = 85Mhz...4200Mhz
+	//if = 2300Mhz...2700Mhz
+	//																if			lo
+	//auto result = (hackrf_error)hackrf_set_freq_explicit(device, static_cast<uint64_t>(viewModel->test) * 1000 - freq, static_cast<uint64_t>(viewModel->test) * 1000, RF_PATH_FILTER_LOW_PASS);
+
 	hackrf_error result = (hackrf_error)hackrf_set_freq(device, freq);
 	if (result != HACKRF_SUCCESS) {
 		fprintf(stderr,
@@ -222,6 +238,7 @@ void Hackrf::setLnaGain(uint32_t gain) {
 			hackrf_error_name(result),
 			result);
 	}
+	printf("Gain LNA set: %d\r\n", (int)gain);
 	savedLnaGain = gain;
 }
 
@@ -233,6 +250,7 @@ void Hackrf::setVgaGain(uint32_t gain) {
 			hackrf_error_name(result),
 			result);
 	}
+	printf("Gain VGA set: %d\r\n", (int)gain);
 	savedVgaGain = gain;
 }
 
@@ -245,6 +263,7 @@ void Hackrf::setBaseband(int baseband) {
 			result);
 	}
 	savedBaseband = baseband;
+	printf("Baseband set: %d\r\n", (int)baseband);
 }
 
 void Hackrf::setConfiguration() {
@@ -252,7 +271,7 @@ void Hackrf::setConfiguration() {
 	if (isNeedToSetupLnaGain()) setLnaGain((uint32_t)(viewModel->hackRFModel.lnaGain * 8));
 	if (isNeedToSetupVgnGain()) setVgaGain((uint32_t)(viewModel->hackRFModel.vgaGain * 2));
 	if (isNeedToSetupAmp()) enableAmp((uint8_t)viewModel->hackRFModel.enableAmp);
-	if (isNeedToSetupFilter()) setBaseband(viewModel->hackRFModel.basebandFilter);
+	if (isNeedToSetupFilter()) setBaseband(config->hackrf.basebandFilter);
 }
 
 void Hackrf::enableAmp(uint8_t amp) {
@@ -264,4 +283,5 @@ void Hackrf::enableAmp(uint8_t amp) {
 			result);
 	}
 	savedAmp = amp;
+	printf("AMP enabled set: %d\r\n", (int)amp);
 }

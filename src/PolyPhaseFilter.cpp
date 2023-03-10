@@ -24,11 +24,11 @@ void PolyPhaseFilter::initSubFilters(std::vector<double> coeffs, int coeffsLen, 
 void PolyPhaseFilter::initCoeffs(double sampleRate, double freq, int decimationRate, int len) {
 	coeffs.clear();
 	FIR fir;
-	fir.init(fir.LOWPASS, fir.HAMMING, len, freq, 0, sampleRate);
+	fir.init(fir.LOWPASS, fir.BLACKMAN_HARRIS, len, freq, 0, sampleRate);
 	coeffs = fir.getCoeffs();
 	//coeffs = Filter::makeRaiseCosine(sampleRate, freq, alpha, len);
 
-	printf("Raised Cosine PolyPhase Filter. Len: %d\r\n", coeffs.size());
+	printf("PolyPhase Filter. Len: %d\r\n", coeffs.size());
 	initSubFilters(coeffs, len, decimationRate);
 }
 
@@ -37,6 +37,8 @@ PolyPhaseFilter::PolyPhaseFilter() { }
 double PolyPhaseFilter::filter(double* in, int inLen) {
 	double sum = 0.0;
 	int j = inLen - 1;
-	for (int i = 0; i < inLen; i++) sum += subFilters.at(i).filter(in[j--]);
+	for (int i = 0; i < inLen; i++) {
+		sum += subFilters.at(i).filter(in[j--]);
+	}
 	return sum;
 }

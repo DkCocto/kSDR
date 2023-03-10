@@ -48,8 +48,10 @@ private:
 
 	std::unique_ptr<ListSetting> decimationLS;
 	std::unique_ptr<ListSetting> hackRFsampRateLS;
+	std::unique_ptr<ListSetting> hackRFbasebandFilterLS;
 	std::unique_ptr<ListSetting> rspSampRateLS;
 	std::unique_ptr<ListSetting> rspDecimationFactorLS;
+	std::unique_ptr<ListSetting> rspbasebandFilterLS;
 	std::unique_ptr<ListSetting> fftLenLS;
 	std::unique_ptr<ListSetting> waterfallSpeedLS;
 	std::unique_ptr<ListSetting> smoothingDepthLS;
@@ -58,6 +60,7 @@ private:
 	std::unique_ptr<ListSetting> rtlSampRateLS;
 
 	void initSettings();
+	void initDynamicSettings();
 
 	void showColorPicker(string title, unsigned int* configVal, bool withTransparency);
 

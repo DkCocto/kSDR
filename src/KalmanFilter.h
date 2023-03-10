@@ -15,6 +15,7 @@ private:
     double xe = 0.0;
 
 public:
+    KalmanFilter() {};
     KalmanFilter(double standardDeviation, double speed);
     double filter(double value);
 };

@@ -1,7 +1,6 @@
 #include "ComplexOscillator.h"
 
-ComplexOscillator::ComplexOscillator() {
-}
+ComplexOscillator::ComplexOscillator() { }
 
 ComplexOscillator::ComplexOscillator(int freq, int samplingRate) {
 	this->freq = freq;

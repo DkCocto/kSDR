@@ -179,11 +179,13 @@ SMeter::SMeter(double offsetX, double offsetY, double width, double height) {
 }
 
 void SMeter::draw(double dBValue) {
-	ImGui::Begin("S-meter");
+	//ImGui::Begin("S-meter");
 		//ImGuiIO& io = ImGui::GetIO();
 		ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
 		drawGrid(draw_list);
 		drawLevel(draw_list, dBValue);
-	ImGui::End();
+
+		ImGui::SetCursorPos(ImVec2(10, 137));
+	//ImGui::End();
 }

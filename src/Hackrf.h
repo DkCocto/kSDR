@@ -6,6 +6,7 @@
 #include "ViewModel.h"
 #include "Device.h"
 #include "Display.h"
+#include "Delay.h"
 
 
 class Hackrf: public Device {
@@ -23,12 +24,13 @@ class Hackrf: public Device {
 	ViewModel* viewModel;
 
 public:
-
+	Delay* d;
 	Hackrf(Config* config, CircleBuffer* cb);
 	~Hackrf();
 
 	void close();
 
+	int count = -1;
 	static int rx_callback(hackrf_transfer* transfer);
 
 	bool init();
@@ -55,5 +57,4 @@ public:
 	bool isNeedToSetupVgnGain();
 	bool isNeedToSetupAmp();
 	bool isNeedToSetupFilter();
-
 };

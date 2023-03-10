@@ -86,13 +86,13 @@ void ReceiverLogicNew::setFreq(float freq) {
 		setFrequencyDelta(delta);
 	} else {
 		FlowingFFTSpectre::FREQ_RANGE totalFreqsRange = flowingFFTSpectre->getTotalFreqsRange();
-		if (freq >= totalFreqsRange.first && freq <= totalFreqsRange.second) {
+		//if (freq >= totalFreqsRange.first && freq <= totalFreqsRange.second) {
 			//empty
-		} else {
+		//} else {
 			if (SHIFT < config->inputSamplerate / 2.0f) {
 				viewModel->centerFrequency = freq - SHIFT;
 			} else viewModel->centerFrequency = freq - config->inputSamplerate / 4.0f;
-		}
+		//}
 
 		float delta = freq - viewModel->centerFrequency;
 		setFrequencyDelta(delta);

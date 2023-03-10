@@ -23,12 +23,11 @@ Config::Config() {
 
 	calcOutputSamplerate();
 
-	bufferWriteAudioLen							= (outputSamplerateDivider * 2) * 16;
+    bufferWriteAudioLen                         = (outputSamplerateDivider * 2) * 16;
 
-	readSoundProcessorBufferLen					= fftLen; //fftLen
+	readSoundProcessorBufferLen					= fftLen; //fftLen 
 
-	audioReadFrameLen							= (outputSamplerateDivider * 2) * 16;
-	audioWriteFrameLen							= (outputSamplerateDivider * 2) * 16;
+    audioWriteFrameLen                          = (outputSamplerateDivider * 2) * 2;
 
 	circleBufferLen								= 4 * inputSamplerate;
 
@@ -124,6 +123,9 @@ void Config::load() {
 
                 tinyxml2::XMLElement* plna = pRSP->FirstChildElement("disableLna");
                 rsp.lna = std::stoi(std::string(plna->GetText()));
+
+                tinyxml2::XMLElement* pbasebandFilter = pRSP->FirstChildElement("basebandFilter");
+                rsp.basebandFilter = std::stoi(std::string(pbasebandFilter->GetText()));
             }
 
             tinyxml2::XMLElement* pRTL = pDevice->FirstChildElement("RTL");
@@ -244,6 +246,10 @@ void Config::load() {
 
             tinyxml2::XMLElement* psmoothingDepth = pSpectre->FirstChildElement("smoothingDepth");
             spectre.smoothingDepth = std::stoi(std::string(psmoothingDepth->GetText()));
+
+            tinyxml2::XMLElement* pspectreCorrectionDb = pSpectre->FirstChildElement("spectreCorrectionDb");
+            spectre.spectreCorrectionDb = std::stoi(std::string(pspectreCorrectionDb->GetText()));
+            
         }
 
         tinyxml2::XMLElement* pColorTheme = pRootElement->FirstChildElement("ColorTheme");
@@ -376,7 +382,8 @@ void Config::save() {
 
             tinyxml2::XMLElement* pHackRF = pDevice->FirstChildElement("HackRF");
             if (NULL != pHackRF) {
-                //tinyxml2::XMLElement* pbasebandFilter = pHackRF->FirstChildElement("basebandFilter");
+                tinyxml2::XMLElement* pbasebandFilter = pHackRF->FirstChildElement("basebandFilter");
+                pbasebandFilter->SetText(hackrf.basebandFilter);
 
                 tinyxml2::XMLElement* pdeviceSamplingRate = pHackRF->FirstChildElement("deviceSamplingRate");
                 pdeviceSamplingRate->SetText(hackrf.deviceSamplingRate);
@@ -395,6 +402,9 @@ void Config::save() {
 
             tinyxml2::XMLElement* pRSP = pDevice->FirstChildElement("RSP");
             if (NULL != pRSP) {
+                tinyxml2::XMLElement* pbasebandFilter = pRSP->FirstChildElement("basebandFilter");
+                pbasebandFilter->SetText(rsp.basebandFilter);
+
                 tinyxml2::XMLElement* pdeviceSamplingRate = pRSP->FirstChildElement("deviceSamplingRate");
                 pdeviceSamplingRate->SetText(rsp.deviceSamplingRate);
 
@@ -521,6 +531,9 @@ void Config::save() {
 
             tinyxml2::XMLElement* psmoothingDepth = pSpectre->FirstChildElement("smoothingDepth");
             psmoothingDepth->SetText(spectre.smoothingDepth);
+
+            tinyxml2::XMLElement* pspectreCorrectionDb = pSpectre->FirstChildElement("spectreCorrectionDb");
+            pspectreCorrectionDb->SetText(spectre.spectreCorrectionDb);
         }
 
         tinyxml2::XMLElement* pColorTheme = pRootElement->FirstChildElement("ColorTheme");
@@ -593,7 +606,7 @@ void Config::calcOutputSamplerate() {
 		div *= 2;
 		if (sampleRate % div != 0) break;
 		else {
-			if (sampleRate / div <= 96000) break;
+			if (sampleRate / div <= 48000) break;
 		}
 	}
 	outputSamplerateDivider = div;

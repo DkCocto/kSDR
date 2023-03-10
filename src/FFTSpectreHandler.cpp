@@ -7,6 +7,8 @@ FFTSpectreHandler::~FFTSpectreHandler() {
 	fftw_destroy_plan(fftwPlan);
 }
 
+std::future<void> s;
+
 FFTSpectreHandler::FFTSpectreHandler(Config* config) {
 	this->config = config;
 
@@ -14,10 +16,9 @@ FFTSpectreHandler::FFTSpectreHandler(Config* config) {
 
 	wb = new WindowBlackman(config->fftLen);
 	wbh = new WindowBlackmanHarris(config->fftLen);
-	//windowArray = wb->init();
 
 	dataBuffer = new float[config->fftLen];
-	//memset(dataBuffer, 0, sizeof(float) * config->fftLen);
+	memset(dataBuffer, 0, sizeof(float) * config->fftLen);
 
 	complexLen = config->fftLen / 2 + 1;
 
@@ -39,10 +40,6 @@ FFTSpectreHandler::FFTSpectreHandler(Config* config) {
 	outputWaterfall = new float[spectreSize];
 	memset(outputWaterfall, -100, sizeof(float) * spectreSize);
 
-	/*for (int i = 0; i < spectreSize; i++) {
-		kfArray.push_back(KalmanFilter(1.0f, 0.1f));
-	}*/
-
 	tmpArray = new float[spectreSize];
 	memset(tmpArray, -100, sizeof(float) * spectreSize);
 	tmpArray2 = new float[spectreSize];
@@ -57,7 +54,6 @@ FFTSpectreHandler::FFTSpectreHandler(Config* config) {
 	//memset(speedDelta, 1, sizeof(float) * spectreSize);
 }
 
-//std::queue<std::vector<float>> spectreDataQueue;
 std::mutex spectreDataMutex;
 
 bool ready = false;
@@ -67,11 +63,10 @@ void FFTSpectreHandler::run() {
 		if (ready) {
 			spectreDataMutex.lock();
 			processFFT();
-			ready = false;
-			//не забываем ставить unlock()!!!
 			spectreDataMutex.unlock();
+			ready = false;
 		} else {
-			std::this_thread::sleep_for(std::chrono::microseconds(10));
+			std::this_thread::sleep_for(std::chrono::microseconds(1));
 		}
 	}
 }
@@ -81,8 +76,7 @@ void FFTSpectreHandler::putData(float* data) {
 		return;
 	}
 	memcpy(dataBuffer, data, sizeof(float) * config->fftLen);
-
-	spectreDataMutex.unlock(); // не забываем ставить unlock()!!!
+	spectreDataMutex.unlock(); // не забываем ставить unlock()!!!*/
 	ready = true;
 }
 
@@ -125,10 +119,8 @@ void FFTSpectreHandler::processFFT() {
 
 	//Apply window function
 	for (int i = 0; i < spectreSize; i++) {
-		//realInput[i] = dataBuffer[2 * i];
-		//imInput[i] = dataBuffer[2 * i + 1];
-		inData[i][0] = dataBuffer[2 * i] * wb->getWeights()[i];
-		inData[i][1] = dataBuffer[2 * i + 1] * wb->getWeights()[i];
+		inData[i][0] = dataBuffer[2 * i] * wbh->getWeights()[i];
+		inData[i][1] = dataBuffer[2 * i + 1] * wbh->getWeights()[i];
 	}
 
 	fftw_execute(fftwPlan);
@@ -175,7 +167,7 @@ float FFTSpectreHandler::average(float avg, float new_sample, int n) {
 
 void FFTSpectreHandler::dataPostprocess() {
 	for (int i = 0; i < spectreSize; i++) {
-		float psd = this->psd(outData[i][0], outData[i][1]) - 100;
+		float psd = this->psd(outData[i][0], outData[i][1]) + config->spectre.spectreCorrectionDb;
 		if (firstRun) {
 			tmpArray[i] = psd;
 			firstRun = false;
@@ -227,16 +219,18 @@ float FFTSpectreHandler::psd(float re, float im) {
 	return 10 * log(re * re + im * im);
 }
 
-void FFTSpectreHandler::prepareData() {
+/*void FFTSpectreHandler::prepareData() {
 	//Применения окна Блэкмона к исходным данным
 	float* weights = wbh->getWeights();
 	for (int i = 0; i < spectreSize; i++) {
 		dataBuffer[2 * i] = dataBuffer[2 * i] * weights[i];
 		dataBuffer[2 * i + 1] = dataBuffer[2 * i + 1] * weights[i];
 	}
-}
+}*/
 
 std::thread FFTSpectreHandler::start() {
 	std::thread p(&FFTSpectreHandler::run, this);
+	SetThreadPriority(p.native_handle(), THREAD_PRIORITY_HIGHEST);
+	DWORD result = ::SetThreadIdealProcessor(p.native_handle(), 2);
 	return p;
 }

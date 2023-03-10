@@ -41,5 +41,7 @@ void CircleBufferWriterThread::run() {
 
 std::thread CircleBufferWriterThread::start() {
 	std::thread p(&CircleBufferWriterThread::run, this);
+	DWORD result = ::SetThreadIdealProcessor(p.native_handle(), 3);
+	SetThreadPriority(p.native_handle(), THREAD_PRIORITY_HIGHEST);
 	return p;
 }

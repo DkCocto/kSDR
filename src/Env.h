@@ -15,11 +15,15 @@
 #define APP_NAME					"kSDR v1.0 Beta 5"
 
 struct Signal {
-	float I;
-	float Q;
+	double I;
+	double Q;
 };
 
 #define USB		0
 #define LSB		1
 #define AM		2
 #define nFM		3
+
+constexpr auto DISABLE_CONTROL_SPECTRE_BUTTONS = 0;
+constexpr auto DISABLE_CONTROL_DIALOG = 1;
+constexpr auto DISABLE_CONTROL_WINDOW_ON_TOP = 2;

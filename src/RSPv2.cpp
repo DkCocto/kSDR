@@ -18,6 +18,7 @@ void RSPv2::StreamACallback(short* xi, short* xq, sdrplay_api_StreamCbParamsT* p
     if (rspv2->isNeedToFreq()) rspv2->updateFreq();
 
     if (rspv2->isNeedToGain() || rspv2->isNeedToLna()) rspv2->updateGain();
+    if (rspv2->isNeedToBasebandFilter()) rspv2->updateBasebandFilter();
 }
 
 void RSPv2::StreamBCallback(short* xi, short* xq, sdrplay_api_StreamCbParamsT* params, unsigned int numSamples, unsigned int reset, void* cbContext) {
@@ -182,7 +183,7 @@ bool RSPv2::init() {
         chParams = (chosenDevice->tuner == sdrplay_api_Tuner_B) ? deviceParams->rxChannelB : deviceParams->rxChannelA;
         if (chParams != NULL) {
             chParams->tunerParams.rfFreq.rfHz = config->startFrequency + ((config->receiver.enableFrequencyShift == true) ? config->receiver.frequencyShift : 0);
-            chParams->tunerParams.bwType = sdrplay_api_BW_0_600;
+            chParams->tunerParams.bwType = sdrplay_api_BW_5_000;
 
             chParams->tunerParams.ifType = sdrplay_api_IF_Zero;
 
@@ -235,6 +236,26 @@ void RSPv2::updateGain() {
     savedLna = viewModel->rspModel.lna;
 }
 
+void RSPv2::updateBasebandFilter() {
+    /*sdrplay_api_BW_Undefined = 0,
+        sdrplay_api_BW_0_200 = 200,
+        sdrplay_api_BW_0_300 = 300,
+        sdrplay_api_BW_0_600 = 600,
+        sdrplay_api_BW_1_536 = 1536,
+        sdrplay_api_BW_5_000 = 5000,
+        sdrplay_api_BW_6_000 = 6000,
+        sdrplay_api_BW_7_000 = 7000,
+        sdrplay_api_BW_8_000 = 8000*/
+    /*sdrplay_api_Bw_MHzT bwFreq = sdrplay_api_BW_Undefined;
+    switch (config->rsp.basebandFilter) {
+        case 0:
+            bwFreq = sdrplay_api_BW_Undefined;
+    }*/
+    deviceParams->rxChannelA->tunerParams.bwType = (sdrplay_api_Bw_MHzT)config->rsp.basebandFilter;
+    sdrplay_api_Update(chosenDevice->dev, chosenDevice->tuner, sdrplay_api_Update_Tuner_BwType, sdrplay_api_Update_Ext1_None);
+    savedBasebandFilter = config->rsp.basebandFilter;
+}
+
 bool RSPv2::isNeedToFreq() {
     return savedFreq != (viewModel->centerFrequency + ((config->receiver.enableFrequencyShift == true) ? config->receiver.frequencyShift : 0));
 }
@@ -245,4 +266,8 @@ bool RSPv2::isNeedToGain() {
 
 bool RSPv2::isNeedToLna() {
     return savedLna != viewModel->rspModel.lna;
+}
+
+bool RSPv2::isNeedToBasebandFilter() {
+    return savedBasebandFilter != config->rsp.basebandFilter;
 }

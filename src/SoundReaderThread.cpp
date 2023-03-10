@@ -10,7 +10,7 @@ void SoundReaderThread::run() {
 	int len = config->audioReadFrameLen * config->inputChannelNumber;
 	float* buffer = new float[len];
 	while (true) {
-		ñircleBuffer->write(soundCard->read(buffer, len), config->audioReadFrameLen * config->inputChannelNumber);
+		//ñircleBuffer->write(soundCard->read(buffer, len), config->audioReadFrameLen * config->inputChannelNumber);
 	}
 }
 

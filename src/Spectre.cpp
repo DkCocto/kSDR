@@ -239,7 +239,7 @@ void Spectre::draw() {
 			//--
 		ImGui::EndChild();
 
-		drawFreqPointerMark(startWindowPoint, windowLeftBottomCorner, spectreWidth, draw_list);
+		if (!disableControl_) drawFreqPointerMark(startWindowPoint, windowLeftBottomCorner, spectreWidth, draw_list);
 
 	ImGui::End();
 
@@ -615,12 +615,17 @@ void Spectre::drawSpectreContour(float* fullSpectreData, ImDrawList* draw_list) 
 				y2
 			);
 
+			//float thickness = (((float)config->visibleSpectreBinCount - (float)reducedSpectreData.size()) - 0) / ((float)config->visibleSpectreBinCount - 0) * (1.5f - 0.1f) + 0.1f;
+			float thickness = 1.5f;
+			//(value - From1) / (From2 - From1) * (To2 - To1) + To1;
+			
+
 			if (config->spectre.contourShowsPower) {
 				Waterfall::RGB powerRGB = waterfall->getColorForPowerInSpectre(reducedSpectreData[i], viewModel->waterfallMin * config->spectre.topCoeff, viewModel->waterfallMax * config->spectre.bottomCoeff);
-				draw_list->AddLine(lineX1, lineX2, IM_COL32(powerRGB.r, powerRGB.g, powerRGB.b, 255), 1.5f);
+				draw_list->AddLine(lineX1, lineX2, IM_COL32(powerRGB.r, powerRGB.g, powerRGB.b, 255), thickness);
 			}
 			else {
-				draw_list->AddLine(lineX1, lineX2, config->colorTheme.spectreProfileColor, 1.5f);
+				draw_list->AddLine(lineX1, lineX2, config->colorTheme.spectreProfileColor, thickness);
 			}
 		}
 	}
