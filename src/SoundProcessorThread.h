@@ -13,8 +13,6 @@
 #include "FIR.h"
 #include "DCRemove.h"
 #include "FMDemodulator.h"
-#include "Windows.h"
-#include "SpeedCount.h"
 
 using namespace std;
 
@@ -44,12 +42,9 @@ class SoundProcessorThread {
 
 	Config* config;
 
-	FIR* audioFir = new FIR();
+	FIR* fir = new FIR();
 	FIR* firI = new FIR();
 	FIR* firQ = new FIR();
-
-	FIR* prefirI = new FIR();
-	FIR* prefirQ = new FIR();
 	//FIR audioFilterFM;
 
 	DCRemove dcRemove;

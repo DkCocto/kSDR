@@ -69,7 +69,6 @@
     <ClCompile Include="src\SoundProcessorThread.cpp" />
     <ClCompile Include="src\SoundReaderThread.cpp" />
     <ClCompile Include="src\Spectre.cpp" />
-    <ClCompile Include="src\SpeedCount.cpp" />
     <ClCompile Include="src\tinyxml2\tinyxml2.cpp" />
     <ClCompile Include="src\Utils.cpp" />
     <ClCompile Include="src\ViewModel.cpp" />
@@ -134,7 +133,6 @@
     <ClInclude Include="src\SoundProcessorThread.h" />
     <ClInclude Include="src\SoundReaderThread.h" />
     <ClInclude Include="src\Spectre.h" />
-    <ClInclude Include="src\SpeedCount.h" />
     <ClInclude Include="src\tinyxml2\tinyxml2.h" />
     <ClInclude Include="src\Utils.h" />
     <ClInclude Include="src\ViewModel.h" />
@@ -170,7 +168,6 @@
     <CharacterSet>Unicode</CharacterSet>
     <EnableASAN>false</EnableASAN>
     <EnableFuzzer>false</EnableFuzzer>
-    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>

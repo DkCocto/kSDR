@@ -232,19 +232,19 @@ void Display::renderImGUIFirst() {
 				if (ImGui::Button("10m")) spectre->receiverLogicNew->setFreq(28500000);
 
 				if (ImGui::Button("+")) {
-					flowingFFTSpectre->zoomIn(100);
+					flowingFFTSpectre->zoomIn();
 					spectre->receiverLogicNew->setFrequencyDelta(spectre->receiverLogicNew->getFrequencyDelta());
 				} ImGui::SameLine();
 				if (ImGui::Button("-")) {
-					flowingFFTSpectre->zoomOut(100);
+					flowingFFTSpectre->zoomOut();
 					spectre->receiverLogicNew->setFrequencyDelta(spectre->receiverLogicNew->getFrequencyDelta());
 				} ImGui::SameLine();
 				if (ImGui::Button("<-")) {
-					flowingFFTSpectre->move(-100);
+					flowingFFTSpectre->move(-250);
 					spectre->receiverLogicNew->setFrequencyDelta(spectre->receiverLogicNew->getFrequencyDelta());
 				} ImGui::SameLine();
 				if (ImGui::Button("->")) {
-					flowingFFTSpectre->move(100);
+					flowingFFTSpectre->move(250);
 					spectre->receiverLogicNew->setFrequencyDelta(spectre->receiverLogicNew->getFrequencyDelta());
 				}
 

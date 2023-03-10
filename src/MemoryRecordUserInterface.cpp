@@ -11,7 +11,7 @@ Config::MemoryRecord recordToCommit;
 void MemoryRecordUserInterface::drawMemoryBlock() {
 
 	if (ImGui::Button("Store frequency")) {
-		spectre->disableControl();
+		spectre->disableControl(DISABLE_CONTROL_DIALOG);
 		recordToCommit = Config::MemoryRecord{
 			Utils::getPrittyFreq(((int)spectre->receiverLogicNew->getSelectedFreqNew())),
 			spectre->receiverLogicNew->getSelectedFreqNew(),
@@ -58,7 +58,7 @@ void MemoryRecordUserInterface::drawMemoryBlock() {
 
 			string dynamicEditTitle = editDialogTitle + to_string(row);
 			if (ImGui::Button((editButtonTitle + to_string(row)).c_str())) {
-				spectre->disableControl();
+				spectre->disableControl(DISABLE_CONTROL_DIALOG);
 				selectedRecordIndex = row;
 				recordToCommit = config->memoryVector[selectedRecordIndex];
 				ImGui::OpenPopup(dynamicEditTitle.c_str());
@@ -69,7 +69,7 @@ void MemoryRecordUserInterface::drawMemoryBlock() {
 			ImGui::SameLine();
 			string dynamicDelTitle = deleteDialogTitle + to_string(row);
 			if (ImGui::Button((deleteButtonTitle + to_string(row)).c_str())) {
-				spectre->disableControl();
+				spectre->disableControl(DISABLE_CONTROL_DIALOG);
 				selectedRecordIndex = row;
 				ImGui::OpenPopup(dynamicDelTitle.c_str());
 			}
@@ -120,13 +120,13 @@ void MemoryRecordUserInterface::initEditMemRecDialog(std::string id) {
 		ImGui::Spacing(); ImGui::Spacing();
 
 		if (ImGui::Button("Cancel", ImVec2(120, 0))) {
-			spectre->enableControl();
+			spectre->enableControl(DISABLE_CONTROL_DIALOG);
 			ImGui::CloseCurrentPopup();
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("Save", ImVec2(120, 0))) {
 			config->editRecord(recordToCommit, selectedRecordIndex);
-			spectre->enableControl();
+			spectre->enableControl(DISABLE_CONTROL_DIALOG);
 			ImGui::CloseCurrentPopup();
 		}
 		ImGui::SetItemDefaultFocus();
@@ -144,13 +144,13 @@ void MemoryRecordUserInterface::initDeleteMemRecDialog(std::string id) {
 		ImGui::Text(string("Frequency: ").append(Utils::getPrittyFreq((int)record.freq)).append("\n\n").c_str());
 
 		if (ImGui::Button("Cancel", ImVec2(120, 0))) {
-			spectre->enableControl();
+			spectre->enableControl(DISABLE_CONTROL_DIALOG);
 			ImGui::CloseCurrentPopup();
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("Yes", ImVec2(120, 0))) {
 			config->deleteRecord(selectedRecordIndex);
-			spectre->enableControl();
+			spectre->enableControl(DISABLE_CONTROL_DIALOG);
 			ImGui::CloseCurrentPopup();
 		}
 		ImGui::SetItemDefaultFocus();
@@ -168,13 +168,13 @@ void MemoryRecordUserInterface::initStoreMemRecDialog(std::string id) {
 		ImGui::Spacing(); ImGui::Spacing();
 
 		if (ImGui::Button("Cancel", ImVec2(120, 0))) {
-			spectre->enableControl();
+			spectre->enableControl(DISABLE_CONTROL_DIALOG);
 			ImGui::CloseCurrentPopup();
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("Store", ImVec2(120, 0))) {
 			config->storeRecord(recordToCommit);
-			spectre->enableControl();
+			spectre->enableControl(DISABLE_CONTROL_DIALOG);
 			ImGui::CloseCurrentPopup();
 		}
 		ImGui::SetItemDefaultFocus();
