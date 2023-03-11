@@ -1,5 +1,6 @@
 ﻿#include "Env.h"
 #include "Config.h"
+#include "SpeedCount.h"
 
 #include "SoundCard.h"
 #include "CircleBuffer.h"
@@ -11,7 +12,6 @@
 #include "SoundProcessorThread.h"
 #include "CircleBufferWriterThread.h"
 #include "RSPv2.h"
-#include "SpeedCount.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
@@ -41,6 +41,7 @@ Display& d = *display;
 Display* Display::instance = &d;
 
 int main() {
+
 	switch (config->deviceType) {
 		//RSP
 		case 0:

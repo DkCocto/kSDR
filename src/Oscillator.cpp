@@ -14,6 +14,8 @@ void Oscillator::setFreq(int freq) {
 }
 
 void Oscillator::init() {
+	startPhase = 2.0 * M_PI * (double)freq;
 	phase = 0.0;
-	phaseIncrement = (2.0 * M_PI / (double)samplingRate) * (double)freq;
+	phaseIncrement = startPhase / (double)samplingRate;
+	printf("%d\n", freq);
 }

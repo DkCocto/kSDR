@@ -34,6 +34,7 @@
     <ClCompile Include="src\Delay.cpp" />
     <ClCompile Include="src\Device.cpp" />
     <ClCompile Include="src\Display.cpp" />
+    <ClCompile Include="src\FastMath.cpp" />
     <ClCompile Include="src\FFTSpectreHandler.cpp" />
     <ClCompile Include="src\Filter.cpp" />
     <ClCompile Include="src\FIR.cpp" />
@@ -69,6 +70,7 @@
     <ClCompile Include="src\SoundProcessorThread.cpp" />
     <ClCompile Include="src\SoundReaderThread.cpp" />
     <ClCompile Include="src\Spectre.cpp" />
+    <ClCompile Include="src\SpeedCount.cpp" />
     <ClCompile Include="src\tinyxml2\tinyxml2.cpp" />
     <ClCompile Include="src\Utils.cpp" />
     <ClCompile Include="src\ViewModel.cpp" />
@@ -95,6 +97,7 @@
     <ClInclude Include="src\Device.h" />
     <ClInclude Include="src\Display.h" />
     <ClInclude Include="src\Env.h" />
+    <ClInclude Include="src\FastMath.h" />
     <ClInclude Include="src\fft3.hpp" />
     <ClInclude Include="src\FFTSpectreHandler.h" />
     <ClInclude Include="src\Filter.h" />

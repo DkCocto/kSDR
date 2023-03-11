@@ -15,7 +15,6 @@ void HilbertTransform::init() {
 
     for (int n = 0; n < len; n++) {
         if (n == len / 2) {
-            //printf("siska %i\r\n", n);
             tempCoeffs[n] = 0;
         }
         else {
@@ -24,15 +23,8 @@ void HilbertTransform::init() {
         }
         sumofsquares += tempCoeffs[n] * tempCoeffs[n];
     }
+    gain = fastSqrt(sumofsquares); ///tempCoeffs.length;
 
-    //Utils::printArray(tempCoeffs, len);
-
-    gain = sqrt(sumofsquares); ///tempCoeffs.length;
-    /*cout << "sumofsquares: " << sumofsquares << "\r\n";
-    cout << "Hilbert Transform GAIN: " << gain << "\r\n";*/
-
-    //exit(0);
-    // flip
     coeffs = new double[len];
     for (int i = 0; i < len; i++) {
         coeffs[i] = tempCoeffs[len - i - 1] / gain;

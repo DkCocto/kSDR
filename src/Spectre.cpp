@@ -616,9 +616,17 @@ void Spectre::drawSpectreContour(float* fullSpectreData, ImDrawList* draw_list) 
 			);
 
 			//float thickness = (((float)config->visibleSpectreBinCount - (float)reducedSpectreData.size()) - 0) / ((float)config->visibleSpectreBinCount - 0) * (1.5f - 0.1f) + 0.1f;
-			float thickness = 1.5f;
+			//float thickness = 1.5f;
 			//(value - From1) / (From2 - From1) * (To2 - To1) + To1;
-			
+			// 
+			// from1 .. from2 = [0, config->visibleSpectreBinCount]
+			// to1 .. to2 = [1.0f, 3.0f]
+			// value => [0, reducedSpectreData.size()]
+
+			float thickness = (float)(((config->visibleSpectreBinCount - reducedSpectreData.size() + 1)) - 0) / (float)(config->visibleSpectreBinCount - 0) * (3.0f - 1.0f) + 1.0f;
+
+			viewModel->serviceField1 = reducedSpectreData.size();
+			viewModel->serviceField2 = thickness;
 
 			if (config->spectre.contourShowsPower) {
 				Waterfall::RGB powerRGB = waterfall->getColorForPowerInSpectre(reducedSpectreData[i], viewModel->waterfallMin * config->spectre.topCoeff, viewModel->waterfallMax * config->spectre.bottomCoeff);

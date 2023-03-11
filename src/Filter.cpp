@@ -29,7 +29,7 @@ std::vector<double> Filter::makeRaiseCosine(double sampleRate, double freq, doub
 
         sumofsquares += tempCoeffs[i] * tempCoeffs[i];
     }
-    double gain = sqrt(sumofsquares);
+    double gain = fastSqrt(sumofsquares);
     for (int i = 0; i < len; i++) {
         coeffs[i] = tempCoeffs[len - i - 1] / gain;
     }

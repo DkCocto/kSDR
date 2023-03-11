@@ -23,13 +23,13 @@ Config::Config() {
 
 	calcOutputSamplerate();
 
-    bufferWriteAudioLen                         = (outputSamplerateDivider) / 2;
+    bufferWriteAudioLen                         = (outputSamplerateDivider) / 4;
 
 	readSoundProcessorBufferLen					= fftLen; //fftLen 
 
-    audioWriteFrameLen                          = (outputSamplerateDivider) / 2;
+    audioWriteFrameLen                          = (outputSamplerateDivider) / 4;
 
-	circleBufferLen								= 4 * inputSamplerate;
+	circleBufferLen								= inputSamplerate / 4;
 
 	hilbertTransformLen							= 255;
 	polyphaseFilterLen							= outputSamplerateDivider;

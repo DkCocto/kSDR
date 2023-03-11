@@ -416,7 +416,7 @@ void Display::renderImGUIFirst() {
 				smoothingDepthLS->drawSetting();
 				ImGui::Checkbox("Hang&Decay", &config->spectre.hangAndDecay);
 				ImGui::BeginDisabled(!config->spectre.hangAndDecay);
-					ImGui::SliderFloat("Decay speed", &config->spectre.decaySpeed, 0, 2);
+					ImGui::SliderFloat("Decay speed", &config->spectre.decaySpeed, 0, 1);
 					ImGui::SliderFloat("Decay speed delta", &config->spectre.decaySpeedDelta, 0, 2);
 				ImGui::EndDisabled();
 
