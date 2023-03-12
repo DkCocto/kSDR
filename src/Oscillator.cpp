@@ -1,5 +1,14 @@
 #include "Oscillator.h"
 
+double Oscillator::nextPhase() {
+	phase += phaseIncrement;
+
+	if (freq > 0.0 && phase >= 2.0 * M_PI) phase -= 2.0 * M_PI;
+	if (freq < 0.0 && phase <= 0.0) phase += 2.0 * M_PI;
+
+	return phase;
+}
+
 Oscillator::Oscillator() { }
 
 Oscillator::Oscillator(int freq, int samplingRate) {
@@ -14,8 +23,6 @@ void Oscillator::setFreq(int freq) {
 }
 
 void Oscillator::init() {
-	startPhase = 2.0 * M_PI * (double)freq;
 	phase = 0.0;
-	phaseIncrement = startPhase / (double)samplingRate;
-	printf("%d\n", freq);
+	phaseIncrement = 2.0 * M_PI * (double)freq / (double)samplingRate;
 }

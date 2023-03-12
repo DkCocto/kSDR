@@ -452,6 +452,8 @@ void Spectre::drawFreqMarks(ImDrawList* draw_list, ImVec2 startWindowPoint, ImVe
 	//-----------------------------
 }
 
+int MAX_THICKNESS = 2.0f;
+
 void Spectre::drawSpectreContour(float* fullSpectreData, ImDrawList* draw_list) {
 	std::vector<float> reducedSpectreData = flowingFFTSpectre->getReducedSpectre(
 		fullSpectreData,
@@ -623,7 +625,7 @@ void Spectre::drawSpectreContour(float* fullSpectreData, ImDrawList* draw_list) 
 			// to1 .. to2 = [1.0f, 3.0f]
 			// value => [0, reducedSpectreData.size()]
 
-			float thickness = (float)(((config->visibleSpectreBinCount - reducedSpectreData.size() + 1)) - 0) / (float)(config->visibleSpectreBinCount - 0) * (3.0f - 1.0f) + 1.0f;
+			float thickness = (float)(((config->visibleSpectreBinCount - reducedSpectreData.size() + 1)) - 0) / (float)(config->visibleSpectreBinCount - 0) * (MAX_THICKNESS - 1.0f) + 1.0f;
 
 			viewModel->serviceField1 = reducedSpectreData.size();
 			viewModel->serviceField2 = thickness;

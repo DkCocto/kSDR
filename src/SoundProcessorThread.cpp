@@ -104,7 +104,7 @@ void SoundProcessorThread::process() {
 						case AM:
 							audioI = firI->proc(audioI);
 							audioQ = firQ->proc(audioQ);
-							audio = fastSqrt(audioI * audioI + audioQ * audioQ);
+							audio = sqrt(audioI * audioI + audioQ * audioQ);
 							break;
 						case nFM:
 							audioI = firI->proc(audioI);

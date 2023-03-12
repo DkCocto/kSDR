@@ -40,7 +40,15 @@ Display* display = new Display(config, fftSpectreHandler);
 Display& d = *display;
 Display* Display::instance = &d;
 
+#include "FastMath.h"
+
 int main() {
+
+	/*FastMath fm;
+	Utils::printFloat(fm.myFastCos(111));
+	Utils::printFloat(cos(111));
+	exit(0);
+	*/
 
 	switch (config->deviceType) {
 		//RSP

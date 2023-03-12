@@ -23,7 +23,7 @@ void HilbertTransform::init() {
         }
         sumofsquares += tempCoeffs[n] * tempCoeffs[n];
     }
-    gain = fastSqrt(sumofsquares); ///tempCoeffs.length;
+    gain = sqrt(sumofsquares); ///tempCoeffs.length;
 
     coeffs = new double[len];
     for (int i = 0; i < len; i++) {
