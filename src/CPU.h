@@ -1,7 +1,9 @@
 #pragma once
 
 #include "windows.h"
-#include "KalmanFilter.h"
+#include <memory>
+#include "Average.h"
+
 
 class CPU {
 
@@ -9,7 +11,7 @@ class CPU {
     int numProcessors;
     HANDLE self;
 
-    KalmanFilter* kalman = new KalmanFilter(1, 0.01);
+    std::unique_ptr<Average> average;
 
 public:
     CPU();

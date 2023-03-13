@@ -8,7 +8,6 @@
 #include "SoundCard.h"
 #include "CircleBuffer.h"
 #include "AGC.h"
-#include "ReceiverLogic.h"
 #include "Display.h"
 #include "FIR.h"
 #include "DCRemove.h"

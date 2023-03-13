@@ -14,7 +14,7 @@ void MemoryRecordUserInterface::drawMemoryBlock() {
 		spectre->disableControl(DISABLE_CONTROL_DIALOG);
 		recordToCommit = Config::MemoryRecord{
 			Utils::getPrittyFreq(((int)spectre->receiverLogicNew->getSelectedFreqNew())),
-			spectre->receiverLogicNew->getSelectedFreqNew(),
+			(float)spectre->receiverLogicNew->getSelectedFreqNew(),
 			viewModel->receiverMode,
 			viewModel->filterWidth
 		};

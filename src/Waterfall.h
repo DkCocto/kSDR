@@ -2,6 +2,7 @@
 
 #include "FlowingFFTSpectre.h"
 #include "../include/GLFW/glfw3.h"
+#include "FastMath.h"
 
 class Waterfall {
 
@@ -31,6 +32,8 @@ class Waterfall {
 	int lineHeight = 1;
 
 	Config* config;
+
+	FastMath fm;
 
 public:
 

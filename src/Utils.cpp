@@ -1,4 +1,5 @@
 #include "Utils.h"
+#include "Spectre.h"
 
 void Utils::printArray(float* array, int len) {
 	for (int i = 0; i < len; i++) {
@@ -62,4 +63,14 @@ std::string Utils::getPrittyFreq(int freq) {
 	ss.imbue(std::locale(std::locale::classic(), new MyNumPunct));
 	ss << freq;
 	return ss.str();
+}
+
+std::string Utils::getShortPrittyFreq(int freq) {
+	int freqDigitsCount = std::to_string(freq).size();
+
+	if (freqDigitsCount > 6) {
+		return Utils::getPrittyFreq(freq / 1000);
+	} else {
+		return Utils::getPrittyFreq(freq);
+	}
 }

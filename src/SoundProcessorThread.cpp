@@ -25,7 +25,6 @@ SoundProcessorThread::SoundProcessorThread(Config* config, CircleBuffer* iqSigna
 	initFilters(config->defaultFilterWidth);
 
 	//audioFilterFM.init(audioFilterFM.LOWPASS, audioFilterFM.BARTLETT, 256, 200000, 0, config->outputSamplerate);
-
 }
 
 void SoundProcessorThread::initFilters(int filterWidth) {
@@ -42,12 +41,12 @@ void SoundProcessorThread::process() {
 
 	int storedFilterWidth = config->defaultFilterWidth;
 
-	int decimationCount = 0;
+	short decimationCount = 0;
 
 	float* data = new float[len];
 
 	ViewModel* viewModel = Display::instance->viewModel;
-	ReceiverLogicNew* receiverLogicNew = Display::instance->spectre->receiverLogicNew;
+	ReceiverLogicNew* receiverLogicNew = Display::instance->spectre->receiverLogicNew.get();
 
 	FMDemodulator fmDemodulator;
 
@@ -79,7 +78,9 @@ void SoundProcessorThread::process() {
 				decimationCount++;
 
 				if (i % config->outputSamplerateDivider == 0) {
+
 					decimationCount = 0;
+
 					double audioI = firFilterI.filter(decimateBufferI, config->outputSamplerateDivider);
 					double audioQ = firFilterQ.filter(decimateBufferQ, config->outputSamplerateDivider);
 
@@ -129,7 +130,6 @@ void SoundProcessorThread::process() {
 			soundWriterCircleBuffer->write(outputData, (len / 2) / config->outputSamplerateDivider);
 			//fftSpectreHandler->setSpectreSpeed(Display::instance->viewModel->spectreSpeed);
 			fftSpectreHandler->putData(data);
-			//delete data;
 		} else {
 			//printf("SoundProcessorThread: Waiting for iqSignalsCircleBuffer...\r\n");
 			std::this_thread::sleep_for(std::chrono::milliseconds(10));

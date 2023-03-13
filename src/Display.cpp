@@ -155,8 +155,9 @@ void Display::initImGUI() {
 	auto& io = ImGui::GetIO(); (void)io;
 
 	//ImFont* fontStandard = io.Fonts->AddFontDefault();
-	viewModel->fontMyRegular = io.Fonts->AddFontFromFileTTF("DroidSansMono.ttf", 18);
-	viewModel->fontBigRegular = io.Fonts->AddFontFromFileTTF("DroidSansMono.ttf", 42);
+	//viewModel->fontMyRegular = io.Fonts->AddFontFromFileTTF("DroidSansMono.ttf", 18);
+	viewModel->fontMyRegular = io.Fonts->AddFontFromFileTTF("m-regular.ttf", 18);
+	viewModel->fontBigRegular = io.Fonts->AddFontFromFileTTF("m-regular.ttf", 48);
 
 	//ImGui::StyleColorsDark();
 	//ImGui::StyleColorsLight();
@@ -199,6 +200,31 @@ void Display::renderImGUIFirst() {
 
 		ImGui::Separator(); ImGui::Spacing(); ImGui::Spacing();
 
+		if (ImGui::Button("GO")) {
+			spectre->receiverLogicNew->setFreq((float)viewModel->goToFreq);
+		}
+		ImGui::SameLine();
+		ImGui::InputInt("To freq", &viewModel->goToFreq, 500, 1000);
+
+		if (ImGui::Button("160m")) spectre->receiverLogicNew->setFreq(1900000); ImGui::SameLine();
+		if (ImGui::Button("80m")) spectre->receiverLogicNew->setFreq(3700000); ImGui::SameLine();
+		if (ImGui::Button("40m")) spectre->receiverLogicNew->setFreq(7100000); ImGui::SameLine();
+		if (ImGui::Button("30m")) spectre->receiverLogicNew->setFreq(10300000); ImGui::SameLine();
+		if (ImGui::Button("20m")) spectre->receiverLogicNew->setFreq(14150000);
+		if (ImGui::Button("17m")) spectre->receiverLogicNew->setFreq(18100000); ImGui::SameLine();
+		if (ImGui::Button("15m")) spectre->receiverLogicNew->setFreq(21100000);	ImGui::SameLine();
+		if (ImGui::Button("12m")) spectre->receiverLogicNew->setFreq(24900000); ImGui::SameLine();
+		if (ImGui::Button("10m")) spectre->receiverLogicNew->setFreq(28500000);
+
+		ImGui::RadioButton("USB", &viewModel->receiverMode, USB); ImGui::SameLine();
+		ImGui::RadioButton("LSB", &viewModel->receiverMode, LSB); ImGui::SameLine();
+		ImGui::RadioButton("AM", &viewModel->receiverMode, AM); ImGui::SameLine();
+		ImGui::RadioButton("nFM", &viewModel->receiverMode, nFM);
+
+		ImGui::SliderFloat("Volume", &viewModel->volume, 0, 5);
+
+		ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
+
 		ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
 		if (ImGui::BeginTabBar("MyTabBar", tab_bar_flags)) {
 			if (ImGui::BeginTabItem("Controls")) {
@@ -206,30 +232,7 @@ void Display::renderImGUIFirst() {
 
 				ImGui::SeparatorText("Receiver");
 
-				if (ImGui::Button("GO")) {
-					spectre->receiverLogicNew->setFreq((float)viewModel->goToFreq);
-				}
-				ImGui::SameLine();
-				ImGui::InputInt("Go to freq", &viewModel->goToFreq, 500, 1000);
-
 				ImGui::SliderInt("Center freq", &viewModel->centerFrequency, 1000000, 30000000);
-
-				ImGui::RadioButton("USB", &viewModel->receiverMode, USB); ImGui::SameLine();
-				ImGui::RadioButton("LSB", &viewModel->receiverMode, LSB); ImGui::SameLine();
-				ImGui::RadioButton("AM", &viewModel->receiverMode, AM); ImGui::SameLine();
-				ImGui::RadioButton("nFM", &viewModel->receiverMode, nFM);
-
-				ImGui::SliderFloat("Volume", &viewModel->volume, 0, 5);
-
-				if (ImGui::Button("160m")) spectre->receiverLogicNew->setFreq(1900000); ImGui::SameLine();
-				if (ImGui::Button("80m")) spectre->receiverLogicNew->setFreq(3700000); ImGui::SameLine();
-				if (ImGui::Button("40m")) spectre->receiverLogicNew->setFreq(7100000); ImGui::SameLine();
-				if (ImGui::Button("30m")) spectre->receiverLogicNew->setFreq(10300000); ImGui::SameLine();
-				if (ImGui::Button("20m")) spectre->receiverLogicNew->setFreq(14150000);	ImGui::SameLine();
-				if (ImGui::Button("17m")) spectre->receiverLogicNew->setFreq(18100000); ImGui::SameLine();
-				if (ImGui::Button("15m")) spectre->receiverLogicNew->setFreq(21100000);	ImGui::SameLine();
-				if (ImGui::Button("12m")) spectre->receiverLogicNew->setFreq(24900000); ImGui::SameLine();
-				if (ImGui::Button("10m")) spectre->receiverLogicNew->setFreq(28500000);
 
 				if (ImGui::Button("+")) {
 					flowingFFTSpectre->zoomIn();
@@ -252,7 +255,7 @@ void Display::renderImGUIFirst() {
 
 				ImGui::SeparatorText("Filter");
 
-				ImGui::SliderInt("Filter width", &viewModel->filterWidth, 0, 12000); 
+				ImGui::SliderInt("Width", &viewModel->filterWidth, 0, 12000); 
 				
 				if (ImGui::Button("100")) {
 					viewModel->filterWidth = 100;
@@ -290,18 +293,18 @@ void Display::renderImGUIFirst() {
 
 				ImGui::SeparatorText("Waterfall");
 
-				ImGui::SliderFloat("Waterfall min", &viewModel->waterfallMin, -150, 0);
+				ImGui::SliderFloat("Min", &viewModel->waterfallMin, -150, 0);
 
-				ImGui::SliderFloat("Waterfall max", &viewModel->waterfallMax, -150, 100); ImGui::Spacing();
+				ImGui::SliderFloat("Max", &viewModel->waterfallMax, -150, 100); ImGui::Spacing();
 
 				ImGui::SeparatorText("Spectre");
 
-				ImGui::SliderFloat("Spectre ratio", &viewModel->ratio, -200, 100);
+				ImGui::SliderFloat("Ratio", &viewModel->ratio, -200, 100);
 
-				ImGui::SliderFloat("Spectre min val", &viewModel->minDb, -200, 0);
+				ImGui::SliderFloat("Min val", &viewModel->minDb, -200, 0);
 
-				ImGui::SliderInt("Spectre speed", &config->spectre.spectreSpeed, 1, 50);
-				ImGui::SliderInt("Spectre speed 2", &config->spectre.spectreSpeed2, 1, 50); ImGui::Spacing();
+				ImGui::SliderInt("Speed", &config->spectre.spectreSpeed, 1, 50);
+				ImGui::SliderInt("Speed 2", &config->spectre.spectreSpeed2, 1, 50); ImGui::Spacing();
 
 				//ImGui::SliderInt("Test", &viewModel->test, 2300000, 2700000);
 
@@ -326,26 +329,6 @@ void Display::renderImGUIFirst() {
 
 					hackRFbasebandFilterLS->drawSetting();
 
-					/*const char* items[] = {"1750000", "2500000", "3500000", "5000000", "5500000", "6000000", "7000000", "8000000", "9000000", "10000000", "20000000"};
-					static int item_current_idx = 0; // Here we store our selection data as an index.
-					const char* combo_preview_value = items[item_current_idx];  // Pass in the preview value visible before opening the combo (it could be anything)
-					if (ImGui::BeginCombo("Filter", combo_preview_value, 0)) {
-						for (int n = 0; n < IM_ARRAYSIZE(items); n++)
-						{
-							const bool is_selected = (item_current_idx == n);
-							if (ImGui::Selectable(items[n], is_selected)) {
-								item_current_idx = n;
-								//uint32_t baseband;
-								//Utils::parse_u32((char*)items[n], &baseband);
-								string str(items[n]);
-								config->hackrf.basebandFilter = stoi(str);
-							}
-
-							// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
-							if (is_selected) ImGui::SetItemDefaultFocus();
-						}
-						ImGui::EndCombo();
-					}*/
 					if (config->device->status->isOK) ((Hackrf*)config->device)->setConfiguration();
 				}
 
@@ -362,7 +345,6 @@ void Display::renderImGUIFirst() {
 
 					ImGui::SliderInt("Gain", &viewModel->rspModel.gain, 20, 59);
 					ImGui::Checkbox("Disable LNA", &viewModel->rspModel.lna);
-					//ImGui::Checkbox("Gain Control", &viewModel->gainControl);
 
 					rspbasebandFilterLS->drawSetting();
 				}
@@ -439,7 +421,7 @@ void Display::renderImGUIFirst() {
 				ImGui::Text("Sampling rate: %d", config->inputSamplerate);
 				ImGui::Text("FFT length: %d", config->fftLen);
 				ImGui::Text("AMP: %.2f", viewModel->amp);
-				ImGui::Text("CPU usage: %.1f", cpu.getCurrentValue());
+				ImGui::Text("CPU usage: %.1f%%", cpu.getCurrentValue());
 				ImGui::Text("Buffer available: %.2f sec", viewModel->bufferAvailable);
 				ImGui::Text("Service field1: %f", viewModel->serviceField1);
 				ImGui::Text("Service field2: %f", viewModel->serviceField2);
@@ -461,20 +443,12 @@ void Display::renderImGUIFirst() {
 
 			ImGui::EndTabBar();
 		}
-		//ImGui::Separator();
-		//ImGui::TreePop();
 		
 		//Если вкладка опций устройства не выбрана, то все равно устанавливаем конфигурацию на устройство
 		if (config->deviceType == Config::HACKRF && config->device->status->isOK) ((Hackrf*)config->device)->setConfiguration();
 		if (config->deviceType == Config::RTL && config->device->status->isOK) ((RTLDevice*)config->device)->setConfiguration();
 
 	ImGui::End();
-
-	/*if (ImGui::IsItemFocused()) spectre->disableControl(DISABLE_CONTROL_WINDOW_ON_TOP); else {
-		spectre->enableControl(DISABLE_CONTROL_WINDOW_ON_TOP);
-	};
-
-	ImGui::PopID();*/
 
 	spectre->draw();
 

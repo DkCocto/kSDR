@@ -23,13 +23,13 @@ void PolyPhaseFilter::initSubFilters(std::vector<double> coeffs, int coeffsLen, 
 
 void PolyPhaseFilter::initCoeffs(double sampleRate, double freq, int decimationRate, int len) {
 	coeffs.clear();
-	/*FIR fir;
-	fir.init(fir.LOWPASS, fir.BLACKMAN_HARRIS, len, freq, 0, sampleRate);
-	coeffs = fir.getCoeffs();*/
-	coeffs = Filter::makeRaiseCosine(sampleRate, freq, alpha, len);
+	FIR fir;
+	fir.init(fir.LOWPASS, fir.HAMMING, len, freq, 0, sampleRate);
+	coeffs = fir.getCoeffs();
+	//coeffs = Filter::makeRaiseCosine(sampleRate, freq, alpha, len);
 
 	printf("PolyPhase Filter. Len: %d\r\n", coeffs.size());
-	initSubFilters(coeffs, len, decimationRate);
+	initSubFilters(coeffs, len, decimationRate); 
 }
 
 PolyPhaseFilter::PolyPhaseFilter() { }

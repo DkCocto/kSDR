@@ -11,20 +11,24 @@
 #include "KalmanFilter.h"
 #include "Waterfall.h"
 #include "ColoredSpectreBG.h"
+#include "ReceiverRegionInterface.h"
+#include "SpectreWindowData.h"
+#include "string"
+#include "vector"
+#include <chrono>
+#include "iostream"
+
+using namespace std;
 
 class Spectre {
-
-	int rightPadding = 40;
-	int leftPadding = 40;
-	int waterfallPaddingTop = 50;
 
 	FlowingFFTSpectre* flowingFFTSpectre;
 
 	ViewModel* viewModel;
 
-	KalmanFilter* maxdBKalman;
-	KalmanFilter* ratioKalman;
-	KalmanFilter* spectreTranferKalman;
+	unique_ptr<KalmanFilter> maxdBKalman;
+	unique_ptr<KalmanFilter> ratioKalman;
+	unique_ptr<KalmanFilter> spectreTranferKalman;
 	
 	Config* config;
 
@@ -36,6 +40,7 @@ class Spectre {
 	bool disableControl_ = false;
 	
 public:
+
 	struct MIN_MAX {
 		float min;
 		float max;
@@ -50,8 +55,12 @@ public:
 	void disableControl(int id);
 	void enableControl(int id);
 
+	bool isMouseOnRegion(Spectre::Region region);
+
 private:
 	MIN_MAX minMax;
+
+	SpectreWindowData* sWD;
 
 	struct WINDOW_FRAME {
 		ImVec2 UPPER_RIGHT;
@@ -60,7 +69,7 @@ private:
 
 	Spectre::MIN_MAX getMinMaxInSpectre(std::vector<float> spectreData, int len);
 
-	void handleEvents(ImVec2 startWindowPoint, ImVec2 windowLeftBottomCorner, int spectreWidthInPX);
+	void handleEvents(int spectreWidthInPX);
 
 	int getMousePosXOnSpectreWindow();
 
@@ -70,22 +79,22 @@ private:
 
 	void drawFreqPointerMark(ImVec2 startWindowPoint, ImVec2 windowLeftBottomCorner, int spectreWidthInPX, ImDrawList* draw_list);
 
+	ReceiverRegionInterface receiverRegionInterface;
+
 public:
 
-	Waterfall* waterfall;
+	unique_ptr<Waterfall> waterfall;
 
 	MIN_MAX getMinMaxInSpectre();
 
-	ReceiverLogicNew* receiverLogicNew;
+	unique_ptr<ReceiverLogicNew> receiverLogicNew;
 
 	Spectre(Config* config, ViewModel* viewModel, FlowingFFTSpectre* flowingFFTSectre);
 	void draw();
 
 	void storeSignaldB(float* spectreData);
 
-	bool isMouseOnRegion(Spectre::Region region);
-
-	WINDOW_FRAME windowFrame{ ImVec2(0, 0), ImVec2(0, 0) };
+	WINDOW_FRAME windowFrame { ImVec2(0, 0), ImVec2(0, 0) };
 
 	void waterfallAutoColorCorrection();
 	void spectreRatioAutoCorrection();

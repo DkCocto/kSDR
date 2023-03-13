@@ -2,7 +2,6 @@
 
 #include "Hackrf.h"
 #include "FlowingFFTSpectre.h"
-#include "ReceiverLogic.h"
 #include "../include/GLFW/glfw3.h"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
@@ -82,8 +81,6 @@ public:
 
 	double mouseX = 0;
 	double mouseY = 0;
-
-	ReceiverLogic* receiver = NULL;
 	
 	Config* config;
 

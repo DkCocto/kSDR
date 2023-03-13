@@ -33,7 +33,7 @@ SoundProcessorThread* soundProcessor = new SoundProcessorThread(config, iqSignal
 //Поток берет данные из soundWriterCircleBuffer и отдаёт их на воспроизведение в звуковую плату
 CircleBufferWriterThread* circleBufferWriterThread = new CircleBufferWriterThread(config, soundWriterCircleBuffer, &soundCard);
 //
-
+// 
 //Создаем объект дисплей
 Display* display = new Display(config, fftSpectreHandler);
 //Сразу же инициализируем статическую переменную класса. Она нужна для обработки событий.
@@ -43,12 +43,6 @@ Display* Display::instance = &d;
 #include "FastMath.h"
 
 int main() {
-
-	/*FastMath fm;
-	Utils::printFloat(fm.myFastCos(111));
-	Utils::printFloat(cos(111));
-	exit(0);
-	*/
 
 	switch (config->deviceType) {
 		//RSP

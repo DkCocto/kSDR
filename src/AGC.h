@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Display.h"
-#include "ReceiverLogic.h"
 
 class AGC {
 

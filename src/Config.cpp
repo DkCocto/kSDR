@@ -32,7 +32,7 @@ Config::Config() {
 	circleBufferLen								= inputSamplerate / 4;
 
 	hilbertTransformLen							= 255;
-	polyphaseFilterLen							= outputSamplerateDivider;
+	polyphaseFilterLen							= 2 * outputSamplerateDivider;
 
 	fftBandwidth								= (float)inputSamplerate / (float)fftLen;
 }

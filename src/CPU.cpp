@@ -18,6 +18,8 @@ void CPU::init() {
     GetProcessTimes(self, &ftime, &ftime, &fsys, &fuser);
     memcpy(&lastSysCPU, &fsys, sizeof(FILETIME));
     memcpy(&lastUserCPU, &fuser, sizeof(FILETIME));
+
+    average = std::make_unique<Average>(70);
 }
 
 static float CalculateCPULoad(unsigned long long idleTicks, unsigned long long totalTicks)
@@ -47,7 +49,7 @@ float GetCPULoad()
 }
 
 double CPU::getCurrentValue() {
-    return kalman->filter(GetCPULoad() * 100);
+    return average->process(GetCPULoad() * 100);
 }
 
 /*double CPU::getCurrentValue1() {
