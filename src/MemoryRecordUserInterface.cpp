@@ -12,7 +12,7 @@ void MemoryRecordUserInterface::drawMemoryBlock() {
 
 	if (ImGui::Button("Store frequency")) {
 		spectre->disableControl(DISABLE_CONTROL_DIALOG);
-		recordToCommit = Config::MemoryRecord{
+		recordToCommit = Config::MemoryRecord {
 			Utils::getPrittyFreq(((int)spectre->receiverLogicNew->getSelectedFreqNew())),
 			(float)spectre->receiverLogicNew->getSelectedFreqNew(),
 			viewModel->receiverMode,
@@ -43,10 +43,7 @@ void MemoryRecordUserInterface::drawMemoryBlock() {
 			ImGui::SameLine();
 
 			if (ImGui::Button(memoryVector[row].desc.c_str())) {
-				spectre->waterfall->clear();
-				spectre->receiverLogicNew->setFreq(memoryVector[row].freq);
-				viewModel->receiverMode = memoryVector[row].modulation;
-				viewModel->filterWidth = memoryVector[row].filterWidth;
+				spectre->executeMemoryRecord(memoryVector[row]);
 			}
 			
 			string toolTipText("Freq: ");

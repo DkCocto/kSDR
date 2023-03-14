@@ -32,6 +32,7 @@ struct Signal {
 constexpr auto DISABLE_CONTROL_SPECTRE_BUTTONS = 0;
 constexpr auto DISABLE_CONTROL_DIALOG = 1;
 constexpr auto DISABLE_CONTROL_WINDOW_ON_TOP = 2;
+constexpr auto DISABLE_ON_MEMORY_MARKER = 3;
 
 double inline __declspec (naked) __fastcall fastSqrt(double n) {
 	_asm fld qword ptr[esp + 4]

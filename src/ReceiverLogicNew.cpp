@@ -72,7 +72,7 @@ ReceiverLogicNew::ReceiverLogicNew(Config* config, ViewModel* viewModel, Flowing
 	this->flowingFFTSpectre = flowingFFTSpectre;
 }
 
-constexpr auto SHIFT = 300000.0f;
+constexpr auto SHIFT = 200000.0f;
 /// <summary>
 /// Go to current freq. The received freq will be displayed in the middle of the spectrum.
 /// </summary>
@@ -160,6 +160,20 @@ double ReceiverLogicNew::getFreqByPosOnSpectrePx(int px) {
 	FlowingFFTSpectre::FREQ_RANGE freqRange = flowingFFTSpectre->getVisibleFreqsRangeAbsolute();
 	double freq = round((int)freqRange.first + (px * ((int)freqRange.second - (int)freqRange.first)) / (int)spectreWidthPx);
 	return freq;
+}
+
+/// <summary>
+/// Возвращает позицию на спектре в пикселях относительно заданной частоты
+/// </summary>
+/// <param name="freq"></param>
+/// <returns>Позицию на спектре или -1 если частота в данный момент находится вне границ видимого спектра</returns>
+int ReceiverLogicNew::getPosOnSpectreByFreq(double freq) {
+	FlowingFFTSpectre::FREQ_RANGE freqRange = flowingFFTSpectre->getVisibleFreqsRangeAbsolute();
+	if (freq >= freqRange.first && freq <= freqRange.second) {
+		return round(((int)spectreWidthPx * (freq - freqRange.first)) / (freqRange.second - freqRange.first));
+	} else {
+		return -1;
+	}
 }
 
 void ReceiverLogicNew::setReceivedFreqToSpectreCenter() {

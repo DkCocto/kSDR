@@ -79,9 +79,13 @@ private:
 
 	void drawFreqPointerMark(ImVec2 startWindowPoint, ImVec2 windowLeftBottomCorner, int spectreWidthInPX, ImDrawList* draw_list);
 
+	void drawMemoryMarks(ImDrawList* draw_list);
+
 	ReceiverRegionInterface receiverRegionInterface;
 
 public:
+
+	void executeMemoryRecord(Config::MemoryRecord record);
 
 	unique_ptr<Waterfall> waterfall;
 

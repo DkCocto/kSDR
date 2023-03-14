@@ -1,7 +1,7 @@
 #include "Spectre.h"
 
 #define BLUE						IM_COL32(88, 88, 231, 255)
-#define GREEN						IM_COL32(0, 204, 0, 80)
+#define GREEN						IM_COL32(0, 204, 0, 255)
 
 #define BASE_COLOR					IM_COL32(10, 10, 10, 100)
 
@@ -89,34 +89,36 @@ void Spectre::draw() {
 
 		ImGui::BeginChild("Spectre1", ImVec2(ImGui::GetContentRegionAvail().x, spectreHeight), false, ImGuiWindowFlags_NoMove);
 
-		ImGui::SetCursorPos(ImVec2(spectreWidth - 90, 10));
+			ImGui::SetCursorPos(ImVec2(spectreWidth - 90, 10));
 
-		if (ImGui::Button("Auto")) {
-			spectreRatioAutoCorrection();
-			waterfallAutoColorCorrection();
-		}
-		bool spectreAutoButtonHovered = ImGui::IsItemHovered();
-		ImGui::SameLine();
+			if (ImGui::Button("Auto")) {
+				spectreRatioAutoCorrection();
+				waterfallAutoColorCorrection();
+			}
+			bool spectreAutoButtonHovered = ImGui::IsItemHovered();
+			ImGui::SameLine();
 
-		if (ImGui::Button("<|>")) { receiverLogicNew->setReceivedFreqToSpectreCenter(); waterfall->clear();	}
-		bool freqToCenterButtonHovered = ImGui::IsItemHovered();
-		ImGui::SameLine();
+			if (ImGui::Button("<|>")) { receiverLogicNew->setReceivedFreqToSpectreCenter(); waterfall->clear();	}
+			bool freqToCenterButtonHovered = ImGui::IsItemHovered();
+			ImGui::SameLine();
 
-		ImGui::TextDisabled("(?)");
-		if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort)) {
-			ImGui::BeginTooltip();
-			ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
-			ImGui::TextUnformatted(
-				"Help:\nCtrl + Mouse wheel: zoomIn/zoomOut\nMouse wheel: +- 100 hz\nLMB + drag: tunning\nLMB on the spectre + drag: set frequency/tunning\nRMB + drag: moving the spectre\n\nLMB: left mouse button\nRMB: right mouse button");
-			ImGui::PopTextWrapPos();
-			ImGui::EndTooltip();
-		}
+			ImGui::TextDisabled("(?)");
+			if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort)) {
+				ImGui::BeginTooltip();
+				ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+				ImGui::TextUnformatted(
+					"Help:\nCtrl + Mouse wheel: zoomIn/zoomOut\nMouse wheel: +- 100 hz\nLMB + drag: tunning\nLMB on the spectre + drag: set frequency/tunning\nRMB + drag: moving the spectre\n\nLMB: left mouse button\nRMB: right mouse button");
+				ImGui::PopTextWrapPos();
+				ImGui::EndTooltip();
+			}
 
-		if (spectreAutoButtonHovered || freqToCenterButtonHovered) disableControl(DISABLE_CONTROL_SPECTRE_BUTTONS); else {
-			enableControl(DISABLE_CONTROL_SPECTRE_BUTTONS);
-		}
+			if (spectreAutoButtonHovered || freqToCenterButtonHovered) disableControl(DISABLE_CONTROL_SPECTRE_BUTTONS); else {
+				enableControl(DISABLE_CONTROL_SPECTRE_BUTTONS);
+			}
 
-		ImGui::SetCursorPos(ImVec2(0, 0));
+			ImGui::SetCursorPos(ImVec2(0, 0));
+
+			drawMemoryMarks(draw_list);
 
 			storeSignaldB(fullSpectreData);
 
@@ -287,10 +289,15 @@ void Spectre::handleEvents(int spectreWidthInPX) {
 					}
 				}
 				else {
-					if (mouseWheelVal > 0) flowingFFTSpectre->zoomIn();
-					else flowingFFTSpectre->zoomOut();
+					if (mouseWheelVal > 0) {
+						flowingFFTSpectre->zoomIn();
+					} else {
+						flowingFFTSpectre->zoomOut();
+					}
 					receiverLogicNew->setFrequencyDelta(receiverLogicNew->getFrequencyDelta());
 					waterfall->clear();
+					spectreRatioAutoCorrection();
+					waterfallAutoColorCorrection();
 				}
 			}
 		}
@@ -626,4 +633,48 @@ void Spectre::drawFreqPointerMark(ImVec2 startWindowPoint, ImVec2 windowLeftBott
 		ImGui::Text(Utils::getPrittyFreq((int)receiverLogicNew->getFreqByPosOnSpectrePx(io.MousePos.x - (startWindowPoint.x + sWD->rightPadding))).c_str());
 		ImGui::SetCursorPos(ImVec2(0, 0));
 	}
+}
+
+void Spectre::drawMemoryMarks(ImDrawList* draw_list) {
+	const int MARK_HEIGHT_INDENT = -30;
+	auto range = flowingFFTSpectre->getVisibleFreqsRangeAbsolute();
+	for (int i = 0; i < config->memoryVector.size(); i++) {
+		auto posX = receiverLogicNew->getPosOnSpectreByFreq(config->memoryVector[i].freq);
+		if (posX > -1) {
+			string mark; 
+			mark.append("[").append(to_string(i)).append("]");
+			int x = posX + sWD->leftPadding;
+			int y = spectreHeight + MARK_HEIGHT_INDENT;
+			/*draw_list->AddText(
+				ImVec2(x, y),
+				GREEN,
+				mark.c_str()
+			);*/
+			ImGui::SetCursorPos(ImVec2(x, y));
+			ImGui::TextColored(ImGui::ColorConvertU32ToFloat4(GREEN), mark.c_str());
+			if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort)) {
+				string tooltipText("Description: " + config->memoryVector[i].desc + "\nFreq: " + Utils::getPrittyFreq(config->memoryVector[i].freq) + " Hz\nClick to go");
+				disableControl(i);
+				ImGui::BeginTooltip();
+				ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+				ImGui::TextUnformatted(tooltipText.c_str());
+				ImGui::PopTextWrapPos();
+				ImGui::EndTooltip();
+				if (ImGui::IsItemClicked()) {
+					waterfall->clear();
+					executeMemoryRecord(config->memoryVector[i]);
+				}
+			} else enableControl(i);
+			ImGui::SetCursorPos(ImVec2(0, 0));
+		}
+	}
+
+
+}
+
+void Spectre::executeMemoryRecord(Config::MemoryRecord record) {
+	waterfall->clear();
+	receiverLogicNew->setFreq(record.freq);
+	viewModel->receiverMode = record.modulation;
+	viewModel->filterWidth = record.filterWidth;
 }

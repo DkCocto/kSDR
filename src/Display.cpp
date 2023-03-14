@@ -206,15 +206,15 @@ void Display::renderImGUIFirst() {
 		ImGui::SameLine();
 		ImGui::InputInt("To freq", &viewModel->goToFreq, 500, 1000);
 
-		if (ImGui::Button("160m")) spectre->receiverLogicNew->setFreq(1900000); ImGui::SameLine();
-		if (ImGui::Button("80m")) spectre->receiverLogicNew->setFreq(3700000); ImGui::SameLine();
-		if (ImGui::Button("40m")) spectre->receiverLogicNew->setFreq(7100000); ImGui::SameLine();
-		if (ImGui::Button("30m")) spectre->receiverLogicNew->setFreq(10300000); ImGui::SameLine();
-		if (ImGui::Button("20m")) spectre->receiverLogicNew->setFreq(14150000);
-		if (ImGui::Button("17m")) spectre->receiverLogicNew->setFreq(18100000); ImGui::SameLine();
-		if (ImGui::Button("15m")) spectre->receiverLogicNew->setFreq(21100000);	ImGui::SameLine();
-		if (ImGui::Button("12m")) spectre->receiverLogicNew->setFreq(24900000); ImGui::SameLine();
-		if (ImGui::Button("10m")) spectre->receiverLogicNew->setFreq(28500000);
+		if (ImGui::Button("160m")) { spectre->receiverLogicNew->setFreq(1900000); viewModel->receiverMode = LSB; } ImGui::SameLine();
+		if (ImGui::Button("80m")) { spectre->receiverLogicNew->setFreq(3700000); viewModel->receiverMode = LSB; } ImGui::SameLine();
+		if (ImGui::Button("40m")) { spectre->receiverLogicNew->setFreq(7100000); viewModel->receiverMode = LSB; } ImGui::SameLine();
+		if (ImGui::Button("30m")) { spectre->receiverLogicNew->setFreq(10300000); viewModel->receiverMode = USB; } ImGui::SameLine();
+		if (ImGui::Button("20m")) { spectre->receiverLogicNew->setFreq(14150000); viewModel->receiverMode = USB; }
+		if (ImGui::Button("17m")) { spectre->receiverLogicNew->setFreq(18100000); viewModel->receiverMode = USB; } ImGui::SameLine();
+		if (ImGui::Button("15m")) { spectre->receiverLogicNew->setFreq(21100000); viewModel->receiverMode = USB; } ImGui::SameLine();
+		if (ImGui::Button("12m")) { spectre->receiverLogicNew->setFreq(24900000); viewModel->receiverMode = USB; } ImGui::SameLine();
+		if (ImGui::Button("10m")) { spectre->receiverLogicNew->setFreq(28500000); viewModel->receiverMode = USB; }
 
 		ImGui::RadioButton("USB", &viewModel->receiverMode, USB); ImGui::SameLine();
 		ImGui::RadioButton("LSB", &viewModel->receiverMode, LSB); ImGui::SameLine();
