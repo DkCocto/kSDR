@@ -317,6 +317,9 @@ void Display::renderImGUIFirst() {
 			}
 			if (ImGui::BeginTabItem("Device Options")) {
 				ImGui::Spacing();
+
+				showSelectDeviceSetting();
+
 				if (config->deviceType == Config::HACKRF) {
 
 					hackRFsampRateLS->drawSetting();
@@ -359,8 +362,6 @@ void Display::renderImGUIFirst() {
 			if (ImGui::BeginTabItem("Settings")) {
 				ImGui::Spacing();
 				ImGui::Text("After changing the settings marked with an asterisk, you need to restart the application.\n");
-
-				showSelectDeviceSetting();
 
 				decimationLS->drawSetting();
 
