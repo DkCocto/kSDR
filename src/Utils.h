@@ -5,6 +5,8 @@
 #include "locale"
 #include <sstream>
 
+#define watch(x) cout << (#x) << " is " << (x) << endl
+
 class Utils {
 
 	class MyNumPunct : public std::numpunct<char> {

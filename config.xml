@@ -20,9 +20,9 @@
             	decimation = 2
             	Total sampling rate = (2000000 / 2) / 2 = 500000 
 			-->
-            <deviceSamplingRate>10000000</deviceSamplingRate>
+            <deviceSamplingRate>8000000</deviceSamplingRate>
             <deviceDecimationFactor>2</deviceDecimationFactor>
-            <gain>47</gain>
+            <gain>54</gain>
             <!-- Api can be 2 (v2) and 3 (v3)-->
             <api>3</api>
             <disableLna>1</disableLna>
@@ -31,12 +31,12 @@
         <HackRF>
             <!-- App sampling rate will be: deviceSamplingRate / decimation -->
             <deviceSamplingRate>8000000</deviceSamplingRate>
-            <basebandFilter>1750000</basebandFilter>
-            <rxAmp>1</rxAmp>
+            <basebandFilter>3500000</basebandFilter>
+            <rxAmp>0</rxAmp>
             <!-- 0 1 2 3 4-->
-            <lnaGain>3</lnaGain>
+            <lnaGain>2</lnaGain>
             <!-- 0 .. 30 -->
-            <vgaGain>17</vgaGain>
+            <vgaGain>15</vgaGain>
             <!-- 0 .. 40 step 2-->
             <txAmp>20</txAmp>
         </HackRF>
@@ -46,14 +46,14 @@
         </RTL>
     </Device>
     <Receiver>
-        <startFreq>6855000</startFreq>
-        <lastSelectedFreq>7060136.5</lastSelectedFreq>
-        <volume>1.184</volume>
+        <startFreq>6900000</startFreq>
+        <lastSelectedFreq>7063000</lastSelectedFreq>
+        <volume>1.202</volume>
         <filterWidth>2700</filterWidth>
         <!-- USB:0, LSB:1, AM:2, nFM:3 -->
         <modulation>1</modulation>
         <enableFrequencyShift>0</enableFrequencyShift>
-        <frequencyShift>0</frequencyShift>
+        <frequencyShift>-30</frequencyShift>
         <Agc>
             <threshold>0.069000002802349636</threshold>
             <atackSpeedMs>0.19999998807907104</atackSpeedMs>
@@ -62,34 +62,34 @@
         </Agc>
     </Receiver>
     <Waterfall>
-        <min>-81.780937</min>
-        <max>-24.336826</max>
+        <min>-112.53182</min>
+        <max>3.3896027</max>
         <speed>2</speed>
     </Waterfall>
     <Spectre>
-        <ratio>4.5418434</ratio>
-        <min>-93.659607</min>
+        <ratio>23.526264</ratio>
+        <min>-115.66849</min>
         <speed>5</speed>
-        <speed2>3</speed2>
+        <speed2>2</speed2>
         <!-- Must be a power of 2. The total will be fftLen = fftLen * 1024 -->
         <fftLen>262144</fftLen>
-        <startBin>66685</startBin>
-        <stopBin>70941</stopBin>
+        <startBin>67702</startBin>
+        <stopBin>69976</stopBin>
         <removeDCBias>1</removeDCBias>
         <style>1</style>
         <contourShowsPower>0</contourShowsPower>
-        <bottomCoeff>0.93900001</bottomCoeff>
-        <topCoeff>1.077</topCoeff>
+        <bottomCoeff>0.93199998</bottomCoeff>
+        <topCoeff>1.123</topCoeff>
         <hangAndDecay>1</hangAndDecay>
-        <decaySpeed>0.046999998</decaySpeed>
-        <decaySpeedDelta>0.96899998</decaySpeedDelta>
+        <decaySpeed>0.068999998</decaySpeed>
+        <decaySpeedDelta>1.3789999</decaySpeedDelta>
         <smoothingDepth>3</smoothingDepth>
-        <spectreCorrectionDb>-112</spectreCorrectionDb>
+        <spectreCorrectionDb>-124</spectreCorrectionDb>
     </Spectre>
     <ColorTheme>
-        <spectreFillColor>4282527018</spectreFillColor>
+        <spectreFillColor>4283632407</spectreFillColor>
         <spectreProfileColor>4294967295</spectreProfileColor>
-        <mainBGColor>4288782753</mainBGColor>
+        <mainBGColor>4280821800</mainBGColor>
         <windowsBGColor>4278190080</windowsBGColor>
         <windowsTitleBGColor>4294967295</windowsTitleBGColor>
         <receiveRegionColor>1571726618</receiveRegionColor>
@@ -105,6 +105,12 @@
             <desc>10465</desc>
             <freq>10465000</freq>
             <modulation>0</modulation>
+            <filterWidth>2700</filterWidth>
+        </record>
+        <record>
+            <desc>myfreq1</desc>
+            <freq>7098500</freq>
+            <modulation>1</modulation>
             <filterWidth>2700</filterWidth>
         </record>
     </Memory>

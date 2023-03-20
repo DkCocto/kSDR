@@ -1,6 +1,5 @@
 ﻿#include "Env.h"
 #include "Config.h"
-#include "SpeedCount.h"
 
 #include "SoundCard.h"
 #include "CircleBuffer.h"
@@ -39,8 +38,6 @@ Display* display = new Display(config, fftSpectreHandler);
 //Сразу же инициализируем статическую переменную класса. Она нужна для обработки событий.
 Display& d = *display;
 Display* Display::instance = &d;
-
-#include "FastMath.h"
 
 int main() {
 

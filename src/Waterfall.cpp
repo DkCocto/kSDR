@@ -136,7 +136,7 @@ int Waterfall::interpolate(int color1, int color2, float fraction) {
 Waterfall::RGB Waterfall::getColorForPowerInSpectre(float power, float minValue, float maxValue) {
 	float fraction = (1.0 / (maxValue - minValue)) * power - (minValue / (maxValue - minValue));
 
-	float f = (1.0 - cos(fraction * M_PI)) * 0.5f;
+	float f = (1.0 - fm.myFastCos(fraction * M_PI)) * 0.5;
 	//float f = fraction * fraction;
 	//float f = fraction;
 	//int interpolatedColor = interpolate(minColor, maxColor, fraction);
