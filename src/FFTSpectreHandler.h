@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Env.h"
-#include "Config.h"
+#include "Environment.h"
 #include "Semaphore.h"
 #include "WindowBlackman.h"
 #include "WindowBlackmanHarris.h"
@@ -24,7 +24,7 @@ private:
 
 	//audiofft::AudioFFT fft;
 
-	Config* config;
+	Environment* environment;
 	
 	//»нициализируем оконный массив с размерностью длины массива буфера спектра (возвращаетс¤ массив длиной +1)
 	WindowBlackman* wb;
@@ -80,7 +80,7 @@ public:
 
 	ViewModel* vM;
 
-	FFTSpectreHandler(Config* config);
+	FFTSpectreHandler(Environment* environment);
 
 	~FFTSpectreHandler();
 	float* getOutputCopy(int startPos, int len, bool forWaterfall);

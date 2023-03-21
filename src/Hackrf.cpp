@@ -1,6 +1,4 @@
 #include "Hackrf.h"
-#include "FirFilter.h"
-#include "Filter.h"
 
 hackrf_device* device = NULL;
 
@@ -30,7 +28,7 @@ Hackrf::Hackrf(Config* config, CircleBuffer* cb) {
 }
 
 Hackrf::~Hackrf() {
-	hackrf_error result;
+	//hackrf_error result;
 	if (device != NULL) {
 		close();
 		hackrf_exit();
@@ -46,14 +44,11 @@ void Hackrf::close() {
 }
 
 int Hackrf::rx_callback(hackrf_transfer* transfer) {
-	int bytes_to_write = transfer->buffer_length;
+	/*int bytes_to_write = transfer->buffer_length;
 
 	Config* config = (Config*)transfer->rx_ctx;
 	Hackrf* hackrf = (Hackrf*)config->device;
 	for (int i = 0; i < (bytes_to_write / 2 - 1); i++) {
-		//hackrf->count++;
-		//if (hackrf->count == i) {
-			//hackrf->count = -1;
 			transfer->buffer[2 * i] ^= (uint8_t)0x80;
 			transfer->buffer[2 * i + 1] ^= (uint8_t)0x80;
 
@@ -62,18 +57,7 @@ int Hackrf::rx_callback(hackrf_transfer* transfer) {
 
 			hackrf->cb->write(I);
 			hackrf->cb->write(Q);
-		//}
-		/*if (i % config->inputSamplerateDivider == 0) {
-			transfer->buffer[2 * i] ^= (uint8_t)0x80;			
-			transfer->buffer[2 * i + 1] ^= (uint8_t)0x80;
-
-			float I = ((float)transfer->buffer[2 * i]) * 1.0f / 128.0f;
-			float Q = ((float)transfer->buffer[2 * i + 1]) * 1.0f / 128.0f;
-
-			hackrf->cb->write(I);
-			hackrf->cb->write(Q);
-		}*/
-	}
+	}*/
 
 	return 0;
 }

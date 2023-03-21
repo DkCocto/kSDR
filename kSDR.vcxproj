@@ -33,7 +33,13 @@
     <ClCompile Include="src\DCRemove.cpp" />
     <ClCompile Include="src\Delay.cpp" />
     <ClCompile Include="src\Device.cpp" />
+    <ClCompile Include="src\Device\DeviceController.cpp" />
+    <ClCompile Include="src\Device\DeviceInterface.cpp" />
+    <ClCompile Include="src\Device\DeviceN.cpp" />
+    <ClCompile Include="src\Device\HackRFDevice.cpp" />
+    <ClCompile Include="src\Device\HackRFInterface.cpp" />
     <ClCompile Include="src\Display.cpp" />
+    <ClCompile Include="src\Environment.cpp" />
     <ClCompile Include="src\FastMath.cpp" />
     <ClCompile Include="src\FFTSpectreHandler.cpp" />
     <ClCompile Include="src\Filter.cpp" />
@@ -95,8 +101,14 @@
     <ClInclude Include="src\DCRemove.h" />
     <ClInclude Include="src\Delay.h" />
     <ClInclude Include="src\Device.h" />
+    <ClInclude Include="src\Device\DeviceController.h" />
+    <ClInclude Include="src\Device\DeviceInterface.h" />
+    <ClInclude Include="src\Device\DeviceN.h" />
+    <ClInclude Include="src\Device\HackRFDevice.h" />
+    <ClInclude Include="src\Device\HackRFInterface.h" />
     <ClInclude Include="src\Display.h" />
     <ClInclude Include="src\Env.h" />
+    <ClInclude Include="src\Environment.h" />
     <ClInclude Include="src\FastMath.h" />
     <ClInclude Include="src\fft3.hpp" />
     <ClInclude Include="src\FFTSpectreHandler.h" />
@@ -261,13 +273,12 @@
       <FloatingPointModel>Precise</FloatingPointModel>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\dev\Visual Studio\kSDR\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>libfftw3-3.lib;rtlsdr.lib;mir_sdr_api.lib;portaudio_static_x86.lib;glfw3.lib;opengl32.lib;hackrf.lib;pthreadVSE2.lib;sdrplay_api.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

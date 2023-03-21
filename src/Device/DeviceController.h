@@ -1,7 +1,46 @@
 #pragma once
 
-#include "DeviceN.h"
+#include "../Env.h"
+#include "../Config.h"
+#include "../CircleBuffer.h"
+#include "HackRFDevice.h"
+#include "HackRFInterface.h"
 
 class DeviceController {
-	DeviceN device;
+	private:
+		Config* config = nullptr;
+		DeviceN* device = nullptr;
+
+		DeviceN::Result result;
+
+		void createHackRFDevice();
+		//void initRSPApi2Device();
+		//void initRSPApi3Device();
+		//void initRTLDevice();
+
+		void resetResult();
+
+		HackRfInterface* deviceInterface = nullptr;
+
+	public:
+
+		DeviceController(Config* config);
+		~DeviceController();
+
+		void addReceiver(CircleBuffer* circleBuffer);
+		DeviceType getCurrentDeviceType();
+
+		DeviceN* getDevice();
+		
+		bool forceStop();
+		void destroy();
+
+		//bool stopAndDestroy();
+		void start(DeviceType deviceType);
+
+		DeviceN::Result* getResult();
+
+		HackRfInterface* getHackRfInterface();
+
+		bool isReadyToReceiveCmd();
 };

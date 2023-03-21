@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Исходные файлы\Device">
+      <UniqueIdentifier>{44708863-2141-4cf4-86c8-19b949f5b13a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\Device">
+      <UniqueIdentifier>{b239f64e-954d-462e-a264-5314d20eeb00}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Config.cpp">
@@ -188,6 +194,24 @@
     </ClCompile>
     <ClCompile Include="src\ReceiverRegionInterface.cpp">
       <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Device\DeviceN.cpp">
+      <Filter>Исходные файлы\Device</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Device\DeviceController.cpp">
+      <Filter>Исходные файлы\Device</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Device\HackRFDevice.cpp">
+      <Filter>Исходные файлы\Device</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Environment.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Device\DeviceInterface.cpp">
+      <Filter>Исходные файлы\Device</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Device\HackRFInterface.cpp">
+      <Filter>Исходные файлы\Device</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -382,6 +406,24 @@
     </ClInclude>
     <ClInclude Include="src\SpectreWindowData.h">
       <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Device\DeviceN.h">
+      <Filter>Файлы заголовков\Device</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Device\DeviceController.h">
+      <Filter>Файлы заголовков\Device</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Device\HackRFDevice.h">
+      <Filter>Файлы заголовков\Device</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Environment.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Device\DeviceInterface.h">
+      <Filter>Файлы заголовков\Device</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Device\HackRFInterface.h">
+      <Filter>Файлы заголовков\Device</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

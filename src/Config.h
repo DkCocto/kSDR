@@ -1,7 +1,8 @@
 #pragma once
 
-#define CONFIG_FILENAME "config.xml"
+constexpr auto CONFIG_FILENAME = "config.xml";
 
+#include "Env.h"
 #include "Device.h"
 #include "stdio.h"
 #include "tinyxml2/tinyxml2.h"
@@ -12,8 +13,6 @@
 class Config {
 
 public:
-
-	Device* device;
 
 	int circleBufferLen;
 
@@ -115,11 +114,7 @@ public:
 
 	} receiver;
 
-	enum DeviceType {
-		RSP,
-		HACKRF,
-		RTL
-	} deviceType, delayedDeviceType;
+	DeviceType deviceType, delayedDeviceType;
 
 	struct HackRF {
 		int deviceSamplingRate = 4000000;

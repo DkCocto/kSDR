@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Hackrf.h"
+#include "Environment.h"
 #include "FlowingFFTSpectre.h"
 #include "../include/GLFW/glfw3.h"
 #include "imgui/imgui.h"
@@ -44,7 +45,6 @@ private:
 	void showSelectDeviceSetting();
 	void showHackrfSamplingRateSetting();
 
-
 	std::unique_ptr<ListSetting> decimationLS;
 	std::unique_ptr<ListSetting> hackRFsampRateLS;
 	std::unique_ptr<ListSetting> hackRFbasebandFilterLS;
@@ -65,6 +65,8 @@ private:
 
 	MemoryRecordUserInterface memoryRecordUserInterface;
 
+	Environment* environment;
+
 public:
 
 	static Display* instance;
@@ -84,8 +86,7 @@ public:
 	
 	Config* config;
 
-
-	Display(Config* config, FFTSpectreHandler* fftSH);
+	Display(Environment* environment, FFTSpectreHandler* fftSH);
 	~Display();
 
 	int init();

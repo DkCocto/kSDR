@@ -34,8 +34,9 @@ void Display::mouseButtonCallback(GLFWwindow* window, int button, int action, in
 	}
 }
 
-Display::Display(Config* config, FFTSpectreHandler* fftSH) {
-	this->config = config;
+Display::Display(Environment* environment, FFTSpectreHandler* fftSH) {
+	this->environment = environment;
+	config = environment->getConfig();
 	viewModel = new ViewModel(config);
 	fftSH->vM = viewModel;
 	this->flowingFFTSpectre = new FlowingFFTSpectre(config, viewModel, fftSH);
@@ -171,6 +172,9 @@ void Display::renderImGUIFirst() {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
+
+	DeviceN* device = environment->getDeviceController()->getDevice();
+	DeviceController* deviceController = environment->getDeviceController();
 
 	//Store window size
 	config->app.winWidth = width;
@@ -320,22 +324,28 @@ void Display::renderImGUIFirst() {
 
 				showSelectDeviceSetting();
 
-				if (config->deviceType == Config::HACKRF) {
-
+				if (config->deviceType == DeviceType::HACKRF) {
 					hackRFsampRateLS->drawSetting();
 
+					HackRFDevice* hackRFDevice = (HackRFDevice*)(environment->getDeviceController()->getDevice());
+					HackRfInterface* hackRfInterface = environment->getDeviceController()->getHackRfInterface();
+
 					ImGui::SliderInt("LNA Gain", &viewModel->hackRFModel.lnaGain, 0, 5);
+					hackRfInterface->setLnaGain((uint32_t)viewModel->hackRFModel.lnaGain);
 
 					ImGui::SliderInt("VGA Gain", &viewModel->hackRFModel.vgaGain, 0, 31);
+					hackRfInterface->setVgaGain(viewModel->hackRFModel.vgaGain);
 
 					ImGui::SliderInt("AMP Gain", &viewModel->hackRFModel.enableAmp, 0, 1);
+					hackRfInterface->enableAmp(viewModel->hackRFModel.enableAmp);
 
 					hackRFbasebandFilterLS->drawSetting();
-
-					if (config->device->status->isOK) ((Hackrf*)config->device)->setConfiguration();
+					hackRfInterface->setBaseband(config->hackrf.basebandFilter);
+					
+					if (environment->getDeviceController()->isReadyToReceiveCmd()) hackRfInterface->sendParamsToDevice();
 				}
 
-				if (config->deviceType == Config::RSP) {
+				if (config->deviceType == DeviceType::RSP) {
 					ImGui::Text("\nRSP Settings:");
 
 					rspSampRateLS->drawSetting();
@@ -352,7 +362,7 @@ void Display::renderImGUIFirst() {
 					rspbasebandFilterLS->drawSetting();
 				}
 
-				if (config->deviceType == Config::RTL) {
+				if (config->deviceType == DeviceType::RTL) {
 					rtlSampRateLS->drawSetting();
 					rtlDeviceGainLS->drawSetting();
 				}
@@ -445,19 +455,23 @@ void Display::renderImGUIFirst() {
 			ImGui::EndTabBar();
 		}
 		
-		//Если вкладка опций устройства не выбрана, то все равно устанавливаем конфигурацию на устройство
-		if (config->deviceType == Config::HACKRF && config->device->status->isOK) ((Hackrf*)config->device)->setConfiguration();
-		if (config->deviceType == Config::RTL && config->device->status->isOK) ((RTLDevice*)config->device)->setConfiguration();
+		//Если вкладка опций устройства не выбрана, то все равно устанавливаем конфигурацию на текущее устройство
+		if (deviceController->isReadyToReceiveCmd()) {
+			deviceController->getHackRfInterface()->setFreq(viewModel->centerFrequency);
+			deviceController->getHackRfInterface()->sendParamsToDevice();
+		}
+		//if (device != nullptr && config->deviceType == DeviceType::RTL) ((RTLDevice*)config->device)->setConfiguration();
 
 	ImGui::End();
 
 	spectre->draw();
-
-	showAlertOKDialog(std::string("Warning"), std::string("Application couldn't init a selected device.\nPlease, go to settings and select the correct device or plug your device to USB port.\nMake sure you have selected the correct api version in the settings for RSP devices.\n\nReturned answer:\n\n").append(config->device->status->err));
-	if (!config->device->status->isOK && config->device->status->isInitProcessOccured && !errorInitDeviceUserInformed) {
-		spectre->disableControl(DISABLE_CONTROL_DIALOG);
-		ImGui::OpenPopup(std::string("Warning").c_str());
-		errorInitDeviceUserInformed = true;
+	if (device != nullptr) {
+		showAlertOKDialog(std::string("Warning"), std::string("Application couldn't init a selected device.\nPlease, go to settings and select the correct device or plug your device to USB port.\nMake sure you have selected the correct api version in the settings for RSP devices.\n\nReturned answer:\n\n").append(deviceController->getResult()->err));
+		if (deviceController->getResult()->status != DeviceN::INIT_OK && !errorInitDeviceUserInformed) {
+			spectre->disableControl(DISABLE_CONTROL_DIALOG);
+			ImGui::OpenPopup(std::string("Warning").c_str());
+			errorInitDeviceUserInformed = true;
+		}
 	}
 	ImGui::PopStyleColor();
 }
@@ -550,20 +564,20 @@ void Display::showColorPicker(string title, unsigned int *configVal, bool withTr
 void Display::initDynamicSettings() {
 	std::map<int, std::string> decimationMap;
 	for (int i = 1, j = 0; i <= 64; i++) {
-		if (config->deviceType == Config::HACKRF) {
+		if (config->deviceType == DeviceType::HACKRF) {
 			if (config->hackrf.deviceSamplingRate % i == 0) {
 				decimationMap.insert(pair<int, std::string>{j, to_string(i)});
 				j++;
 			}
 
 		}
-		if (config->deviceType == Config::RSP) {
+		if (config->deviceType == DeviceType::RSP) {
 			if ((config->rsp.deviceSamplingRate / config->rsp.deviceDecimationFactor) % i == 0) {
 				decimationMap.insert(pair<int, std::string>{j, to_string(i)});
 				j++;
 			}
 		}
-		if (config->deviceType == Config::RTL) {
+		if (config->deviceType == DeviceType::RTL) {
 			if (config->rtl.deviceSamplingRate % i == 0) {
 				decimationMap.insert(pair<int, std::string>{j, to_string(i)});
 				j++;
@@ -573,7 +587,7 @@ void Display::initDynamicSettings() {
 	decimationLS = std::make_unique<ListSetting>(config, decimationMap, "Decimation", true);
 	decimationLS->bindVariable(&config->delayedInputSamplerateDivider);
 
-	if (config->deviceType == Config::RSP) {
+	if (config->deviceType == DeviceType::RSP) {
 		std::map<int, std::string> rspDecimationFactorMap;
 		for (int i = 1, j = 0; i <= 32; i++) {
 			if (config->rsp.deviceSamplingRate % i == 0 && (i & (i - 1)) == 0) {
@@ -590,7 +604,7 @@ void Display::initDynamicSettings() {
 void Display::initSettings() {
 	//auto begin = std::chrono::steady_clock::now();
 
-	if (config->deviceType == Config::HACKRF) {
+	if (config->deviceType == DeviceType::HACKRF) {
 		//-------HackRF settings
 		std::map<int, std::string> hackRFsamplingRateMap = {
 			{0 , "2000000"},
@@ -626,7 +640,7 @@ void Display::initSettings() {
 		//--------------------
 	}
 
-	if (config->deviceType == Config::RSP) {
+	if (config->deviceType == DeviceType::RSP) {
 		//-------RSP settings-
 		std::map<int, std::string> rspSamplingRateMap = {
 			{0 , "2000000"},
@@ -658,7 +672,7 @@ void Display::initSettings() {
 		//--------------------
 	}
 
-	if (config->deviceType == Config::RTL) {
+	if (config->deviceType == DeviceType::RTL) {
 		//-10, 15, 40, 65, 90, 115, 140, 165, 190,
 		//215, 240, 290, 340, 420, 430, 450, 470, 490
 		std::map<int, std::string> rtlGainMap = {

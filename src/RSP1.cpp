@@ -17,7 +17,10 @@ RSP1::~RSP1() {
 
 void RSP1::streamCallback(short* xi, short* xq, unsigned int firstSampleNum, int grChanged, int rfChanged, int fsChanged, unsigned int numSamples, unsigned int reset, unsigned int hwRemoved, void* cbContext) {
     Config* config = (Config*)cbContext;
-    RSP1* rsp1 = (RSP1*)config->device;
+    //RSP1* rsp1 = (RSP1*)config->device;
+
+    RSP1* rsp1 = nullptr;
+    if (rsp1 == nullptr) return;
 
     for (int i = 0; i < numSamples; i++) {
         if (i % config->inputSamplerateDivider == 0) {

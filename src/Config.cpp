@@ -8,13 +8,13 @@ Config::Config() {
 	outputChannelNumber							= 1;
 
     switch (deviceType) {
-        case RSP:
+        case DeviceType::RSP:
             inputSamplerate = (rsp.deviceSamplingRate / rsp.deviceDecimationFactor) / inputSamplerateDivider;
             break;
-        case HACKRF:
+        case DeviceType::HACKRF:
             inputSamplerate = hackrf.deviceSamplingRate / inputSamplerateDivider;
             break;
-        case RTL:
+        case DeviceType::RTL:
             inputSamplerate = rtl.deviceSamplingRate / inputSamplerateDivider;
             break;
         default:
@@ -39,7 +39,7 @@ Config::Config() {
 
 Config::~Config() {
     save();
-    delete device;
+    //delete device;
 }
 
 //Loading config from config file
@@ -68,16 +68,16 @@ void Config::load() {
 
             switch (std::stoi(std::string(ptype->GetText()))) {
                 case 0:
-                    deviceType = RSP;
+                    deviceType = DeviceType::RSP;
                     break;
                 case 1:
-                    deviceType = HACKRF;
+                    deviceType = DeviceType::HACKRF;
                     break;
                 case 2:
-                    deviceType = RTL;
+                    deviceType = DeviceType::RTL;
                     break;
                 default:
-                    deviceType = HACKRF;
+                    deviceType = DeviceType::HACKRF;
             }
         
             delayedDeviceType = deviceType;
@@ -372,9 +372,9 @@ void Config::save() {
         if (NULL != pDevice) {
 
             tinyxml2::XMLElement* ptype = pDevice->FirstChildElement("type");
-            if (delayedDeviceType == RSP) ptype->SetText(0);
-            else if (delayedDeviceType == HACKRF) ptype->SetText(1);
-            else if (delayedDeviceType == RTL) ptype->SetText(2);
+            if (delayedDeviceType == DeviceType::RSP) ptype->SetText(0);
+            else if (delayedDeviceType == DeviceType::HACKRF) ptype->SetText(1);
+            else if (delayedDeviceType == DeviceType::RTL) ptype->SetText(2);
             else ptype->SetText(0);
 
             tinyxml2::XMLElement* psamplingRateDiv = pDevice->FirstChildElement("decimation");
@@ -567,16 +567,16 @@ void Config::save() {
 void Config::setDevice(int deviceID) {
     switch (deviceID) {
         case 0:
-            delayedDeviceType = RSP;
+            delayedDeviceType = DeviceType::RSP;
             break;
         case 1:
-            delayedDeviceType = HACKRF;
+            delayedDeviceType = DeviceType::HACKRF;
             break;
         case 2:
-            delayedDeviceType = RTL;
+            delayedDeviceType = DeviceType::RTL;
             break;
         default:
-            delayedDeviceType = RSP;
+            delayedDeviceType = DeviceType::RSP;
     }
 }
 

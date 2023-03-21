@@ -39,3 +39,9 @@ double inline __declspec (naked) __fastcall fastSqrt(double n) {
 		_asm fsqrt
 	_asm ret 8
 }
+
+enum DeviceType {
+	RSP,
+	HACKRF,
+	RTL
+};

@@ -3,7 +3,9 @@
 void RSPv2::StreamACallback(short* xi, short* xq, sdrplay_api_StreamCbParamsT* params, unsigned int numSamples, unsigned int reset, void* cbContext) {
     // Process stream callback data here
     Config* config = (Config*)cbContext;
-    RSPv2* rspv2 = (RSPv2*)config->device;
+    //RSPv2* rspv2 = (RSPv2*)config->device;
+    RSPv2* rspv2 = nullptr;
+    if (rspv2 == nullptr) return;
     if (reset) {
         printf("sdrplay_api_StreamACallback: numSamples=%d\n", numSamples);
     }
@@ -29,7 +31,9 @@ void RSPv2::StreamBCallback(short* xi, short* xq, sdrplay_api_StreamCbParamsT* p
 
 void RSPv2::EventCallback(sdrplay_api_EventT eventId, sdrplay_api_TunerSelectT tuner, sdrplay_api_EventParamsT* params, void* cbContext) {
     Config* config = (Config*)cbContext;
-    RSPv2* rspv2 = (RSPv2*)config->device;
+    //RSPv2* rspv2 = (RSPv2*)config->device;
+    RSPv2* rspv2 = nullptr;
+    if (rspv2 == nullptr) return;
     switch (eventId) {
         case sdrplay_api_GainChange:
             //printf("sdrplay_api_EventCb: %s, tuner=%s gRdB=%d lnaGRdB=%d systemGain=%.2f\n", "sdrplay_api_GainChange", (tuner == sdrplay_api_Tuner_A) ? "sdrplay_api_Tuner_A" : "sdrplay_api_Tuner_B", params->gainParams.gRdB, params->gainParams.lnaGRdB, params->gainParams.currGain);
