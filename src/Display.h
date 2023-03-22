@@ -2,13 +2,13 @@
 
 #include "Hackrf.h"
 #include "Environment.h"
+
 #include "FlowingFFTSpectre.h"
 #include "../include/GLFW/glfw3.h"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 #include "imgui/imgui_stdlib.h"
-#include "ViewModel.h"
 #include "KalmanFilter.h"
 #include "SMeter.h"
 #include "Spectre.h"
@@ -65,7 +65,7 @@ private:
 
 	MemoryRecordUserInterface memoryRecordUserInterface;
 
-	Environment* environment;
+	DeviceController* deviceController;
 
 public:
 
@@ -86,7 +86,7 @@ public:
 	
 	Config* config;
 
-	Display(Environment* environment, FFTSpectreHandler* fftSH);
+	Display(Config* config, ViewModel* viewModel, DeviceController* deviceController, FlowingFFTSpectre* flowingFFTSpectre, FFTSpectreHandler* fftSH, ReceiverLogicNew* receiverLogicNew);
 	~Display();
 
 	int init();

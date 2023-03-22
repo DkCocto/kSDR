@@ -9,11 +9,12 @@ FFTSpectreHandler::~FFTSpectreHandler() {
 
 std::future<void> s;
 
-FFTSpectreHandler::FFTSpectreHandler(Environment* environment) {
-	this->environment = environment;
+FFTSpectreHandler::FFTSpectreHandler(Config* config) {
+	this->config = config;
+	init();
+}
 
-	Config* config = environment->getConfig();
-
+void FFTSpectreHandler::init() {
 	spectreSize = config->fftLen / 2;
 
 	wb = new WindowBlackman(config->fftLen);
@@ -56,12 +57,33 @@ FFTSpectreHandler::FFTSpectreHandler(Environment* environment) {
 	//memset(speedDelta, 1, sizeof(float) * spectreSize);
 }
 
+void FFTSpectreHandler::clear() {
+	delete wb;
+	delete wbh;
+	delete[] dataBuffer;
+	delete[] realInput;
+	delete[] imInput;
+	delete[] realOut;
+	delete[] imOut;
+	delete[] superOutput;
+	delete[] outputWaterfall;
+	delete[] tmpArray;
+	delete[] tmpArray2;
+	delete[] inData;
+	delete[] outData;
+	delete[] speedDelta;
+ }
+
 std::mutex spectreDataMutex;
 
 bool ready = false;
 
 void FFTSpectreHandler::run() {
 	while (true) {
+		if (!config->WORKING) {
+			clear();
+			break;
+		}
 		if (ready) {
 			spectreDataMutex.lock();
 			processFFT();
@@ -77,7 +99,7 @@ void FFTSpectreHandler::putData(float* data) {
 	if (!spectreDataMutex.try_lock()) {
 		return;
 	}
-	memcpy(dataBuffer, data, sizeof(float) * environment->getConfig()->fftLen);
+	memcpy(dataBuffer, data, sizeof(float) * config->fftLen);
 	spectreDataMutex.unlock(); // не забываем ставить unlock()!!!*/
 	ready = true;
 }
@@ -168,8 +190,6 @@ float FFTSpectreHandler::average(float avg, float new_sample, int n) {
 }
 
 void FFTSpectreHandler::dataPostprocess() {
-
-	Config* config = environment->getConfig();
 
 	for (int i = 0; i < spectreSize; i++) {
 		float psd = this->psd(outData[i][0], outData[i][1]) + config->spectre.spectreCorrectionDb;

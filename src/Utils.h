@@ -4,6 +4,7 @@
 #include "string"
 #include "locale"
 #include <sstream>
+#include "iostream"
 
 #define watch(x) cout << (#x) << " is " << (x) << endl
 

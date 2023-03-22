@@ -32,13 +32,13 @@ void Spectre::spectreRatioAutoCorrection() {
 	viewModel->ratio = minMax.max + 40;
 }
 
-Spectre::Spectre(Config* config, ViewModel* viewModel, FlowingFFTSpectre* flowingFFTSpectre) {
+Spectre::Spectre(Config* config, ViewModel* viewModel, FlowingFFTSpectre* flowingFFTSpectre, ReceiverLogicNew* receiverLogicNew) {
 	//waterfall->start().detach();
 	this->config = config;
 	this->viewModel = viewModel;
 	this->flowingFFTSpectre = flowingFFTSpectre;
 
-	receiverLogicNew = make_unique<ReceiverLogicNew>(config, viewModel, flowingFFTSpectre);
+	this->receiverLogicNew = receiverLogicNew;
 
 	maxdBKalman = make_unique<KalmanFilter>(1, 0.005);
 	ratioKalman = make_unique<KalmanFilter>(1, 0.01);
@@ -46,7 +46,7 @@ Spectre::Spectre(Config* config, ViewModel* viewModel, FlowingFFTSpectre* flowin
 	this->waterfall = make_unique<Waterfall>(config, flowingFFTSpectre, viewModel);
 
 	sWD = new SpectreWindowData();
-	receiverRegionInterface = ReceiverRegionInterface(sWD, config, viewModel, receiverLogicNew.get());
+	receiverRegionInterface = ReceiverRegionInterface(sWD, config, viewModel, receiverLogicNew);
 }
 
 int savedStartWindowX = 0;

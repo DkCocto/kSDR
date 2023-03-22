@@ -14,6 +14,8 @@ class Config {
 
 public:
 
+	bool WORKING = true;
+
 	int circleBufferLen;
 
 	int inputSamplerate;
@@ -155,7 +157,8 @@ public:
 
 	//--------------------------------------
 
-	void load();
+	void loadXml();
+	void initSettings();
 	void save();
 	void loadMemory();
 	void saveMemory();
@@ -165,6 +168,8 @@ public:
 	void storeRecord(MemoryRecord memRec);
 	void editRecord(MemoryRecord correctedMemRec, int index);
 	void deleteRecord(int index);
+
+	void prepareConfiguration();
 
 private:
 	void calcOutputSamplerate();

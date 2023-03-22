@@ -2,13 +2,35 @@
 
 #include "Config.h"
 #include "Device/DeviceController.h"
+#include "FlowingFFTSpectre.h"
+#include "CircleBufferWriterThread.h"
+#include "SoundCard.h"
+#include "SoundProcessorThread.h"
+#include "ViewModel.h"
 
 class Environment {
-	Config* config = nullptr;
-	DeviceController* deviceController = nullptr;
+	private:
+		Config* config = nullptr;
+		DeviceController* deviceController = nullptr;
 
-	//Буфер для сигналов I Q
-	CircleBuffer* IQSourceBuffer = nullptr;
+		//Буфер для сигналов I Q
+		CircleBuffer* IQSourceBuffer = nullptr;
+
+		CircleBuffer* soundBuffer = nullptr;
+
+		FFTSpectreHandler* fftSpectreHandler = nullptr;
+
+		SoundProcessorThread* soundProcessor = nullptr;
+
+		CircleBufferWriterThread* circleBufferWriterThread = nullptr;
+
+		SoundCard* soundCard = nullptr;
+
+		ViewModel* viewModel = nullptr;
+
+		FlowingFFTSpectre* flowingFFTSpectre = nullptr;
+
+		ReceiverLogicNew* receiverLogicNew = nullptr;
 
 	public:
 		Environment();
@@ -16,4 +38,14 @@ class Environment {
 		Config* getConfig();
 		DeviceController* getDeviceController();
 		CircleBuffer* getIQSourceBuffer();
+		void startProcessing();
+		void stopProcessing();
+		FFTSpectreHandler* getFFTSpectreHandler();
+		CircleBuffer* getSoundBuffer();
+		SoundProcessorThread* getSoundProcessor();
+		void init();
+		SoundCard* getSoundCard();
+		ViewModel* getViewModel();
+		ReceiverLogicNew* getReceiverLogicNew();
+		FlowingFFTSpectre* getFlowingSpectre();
 };

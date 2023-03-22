@@ -22,6 +22,12 @@ class DeviceController {
 
 		HackRfInterface* deviceInterface = nullptr;
 
+		void destroy();
+
+		std::vector<CircleBuffer*> receivers;
+
+		void resetReceivers();
+
 	public:
 
 		DeviceController(Config* config);
@@ -33,7 +39,6 @@ class DeviceController {
 		DeviceN* getDevice();
 		
 		bool forceStop();
-		void destroy();
 
 		//bool stopAndDestroy();
 		void start(DeviceType deviceType);

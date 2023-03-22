@@ -22,7 +22,7 @@ double AGC::processNew(double signal) {
     if (amp > 100) amp = 100;
 
     //Выводим коэффициант усиления в модель-контейнер отображения и хранения данных
-    Display::instance->viewModel->amp = amp;
+    //Display::instance->viewModel->amp = amp;
 
     return signal * amp;
 }

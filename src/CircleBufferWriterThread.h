@@ -2,8 +2,8 @@
 
 #include "CircleBuffer.h"
 #include "SoundCard.h"
-#include "ViewModel.h"
-#include "Display.h"
+#include "Device/DeviceController.h"
+#include "windows.h"
 
 class CircleBufferWriterThread {
 
@@ -13,13 +13,16 @@ class CircleBufferWriterThread {
 	int len;
 
 	Config* config;
+	DeviceController* deviceController;
+
+	bool isWorking_ = false;
 
 public:
 
-	CircleBufferWriterThread(Config* config, CircleBuffer* cb, SoundCard* sc);
+	CircleBufferWriterThread(Config* config, DeviceController* deviceController, CircleBuffer* cb, SoundCard* sc);
 
 	void run();
 	std::thread start();
-
+	bool isWorking();
 };
 

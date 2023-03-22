@@ -34,13 +34,13 @@ void Display::mouseButtonCallback(GLFWwindow* window, int button, int action, in
 	}
 }
 
-Display::Display(Environment* environment, FFTSpectreHandler* fftSH) {
-	this->environment = environment;
-	config = environment->getConfig();
-	viewModel = new ViewModel(config);
+Display::Display(Config* config, ViewModel* viewModel, DeviceController* deviceController, FlowingFFTSpectre* flowingFFTSpectre, FFTSpectreHandler* fftSH, ReceiverLogicNew* receiverLogicNew) {
+	this->config = config;
+	this->viewModel = viewModel;
+	this->deviceController = deviceController;
 	fftSH->vM = viewModel;
-	this->flowingFFTSpectre = new FlowingFFTSpectre(config, viewModel, fftSH);
-	spectre = new Spectre(config, viewModel, flowingFFTSpectre);
+	this->flowingFFTSpectre = flowingFFTSpectre;
+	spectre = new Spectre(config, viewModel, flowingFFTSpectre, receiverLogicNew);
 	memoryRecordUserInterface = MemoryRecordUserInterface(config, viewModel, spectre);
 }
 
@@ -173,8 +173,8 @@ void Display::renderImGUIFirst() {
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 
-	DeviceN* device = environment->getDeviceController()->getDevice();
-	DeviceController* deviceController = environment->getDeviceController();
+	//DeviceN* device = environment->getDeviceController()->getDevice();
+	//DeviceController* deviceController = environment->getDeviceController();
 
 	//Store window size
 	config->app.winWidth = width;
@@ -322,27 +322,30 @@ void Display::renderImGUIFirst() {
 			if (ImGui::BeginTabItem("Device Options")) {
 				ImGui::Spacing();
 
+				if (ImGui::Button("Start")) deviceController->start(config->deviceType);
+					ImGui::SameLine();
+				if (ImGui::Button("Stop")) deviceController->forceStop();
+
 				showSelectDeviceSetting();
 
 				if (config->deviceType == DeviceType::HACKRF) {
 					hackRFsampRateLS->drawSetting();
 
-					HackRFDevice* hackRFDevice = (HackRFDevice*)(environment->getDeviceController()->getDevice());
-					HackRfInterface* hackRfInterface = environment->getDeviceController()->getHackRfInterface();
+					HackRfInterface* hackRfInterface = deviceController->getHackRfInterface();
 
 					ImGui::SliderInt("LNA Gain", &viewModel->hackRFModel.lnaGain, 0, 5);
-					hackRfInterface->setLnaGain((uint32_t)viewModel->hackRFModel.lnaGain);
-
 					ImGui::SliderInt("VGA Gain", &viewModel->hackRFModel.vgaGain, 0, 31);
-					hackRfInterface->setVgaGain(viewModel->hackRFModel.vgaGain);
-
 					ImGui::SliderInt("AMP Gain", &viewModel->hackRFModel.enableAmp, 0, 1);
-					hackRfInterface->enableAmp(viewModel->hackRFModel.enableAmp);
-
 					hackRFbasebandFilterLS->drawSetting();
-					hackRfInterface->setBaseband(config->hackrf.basebandFilter);
-					
-					if (environment->getDeviceController()->isReadyToReceiveCmd()) hackRfInterface->sendParamsToDevice();
+
+					if (hackRfInterface != nullptr) {
+						hackRfInterface->setLnaGain((uint32_t)viewModel->hackRFModel.lnaGain);
+						hackRfInterface->setVgaGain(viewModel->hackRFModel.vgaGain);
+						hackRfInterface->enableAmp(viewModel->hackRFModel.enableAmp);
+						hackRfInterface->setBaseband(config->hackrf.basebandFilter);
+
+						if (deviceController->isReadyToReceiveCmd()) hackRfInterface->sendParamsToDevice();
+					}
 				}
 
 				if (config->deviceType == DeviceType::RSP) {
@@ -465,7 +468,7 @@ void Display::renderImGUIFirst() {
 	ImGui::End();
 
 	spectre->draw();
-	if (device != nullptr) {
+	if (deviceController->getResult()->status == DeviceN::INIT_BUT_FAIL) {
 		showAlertOKDialog(std::string("Warning"), std::string("Application couldn't init a selected device.\nPlease, go to settings and select the correct device or plug your device to USB port.\nMake sure you have selected the correct api version in the settings for RSP devices.\n\nReturned answer:\n\n").append(deviceController->getResult()->err));
 		if (deviceController->getResult()->status != DeviceN::INIT_OK && !errorInitDeviceUserInformed) {
 			spectre->disableControl(DISABLE_CONTROL_DIALOG);

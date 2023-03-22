@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Display.h"
+#include "math.h"
+#include "FFTSpectreHandler.h"
 
 class AGC {
 

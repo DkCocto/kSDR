@@ -11,27 +11,42 @@ DeviceN* DeviceController::getDevice() {
 bool DeviceController::forceStop() {
     if (DEBUG) printf("Trying to force stop device...\r\n");
     if (device != nullptr) {
-        device->stop();
+        destroy();
         return true;
     }
+    if (DEBUG) printf("Stopping error. Device was null.\r\n");
     return false;
 }
 
 void DeviceController::destroy() {
     if (DEBUG) printf("Trying to destroy device...\r\n");
     if (device != nullptr) {
-        if (DEBUG) printf("Device destroyed!\r\n");
+        delete deviceInterface;
+        deviceInterface = nullptr;
         delete device;
+        device = nullptr;
         resetResult();
+        if (DEBUG) printf("Device destroyed!\r\n");
+    }
+}
+
+void DeviceController::resetReceivers() {
+    for (int i = 0; i < receivers.size(); i++) {
+        receivers[i]->reset();
     }
 }
 
 void DeviceController::start(DeviceType deviceType) {
     if (DEBUG) printf("Starting device...\r\n");
-    forceStop();
+
+    if (result.status == DeviceN::INIT_OK) {
+        if (DEBUG) printf("Device already started! You need to stop device first!\r\n");
+        return;
+    }
 
     if (device != nullptr) {
-        destroy();
+        if (DEBUG) printf("You need to destroy device first!\r\n");
+        return;
     }
 
     switch (deviceType) {
@@ -50,6 +65,7 @@ void DeviceController::start(DeviceType deviceType) {
         default:
             createHackRFDevice();
     }
+    resetReceivers();
 }
 
 DeviceN::Result* DeviceController::getResult() {
@@ -65,9 +81,8 @@ bool DeviceController::isReadyToReceiveCmd() {
 }
 
 void DeviceController::createHackRFDevice() {
-    delete device;
-    delete deviceInterface;
     device = new HackRFDevice(config);
+    device->setReceivers(&receivers);
     deviceInterface = new HackRfInterface((HackRFDevice*)device);
     config->deviceType = HACKRF;
     result = DeviceN::Result { DeviceN::CREATED_BUT_NOT_INIT };
@@ -88,7 +103,7 @@ void DeviceController::resetResult() {
 
 DeviceController::DeviceController(Config* config) {
     this->config = config;
-    start(config->deviceType);
+    //start(config->deviceType);
 }
 
 DeviceController::~DeviceController() {
@@ -97,5 +112,5 @@ DeviceController::~DeviceController() {
 }
 
 void DeviceController::addReceiver(CircleBuffer* circleBuffer) {
-    device->addReceiver(circleBuffer);
+    receivers.push_back(circleBuffer);
 }

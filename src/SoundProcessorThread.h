@@ -5,17 +5,17 @@
 #include "HilbertTransform.h"
 #include "Delay.h"
 #include "PolyPhaseFilter.h"
-#include "SoundCard.h"
 #include "CircleBuffer.h"
 #include "AGC.h"
-#include "Display.h"
 #include "FIR.h"
 #include "DCRemove.h"
 #include "FMDemodulator.h"
-
-using namespace std;
+#include "Device/DeviceController.h"
+#include "ReceiverLogicNew.h"
 
 class SoundProcessorThread {
+
+	bool isWorking_ = false;
 
 	//float* data = nullptr;
 	//int dataLen = 0;
@@ -48,17 +48,25 @@ class SoundProcessorThread {
 
 	DCRemove dcRemove;
 
+	DeviceController* devCnt;
+
+	ViewModel* viewModel;
+
+	ReceiverLogicNew* receiverLogicNew;
+
 public: 
 
 	AGC* agc;
 
 	int len; //Размер считывания за 1 раз из кругового буфера
 
-	SoundProcessorThread(Config* config, CircleBuffer* sPCB, CircleBuffer* sWCB, FFTSpectreHandler* fftSpectreHandler);
+	SoundProcessorThread(DeviceController* devCnt, ViewModel* viewModel, ReceiverLogicNew* receiverLogicNew, Config* config, CircleBuffer* sPCB, CircleBuffer* sWCB, FFTSpectreHandler* fftSpectreHandler);
 
 	void initFilters(int filterWidth);
 
 	void process();
 
 	std::thread start();
+
+	bool isWorking();
 };

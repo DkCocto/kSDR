@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Env.h"
-#include "Environment.h"
 #include "Semaphore.h"
 #include "WindowBlackman.h"
 #include "WindowBlackmanHarris.h"
@@ -16,15 +15,13 @@
 #include "future"
 #include "ViewModel.h"
 
-//#include "AudioFFT.h"
-
 class FFTSpectreHandler {
 	
 private:
 
 	//audiofft::AudioFFT fft;
 
-	Environment* environment;
+	Config* config;
 	
 	//»нициализируем оконный массив с размерностью длины массива буфера спектра (возвращаетс¤ массив длиной +1)
 	WindowBlackman* wb;
@@ -66,7 +63,6 @@ private:
 	bool outputting = false;
 
 	float psd(float re, float im);
-	void prepareData();
 
 	//std::queue<std::vector<float>> getSpectreDataQueue();
 
@@ -80,21 +76,17 @@ public:
 
 	ViewModel* vM;
 
-	FFTSpectreHandler(Environment* environment);
+	FFTSpectreHandler(Config* config);
 
 	~FFTSpectreHandler();
 	float* getOutputCopy(int startPos, int len, bool forWaterfall);
 	void putData(float* data);
-
-	void receivingData1(bool val);
 
 	int getSpectreSize();
 	//void setSpectreSpeed(int speed);
 
 	std::thread start();
 	void run();
-
-	void receivingData(bool val);
-
-
+	void clear();
+	void init();
 };

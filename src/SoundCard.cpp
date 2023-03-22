@@ -12,7 +12,7 @@ void SoundCard::init() {
 
 	outputParameters.device = Pa_GetDefaultOutputDevice();
 
-	outputParameters.channelCount = environment->getConfig()->outputChannelNumber;
+	outputParameters.channelCount = config->outputChannelNumber;
 	outputParameters.sampleFormat = PA_SAMPLE_TYPE;
 	outputParameters.suggestedLatency = Pa_GetDeviceInfo(outputParameters.device)->defaultHighOutputLatency;
 	outputParameters.hostApiSpecificStreamInfo = NULL;
@@ -24,22 +24,13 @@ void SoundCard::showError(PaError err) {
 	printf("Error message: %s\n", Pa_GetErrorText(err));
 }
 
-SoundCard::SoundCard(Environment* environment) {
-	this->environment = environment;
+SoundCard::SoundCard(Config* config) {
+	this->config = config;
 	init();
 }
 
 SoundCard::~SoundCard() {
-	if (inputStream) {
-		Pa_AbortStream(inputStream);
-		Pa_CloseStream(inputStream);
-	}
-	if (outputStream) {
-		Pa_AbortStream(outputStream);
-		Pa_CloseStream(outputStream);
-	}
-	Pa_Terminate();
-	printf("SoundCard object destructed!\r\n");
+	close();
 }
 
 void SoundCard::open() {
@@ -65,8 +56,8 @@ void SoundCard::open() {
 		&outputStream,
 		NULL,
 		&outputParameters,
-		environment->getConfig()->outputSamplerate,
-		environment->getConfig()->audioWriteFrameLen,
+		config->outputSamplerate,
+		config->audioWriteFrameLen,
 		paClipOff,
 		NULL,
 		NULL);
@@ -75,6 +66,19 @@ void SoundCard::open() {
 	err = Pa_StartStream(outputStream);
 	if (err != paNoError) throw [&]() { showError(err); };
 	//------------------
+}
+
+void SoundCard::close() {
+	if (inputStream) {
+		Pa_AbortStream(inputStream);
+		Pa_CloseStream(inputStream);
+	}
+	if (outputStream) {
+		Pa_AbortStream(outputStream);
+		Pa_CloseStream(outputStream);
+	}
+	Pa_Terminate();
+	printf("SoundCard object destructed!\r\n");
 }
 
 float* SoundCard::read(float* buffer, int len) {

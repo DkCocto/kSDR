@@ -8,16 +8,18 @@ class DeviceN {
 	
 	private:
 
-		std::vector<CircleBuffer*> receivers;
+		std::vector<CircleBuffer*>* receivers = nullptr;
 
 	public:
 
 		Config* config;
 
 		DeviceN(Config* config);
-		virtual ~DeviceN() {};
+		
+		void setReceivers(std::vector<CircleBuffer*>* receivers);
+		std::vector<CircleBuffer*>* getReceivers();
 
-		void addReceiver(CircleBuffer* circleBuffer);
+		virtual ~DeviceN() {};
 
 		DeviceType deviceType = HACKRF;
 
@@ -38,5 +40,5 @@ class DeviceN {
 		virtual Result start() = 0;
 		virtual void stop() = 0;
 
-		std::vector<CircleBuffer*>* getReceivers();
+		CircleBuffer* getReceiver();
 };

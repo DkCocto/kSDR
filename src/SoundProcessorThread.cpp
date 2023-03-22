@@ -1,7 +1,16 @@
 #include "SoundProcessorThread.h"
 
-SoundProcessorThread::SoundProcessorThread(Config* config, CircleBuffer* iqSignalsCircleBuffer, CircleBuffer* sWCB, FFTSpectreHandler* fftSpectreHandler) {
+SoundProcessorThread::SoundProcessorThread(DeviceController* devCnt, 
+											ViewModel* viewModel, 
+											ReceiverLogicNew* receiverLogicNew, 
+											Config* config, 
+											CircleBuffer* iqSignalsCircleBuffer, 
+											CircleBuffer* sWCB, 
+											FFTSpectreHandler* fftSpectreHandler) {
 	this->config = config;
+	this->devCnt = devCnt;
+	this->viewModel = viewModel;
+	this->receiverLogicNew = receiverLogicNew;
 
 	mixer = new Mixer(config->inputSamplerate);
 
@@ -45,13 +54,22 @@ void SoundProcessorThread::process() {
 
 	float* data = new float[len];
 
-	ViewModel* viewModel = Display::instance->viewModel;
-	ReceiverLogicNew* receiverLogicNew = Display::instance->spectre->receiverLogicNew.get();
-
 	FMDemodulator fmDemodulator;
 
+	isWorking_ = true;
+
 	while (true) {
-		
+
+		if (!config->WORKING) {
+			isWorking_ = false;
+			break;
+		}
+
+		if (!devCnt->isReadyToReceiveCmd()) {
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
+			continue;
+		};
+
 		//Обработка ширины фильтра
 		if (storedFilterWidth != viewModel->filterWidth) {
 			storedFilterWidth = viewModel->filterWidth;
@@ -135,6 +153,8 @@ void SoundProcessorThread::process() {
 			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		}
 	}
+	printf("SoundProcessStopped\r\n");
+	isWorking_ = false;
 }
 
 std::thread SoundProcessorThread::start() {
@@ -142,4 +162,8 @@ std::thread SoundProcessorThread::start() {
 	DWORD result = ::SetThreadIdealProcessor(p.native_handle(), 2);
 	SetThreadPriority(p.native_handle(), THREAD_PRIORITY_HIGHEST);
 	return p;
+}
+
+bool SoundProcessorThread::isWorking() {
+	return isWorking_;
 }

@@ -2,13 +2,11 @@
 
 #include "Env.h"
 #include "portaudio/portaudio.h"
-#include "Environment.h"
+#include "Config.h"
 
 class SoundCard {
 
 private:
-
-	Environment* environment;
 
 	PaStream* inputStream = NULL;
 	PaStream* outputStream = NULL;
@@ -20,14 +18,16 @@ private:
 	void init();
 	void showError(PaError err);
 
+	Config* config;
+
 public:
 
-	SoundCard(Environment* environment);
+	SoundCard(Config* config);
 
 	~SoundCard();
 
 	void open();
-
+	void close();
 	float* read(float* buffer, int len);
 
 	void write(float* buffer, int len);

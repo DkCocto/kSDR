@@ -91,9 +91,9 @@ public:
 
 	MIN_MAX getMinMaxInSpectre();
 
-	unique_ptr<ReceiverLogicNew> receiverLogicNew;
+	ReceiverLogicNew* receiverLogicNew;
 
-	Spectre(Config* config, ViewModel* viewModel, FlowingFFTSpectre* flowingFFTSectre);
+	Spectre(Config* config, ViewModel* viewModel, FlowingFFTSpectre* flowingFFTSectre, ReceiverLogicNew* receiverLogicNew);
 	void draw();
 
 	void storeSignaldB(float* spectreData);

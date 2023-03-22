@@ -1,7 +1,8 @@
 #include "CircleBufferWriterThread.h"
 
-CircleBufferWriterThread::CircleBufferWriterThread(Config* config, CircleBuffer* cb, SoundCard* sc) {
+CircleBufferWriterThread::CircleBufferWriterThread(Config* config, DeviceController* deviceController, CircleBuffer* cb, SoundCard* sc) {
 	this->config = config;
+	this->deviceController = deviceController;
 	this->soundWriterCircleBuffer = cb;
 	this->soundCard = sc;
 	len = config->bufferWriteAudioLen;
@@ -9,16 +10,20 @@ CircleBufferWriterThread::CircleBufferWriterThread(Config* config, CircleBuffer*
 
 void CircleBufferWriterThread::run() {
 
-	ViewModel* viewModel = Display::instance->viewModel;
-
 	float secondsInBuffer = 0.0;
 
-	while (true) {
+	isWorking_ = true;
 
-		/*if (!config->device->status->isOK) {
+	while (true) {
+		if (!deviceController->isReadyToReceiveCmd()) {
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 			continue;
-		}*/
+		};
+
+		if (!config->WORKING) {
+			isWorking_ = false;
+			break;
+		}
 
 		int available = soundWriterCircleBuffer->available();
 		secondsInBuffer = (float)available / config->outputSamplerate;
@@ -34,9 +39,11 @@ void CircleBufferWriterThread::run() {
 			soundCard->write(data, len);
 			delete data;
 		} else {
-			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+			std::this_thread::sleep_for(std::chrono::milliseconds(50));
 		}
 	}
+
+	isWorking_ = false;
 }
 
 std::thread CircleBufferWriterThread::start() {
@@ -44,4 +51,8 @@ std::thread CircleBufferWriterThread::start() {
 	DWORD result = ::SetThreadIdealProcessor(p.native_handle(), 3);
 	SetThreadPriority(p.native_handle(), THREAD_PRIORITY_HIGHEST);
 	return p;
+}
+
+bool CircleBufferWriterThread::isWorking() {
+	return isWorking_;
 }

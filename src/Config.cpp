@@ -1,49 +1,55 @@
 #include "Config.h"
 
 Config::Config() {
-    load();
-    loadMemory();
+    prepareConfiguration();
+}
 
-	inputChannelNumber							= 1;
-	outputChannelNumber							= 1;
+void Config::prepareConfiguration() {
+    loadXml();
+    loadMemory();
+    initSettings();
+}
+
+void Config::initSettings() {
+    inputChannelNumber = 1;
+    outputChannelNumber = 1;
 
     switch (deviceType) {
-        case DeviceType::RSP:
-            inputSamplerate = (rsp.deviceSamplingRate / rsp.deviceDecimationFactor) / inputSamplerateDivider;
-            break;
-        case DeviceType::HACKRF:
-            inputSamplerate = hackrf.deviceSamplingRate / inputSamplerateDivider;
-            break;
-        case DeviceType::RTL:
-            inputSamplerate = rtl.deviceSamplingRate / inputSamplerateDivider;
-            break;
-        default:
-            inputSamplerate = 4000000;
+    case DeviceType::RSP:
+        inputSamplerate = (rsp.deviceSamplingRate / rsp.deviceDecimationFactor) / inputSamplerateDivider;
+        break;
+    case DeviceType::HACKRF:
+        inputSamplerate = hackrf.deviceSamplingRate / inputSamplerateDivider;
+        break;
+    case DeviceType::RTL:
+        inputSamplerate = rtl.deviceSamplingRate / inputSamplerateDivider;
+        break;
+    default:
+        inputSamplerate = 4000000;
     }
 
-	calcOutputSamplerate();
+    calcOutputSamplerate();
 
-    bufferWriteAudioLen                         = (outputSamplerateDivider) / 4;
+    bufferWriteAudioLen = (outputSamplerateDivider) / 4;
 
-	readSoundProcessorBufferLen					= fftLen; //fftLen 
+    readSoundProcessorBufferLen = fftLen; //fftLen 
 
-    audioWriteFrameLen                          = (outputSamplerateDivider) / 4;
+    audioWriteFrameLen = (outputSamplerateDivider) / 4;
 
-	circleBufferLen								= inputSamplerate / 4;
+    circleBufferLen = inputSamplerate / 4;
 
-	hilbertTransformLen							= 255;
-	polyphaseFilterLen							= 2 * outputSamplerateDivider;
+    hilbertTransformLen = 255;
+    polyphaseFilterLen = 2 * outputSamplerateDivider;
 
-	fftBandwidth								= (float)inputSamplerate / (float)fftLen;
+    fftBandwidth = (float)inputSamplerate / (float)fftLen;
 }
 
 Config::~Config() {
     save();
-    //delete device;
 }
 
 //Loading config from config file
-void Config::load() {
+void Config::loadXml() {
 
     tinyxml2::XMLDocument doc;
 

@@ -4,10 +4,10 @@ DeviceN::DeviceN(Config* config) {
 	this->config = config;
 }
 
-void DeviceN::addReceiver(CircleBuffer* circleBuffer) {
-	receivers.push_back(circleBuffer);
+void DeviceN::setReceivers(std::vector<CircleBuffer*>* receivers) {
+	this->receivers = receivers;
 }
 
 std::vector<CircleBuffer*>* DeviceN::getReceivers() {
-	return &receivers;
+	return receivers;
 }
