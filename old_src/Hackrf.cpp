@@ -64,7 +64,7 @@ int Hackrf::rx_callback(hackrf_transfer* transfer) {
 
 
 bool Hackrf::init() {
-	viewModel = Display::instance->viewModel;
+	viewModel = Display::instance->getViewModel();
 
 	uint8_t amp = config->hackrf.rxAmp;
 	uint8_t antenna = 0;

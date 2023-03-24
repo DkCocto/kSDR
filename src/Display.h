@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Hackrf.h"
 #include "Environment.h"
 
 #include "FlowingFFTSpectre.h"
@@ -27,8 +26,6 @@ class Display {
 private:
 	
 	GLFWwindow* window = nullptr;
-
-	FlowingFFTSpectre* flowingFFTSpectre;
 
 	static void framebufferReSizeCallback(GLFWwindow* window, int width, int height);
 
@@ -65,13 +62,13 @@ private:
 
 	MemoryRecordUserInterface memoryRecordUserInterface;
 
-	DeviceController* deviceController;
+	Environment* env;
+
+	ViewModel* viewModel;
 
 public:
 
 	static Display* instance;
-
-	ViewModel* viewModel;
 
 	Spectre* spectre;
 
@@ -84,9 +81,7 @@ public:
 	double mouseX = 0;
 	double mouseY = 0;
 	
-	Config* config;
-
-	Display(Config* config, ViewModel* viewModel, DeviceController* deviceController, FlowingFFTSpectre* flowingFFTSpectre, FFTSpectreHandler* fftSH, ReceiverLogicNew* receiverLogicNew);
+	Display(Environment* env);
 	~Display();
 
 	int init();
@@ -98,5 +93,7 @@ public:
 	void renderImGUIFirst();
 
 	void showAlertOKDialog(std::string title, std::string msg);
+
+	ViewModel* getViewModel();
 
 };

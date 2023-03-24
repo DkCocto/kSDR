@@ -564,6 +564,7 @@ void Config::save() {
         }
 
         doc.SaveFile(CONFIG_FILENAME);
+        printf("Settings saved!\r\n");
     }
     else {
         printf("Config file not found!\r\n");

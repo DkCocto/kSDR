@@ -25,8 +25,6 @@ class Waterfall {
 
 	GLuint texName = NULL;
 
-	FlowingFFTSpectre* flowingFFTSpectre;
-
 	ViewModel* viewModel;
 
 	int lineHeight = 1;
@@ -37,7 +35,7 @@ class Waterfall {
 
 public:
 
-	Waterfall(Config* config, FlowingFFTSpectre* flowingFFTSpectre, ViewModel* viewModel);
+	Waterfall(Config* config, ViewModel* viewModel);
 
 	float minValue = -100;
 	float maxValue = -40;
@@ -58,7 +56,7 @@ public:
 
 	float getDiv();
 
-	void update();
+	void update(FFTData::OUTPUT* spectreData, FlowingFFTSpectre* flowingFFTSpectre);
 
 	int getSize();
 

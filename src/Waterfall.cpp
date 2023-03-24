@@ -1,7 +1,6 @@
 #include "Waterfall.h"
 
-Waterfall::Waterfall(Config* config, FlowingFFTSpectre* flowingFFTSpectre, ViewModel* viewModel) {
-	this->flowingFFTSpectre = flowingFFTSpectre;
+Waterfall::Waterfall(Config* config, ViewModel* viewModel) {
 	memset(texturesArray, 0, sizeof(texturesArray) * size);
 	this->viewModel = viewModel;
 	this->config = config;
@@ -11,17 +10,13 @@ float Waterfall::getDiv() {
 	return div;
 }
 
-void Waterfall::update() {
+void Waterfall::update(FFTData::OUTPUT* spectreData, FlowingFFTSpectre* flowingFFTSpectre) {
 
-	float* fullSpectreData = flowingFFTSpectre->getSpectreHandler()->getOutputCopy(0, flowingFFTSpectre->getSpectreHandler()->getSpectreSize(), true);
+	//std::vector<float> fullSpectreData = flowingFFTSpectre->getSpectreHandler()->getFFTData()->getData(true);
 
-	std::vector<float> waterfallData = flowingFFTSpectre->getReducedSpectre(
-		fullSpectreData,
-		flowingFFTSpectre->getSpectreHandler()->getSpectreSize(),
-		config->visibleSpectreBinCount,
-		true);
+	std::vector<float> waterfallData = flowingFFTSpectre->getReducedData(spectreData, config->visibleSpectreBinCount);
 
-	delete[] fullSpectreData;
+	//delete[] fullSpectreData;
 
 	float sum = 0.0f;
 

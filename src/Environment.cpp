@@ -6,10 +6,11 @@ Environment::Environment() {
 	IQSourceBuffer = new CircleBuffer(config->circleBufferLen);
 	deviceController->addReceiver(IQSourceBuffer);
 	soundBuffer = new CircleBuffer(config->circleBufferLen);
-	fftSpectreHandler = new FFTSpectreHandler(config);
+	fftData = new FFTData(config->fftLen / 2);
+	fftSpectreHandler = new FFTSpectreHandler(config, fftData);
 	viewModel = new ViewModel(config);
 	flowingFFTSpectre = new FlowingFFTSpectre(config, viewModel, fftSpectreHandler);
-	receiverLogicNew = new ReceiverLogicNew(config, viewModel, flowingFFTSpectre);
+	receiverLogicNew = new ReceiverLogic(config, viewModel, flowingFFTSpectre);
 }
 
 Environment::~Environment() {
@@ -49,7 +50,9 @@ void Environment::startProcessing() {
 
 	if (deviceController->isReadyToReceiveCmd()) {
 		config->WORKING = true;
+		
 		init();
+
 		fftSpectreHandler->start().detach();
 
 		//Инициализируем звуковую карту
@@ -66,11 +69,16 @@ void Environment::stopProcessing() {
 	//Stop 3 threads: sound process, soundcard writer, fft handler
 	config->WORKING = false; 
 
-	while (soundProcessor->isWorking() && circleBufferWriterThread->isWorking()) { }
+	while (soundProcessor->isWorking() || circleBufferWriterThread->isWorking() || fftSpectreHandler->isWorking()) {}
 
 	delete soundProcessor;
+	soundProcessor = nullptr;
+	
 	delete circleBufferWriterThread;
+	circleBufferWriterThread = nullptr;
+	
 	delete soundCard;
+	soundCard = nullptr;
 }
 
 FFTSpectreHandler* Environment::getFFTSpectreHandler() {
@@ -93,7 +101,7 @@ ViewModel* Environment::getViewModel() {
 	return viewModel;
 }
 
-ReceiverLogicNew* Environment::getReceiverLogicNew() {
+ReceiverLogic* Environment::getReceiverLogic() {
 	return receiverLogicNew;
 }
 

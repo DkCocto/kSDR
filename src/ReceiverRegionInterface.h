@@ -22,7 +22,6 @@ private:
 	ViewModel* viewModel = nullptr;
 
 	SpectreWindowData* sWD = nullptr;
-	ReceiverLogicNew* receiverLogicNew = nullptr;
 
 	int freqTextWidth = 100;
 	int freqTextHeight = 40;
@@ -37,9 +36,9 @@ public:
 
 	ReceiverRegionInterface() {};
 
-	ReceiverRegionInterface(SpectreWindowData* sWD, Config* config, ViewModel* viewModel, ReceiverLogicNew* receiverLogicNew);
+	ReceiverRegionInterface(SpectreWindowData* sWD, Config* config, ViewModel* viewModel);
 
-	void drawRegion(ImDrawList* draw_list);
+	void drawRegion(ImDrawList* draw_list, ReceiverLogic* receiverLogicNew);
 
 	int getFreqTextWidth();
 	int getFreqTextHeight();
@@ -47,11 +46,11 @@ public:
 	int getFreqTextY();
 
 	void underlineDigit(ImDrawList* draw_list, int num);
-	bool markDigitByMouse(ImDrawList* draw_list);
+	bool markDigitByMouse(ImDrawList* draw_list, ReceiverLogic* receiverLogicNew);
 
 	bool isDigitSelected();
 
 	int getSelectedDigit();
 
-	void setupNewFreq(bool positive);
+	void setupNewFreq(bool positive, ReceiverLogic* receiverLogicNew);
 };

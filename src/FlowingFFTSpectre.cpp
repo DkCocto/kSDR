@@ -14,17 +14,17 @@ FlowingFFTSpectre::~FlowingFFTSpectre() {
 	config->stopBin = B;
 }
 
-float* FlowingFFTSpectre::getData() {
-	return fftSH->getOutputCopy(A, getLen(), false);
+FFTData::OUTPUT* FlowingFFTSpectre::getDataCopy(FFTData::OUTPUT* spectreData) {
+	return fftSH->getFFTData()->getDataCopy(spectreData, A, getLen(), false);
 }
 
-float* FlowingFFTSpectre::getWaterfallData() {
-	return fftSH->getOutputCopy(A, getLen(), true);
-}
+/*FFTData::OUTPUT* FlowingFFTSpectre::getWaterfallDataCopy(FFTData::OUTPUT* waterfallData) {
+	return fftSH->getFFTData()->getDataCopy(waterfallData, A, getLen(), true);
+}*/
 
 void FlowingFFTSpectre::setPos(int A, int B) {
 	if (A < 0) A = 0;
-	if (B > fftSH->getSpectreSize() - 1) B = fftSH->getSpectreSize() - 1;
+	if (B > config->fftLen / 2 - 1) B = config->fftLen / 2 - 1;
 	this->A = A;
 	this->B = B;
 }
@@ -34,23 +34,23 @@ int FlowingFFTSpectre::getLen() {
 }
 
 int FlowingFFTSpectre::getAbsoluteSpectreLen() {
-	return fftSH->getSpectreSize();
+	return config->fftLen / 2;
 }
 
 //Сдвинуть спектр на количество единиц вперед или назад. Зависит от знака параметра delta
 //Возвращает сдвиг частоты на который надо сдвинуть центрульную частоту приема 
 float FlowingFFTSpectre::move(int delta) {
 	if (delta > 0) {
-		if (B + delta > fftSH->getSpectreSize() - 1) {
+		if (B + delta > config->fftLen / 2 - 1) {
 
 			int bAfterDelta = B + delta;
 
-			A += (fftSH->getSpectreSize() - 1) - B;
-			B = fftSH->getSpectreSize() - 1;
+			A += (config->fftLen / 2 - 1) - B;
+			B = config->fftLen / 2 - 1;
 
 			//Будем сдвигать центральную частоту вперед
 			//узнаём на сколько по частоте мы выходим за границы спектра
-			float binsDelta = bAfterDelta - (fftSH->getSpectreSize() - 1);
+			float binsDelta = bAfterDelta - (config->fftLen / 2 - 1);
 			return getFreqOfOneSpectreBin() * binsDelta;
 		} else {
 			A += delta;
@@ -97,7 +97,7 @@ void FlowingFFTSpectre::zoomIn(int step) {
 void FlowingFFTSpectre::zoomOut(int step) {
 	if (A - step < 0) A = 0;
 	else A -= step;
-	if (B + step > fftSH->getSpectreSize() - 1) B = fftSH->getSpectreSize() - 1;
+	if (B + step > config->fftLen / 2 - 1) B = config->fftLen / 2 - 1;
 	else B += step;
 
 	if (DEBUG) printCurrentPos();
@@ -116,7 +116,7 @@ FFTSpectreHandler* FlowingFFTSpectre::getSpectreHandler() {
 }
 
 void FlowingFFTSpectre::printCurrentPos() {
-	printf("A=%i B=%i Len=%i, Total spectre[0; %i] Len: %i\r\n", A, B, getLen(), fftSH->getSpectreSize() - 1, fftSH->getSpectreSize());
+	printf("A=%i B=%i Len=%i, Total spectre[0; %i] Len: %i\r\n", A, B, getLen(), config->fftLen / 2 - 1, config->fftLen / 2);
 }
 
 float FlowingFFTSpectre::getAbsoluteFreqBySpectrePos(int pos) {
@@ -124,7 +124,7 @@ float FlowingFFTSpectre::getAbsoluteFreqBySpectrePos(int pos) {
 }
 
 float FlowingFFTSpectre::getFreqByPosFromSamplerate(int pos) {
-	return (float)pos * ((float)config->inputSamplerate / (float)fftSH->getSpectreSize());
+	return (float)pos * ((float)config->inputSamplerate / (float)(config->fftLen / 2));
 }
 
 FlowingFFTSpectre::FREQ_RANGE FlowingFFTSpectre::getVisibleFreqRangeFromSamplerate() {
@@ -191,22 +191,26 @@ float FlowingFFTSpectre::getFreqOfOneSpectreBin() {
 	return spectreFreqWidth / (float)getLen();
 }
 
-std::vector<float> FlowingFFTSpectre::getReducedSpectre(float* fullSpectreData, int fullSpectreDataLen, int desiredBins, bool forWaterfall) {
+std::vector<float> FlowingFFTSpectre::getReducedData(FFTData::OUTPUT* fullSpectreData, int desiredBins) {
 	
 	int flowingSpectreLen = getLen();
 
 	if (flowingSpectreLen <= desiredBins) {
-		float* spectreData = (forWaterfall == true) ? getWaterfallData() : getData();
-		int spectreLen = flowingSpectreLen;
+		FFTData::OUTPUT* reducedSpectreData = getDataCopy(fullSpectreData);
+		//int spectreLen = flowingSpectreLen;
 		std::vector<float> v;
-		v.assign(spectreData, spectreData + spectreLen);
-		delete[] spectreData;
+		v.assign(reducedSpectreData->data, reducedSpectreData->data + reducedSpectreData->len);
+		fftSH->getFFTData()->destroyData(reducedSpectreData);
+		//delete[] spectreData;
+		
 		return v;
 	}
 
 	//return (value - From1) / (From2 - From1) * (To2 - To1) + To1;
 
 	float koeff = (float)desiredBins / (float)flowingSpectreLen;
+
+	int fullSpectreDataLen = fullSpectreData->len;
 
 	int newSpectreDataLen = (int)round(fullSpectreDataLen * koeff);
 
@@ -223,7 +227,7 @@ std::vector<float> FlowingFFTSpectre::getReducedSpectre(float* fullSpectreData, 
 
 		if (savedNewIndex != newIndex) {
 			if (newIndex >= ANew && newIndex <= BNew) {
-				reducedSpectreData.push_back(fullSpectreData[i]);
+				reducedSpectreData.push_back(fullSpectreData->data[i]);
 			}
 			savedNewIndex = newIndex;
 		}

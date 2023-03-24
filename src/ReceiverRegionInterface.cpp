@@ -1,13 +1,12 @@
 #include "ReceiverRegionInterface.h"
 
-ReceiverRegionInterface::ReceiverRegionInterface(SpectreWindowData* sWD, Config* config, ViewModel* viewModel, ReceiverLogicNew* receiverLogicNew) {
+ReceiverRegionInterface::ReceiverRegionInterface(SpectreWindowData* sWD, Config* config, ViewModel* viewModel) {
 	this->config = config;
 	this->viewModel = viewModel;
 	this->sWD = sWD;
-	this->receiverLogicNew = receiverLogicNew;
 }
 
-void ReceiverRegionInterface::drawRegion(ImDrawList* draw_list) {
+void ReceiverRegionInterface::drawRegion(ImDrawList* draw_list, ReceiverLogic* receiverLogicNew) {
 	int receiverCenterLineX = sWD->startWindowPoint.x + sWD->rightPadding + receiverLogicNew->getPositionPX();
 
 	draw_list->AddLine(
@@ -65,7 +64,7 @@ void ReceiverRegionInterface::drawRegion(ImDrawList* draw_list) {
 		break;
 	}
 
-	markDigitByMouse(draw_list);
+	markDigitByMouse(draw_list, receiverLogicNew);
 }
 
 int ReceiverRegionInterface::getFreqTextWidth() {
@@ -92,7 +91,7 @@ bool ReceiverRegionInterface::isDigitSelected() {
 	return (selectedDigit > 0);
 }
 
-void ReceiverRegionInterface::setupNewFreq(bool positive) {
+void ReceiverRegionInterface::setupNewFreq(bool positive, ReceiverLogic* receiverLogicNew) {
 	double sign = (positive == true) ? 1 : -1;
 	
 	int delta = pow(10, selectedDigit - 1);
@@ -100,7 +99,7 @@ void ReceiverRegionInterface::setupNewFreq(bool positive) {
 	receiverLogicNew->setFreq((double)receiverLogicNew->getSelectedFreqNew() + sign * delta);
 }
 
-bool ReceiverRegionInterface::markDigitByMouse(ImDrawList* draw_list) {
+bool ReceiverRegionInterface::markDigitByMouse(ImDrawList* draw_list, ReceiverLogic* receiverLogicNew) {
 
 	ImGuiIO& io = ImGui::GetIO();
 

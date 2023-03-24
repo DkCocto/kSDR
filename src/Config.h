@@ -14,7 +14,7 @@ class Config {
 
 public:
 
-	bool WORKING = true;
+	std::atomic_bool WORKING = true;
 
 	int circleBufferLen;
 

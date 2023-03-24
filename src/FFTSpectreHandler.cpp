@@ -7,14 +7,11 @@ FFTSpectreHandler::~FFTSpectreHandler() {
 	fftw_destroy_plan(fftwPlan);
 }
 
-std::future<void> s;
-
-FFTSpectreHandler::FFTSpectreHandler(Config* config) {
+FFTSpectreHandler::FFTSpectreHandler(Config* config, FFTData* fftData) {
 	this->config = config;
-	init();
-}
+	
+	this->fftData = fftData;
 
-void FFTSpectreHandler::init() {
 	spectreSize = config->fftLen / 2;
 
 	wb = new WindowBlackman(config->fftLen);
@@ -57,7 +54,7 @@ void FFTSpectreHandler::init() {
 	//memset(speedDelta, 1, sizeof(float) * spectreSize);
 }
 
-void FFTSpectreHandler::clear() {
+/*void FFTSpectreHandler::clear() {
 	delete wb;
 	delete wbh;
 	delete[] dataBuffer;
@@ -72,17 +69,19 @@ void FFTSpectreHandler::clear() {
 	delete[] inData;
 	delete[] outData;
 	delete[] speedDelta;
- }
+ }*/
 
-std::mutex spectreDataMutex;
-
-bool ready = false;
+FFTData* FFTSpectreHandler::getFFTData() {
+	return fftData;
+}
 
 void FFTSpectreHandler::run() {
+	isWorking_ = true;
 	while (true) {
 		if (!config->WORKING) {
-			clear();
-			break;
+			printf("FFTSpectreHandler Stopped\r\n");
+			isWorking_ = false;
+			return;
 		}
 		if (ready) {
 			spectreDataMutex.lock();
@@ -104,7 +103,7 @@ void FFTSpectreHandler::putData(float* data) {
 	ready = true;
 }
 
-float* FFTSpectreHandler::getOutputCopy(int startPos, int len, bool forWaterfall) {
+/*float* FFTSpectreHandler::getOutputCopy(int startPos, int len, bool forWaterfall) {
 	float* buffer = new float[spectreSize];
 
 	//spectreDataMutex.lock();
@@ -123,10 +122,21 @@ float* FFTSpectreHandler::getOutputCopy(int startPos, int len, bool forWaterfall
 	delete[] buffer;
 
 	return dataCopy;
-}
+}*/
 
 void FFTSpectreHandler::processFFT() {
-	
+	//Apply window function
+	for (int i = 0; i < spectreSize; i++) {
+		inData[i][0] = dataBuffer[2 * i] * wbh->getWeights()[i];
+		inData[i][1] = dataBuffer[2 * i + 1] * wbh->getWeights()[i];
+	}
+
+	fftw_execute(fftwPlan);
+
+	dataPostprocess();
+
+	fftData->setData(superOutput, outputWaterfall, spectreSize);
+
 	//memcpy(output, dataBuffer, sizeof(output) * bufferLen);
 
 	//memset(imOut, 0, sizeof(float) * bufferLen);
@@ -140,14 +150,6 @@ void FFTSpectreHandler::processFFT() {
 	//std::vector<float> im(audiofft::AudioFFT::ComplexSize(FFT_LENGTH));
 
 	//cout << "im.size() " << audiofft::AudioFFT::ComplexSize(FFT_LENGTH) << "\r\n";
-
-	//Apply window function
-	for (int i = 0; i < spectreSize; i++) {
-		inData[i][0] = dataBuffer[2 * i] * wbh->getWeights()[i];
-		inData[i][1] = dataBuffer[2 * i + 1] * wbh->getWeights()[i];
-	}
-
-	fftw_execute(fftwPlan);
 
 	//auto begin = std::chrono::steady_clock::now();
 
@@ -168,12 +170,9 @@ void FFTSpectreHandler::processFFT() {
 
 	//fft.fft(dataBuffer, realOut, imOut);
 
-
 	//memcpy(output, realOut, sizeof(realOut));
 	//memcpy(output + sizeof(realOut), imOut, sizeof(imOut));
 
-
-	dataPostprocess();
 
 	//Utils::printArray(inOut, bufferLen);
 
@@ -190,7 +189,6 @@ float FFTSpectreHandler::average(float avg, float new_sample, int n) {
 }
 
 void FFTSpectreHandler::dataPostprocess() {
-
 	for (int i = 0; i < spectreSize; i++) {
 		float psd = this->psd(outData[i][0], outData[i][1]) + config->spectre.spectreCorrectionDb;
 		if (firstRun) {
@@ -236,22 +234,13 @@ void FFTSpectreHandler::dataPostprocess() {
 	}
 }
 
-int FFTSpectreHandler::getSpectreSize() {
+/*int FFTSpectreHandler::getSpectreSize() {
 	return spectreSize;
-}
+}*/
 
 float FFTSpectreHandler::psd(float re, float im) {
 	return 10 * log(re * re + im * im);
 }
-
-/*void FFTSpectreHandler::prepareData() {
-	//Применения окна Блэкмона к исходным данным
-	float* weights = wbh->getWeights();
-	for (int i = 0; i < spectreSize; i++) {
-		dataBuffer[2 * i] = dataBuffer[2 * i] * weights[i];
-		dataBuffer[2 * i + 1] = dataBuffer[2 * i + 1] * weights[i];
-	}
-}*/
 
 std::thread FFTSpectreHandler::start() {
 	std::thread p(&FFTSpectreHandler::run, this);

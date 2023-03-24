@@ -43,7 +43,7 @@ void RSP1::streamCallback(short* xi, short* xq, unsigned int firstSampleNum, int
 //}
 
 bool RSP1::init() {
-    viewModel = Display::instance->viewModel;
+    viewModel = Display::instance->getViewModel();
 
     mir_sdr_DeviceT devices[4];
     unsigned int numDevs;

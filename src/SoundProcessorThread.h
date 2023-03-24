@@ -12,25 +12,24 @@
 #include "FMDemodulator.h"
 #include "Device/DeviceController.h"
 #include "ReceiverLogicNew.h"
+#include "Thread/MyThread.h"
 
-class SoundProcessorThread {
-
-	bool isWorking_ = false;
+class SoundProcessorThread : public MyThread {
 
 	//float* data = nullptr;
 	//int dataLen = 0;
 
 	float* outputData = nullptr;
 
-	Mixer* mixer;
+	Mixer mixer;
 
-	HilbertTransform* hilbertTransform;
-	Delay* delay;
+	HilbertTransform hilbertTransform;
+	Delay delay;
 
 	PolyPhaseFilter firFilterI;
 	PolyPhaseFilter firFilterQ;
 
-	FirFilter* audioFilter;
+	FirFilter audioFilter;
 
 	double* decimateBufferI;
 	double* decimateBufferQ;
@@ -41,9 +40,9 @@ class SoundProcessorThread {
 
 	Config* config;
 
-	FIR* fir = new FIR();
-	FIR* firI = new FIR();
-	FIR* firQ = new FIR();
+	FIR fir;
+	FIR firI;
+	FIR firQ;
 	//FIR audioFilterFM;
 
 	DCRemove dcRemove;
@@ -52,15 +51,16 @@ class SoundProcessorThread {
 
 	ViewModel* viewModel;
 
-	ReceiverLogicNew* receiverLogicNew;
+	ReceiverLogic* receiverLogic;
+
+	AGC agc;
 
 public: 
 
-	AGC* agc;
-
 	int len; //Размер считывания за 1 раз из кругового буфера
 
-	SoundProcessorThread(DeviceController* devCnt, ViewModel* viewModel, ReceiverLogicNew* receiverLogicNew, Config* config, CircleBuffer* sPCB, CircleBuffer* sWCB, FFTSpectreHandler* fftSpectreHandler);
+	SoundProcessorThread(DeviceController* devCnt, ViewModel* viewModel, ReceiverLogic* receiverLogicNew, Config* config, CircleBuffer* sPCB, CircleBuffer* sWCB, FFTSpectreHandler* fftSpectreHandler);
+	~SoundProcessorThread();
 
 	void initFilters(int filterWidth);
 
@@ -68,5 +68,4 @@ public:
 
 	std::thread start();
 
-	bool isWorking();
 };

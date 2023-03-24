@@ -2,7 +2,7 @@
 
 SoundProcessorThread::SoundProcessorThread(DeviceController* devCnt, 
 											ViewModel* viewModel, 
-											ReceiverLogicNew* receiverLogicNew, 
+											ReceiverLogic* receiverLogic, 
 											Config* config, 
 											CircleBuffer* iqSignalsCircleBuffer, 
 											CircleBuffer* sWCB, 
@@ -10,9 +10,9 @@ SoundProcessorThread::SoundProcessorThread(DeviceController* devCnt,
 	this->config = config;
 	this->devCnt = devCnt;
 	this->viewModel = viewModel;
-	this->receiverLogicNew = receiverLogicNew;
+	this->receiverLogic = receiverLogic;
 
-	mixer = new Mixer(config->inputSamplerate);
+	mixer = Mixer(config->inputSamplerate);
 
 	len = config->readSoundProcessorBufferLen;
 
@@ -20,9 +20,9 @@ SoundProcessorThread::SoundProcessorThread(DeviceController* devCnt,
 	this->soundWriterCircleBuffer = sWCB;
 	this->fftSpectreHandler = fftSpectreHandler;
 
-	hilbertTransform = new HilbertTransform(config->inputSamplerate, config->hilbertTransformLen);
-	delay = new Delay((config->hilbertTransformLen - 1) / 2);
-	agc = new AGC(config, fftSpectreHandler);
+	hilbertTransform = HilbertTransform(config->inputSamplerate, config->hilbertTransformLen);
+	delay = Delay((config->hilbertTransformLen - 1) / 2);
+	agc = AGC(config, fftSpectreHandler);
 
 	decimateBufferI = new double[config->outputSamplerateDivider];
 	memset(decimateBufferI, 0, sizeof(double) * config->outputSamplerateDivider);
@@ -32,20 +32,24 @@ SoundProcessorThread::SoundProcessorThread(DeviceController* devCnt,
 
 	//Инициализация полифазных фильтров
 	initFilters(config->defaultFilterWidth);
+}
 
-	//audioFilterFM.init(audioFilterFM.LOWPASS, audioFilterFM.BARTLETT, 256, 200000, 0, config->outputSamplerate);
+SoundProcessorThread::~SoundProcessorThread() {
+	printf("~SoundProcessorThread()\r\n");
 }
 
 void SoundProcessorThread::initFilters(int filterWidth) {
 	firFilterI.initCoeffs(config->inputSamplerate, filterWidth, config->outputSamplerateDivider, config->polyphaseFilterLen);
 	firFilterQ.initCoeffs(config->inputSamplerate, filterWidth, config->outputSamplerateDivider, config->polyphaseFilterLen);
-	fir->init(fir->LOWPASS, fir->BLACKMAN_HARRIS, 512, filterWidth, 0, config->outputSamplerate);
+	fir.init(fir.LOWPASS, fir.BLACKMAN_HARRIS, 512, filterWidth, 0, config->outputSamplerate);
 
-	firI->init(fir->LOWPASS, fir->BARTLETT, 256, filterWidth, 0, config->outputSamplerate);
-	firQ->init(fir->LOWPASS, fir->BARTLETT, 256, filterWidth, 0, config->outputSamplerate);
+	firI.init(fir.LOWPASS, fir.BARTLETT, 256, filterWidth, 0, config->outputSamplerate);
+	firQ.init(fir.LOWPASS, fir.BARTLETT, 256, filterWidth, 0, config->outputSamplerate);
 }
 
 void SoundProcessorThread::process() {
+	isWorking_ = true;
+
 	outputData = new float[(len / 2) / config->outputSamplerateDivider];
 
 	int storedFilterWidth = config->defaultFilterWidth;
@@ -56,19 +60,12 @@ void SoundProcessorThread::process() {
 
 	FMDemodulator fmDemodulator;
 
-	isWorking_ = true;
-
 	while (true) {
-
 		if (!config->WORKING) {
+			printf("SoundProcess Stopped\r\n");
 			isWorking_ = false;
-			break;
+			return;
 		}
-
-		if (!devCnt->isReadyToReceiveCmd()) {
-			std::this_thread::sleep_for(std::chrono::milliseconds(100));
-			continue;
-		};
 
 		//Обработка ширины фильтра
 		if (storedFilterWidth != viewModel->filterWidth) {
@@ -87,8 +84,8 @@ void SoundProcessorThread::process() {
 
 				if (viewModel->removeDCBias) dcRemove.process(&data[2 * i], &data[2 * i + 1]);
 
-				mixer->setFreq(receiverLogicNew->getFrequencyDelta());
-				Signal mixedSignal = mixer->mix(data[2 * i], data[2 * i + 1]);
+				mixer.setFreq(receiverLogic->getFrequencyDelta());
+				Signal mixedSignal = mixer.mix(data[2 * i], data[2 * i + 1]);
 
 				decimateBufferI[decimationCount] = mixedSignal.I;
 				decimateBufferQ[decimationCount] = mixedSignal.Q;
@@ -111,31 +108,31 @@ void SoundProcessorThread::process() {
 
 					switch (mode) {
 						case USB:
-							audioQ = hilbertTransform->filter(audioQ);
-							audioI = delay->filter(audioI);
+							audioQ = hilbertTransform.filter(audioQ);
+							audioI = delay.filter(audioI);
 							audio = audioI - audioQ; // LSB
 							break;
 						case LSB:
-							audioQ = hilbertTransform->filter(audioQ);
-							audioI = delay->filter(audioI);
+							audioQ = hilbertTransform.filter(audioQ);
+							audioI = delay.filter(audioI);
 							audio = audioI + audioQ; // USB
 							break;
 						case AM:
-							audioI = firI->proc(audioI);
-							audioQ = firQ->proc(audioQ);
+							audioI = firI.proc(audioI);
+							audioQ = firQ.proc(audioQ);
 							audio = sqrt(audioI * audioI + audioQ * audioQ);
 							break;
 						case nFM:
-							audioI = firI->proc(audioI);
-							audioQ = firQ->proc(audioQ);
+							audioI = firI.proc(audioI);
+							audioQ = firQ.proc(audioQ);
 							audio = fmDemodulator.demodulate(audioI, audioQ);
 							//audio = audioFilterFM.proc(audio);
 							break;
 					}
 					//-------------------audio = audioFilter->filter(audio);
-					audio = fir->proc(audio);
+					audio = fir.proc(audio);
 					//audio = agc->process(audio);
-					audio = agc->processNew(audio);
+					audio = agc.processNew(audio);
 					//Если AM, то немного усилим сигнал
 					if (mode == AM) audio *= 3.0f;
 					if (mode == nFM) audio *= 2.0f;
@@ -153,8 +150,6 @@ void SoundProcessorThread::process() {
 			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		}
 	}
-	printf("SoundProcessStopped\r\n");
-	isWorking_ = false;
 }
 
 std::thread SoundProcessorThread::start() {
@@ -162,8 +157,4 @@ std::thread SoundProcessorThread::start() {
 	DWORD result = ::SetThreadIdealProcessor(p.native_handle(), 2);
 	SetThreadPriority(p.native_handle(), THREAD_PRIORITY_HIGHEST);
 	return p;
-}
-
-bool SoundProcessorThread::isWorking() {
-	return isWorking_;
 }

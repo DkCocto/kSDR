@@ -6,7 +6,7 @@
 #include "ViewModel.h"
 #include "FlowingFFTSpectre.h"
 
-class ReceiverLogicNew {
+class ReceiverLogic {
 private:
 	Config* config;
 	ViewModel* viewModel;
@@ -22,7 +22,7 @@ private:
 
 public:
 
-	ReceiverLogicNew(Config* config, ViewModel* viewModel, FlowingFFTSpectre* flowingFFTSpectre);
+	ReceiverLogic(Config* config, ViewModel* viewModel, FlowingFFTSpectre* flowingFFTSpectre);
 
 	void setFreq(double freq);
 

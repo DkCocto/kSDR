@@ -1,10 +1,10 @@
 #include "ReceiverLogicNew.h"
 
-void ReceiverLogicNew::setCenterFrequency(double frequency) {
+void ReceiverLogic::setCenterFrequency(double frequency) {
 	this->centerFrequency = frequency;
 }
 
-double ReceiverLogicNew::getCenterFrequency() {
+double ReceiverLogic::getCenterFrequency() {
 	return this->centerFrequency;
 }
 
@@ -12,7 +12,7 @@ double ReceiverLogicNew::getCenterFrequency() {
 /// Set frequency delta. This is the delta taken from the center of the sample rate. It ranges from -samplerate/2 to +samplerate/2.
 /// </summary>
 /// <param name="frequencyDelta"></param>
-void ReceiverLogicNew::setFrequencyDelta(double frequencyDelta) {
+void ReceiverLogic::setFrequencyDelta(double frequencyDelta) {
 	this->frequencyDelta = frequencyDelta;
 
 	double freqFromZero = config->inputSamplerate / 2.0 + frequencyDelta;
@@ -24,7 +24,7 @@ void ReceiverLogicNew::setFrequencyDelta(double frequencyDelta) {
 	receiverPosOnPx = round((receiverPosOnBin - (double)flowingFFTSpectre->getA()) * (double)spectreWidthPx / (double)flowingFFTSpectre->getLen());
 }
 
-void ReceiverLogicNew::setFrequencyDeltaBySpectrePosPx(double positionInSpectrePx) {
+void ReceiverLogic::setFrequencyDeltaBySpectrePosPx(double positionInSpectrePx) {
 	receiverPosOnPx = positionInSpectrePx;
 	receiverPosOnBin = round((double)flowingFFTSpectre->getA() + (double)receiverPosOnPx / ((double)spectreWidthPx / (double)flowingFFTSpectre->getLen()));
 	
@@ -34,23 +34,23 @@ void ReceiverLogicNew::setFrequencyDeltaBySpectrePosPx(double positionInSpectreP
 	else frequencyDelta = 0.0;
 }
 
-void ReceiverLogicNew::saveSpectrePositionDelta(double position) {
+void ReceiverLogic::saveSpectrePositionDelta(double position) {
 	this->savedPositionDelta = this->receiverPosOnPx - position;
 }
 
-double ReceiverLogicNew::getPositionPX() {
+double ReceiverLogic::getPositionPX() {
 	return receiverPosOnPx;
 }
 
-double ReceiverLogicNew::getSelectedFreqNew() {
+double ReceiverLogic::getSelectedFreqNew() {
 	return centerFrequency + frequencyDelta;
 }
 
-double ReceiverLogicNew::getPositionOnBin() {
+double ReceiverLogic::getPositionOnBin() {
 	return receiverPosOnBin;
 }
 
-void ReceiverLogicNew::setFrequencyDeltaFromSavedPosition(double positionInSpectrePx) {
+void ReceiverLogic::setFrequencyDeltaFromSavedPosition(double positionInSpectrePx) {
 	int pos = positionInSpectrePx + savedPositionDelta;
 	if (pos <= 0) {
 		pos = 0;
@@ -61,11 +61,11 @@ void ReceiverLogicNew::setFrequencyDeltaFromSavedPosition(double positionInSpect
 	setFrequencyDeltaBySpectrePosPx((double)pos);
 }
 
-double ReceiverLogicNew::getFrequencyDelta() {
+double ReceiverLogic::getFrequencyDelta() {
 	return frequencyDelta;
 }
 
-ReceiverLogicNew::ReceiverLogicNew(Config* config, ViewModel* viewModel, FlowingFFTSpectre* flowingFFTSpectre) {
+ReceiverLogic::ReceiverLogic(Config* config, ViewModel* viewModel, FlowingFFTSpectre* flowingFFTSpectre) {
 	this->config = config;
 	this->centerFrequency = config->startFrequency;
 	this->viewModel = viewModel;
@@ -77,7 +77,7 @@ constexpr auto SHIFT = 200000.0f;
 /// Go to current freq. The received freq will be displayed in the middle of the spectrum.
 /// </summary>
 /// <param name="freq">frequency</param>
-void ReceiverLogicNew::setFreq(double freq) {
+void ReceiverLogic::setFreq(double freq) {
 
 	if (freq < 0) return;
 
@@ -101,7 +101,7 @@ void ReceiverLogicNew::setFreq(double freq) {
 		int spectreLenBin = flowingFFTSpectre->getLen();
 		int positionOnBin = getPositionOnBin();
 
-		int totalSpectreSize = flowingFFTSpectre->getSpectreHandler()->getSpectreSize();
+		int totalSpectreSize = config->fftLen / 2;
 
 		int deltaPos = spectreLenBin / 2;
 
@@ -114,17 +114,17 @@ void ReceiverLogicNew::setFreq(double freq) {
 	}
 }
 
-void ReceiverLogicNew::updateSpectreWidth(double oldSpectreWidth, double newSpectreWidth) {
+void ReceiverLogic::updateSpectreWidth(double oldSpectreWidth, double newSpectreWidth) {
 	receiverPosOnPx = receiverPosOnPx * newSpectreWidth / oldSpectreWidth;
 	this->spectreWidthPx = newSpectreWidth;
 }
 
-ReceiverLogicNew::ReceiveBinArea ReceiverLogicNew::getReceiveBinsArea(int filterWidth, int receiverMode) {
+ReceiverLogic::ReceiveBinArea ReceiverLogic::getReceiveBinsArea(int filterWidth, int receiverMode) {
 	int A = 0, B = 0;
 
 	int filterWidthPX = getFilterWidthAbs(filterWidth);
 
-	int totalBin = flowingFFTSpectre->getSpectreHandler()->getSpectreSize();
+	int totalBin = config->fftLen / 2;
 
 	int deltaBin = (int)((double)filterWidth / flowingFFTSpectre->getFreqOfOneSpectreBin());
 
@@ -151,12 +151,12 @@ ReceiverLogicNew::ReceiveBinArea ReceiverLogicNew::getReceiveBinsArea(int filter
 	return r;
 }
 
-double ReceiverLogicNew::getFilterWidthAbs(int filterWidth) {
+double ReceiverLogic::getFilterWidthAbs(int filterWidth) {
 	FlowingFFTSpectre::FREQ_RANGE freqRange = flowingFFTSpectre->getVisibleFreqRangeFromSamplerate();
 	return ((double)filterWidth * spectreWidthPx) / (freqRange.second - freqRange.first);
 }
 
-double ReceiverLogicNew::getFreqByPosOnSpectrePx(int px) {
+double ReceiverLogic::getFreqByPosOnSpectrePx(int px) {
 	FlowingFFTSpectre::FREQ_RANGE freqRange = flowingFFTSpectre->getVisibleFreqsRangeAbsolute();
 	double freq = round((int)freqRange.first + (px * ((int)freqRange.second - (int)freqRange.first)) / (int)spectreWidthPx);
 	return freq;
@@ -167,7 +167,7 @@ double ReceiverLogicNew::getFreqByPosOnSpectrePx(int px) {
 /// </summary>
 /// <param name="freq"></param>
 /// <returns>Позицию на спектре или -1 если частота в данный момент находится вне границ видимого спектра</returns>
-int ReceiverLogicNew::getPosOnSpectreByFreq(double freq) {
+int ReceiverLogic::getPosOnSpectreByFreq(double freq) {
 	FlowingFFTSpectre::FREQ_RANGE freqRange = flowingFFTSpectre->getVisibleFreqsRangeAbsolute();
 	if (freq >= freqRange.first && freq <= freqRange.second) {
 		return round(((int)spectreWidthPx * (freq - freqRange.first)) / (freqRange.second - freqRange.first));
@@ -176,11 +176,11 @@ int ReceiverLogicNew::getPosOnSpectreByFreq(double freq) {
 	}
 }
 
-void ReceiverLogicNew::setReceivedFreqToSpectreCenter() {
+void ReceiverLogic::setReceivedFreqToSpectreCenter() {
 	int spectreLenBin = flowingFFTSpectre->getLen();
 	int positionOnBin = getPositionOnBin();
 
-	int totalSpectreSize = flowingFFTSpectre->getSpectreHandler()->getSpectreSize();
+	int totalSpectreSize = config->fftLen / 2;
 
 	int deltaPos = spectreLenBin / 2;
 

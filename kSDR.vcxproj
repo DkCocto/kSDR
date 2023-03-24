@@ -19,7 +19,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="chucha\AudioFFT.cpp" />
     <ClCompile Include="src\AGC.cpp" />
     <ClCompile Include="src\CircleBuffer.cpp" />
     <ClCompile Include="src\CircleBufferReaderThread.cpp" />
@@ -47,7 +46,6 @@
     <ClCompile Include="src\FirFilter.cpp" />
     <ClCompile Include="src\FlowingFFTSpectre.cpp" />
     <ClCompile Include="src\FMDemodulator.cpp" />
-    <ClCompile Include="src\Hackrf.cpp" />
     <ClCompile Include="src\HilbertTransform.cpp" />
     <ClCompile Include="src\imgui\imgui.cpp" />
     <ClCompile Include="src\imgui\imgui_demo.cpp" />
@@ -76,7 +74,9 @@
     <ClCompile Include="src\SoundProcessorThread.cpp" />
     <ClCompile Include="src\SoundReaderThread.cpp" />
     <ClCompile Include="src\Spectre.cpp" />
+    <ClCompile Include="src\Spectre\FFTData.cpp" />
     <ClCompile Include="src\SpeedCount.cpp" />
+    <ClCompile Include="src\Thread\MyThread.cpp" />
     <ClCompile Include="src\tinyxml2\tinyxml2.cpp" />
     <ClCompile Include="src\Utils.cpp" />
     <ClCompile Include="src\ViewModel.cpp" />
@@ -85,7 +85,6 @@
     <ClCompile Include="src\WindowBlackmanHarris.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="chucha\AudioFFT.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="src\AGC.h" />
     <ClInclude Include="src\Average.h" />
@@ -117,7 +116,6 @@
     <ClInclude Include="src\FirFilter.h" />
     <ClInclude Include="src\FlowingFFTSpectre.h" />
     <ClInclude Include="src\FMDemodulator.h" />
-    <ClInclude Include="src\Hackrf.h" />
     <ClInclude Include="src\HilbertTransform.h" />
     <ClInclude Include="src\imgui\imconfig.h" />
     <ClInclude Include="src\imgui\imgui.h" />
@@ -149,6 +147,8 @@
     <ClInclude Include="src\SoundReaderThread.h" />
     <ClInclude Include="src\Spectre.h" />
     <ClInclude Include="src\SpectreWindowData.h" />
+    <ClInclude Include="src\Spectre\FFTData.h" />
+    <ClInclude Include="src\Thread\MyThread.h" />
     <ClInclude Include="src\tinyxml2\tinyxml2.h" />
     <ClInclude Include="src\Utils.h" />
     <ClInclude Include="src\ViewModel.h" />

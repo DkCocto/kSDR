@@ -4,8 +4,9 @@
 #include "SoundCard.h"
 #include "Device/DeviceController.h"
 #include "windows.h"
+#include "Thread/MyThread.h"
 
-class CircleBufferWriterThread {
+class CircleBufferWriterThread : public MyThread {
 
 	CircleBuffer* soundWriterCircleBuffer;
 	SoundCard* soundCard;
@@ -15,14 +16,11 @@ class CircleBufferWriterThread {
 	Config* config;
 	DeviceController* deviceController;
 
-	bool isWorking_ = false;
-
 public:
 
 	CircleBufferWriterThread(Config* config, DeviceController* deviceController, CircleBuffer* cb, SoundCard* sc);
 
 	void run();
 	std::thread start();
-	bool isWorking();
 };
 

@@ -4,6 +4,9 @@
 #include "ViewModel.h"
 #include "vector"
 
+constexpr auto WATERFALL = true;
+constexpr auto SPECTRE = false;
+
 //Класс определяет плавающий спектр, который может меняться внутри полного спектра FFT. С помощью
 //него можно будет контролировать масштаб кусочка спектра внутри полного спектра
 class FlowingFFTSpectre {
@@ -31,8 +34,8 @@ public:
 
 	FlowingFFTSpectre(Config* config, ViewModel* viewModel, FFTSpectreHandler* fftSH);
 	~FlowingFFTSpectre();
-	float* getData();
-	float* getWaterfallData();
+	FFTData::OUTPUT* getDataCopy(FFTData::OUTPUT* spectreData);
+	//FFTData::OUTPUT* getWaterfallDataCopy(FFTData::OUTPUT* waterfallData);
 	void setPos(int A, int B);
 	int getLen();
 	int getAbsoluteSpectreLen();
@@ -66,6 +69,6 @@ public:
 	//void setReceivedFreqToSpectreCenter();
 
 	//desiredBins should be div by 2
-	std::vector<float> getReducedSpectre(float* fullSpectreData, int fullSpectreDataLen, int desiredBins, bool forWaterfall);
+	std::vector<float> getReducedData(FFTData::OUTPUT* fullSpectreData, int desiredBins);
 
 };

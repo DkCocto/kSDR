@@ -1,6 +1,9 @@
 #pragma once
+
+#include "atomic"
+
 class Semaphore {
-	bool barrier = false;
+	std::atomic_bool barrier = false;
 
 public:
 	bool lock();

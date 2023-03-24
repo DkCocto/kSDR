@@ -47,7 +47,7 @@ RTLDevice::~RTLDevice() {
 }
 
 bool RTLDevice::init() {
-	viewModel = Display::instance->viewModel;
+	viewModel = Display::instance->getViewModel();
 
 	vector<uint32_t>* list = listDevices();
 	if (list != NULL) {

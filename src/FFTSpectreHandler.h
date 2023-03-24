@@ -1,21 +1,16 @@
 #pragma once
 
 #include "Env.h"
-#include "Semaphore.h"
 #include "WindowBlackman.h"
 #include "WindowBlackmanHarris.h"
-#include "Average.h"
-#include "vector"
-#include "queue"
 #include "mutex"
-#include "KalmanFilter.h"
 #include "fftw/fftw3.h"
-#include "iostream"
-#include "Windows.h"
-#include "future"
 #include "ViewModel.h"
+#include "Thread/MyThread.h"
+#include "Spectre/FFTData.h"
+#include "windows.h"
 
-class FFTSpectreHandler {
+class FFTSpectreHandler : public MyThread {
 	
 private:
 
@@ -38,19 +33,13 @@ private:
 
 	float* realOut;
 	float* imOut;
-
-	//float output[complexLen * 2];
 	
 	float* superOutput;
 	float* outputWaterfall;
 
-	//Semaphore* semaphore = new Semaphore();
-
 	bool firstRun = true;
 
 	int spectreSpeed = 30;
-
-	//Average average1 = Average(20);
 
 	void processFFT();
 	float average(float avg, float new_sample, int n);
@@ -64,29 +53,32 @@ private:
 
 	float psd(float re, float im);
 
-	//std::queue<std::vector<float>> getSpectreDataQueue();
-
 	fftw_plan fftwPlan;
 	fftw_complex* inData;
 	fftw_complex* outData;
 
 	float* speedDelta;
 
+	FFTData* fftData;
+
+	std::mutex spectreDataMutex;
+
+	std::atomic_bool ready = false;
+
 public:
 
-	ViewModel* vM;
+	FFTData* getFFTData();
 
-	FFTSpectreHandler(Config* config);
-
+	FFTSpectreHandler(Config* config, FFTData* fftData);
 	~FFTSpectreHandler();
-	float* getOutputCopy(int startPos, int len, bool forWaterfall);
+
 	void putData(float* data);
-
-	int getSpectreSize();
-	//void setSpectreSpeed(int speed);
-
 	std::thread start();
 	void run();
-	void clear();
-	void init();
+
+	//float* getOutputCopy(int startPos, int len, bool forWaterfall);
+	//int getSpectreSize();
+	//void setSpectreSpeed(int speed);
+	//void clear();
+	//void init();
 };

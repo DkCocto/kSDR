@@ -34,14 +34,11 @@ void Display::mouseButtonCallback(GLFWwindow* window, int button, int action, in
 	}
 }
 
-Display::Display(Config* config, ViewModel* viewModel, DeviceController* deviceController, FlowingFFTSpectre* flowingFFTSpectre, FFTSpectreHandler* fftSH, ReceiverLogicNew* receiverLogicNew) {
-	this->config = config;
-	this->viewModel = viewModel;
-	this->deviceController = deviceController;
-	fftSH->vM = viewModel;
-	this->flowingFFTSpectre = flowingFFTSpectre;
-	spectre = new Spectre(config, viewModel, flowingFFTSpectre, receiverLogicNew);
-	memoryRecordUserInterface = MemoryRecordUserInterface(config, viewModel, spectre);
+Display::Display(Environment* env) {
+	this->env = env;
+	spectre = new Spectre(env->getConfig(), env->getViewModel());
+	viewModel = env->getViewModel();
+	memoryRecordUserInterface = MemoryRecordUserInterface(env->getConfig(), viewModel, spectre);
 }
 
 bool errorInitDeviceUserInformed = false;
@@ -63,7 +60,7 @@ int Display::init() {
 	glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);*/
 
 	// Create a GLFWwindow object
-	window = glfwCreateWindow(config->app.winWidth, config->app.winHeight, "kSDR", nullptr, nullptr);
+	window = glfwCreateWindow(env->getConfig()->app.winWidth, env->getConfig()->app.winHeight, "kSDR", nullptr, nullptr);
 	if (window == nullptr) {
 		printf("Failed to create GLFW window\r\n");
 		glfwTerminate();
@@ -121,7 +118,7 @@ void Display::mainLoop() {
 		// Check if any events have been activated (key pressed, mouse moved etc.) and call corresponding response functions
 		glfwPollEvents();
 
-		ImVec4 bgColor = ImGui::ColorConvertU32ToFloat4(config->colorTheme.mainBGColor);
+		ImVec4 bgColor = ImGui::ColorConvertU32ToFloat4(env->getConfig()->colorTheme.mainBGColor);
 
 		glClearColor(bgColor.x, bgColor.y, bgColor.z, bgColor.w);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -142,9 +139,9 @@ void Display::mainLoop() {
 }
 
 Display::~Display() {
-	config->lastSelectedFreq = spectre->receiverLogicNew->getSelectedFreqNew(); //saving last selected freq to config class
-	delete viewModel;
-	delete flowingFFTSpectre;
+	env->getConfig()->lastSelectedFreq = env->getReceiverLogic()->getSelectedFreqNew(); //saving last selected freq to env->getConfig() class
+	//delete viewModel;
+	//delete flowingFFTSpectre;
 }
 
 
@@ -177,8 +174,8 @@ void Display::renderImGUIFirst() {
 	//DeviceController* deviceController = environment->getDeviceController();
 
 	//Store window size
-	config->app.winWidth = width;
-	config->app.winHeight = height;
+	env->getConfig()->app.winWidth = width;
+	env->getConfig()->app.winHeight = height;
 
 	//Проверка которая исключает настройку приемника при перетягивании стороннего окна в область окна спектра
 	if (ImGui::IsMouseDown(0)) {
@@ -192,8 +189,8 @@ void Display::renderImGUIFirst() {
 		viewModel->mouseBusy = false;
 	}
 
-	ImGui::PushStyleColor(ImGuiCol_WindowBg, ImGui::ColorConvertU32ToFloat4(config->colorTheme.windowsBGColor));
-	//ImGui::PushStyleColor(ImGuiCol_TitleBgActive, ImGui::ColorConvertU32ToFloat4(config->colorTheme.windowsTitleBGColor));
+	ImGui::PushStyleColor(ImGuiCol_WindowBg, ImGui::ColorConvertU32ToFloat4(env->getConfig()->colorTheme.windowsBGColor));
+	//ImGui::PushStyleColor(ImGuiCol_TitleBgActive, ImGui::ColorConvertU32ToFloat4(env->getConfig()->colorTheme.windowsTitleBGColor));
 
 	initDynamicSettings();
 
@@ -204,21 +201,25 @@ void Display::renderImGUIFirst() {
 
 		ImGui::Separator(); ImGui::Spacing(); ImGui::Spacing();
 
+		if (ImGui::Button("Start")) env->startProcessing();
+		ImGui::SameLine();
+		if (ImGui::Button("Stop")) env->stopProcessing();
+
 		if (ImGui::Button("GO")) {
-			spectre->receiverLogicNew->setFreq((float)viewModel->goToFreq);
+			env->getReceiverLogic()->setFreq((float)viewModel->goToFreq);
 		}
 		ImGui::SameLine();
 		ImGui::InputInt("To freq", &viewModel->goToFreq, 500, 1000);
 
-		if (ImGui::Button("160m")) { spectre->receiverLogicNew->setFreq(1900000); viewModel->receiverMode = LSB; } ImGui::SameLine();
-		if (ImGui::Button("80m")) { spectre->receiverLogicNew->setFreq(3700000); viewModel->receiverMode = LSB; } ImGui::SameLine();
-		if (ImGui::Button("40m")) { spectre->receiverLogicNew->setFreq(7100000); viewModel->receiverMode = LSB; } ImGui::SameLine();
-		if (ImGui::Button("30m")) { spectre->receiverLogicNew->setFreq(10300000); viewModel->receiverMode = USB; } ImGui::SameLine();
-		if (ImGui::Button("20m")) { spectre->receiverLogicNew->setFreq(14150000); viewModel->receiverMode = USB; }
-		if (ImGui::Button("17m")) { spectre->receiverLogicNew->setFreq(18100000); viewModel->receiverMode = USB; } ImGui::SameLine();
-		if (ImGui::Button("15m")) { spectre->receiverLogicNew->setFreq(21100000); viewModel->receiverMode = USB; } ImGui::SameLine();
-		if (ImGui::Button("12m")) { spectre->receiverLogicNew->setFreq(24900000); viewModel->receiverMode = USB; } ImGui::SameLine();
-		if (ImGui::Button("10m")) { spectre->receiverLogicNew->setFreq(28500000); viewModel->receiverMode = USB; }
+		if (ImGui::Button("160m")) { env->getReceiverLogic()->setFreq(1900000); viewModel->receiverMode = LSB; } ImGui::SameLine();
+		if (ImGui::Button("80m")) { env->getReceiverLogic()->setFreq(3700000); viewModel->receiverMode = LSB; } ImGui::SameLine();
+		if (ImGui::Button("40m")) { env->getReceiverLogic()->setFreq(7100000); viewModel->receiverMode = LSB; } ImGui::SameLine();
+		if (ImGui::Button("30m")) { env->getReceiverLogic()->setFreq(10300000); viewModel->receiverMode = USB; } ImGui::SameLine();
+		if (ImGui::Button("20m")) { env->getReceiverLogic()->setFreq(14150000); viewModel->receiverMode = USB; }
+		if (ImGui::Button("17m")) { env->getReceiverLogic()->setFreq(18100000); viewModel->receiverMode = USB; } ImGui::SameLine();
+		if (ImGui::Button("15m")) { env->getReceiverLogic()->setFreq(21100000); viewModel->receiverMode = USB; } ImGui::SameLine();
+		if (ImGui::Button("12m")) { env->getReceiverLogic()->setFreq(24900000); viewModel->receiverMode = USB; } ImGui::SameLine();
+		if (ImGui::Button("10m")) { env->getReceiverLogic()->setFreq(28500000); viewModel->receiverMode = USB; }
 
 		ImGui::RadioButton("USB", &viewModel->receiverMode, USB); ImGui::SameLine();
 		ImGui::RadioButton("LSB", &viewModel->receiverMode, LSB); ImGui::SameLine();
@@ -239,20 +240,20 @@ void Display::renderImGUIFirst() {
 				ImGui::SliderInt("Center freq", &viewModel->centerFrequency, 1000000, 30000000);
 
 				if (ImGui::Button("+")) {
-					flowingFFTSpectre->zoomIn();
-					spectre->receiverLogicNew->setFrequencyDelta(spectre->receiverLogicNew->getFrequencyDelta());
+					env->getFlowingSpectre()->zoomIn();
+					env->getReceiverLogic()->setFrequencyDelta(env->getReceiverLogic()->getFrequencyDelta());
 				} ImGui::SameLine();
 				if (ImGui::Button("-")) {
-					flowingFFTSpectre->zoomOut();
-					spectre->receiverLogicNew->setFrequencyDelta(spectre->receiverLogicNew->getFrequencyDelta());
+					env->getFlowingSpectre()->zoomOut();
+					env->getReceiverLogic()->setFrequencyDelta(env->getReceiverLogic()->getFrequencyDelta());
 				} ImGui::SameLine();
 				if (ImGui::Button("<-")) {
-					flowingFFTSpectre->move(-250);
-					spectre->receiverLogicNew->setFrequencyDelta(spectre->receiverLogicNew->getFrequencyDelta());
+					env->getFlowingSpectre()->move(-250);
+					env->getReceiverLogic()->setFrequencyDelta(env->getReceiverLogic()->getFrequencyDelta());
 				} ImGui::SameLine();
 				if (ImGui::Button("->")) {
-					flowingFFTSpectre->move(250);
-					spectre->receiverLogicNew->setFrequencyDelta(spectre->receiverLogicNew->getFrequencyDelta());
+					env->getFlowingSpectre()->move(250);
+					env->getReceiverLogic()->setFrequencyDelta(env->getReceiverLogic()->getFrequencyDelta());
 				}
 
 				ImGui::Spacing();
@@ -307,8 +308,8 @@ void Display::renderImGUIFirst() {
 
 				ImGui::SliderFloat("Min val", &viewModel->minDb, -200, 0);
 
-				ImGui::SliderInt("Speed", &config->spectre.spectreSpeed, 1, 50);
-				ImGui::SliderInt("Speed 2", &config->spectre.spectreSpeed2, 1, 50); ImGui::Spacing();
+				ImGui::SliderInt("Speed", &env->getConfig()->spectre.spectreSpeed, 1, 50);
+				ImGui::SliderInt("Speed 2", &env->getConfig()->spectre.spectreSpeed2, 1, 50); ImGui::Spacing();
 
 				//ImGui::SliderInt("Test", &viewModel->test, 2300000, 2700000);
 
@@ -316,22 +317,18 @@ void Display::renderImGUIFirst() {
 			}
 			if (ImGui::BeginTabItem("Memory")) {
 				ImGui::Spacing();
-				memoryRecordUserInterface.drawMemoryBlock();
+				memoryRecordUserInterface.drawMemoryBlock(env->getReceiverLogic());
 				ImGui::EndTabItem();
 			}
 			if (ImGui::BeginTabItem("Device Options")) {
 				ImGui::Spacing();
 
-				if (ImGui::Button("Start")) deviceController->start(config->deviceType);
-					ImGui::SameLine();
-				if (ImGui::Button("Stop")) deviceController->forceStop();
-
 				showSelectDeviceSetting();
 
-				if (config->deviceType == DeviceType::HACKRF) {
+				if (env->getConfig()->deviceType == DeviceType::HACKRF) {
 					hackRFsampRateLS->drawSetting();
 
-					HackRfInterface* hackRfInterface = deviceController->getHackRfInterface();
+					HackRfInterface* hackRfInterface = env->getDeviceController()->getHackRfInterface();
 
 					ImGui::SliderInt("LNA Gain", &viewModel->hackRFModel.lnaGain, 0, 5);
 					ImGui::SliderInt("VGA Gain", &viewModel->hackRFModel.vgaGain, 0, 31);
@@ -342,22 +339,22 @@ void Display::renderImGUIFirst() {
 						hackRfInterface->setLnaGain((uint32_t)viewModel->hackRFModel.lnaGain);
 						hackRfInterface->setVgaGain(viewModel->hackRFModel.vgaGain);
 						hackRfInterface->enableAmp(viewModel->hackRFModel.enableAmp);
-						hackRfInterface->setBaseband(config->hackrf.basebandFilter);
+						hackRfInterface->setBaseband(env->getConfig()->hackrf.basebandFilter);
 
-						if (deviceController->isReadyToReceiveCmd()) hackRfInterface->sendParamsToDevice();
+						if (env->getDeviceController()->isReadyToReceiveCmd()) hackRfInterface->sendParamsToDevice();
 					}
 				}
 
-				if (config->deviceType == DeviceType::RSP) {
+				if (env->getConfig()->deviceType == DeviceType::RSP) {
 					ImGui::Text("\nRSP Settings:");
 
 					rspSampRateLS->drawSetting();
 
 					rspDecimationFactorLS->drawSetting();
 
-					bool useRspApiv3 = (config->rsp.api == 3) ? true : false;
+					bool useRspApiv3 = (env->getConfig()->rsp.api == 3) ? true : false;
 					ImGui::Checkbox("Use APIv3 (instead of v2) (*)", &useRspApiv3);
-					config->rsp.api = (useRspApiv3 == true) ? 3 : 2;
+					env->getConfig()->rsp.api = (useRspApiv3 == true) ? 3 : 2;
 
 					ImGui::SliderInt("Gain", &viewModel->rspModel.gain, 20, 59);
 					ImGui::Checkbox("Disable LNA", &viewModel->rspModel.lna);
@@ -365,7 +362,7 @@ void Display::renderImGUIFirst() {
 					rspbasebandFilterLS->drawSetting();
 				}
 
-				if (config->deviceType == DeviceType::RTL) {
+				if (env->getConfig()->deviceType == DeviceType::RTL) {
 					rtlSampRateLS->drawSetting();
 					rtlDeviceGainLS->drawSetting();
 				}
@@ -381,42 +378,42 @@ void Display::renderImGUIFirst() {
 				ImGui::Spacing();
 				ImGui::SeparatorText("Frequency shift");
 
-				ImGui::InputInt("Shift in Hz", &config->receiver.frequencyShift);
-				ImGui::Checkbox("Enable shift", &config->receiver.enableFrequencyShift);
+				ImGui::InputInt("Shift in Hz", &env->getConfig()->receiver.frequencyShift);
+				ImGui::Checkbox("Enable shift", &env->getConfig()->receiver.enableFrequencyShift);
 
 				ImGui::Spacing();
 				ImGui::SeparatorText("AGC settings");
 
-				ImGui::InputDouble("Sound threshold", &config->receiver.agc.threshold, 0.001f, 0.1f, "%.3f");
-				ImGui::InputDouble("Atack time (ms)", &config->receiver.agc.atackSpeedMs, 0.1f, 0.1f, "%.1f");
-				ImGui::InputDouble("Hold time (ms)", &config->receiver.agc.holdingTimeMs, 0.1f, 0.1f, "%.1f");
-				ImGui::InputDouble("Release time", &config->receiver.agc.releaseSpeed, 0.00001f, 0.1f, "%.7f");
+				ImGui::InputDouble("Sound threshold", &env->getConfig()->receiver.agc.threshold, 0.001f, 0.1f, "%.3f");
+				ImGui::InputDouble("Atack time (ms)", &env->getConfig()->receiver.agc.atackSpeedMs, 0.1f, 0.1f, "%.1f");
+				ImGui::InputDouble("Hold time (ms)", &env->getConfig()->receiver.agc.holdingTimeMs, 0.1f, 0.1f, "%.1f");
+				ImGui::InputDouble("Release time", &env->getConfig()->receiver.agc.releaseSpeed, 0.00001f, 0.1f, "%.7f");
 
 				ImGui::Spacing();
 				ImGui::SeparatorText("Color theme");
 
-				showColorPicker(string("Windows Background"), &config->colorTheme.windowsBGColor, false);
-				showColorPicker(string("Main Background"), &config->colorTheme.mainBGColor, false);
-				//showColorPicker(string("Window Title Background"), &config->colorTheme.windowsTitleBGColor);
-				showColorPicker(string("Spectre Fill"), &config->colorTheme.spectreFillColor, false);
-				showColorPicker(string("Spectre Profile"), &config->colorTheme.spectreProfileColor, false);
-				showColorPicker(string("Receive Region"), &config->colorTheme.receiveRegionColor, true);
+				showColorPicker(string("Windows Background"), &env->getConfig()->colorTheme.windowsBGColor, false);
+				showColorPicker(string("Main Background"), &env->getConfig()->colorTheme.mainBGColor, false);
+				//showColorPicker(string("Window Title Background"), &env->getConfig()->colorTheme.windowsTitleBGColor);
+				showColorPicker(string("Spectre Fill"), &env->getConfig()->colorTheme.spectreFillColor, false);
+				showColorPicker(string("Spectre Profile"), &env->getConfig()->colorTheme.spectreProfileColor, false);
+				showColorPicker(string("Receive Region"), &env->getConfig()->colorTheme.receiveRegionColor, true);
 
 				ImGui::Spacing();
 				ImGui::SeparatorText("Spectre settings");
 
 				spectreStyleLS->drawSetting();
-				ImGui::Checkbox("Contour shows signal power", &config->spectre.contourShowsPower);
-				ImGui::SliderFloat("Top coeff", &config->spectre.topCoeff, 0.5f, 1.5f);
-				ImGui::SliderFloat("Bottom coeff", &config->spectre.bottomCoeff, 0.5f, 1.5f);
+				ImGui::Checkbox("Contour shows signal power", &env->getConfig()->spectre.contourShowsPower);
+				ImGui::SliderFloat("Top coeff", &env->getConfig()->spectre.topCoeff, 0.5f, 1.5f);
+				ImGui::SliderFloat("Bottom coeff", &env->getConfig()->spectre.bottomCoeff, 0.5f, 1.5f);
 				smoothingDepthLS->drawSetting();
-				ImGui::Checkbox("Hang&Decay", &config->spectre.hangAndDecay);
-				ImGui::BeginDisabled(!config->spectre.hangAndDecay);
-					ImGui::SliderFloat("Decay speed", &config->spectre.decaySpeed, 0, 1);
-					ImGui::SliderFloat("Decay speed delta", &config->spectre.decaySpeedDelta, 0, 2);
+				ImGui::Checkbox("Hang&Decay", &env->getConfig()->spectre.hangAndDecay);
+				ImGui::BeginDisabled(!env->getConfig()->spectre.hangAndDecay);
+					ImGui::SliderFloat("Decay speed", &env->getConfig()->spectre.decaySpeed, 0, 1);
+					ImGui::SliderFloat("Decay speed delta", &env->getConfig()->spectre.decaySpeedDelta, 0, 2);
 				ImGui::EndDisabled();
 
-				ImGui::SliderInt("Spectre correction Db", &config->spectre.spectreCorrectionDb, -200, 200);
+				ImGui::SliderInt("Spectre correction Db", &env->getConfig()->spectre.spectreCorrectionDb, -200, 200);
 
 				ImGui::Spacing();
 				ImGui::SeparatorText("Other");
@@ -432,8 +429,8 @@ void Display::renderImGUIFirst() {
 
 			if (ImGui::BeginTabItem("Info")) {
 				ImGui::Spacing();
-				ImGui::Text("Sampling rate: %d", config->inputSamplerate);
-				ImGui::Text("FFT length: %d", config->fftLen);
+				ImGui::Text("Sampling rate: %d", env->getConfig()->inputSamplerate);
+				ImGui::Text("FFT length: %d", env->getConfig()->fftLen);
 				ImGui::Text("AMP: %.2f", viewModel->amp);
 				ImGui::Text("CPU usage: %.1f%%", cpu.getCurrentValue());
 				ImGui::Text("Buffer available: %.2f sec", viewModel->bufferAvailable);
@@ -459,18 +456,21 @@ void Display::renderImGUIFirst() {
 		}
 		
 		//Если вкладка опций устройства не выбрана, то все равно устанавливаем конфигурацию на текущее устройство
-		if (deviceController->isReadyToReceiveCmd()) {
-			deviceController->getHackRfInterface()->setFreq(viewModel->centerFrequency);
-			deviceController->getHackRfInterface()->sendParamsToDevice();
+		if (env->getDeviceController()->isReadyToReceiveCmd()) {
+			if (env->getDeviceController()->getCurrentDeviceType() == HACKRF) {
+				env->getDeviceController()->getHackRfInterface()->setFreq(viewModel->centerFrequency);
+				env->getDeviceController()->getHackRfInterface()->sendParamsToDevice();
+			}
 		}
-		//if (device != nullptr && config->deviceType == DeviceType::RTL) ((RTLDevice*)config->device)->setConfiguration();
+		//if (device != nullptr && env->getConfig()->deviceType == DeviceType::RTL) ((RTLDevice*)env->getConfig()->device)->setenv->getConfig()uration();
 
 	ImGui::End();
 
-	spectre->draw();
-	if (deviceController->getResult()->status == DeviceN::INIT_BUT_FAIL) {
-		showAlertOKDialog(std::string("Warning"), std::string("Application couldn't init a selected device.\nPlease, go to settings and select the correct device or plug your device to USB port.\nMake sure you have selected the correct api version in the settings for RSP devices.\n\nReturned answer:\n\n").append(deviceController->getResult()->err));
-		if (deviceController->getResult()->status != DeviceN::INIT_OK && !errorInitDeviceUserInformed) {
+	spectre->draw(env->getReceiverLogic(), env->getFlowingSpectre());
+
+	if (env->getDeviceController()->getResult()->status == DeviceN::INIT_BUT_FAIL) {
+		showAlertOKDialog(std::string("Warning"), std::string("Application couldn't init a selected device.\nPlease, go to settings and select the correct device or plug your device to USB port.\nMake sure you have selected the correct api version in the settings for RSP devices.\n\nReturned answer:\n\n").append(env->getDeviceController()->getResult()->err));
+		if (env->getDeviceController()->getResult()->status != DeviceN::INIT_OK && !errorInitDeviceUserInformed) {
 			spectre->disableControl(DISABLE_CONTROL_DIALOG);
 			ImGui::OpenPopup(std::string("Warning").c_str());
 			errorInitDeviceUserInformed = true;
@@ -481,14 +481,14 @@ void Display::renderImGUIFirst() {
 
 void Display::showSelectDeviceSetting() {
 	const char* items[] = { "RSP1/RSP1A", "HackRF", "RTLSDR" };
-	static int item_current_idx = config->deviceType; // Here we store our selection data as an index.
+	static int item_current_idx = env->getConfig()->deviceType; // Here we store our selection data as an index.
 	const char* combo_preview_value = items[item_current_idx];  // Pass in the preview value visible before opening the combo (it could be anything)
 	if (ImGui::BeginCombo("Device (*)", combo_preview_value, 0)) {
 		for (int n = 0; n < IM_ARRAYSIZE(items); n++) {
 			const bool is_selected = (item_current_idx == n);
 			if (ImGui::Selectable(items[n], is_selected)) {
 				item_current_idx = n;
-				config->setDevice(item_current_idx);
+				env->getConfig()->setDevice(item_current_idx);
 			}
 			if (is_selected) ImGui::SetItemDefaultFocus();
 		}
@@ -509,7 +509,7 @@ void Display::showHackrfSamplingRateSetting() {
 	};
 
 	const char* items[] = { "2000000", "4000000", "5000000", "8000000", "10000000", "12500000", "16000000", "20000000" };
-	static int item_current_idx = config->deviceType; // Here we store our selection data as an index.
+	static int item_current_idx = env->getConfig()->deviceType; // Here we store our selection data as an index.
 	const char* combo_preview_value = items[item_current_idx];  // Pass in the preview value visible before opening the combo (it could be anything)
 	if (ImGui::BeginCombo("Sampling rate (*)", combo_preview_value, 0)) {
 		for (int n = 0; n < IM_ARRAYSIZE(items); n++) {
@@ -518,7 +518,7 @@ void Display::showHackrfSamplingRateSetting() {
 				item_current_idx = n;
 				uint32_t samplingRate;
 				Utils::parse_u32((char*)items[n], &samplingRate);
-				config->hackrf.deviceSamplingRate = samplingRate;
+				env->getConfig()->hackrf.deviceSamplingRate = samplingRate;
 			}
 			if (is_selected) ImGui::SetItemDefaultFocus();
 		}
@@ -537,7 +537,11 @@ void Display::showAlertOKDialog(std::string title, std::string msg) {
 	}
 }
 
-void Display::showColorPicker(string title, unsigned int *configVal, bool withTransparency) {
+ViewModel* Display::getViewModel() {
+	return viewModel;
+}
+
+void Display::showColorPicker(string title, unsigned int* configVal, bool withTransparency) {
 	static bool hdr = false;
 	static bool drag_and_drop = false;
 	static bool alpha_half_preview = false;
@@ -567,47 +571,47 @@ void Display::showColorPicker(string title, unsigned int *configVal, bool withTr
 void Display::initDynamicSettings() {
 	std::map<int, std::string> decimationMap;
 	for (int i = 1, j = 0; i <= 64; i++) {
-		if (config->deviceType == DeviceType::HACKRF) {
-			if (config->hackrf.deviceSamplingRate % i == 0) {
+		if (env->getConfig()->deviceType == DeviceType::HACKRF) {
+			if (env->getConfig()->hackrf.deviceSamplingRate % i == 0) {
 				decimationMap.insert(pair<int, std::string>{j, to_string(i)});
 				j++;
 			}
 
 		}
-		if (config->deviceType == DeviceType::RSP) {
-			if ((config->rsp.deviceSamplingRate / config->rsp.deviceDecimationFactor) % i == 0) {
+		if (env->getConfig()->deviceType == DeviceType::RSP) {
+			if ((env->getConfig()->rsp.deviceSamplingRate / env->getConfig()->rsp.deviceDecimationFactor) % i == 0) {
 				decimationMap.insert(pair<int, std::string>{j, to_string(i)});
 				j++;
 			}
 		}
-		if (config->deviceType == DeviceType::RTL) {
-			if (config->rtl.deviceSamplingRate % i == 0) {
+		if (env->getConfig()->deviceType == DeviceType::RTL) {
+			if (env->getConfig()->rtl.deviceSamplingRate % i == 0) {
 				decimationMap.insert(pair<int, std::string>{j, to_string(i)});
 				j++;
 			}
 		}
 	}
-	decimationLS = std::make_unique<ListSetting>(config, decimationMap, "Decimation", true);
-	decimationLS->bindVariable(&config->delayedInputSamplerateDivider);
+	decimationLS = std::make_unique<ListSetting>(env->getConfig(), decimationMap, "Decimation", true);
+	decimationLS->bindVariable(&env->getConfig()->delayedInputSamplerateDivider);
 
-	if (config->deviceType == DeviceType::RSP) {
+	if (env->getConfig()->deviceType == DeviceType::RSP) {
 		std::map<int, std::string> rspDecimationFactorMap;
 		for (int i = 1, j = 0; i <= 32; i++) {
-			if (config->rsp.deviceSamplingRate % i == 0 && (i & (i - 1)) == 0) {
+			if (env->getConfig()->rsp.deviceSamplingRate % i == 0 && (i & (i - 1)) == 0) {
 				rspDecimationFactorMap.insert(pair<int, std::string>{j, to_string(i)});
 				j++;
 			}
 		}
 
-		rspDecimationFactorLS = std::make_unique<ListSetting>(config, rspDecimationFactorMap, "Decimation factor", true);
-		rspDecimationFactorLS->bindVariable(&config->rsp.deviceDecimationFactor);
+		rspDecimationFactorLS = std::make_unique<ListSetting>(env->getConfig(), rspDecimationFactorMap, "Decimation factor", true);
+		rspDecimationFactorLS->bindVariable(&env->getConfig()->rsp.deviceDecimationFactor);
 	}
 }
 
 void Display::initSettings() {
 	//auto begin = std::chrono::steady_clock::now();
 
-	if (config->deviceType == DeviceType::HACKRF) {
+	if (env->getConfig()->deviceType == DeviceType::HACKRF) {
 		//-------HackRF settings
 		std::map<int, std::string> hackRFsamplingRateMap = {
 			{0 , "2000000"},
@@ -620,8 +624,8 @@ void Display::initSettings() {
 			{7 , "20000000"}
 		};
 
-		hackRFsampRateLS = std::make_unique<ListSetting>(config, hackRFsamplingRateMap, "Sampling rate", true);
-		hackRFsampRateLS->bindVariable(&config->hackrf.deviceSamplingRate);
+		hackRFsampRateLS = std::make_unique<ListSetting>(env->getConfig(), hackRFsamplingRateMap, "Sampling rate", true);
+		hackRFsampRateLS->bindVariable(&env->getConfig()->hackrf.deviceSamplingRate);
 
 		//const char* items[] = { "1750000", "2500000", "3500000", "5000000", "5500000", "6000000", "7000000", "8000000", "9000000", "10000000", "20000000" };
 		std::map<int, std::string> hackRFBasebandFilterMap = {
@@ -638,12 +642,12 @@ void Display::initSettings() {
 			{10 , "20000000"}
 		};
 
-		hackRFbasebandFilterLS = std::make_unique<ListSetting>(config, hackRFBasebandFilterMap, "Baseband filter", false);
-		hackRFbasebandFilterLS->bindVariable(&config->hackrf.basebandFilter);
+		hackRFbasebandFilterLS = std::make_unique<ListSetting>(env->getConfig(), hackRFBasebandFilterMap, "Baseband filter", false);
+		hackRFbasebandFilterLS->bindVariable(&env->getConfig()->hackrf.basebandFilter);
 		//--------------------
 	}
 
-	if (config->deviceType == DeviceType::RSP) {
+	if (env->getConfig()->deviceType == DeviceType::RSP) {
 		//-------RSP settings-
 		std::map<int, std::string> rspSamplingRateMap = {
 			{0 , "2000000"},
@@ -655,8 +659,8 @@ void Display::initSettings() {
 			{6 , "10000000"}
 		};
 
-		rspSampRateLS = std::make_unique<ListSetting>(config, rspSamplingRateMap, "Sampling rate", true);
-		rspSampRateLS->bindVariable(&config->rsp.deviceSamplingRate);
+		rspSampRateLS = std::make_unique<ListSetting>(env->getConfig(), rspSamplingRateMap, "Sampling rate", true);
+		rspSampRateLS->bindVariable(&env->getConfig()->rsp.deviceSamplingRate);
 
 
 		std::map<int, std::string> rspbasebandFilterMap = {
@@ -670,12 +674,12 @@ void Display::initSettings() {
 			{7 , "7000"},
 			{8 , "8000"}
 		};
-		rspbasebandFilterLS = std::make_unique<ListSetting>(config, rspbasebandFilterMap, "Baseband Filter", false);
-		rspbasebandFilterLS->bindVariable(&config->rsp.basebandFilter);
+		rspbasebandFilterLS = std::make_unique<ListSetting>(env->getConfig(), rspbasebandFilterMap, "Baseband Filter", false);
+		rspbasebandFilterLS->bindVariable(&env->getConfig()->rsp.basebandFilter);
 		//--------------------
 	}
 
-	if (config->deviceType == DeviceType::RTL) {
+	if (env->getConfig()->deviceType == DeviceType::RTL) {
 		//-10, 15, 40, 65, 90, 115, 140, 165, 190,
 		//215, 240, 290, 340, 420, 430, 450, 470, 490
 		std::map<int, std::string> rtlGainMap = {
@@ -698,8 +702,8 @@ void Display::initSettings() {
 			{16 , "470"},
 			{17 , "490"}
 		};
-		rtlDeviceGainLS = std::make_unique<ListSetting>(config, rtlGainMap, "Gain", false);
-		rtlDeviceGainLS->bindVariable(&config->rtl.gain);
+		rtlDeviceGainLS = std::make_unique<ListSetting>(env->getConfig(), rtlGainMap, "Gain", false);
+		rtlDeviceGainLS->bindVariable(&env->getConfig()->rtl.gain);
 
 		//225001 - 300000 Hz
 		//900001 - 3200000 Hz
@@ -714,8 +718,8 @@ void Display::initSettings() {
 			{7 , "3200000"}
 		};
 
-		rtlSampRateLS = std::make_unique<ListSetting>(config, rtlSampRateMap, "Sampling rate", false);
-		rtlSampRateLS->bindVariable(&config->rtl.deviceSamplingRate);
+		rtlSampRateLS = std::make_unique<ListSetting>(env->getConfig(), rtlSampRateMap, "Sampling rate", false);
+		rtlSampRateLS->bindVariable(&env->getConfig()->rtl.deviceSamplingRate);
 	}
 
 	//-------------Spectre
@@ -723,8 +727,8 @@ void Display::initSettings() {
 	spectreStyleMap.insert(pair<int, string> {0, "0"});
 	spectreStyleMap.insert(pair<int, string> {1, "1"});
 	spectreStyleMap.insert(pair<int, string> {2, "2"});
-	spectreStyleLS = std::make_unique<ListSetting>(config, spectreStyleMap, "Spectre style", true);
-	spectreStyleLS->bindVariable(&config->spectre.style);
+	spectreStyleLS = std::make_unique<ListSetting>(env->getConfig(), spectreStyleMap, "Spectre style", true);
+	spectreStyleLS->bindVariable(&env->getConfig()->spectre.style);
 
 	std::map<int, std::string> smoothingDepthMap;
 	smoothingDepthMap.insert(pair<int, string> {0, "0"});
@@ -736,8 +740,8 @@ void Display::initSettings() {
 	smoothingDepthMap.insert(pair<int, string> {6, "6"});
 	smoothingDepthMap.insert(pair<int, string> {7, "7"});
 	smoothingDepthMap.insert(pair<int, string> {8, "8"});
-	smoothingDepthLS = std::make_unique<ListSetting>(config, smoothingDepthMap, "Smoothing depth", false);
-	smoothingDepthLS->bindVariable(&config->spectre.smoothingDepth);
+	smoothingDepthLS = std::make_unique<ListSetting>(env->getConfig(), smoothingDepthMap, "Smoothing depth", false);
+	smoothingDepthLS->bindVariable(&env->getConfig()->spectre.smoothingDepth);
 	//--------------------
 
 	//--------------Other-
@@ -749,15 +753,15 @@ void Display::initSettings() {
 	fftLenMap.insert(pair<int, string> {4, "131072"});
 	fftLenMap.insert(pair<int, string> {5, "262144"});
 	fftLenMap.insert(pair<int, string> {6, "524288"});
-	fftLenLS = std::make_unique<ListSetting>(config, fftLenMap, "FFT length", true);
-	fftLenLS->bindVariable(&config->delayedFFTLen);
+	fftLenLS = std::make_unique<ListSetting>(env->getConfig(), fftLenMap, "FFT length", true);
+	fftLenLS->bindVariable(&env->getConfig()->delayedFFTLen);
 
 	std::map<int, std::string> waterfallSpeedMap;
 	waterfallSpeedMap.insert(pair<int, string> {0, "1"});
 	waterfallSpeedMap.insert(pair<int, string> {1, "2"});
 	waterfallSpeedMap.insert(pair<int, string> {2, "3"});
-	waterfallSpeedLS = std::make_unique<ListSetting>(config, waterfallSpeedMap, "Waterfall speed", false);
-	waterfallSpeedLS->bindVariable(&config->waterfall.speed);
+	waterfallSpeedLS = std::make_unique<ListSetting>(env->getConfig(), waterfallSpeedMap, "Waterfall speed", false);
+	waterfallSpeedLS->bindVariable(&env->getConfig()->waterfall.speed);
 	//--------------------
 
 	/*auto end = std::chrono::steady_clock::now();

@@ -6,6 +6,8 @@ class Delay {
 
 public:
 
+    Delay() {};
+
     Delay(int len);
 
     double filter(double value);

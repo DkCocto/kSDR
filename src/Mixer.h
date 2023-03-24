@@ -11,6 +11,8 @@ class Mixer {
 
 public:
 
+	Mixer() {};
+
 	Mixer(int inputSampleRate);
 
 	void setFreq(int freq);

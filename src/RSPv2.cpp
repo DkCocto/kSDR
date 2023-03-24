@@ -70,7 +70,7 @@ RSPv2::~RSPv2() {
 }
 
 bool RSPv2::init() {
-    viewModel = Display::instance->viewModel;
+    viewModel = Display::instance->getViewModel();
 
     unsigned int ndev;
     int i;

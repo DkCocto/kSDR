@@ -40,7 +40,6 @@ class DeviceController {
 		
 		bool forceStop();
 
-		//bool stopAndDestroy();
 		void start(DeviceType deviceType);
 
 		DeviceN::Result* getResult();

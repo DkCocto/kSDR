@@ -25,6 +25,8 @@ private:
 
 public:
 
+    AGC() {};
+
     AGC(Config* config, FFTSpectreHandler* fftSpectreHandler);
 
     double processNew(double signal);

@@ -10,6 +10,9 @@
 
 class Environment {
 	private:
+
+		FFTData* fftData;
+
 		Config* config = nullptr;
 		DeviceController* deviceController = nullptr;
 
@@ -30,7 +33,7 @@ class Environment {
 
 		FlowingFFTSpectre* flowingFFTSpectre = nullptr;
 
-		ReceiverLogicNew* receiverLogicNew = nullptr;
+		ReceiverLogic* receiverLogicNew = nullptr;
 
 	public:
 		Environment();
@@ -46,6 +49,6 @@ class Environment {
 		void init();
 		SoundCard* getSoundCard();
 		ViewModel* getViewModel();
-		ReceiverLogicNew* getReceiverLogicNew();
+		ReceiverLogic* getReceiverLogic();
 		FlowingFFTSpectre* getFlowingSpectre();
 };

@@ -15,14 +15,15 @@ void CircleBufferWriterThread::run() {
 	isWorking_ = true;
 
 	while (true) {
-		if (!deviceController->isReadyToReceiveCmd()) {
+		/*if (!deviceController->isReadyToReceiveCmd()) {
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 			continue;
-		};
+		};*/
 
 		if (!config->WORKING) {
+			printf("CircleBufferWriterThread Stopped\r\n");
 			isWorking_ = false;
-			break;
+			return;
 		}
 
 		int available = soundWriterCircleBuffer->available();
@@ -42,17 +43,11 @@ void CircleBufferWriterThread::run() {
 			std::this_thread::sleep_for(std::chrono::milliseconds(50));
 		}
 	}
-
-	isWorking_ = false;
 }
 
 std::thread CircleBufferWriterThread::start() {
 	std::thread p(&CircleBufferWriterThread::run, this);
-	DWORD result = ::SetThreadIdealProcessor(p.native_handle(), 3);
-	SetThreadPriority(p.native_handle(), THREAD_PRIORITY_HIGHEST);
+	/*DWORD result = ::SetThreadIdealProcessor(p.native_handle(), 3);
+	SetThreadPriority(p.native_handle(), THREAD_PRIORITY_HIGHEST);*/
 	return p;
-}
-
-bool CircleBufferWriterThread::isWorking() {
-	return isWorking_;
 }
