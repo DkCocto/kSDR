@@ -103,7 +103,6 @@ void DeviceController::resetResult() {
 
 DeviceController::DeviceController(Config* config) {
     this->config = config;
-    //start(config->deviceType);
 }
 
 DeviceController::~DeviceController() {

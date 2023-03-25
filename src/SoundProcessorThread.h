@@ -11,7 +11,7 @@
 #include "DCRemove.h"
 #include "FMDemodulator.h"
 #include "Device/DeviceController.h"
-#include "ReceiverLogicNew.h"
+#include "ReceiverLogic.h"
 #include "Thread/MyThread.h"
 
 class SoundProcessorThread : public MyThread {
@@ -36,7 +36,7 @@ class SoundProcessorThread : public MyThread {
 
 	CircleBuffer* iqSignalsCircleBuffer;
 	CircleBuffer* soundWriterCircleBuffer;
-	FFTSpectreHandler* fftSpectreHandler;
+	SpectreHandler* specHandler;
 
 	Config* config;
 
@@ -59,7 +59,7 @@ public:
 
 	int len; //Размер считывания за 1 раз из кругового буфера
 
-	SoundProcessorThread(DeviceController* devCnt, ViewModel* viewModel, ReceiverLogic* receiverLogicNew, Config* config, CircleBuffer* sPCB, CircleBuffer* sWCB, FFTSpectreHandler* fftSpectreHandler);
+	SoundProcessorThread(DeviceController* devCnt, ViewModel* viewModel, ReceiverLogic* receiverLogic, Config* config, CircleBuffer* sPCB, CircleBuffer* sWCB, SpectreHandler* specHandler);
 	~SoundProcessorThread();
 
 	void initFilters(int filterWidth);

@@ -6,15 +6,15 @@ ReceiverRegionInterface::ReceiverRegionInterface(SpectreWindowData* sWD, Config*
 	this->sWD = sWD;
 }
 
-void ReceiverRegionInterface::drawRegion(ImDrawList* draw_list, ReceiverLogic* receiverLogicNew) {
-	int receiverCenterLineX = sWD->startWindowPoint.x + sWD->rightPadding + receiverLogicNew->getPositionPX();
+void ReceiverRegionInterface::drawRegion(ImDrawList* draw_list, ReceiverLogic* receiverLogic) {
+	int receiverCenterLineX = sWD->startWindowPoint.x + sWD->rightPadding + receiverLogic->getPositionPX();
 
 	draw_list->AddLine(
 		ImVec2(receiverCenterLineX, sWD->startWindowPoint.y - 10),
 		ImVec2(receiverCenterLineX, sWD->startWindowPoint.y + sWD->windowLeftBottomCorner.y + 10),
 		GRAY, 2.0f);
 
-	std::string freq = (Utils::getPrittyFreq((int)receiverLogicNew->getSelectedFreqNew())).append(" Hz");
+	std::string freq = (Utils::getPrittyFreq((int)receiverLogic->getSelectedFreqNew())).append(" Hz");
 
 	//freqTextX = (sWD->windowLeftBottomCorner.x - sWD->leftPadding - receiverPosAbsolute > 280) ? receiverPosAbsolute + 50 : receiverPosAbsolute - 300;
 	freqTextX = sWD->startWindowPoint.x + sWD->rightPadding + 80;
@@ -31,9 +31,9 @@ void ReceiverRegionInterface::drawRegion(ImDrawList* draw_list, ReceiverLogic* r
 	);
 	ImGui::PopFont();
 
-	float delta = receiverLogicNew->getFilterWidthAbs(viewModel->filterWidth);
+	float delta = receiverLogic->getFilterWidthAbs(viewModel->filterWidth);
 
-	int receiverPosX = sWD->startWindowPoint.x + sWD->rightPadding + receiverLogicNew->getPositionPX();
+	int receiverPosX = sWD->startWindowPoint.x + sWD->rightPadding + receiverLogic->getPositionPX();
 	int receiverPosYTop = sWD->startWindowPoint.y - 10;
 	int receiverPosYBottom = sWD->startWindowPoint.y + sWD->windowLeftBottomCorner.y + 10;
 
@@ -64,7 +64,7 @@ void ReceiverRegionInterface::drawRegion(ImDrawList* draw_list, ReceiverLogic* r
 		break;
 	}
 
-	markDigitByMouse(draw_list, receiverLogicNew);
+	markDigitByMouse(draw_list, receiverLogic);
 }
 
 int ReceiverRegionInterface::getFreqTextWidth() {
@@ -91,20 +91,20 @@ bool ReceiverRegionInterface::isDigitSelected() {
 	return (selectedDigit > 0);
 }
 
-void ReceiverRegionInterface::setupNewFreq(bool positive, ReceiverLogic* receiverLogicNew) {
+void ReceiverRegionInterface::setupNewFreq(bool positive, ReceiverLogic* receiverLogic) {
 	double sign = (positive == true) ? 1 : -1;
 	
 	int delta = pow(10, selectedDigit - 1);
 	
-	receiverLogicNew->setFreq((double)receiverLogicNew->getSelectedFreqNew() + sign * delta);
+	receiverLogic->setFreq((double)receiverLogic->getSelectedFreqNew() + sign * delta);
 }
 
-bool ReceiverRegionInterface::markDigitByMouse(ImDrawList* draw_list, ReceiverLogic* receiverLogicNew) {
+bool ReceiverRegionInterface::markDigitByMouse(ImDrawList* draw_list, ReceiverLogic* receiverLogic) {
 
 	ImGuiIO& io = ImGui::GetIO();
 
-	int totalDigits = to_string((int)receiverLogicNew->getSelectedFreqNew()).size();
-	int totalDigitsWithDots = Utils::getPrittyFreq((int)receiverLogicNew->getSelectedFreqNew()).size();
+	int totalDigits = to_string((int)receiverLogic->getSelectedFreqNew()).size();
+	int totalDigitsWithDots = Utils::getPrittyFreq((int)receiverLogic->getSelectedFreqNew()).size();
 
 	selectedDigit = -1;
 

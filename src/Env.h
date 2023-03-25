@@ -17,7 +17,7 @@ inline float fast_cossin_table[MAX_CIRCLE_ANGLE];           // Declare table of 
 
 #define PA_SAMPLE_TYPE				paFloat32
 
-#define APP_NAME					"kSDR v1.0 Beta 5"
+#define APP_NAME					"kSDR v1.0 Beta 6"
 
 struct Signal {
 	double I;

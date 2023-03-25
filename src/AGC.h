@@ -14,7 +14,7 @@ private:
 
     double signalAbsAverage = 0.0;
 
-    FFTSpectreHandler* fftSpectreHandler;
+    SpectreHandler* specHandler;
 
     float max = 0;
 
@@ -27,7 +27,7 @@ public:
 
     AGC() {};
 
-    AGC(Config* config, FFTSpectreHandler* fftSpectreHandler);
+    AGC(Config* config, SpectreHandler* specHandler);
 
     double processNew(double signal);
 

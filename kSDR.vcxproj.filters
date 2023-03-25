@@ -129,7 +129,7 @@
     <ClCompile Include="src\Spectre.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="src\ReceiverLogicNew.cpp">
+    <ClCompile Include="src\ReceiverLogic.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="src\Waterfall.cpp">
@@ -344,7 +344,7 @@
     <ClInclude Include="src\Spectre.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="src\ReceiverLogicNew.h">
+    <ClInclude Include="src\ReceiverLogic.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="src\Waterfall.h">

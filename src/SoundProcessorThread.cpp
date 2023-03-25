@@ -6,7 +6,7 @@ SoundProcessorThread::SoundProcessorThread(DeviceController* devCnt,
 											Config* config, 
 											CircleBuffer* iqSignalsCircleBuffer, 
 											CircleBuffer* sWCB, 
-											FFTSpectreHandler* fftSpectreHandler) {
+											SpectreHandler* specHandler) {
 	this->config = config;
 	this->devCnt = devCnt;
 	this->viewModel = viewModel;
@@ -18,11 +18,11 @@ SoundProcessorThread::SoundProcessorThread(DeviceController* devCnt,
 
 	this->iqSignalsCircleBuffer = iqSignalsCircleBuffer;
 	this->soundWriterCircleBuffer = sWCB;
-	this->fftSpectreHandler = fftSpectreHandler;
+	this->specHandler = specHandler;
 
 	hilbertTransform = HilbertTransform(config->inputSamplerate, config->hilbertTransformLen);
 	delay = Delay((config->hilbertTransformLen - 1) / 2);
-	agc = AGC(config, fftSpectreHandler);
+	agc = AGC(config, specHandler);
 
 	decimateBufferI = new double[config->outputSamplerateDivider];
 	memset(decimateBufferI, 0, sizeof(double) * config->outputSamplerateDivider);
@@ -144,7 +144,7 @@ void SoundProcessorThread::process() {
 
 			soundWriterCircleBuffer->write(outputData, (len / 2) / config->outputSamplerateDivider);
 			//fftSpectreHandler->setSpectreSpeed(Display::instance->viewModel->spectreSpeed);
-			fftSpectreHandler->putData(data);
+			specHandler->putData(data);
 		} else {
 			//printf("SoundProcessorThread: Waiting for iqSignalsCircleBuffer...\r\n");
 			std::this_thread::sleep_for(std::chrono::milliseconds(10));

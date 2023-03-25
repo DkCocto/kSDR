@@ -1,7 +1,25 @@
 #include "ViewModel.h"
 
-ViewModel::ViewModel(Config* config) {
-	this->config = config;
+void ViewModel::storeToConfig() {
+	config->waterfallMin = waterfallMin;
+	config->waterfallMax = waterfallMax;
+	config->spectreRatio = ratio;
+	config->spectreMin = minDb;
+	config->startFrequency = centerFrequency;
+	config->volume = volume;
+	config->filterWidth = filterWidth;
+	config->receiver.modulation = receiverMode;
+	config->rsp.gain = rspModel.gain;
+	config->rsp.lna = rspModel.lna;
+
+	config->removeDCBias = removeDCBias;
+
+	config->hackrf.lnaGain = hackRFModel.lnaGain;
+	config->hackrf.vgaGain = hackRFModel.vgaGain;
+	config->hackrf.rxAmp = hackRFModel.enableAmp;
+}
+
+void ViewModel::loadFromConfig() {
 	centerFrequency = config->startFrequency;
 	filterWidth = config->defaultFilterWidth;
 	volume = config->volume;
@@ -24,23 +42,13 @@ ViewModel::ViewModel(Config* config) {
 	removeDCBias = config->removeDCBias;
 }
 
+ViewModel::ViewModel(Config* config) {
+	this->config = config;
+	loadFromConfig();
+}
+
 ViewModel::~ViewModel() {
-	config->waterfallMin = waterfallMin;
-	config->waterfallMax = waterfallMax;
-	config->spectreRatio = ratio;
-	config->spectreMin = minDb;
-	config->startFrequency = centerFrequency;
-	config->volume = volume;
-	config->filterWidth = filterWidth;
-	config->receiver.modulation = receiverMode;
-	config->rsp.gain = rspModel.gain;
-	config->rsp.lna = rspModel.lna;
-
-	config->removeDCBias = removeDCBias;
-
-	config->hackrf.lnaGain = hackRFModel.lnaGain;
-	config->hackrf.vgaGain = hackRFModel.vgaGain;
-	config->hackrf.rxAmp = hackRFModel.enableAmp;
+	storeToConfig();
 }
 
 void ViewModel::setBufferAvailable(int readAvailableBufferCount) {

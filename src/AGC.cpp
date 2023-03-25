@@ -1,7 +1,7 @@
 #include "AGC.h"
 
-AGC::AGC(Config* config, FFTSpectreHandler* fftSpectreHandler) {
-    this->fftSpectreHandler = fftSpectreHandler;
+AGC::AGC(Config* config, SpectreHandler* specHandler) {
+    this->specHandler = specHandler;
     this->config = config;
 }
 

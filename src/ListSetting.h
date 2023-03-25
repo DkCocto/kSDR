@@ -1,13 +1,12 @@
 #pragma once
 
-#include "string"
+#include "Environment.h"
 #include "map"
 #include "imgui/imgui.h"
-#include "Config.h"
 #include "Utils.h"
 #include "vector"
-#include "iostream"
-#include <functional>
+//#include "iostream"
+//#include <functional>
 
 using namespace std;
 
@@ -20,11 +19,13 @@ class ListSetting {
 		bool needToRestart;
 		int* var;
 
-		function<void(int)> l;
+		//function<void(int)> l;
+
+		Environment* env;
 
 	public:
 
-		ListSetting(Config* config, map<int, string> list, const char* settingName, bool needToRestart);
+		ListSetting(Environment* env, map<int, string> list, const char* settingName, bool needToRestart);
 		void bindVariable(int* var);
 		vector<const char*>* createItemsArray();
 		void drawSetting();

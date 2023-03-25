@@ -50,8 +50,6 @@ void FastMath::initTable() {
 float FastMath::myFastSin(float val) {
 	val -= (int)(val / TWO_PI) * TWO_PI;
 	return ((val >= 0) ? (1.0f) : (-1.0f)) * table[(int)(abs(val) * (TABLE_SIZE / TWO_PI))];
-	/*int idx = (int)((int)(val * (double)TABLE_SIZE / TWO_PI) % TABLE_SIZE);
-	return table[idx];*/
 }
 
 float FastMath::myFastCos(float val) {

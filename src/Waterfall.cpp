@@ -10,11 +10,11 @@ float Waterfall::getDiv() {
 	return div;
 }
 
-void Waterfall::update(FFTData::OUTPUT* spectreData, FlowingFFTSpectre* flowingFFTSpectre) {
+void Waterfall::update(FFTData::OUTPUT* spectreData, FlowingSpectre* flowingSpec, SpectreHandler* specHandler) {
 
 	//std::vector<float> fullSpectreData = flowingFFTSpectre->getSpectreHandler()->getFFTData()->getData(true);
-
-	std::vector<float> waterfallData = flowingFFTSpectre->getReducedData(spectreData, config->visibleSpectreBinCount);
+	
+	std::vector<float> waterfallData = flowingSpec->getReducedData(spectreData, config->visibleSpectreBinCount, specHandler);
 
 	//delete[] fullSpectreData;
 

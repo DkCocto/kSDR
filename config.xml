@@ -30,13 +30,13 @@
         </RSP>
         <HackRF>
             <!-- App sampling rate will be: deviceSamplingRate / decimation -->
-            <deviceSamplingRate>8000000</deviceSamplingRate>
-            <basebandFilter>3500000</basebandFilter>
+            <deviceSamplingRate>16000000</deviceSamplingRate>
+            <basebandFilter>1750000</basebandFilter>
             <rxAmp>0</rxAmp>
             <!-- 0 1 2 3 4-->
-            <lnaGain>3</lnaGain>
+            <lnaGain>4</lnaGain>
             <!-- 0 .. 30 -->
-            <vgaGain>20</vgaGain>
+            <vgaGain>11</vgaGain>
             <!-- 0 .. 40 step 2-->
             <txAmp>20</txAmp>
         </HackRF>
@@ -46,59 +46,59 @@
         </RTL>
     </Device>
     <Receiver>
-        <startFreq>6900000</startFreq>
-        <lastSelectedFreq>3184267.8</lastSelectedFreq>
-        <volume>1.3</volume>
-        <filterWidth>2700</filterWidth>
+        <startFreq>9439387</startFreq>
+        <lastSelectedFreq>9640065</lastSelectedFreq>
+        <volume>1.2079999</volume>
+        <filterWidth>8000</filterWidth>
         <!-- USB:0, LSB:1, AM:2, nFM:3 -->
-        <modulation>1</modulation>
+        <modulation>2</modulation>
         <enableFrequencyShift>0</enableFrequencyShift>
         <frequencyShift>100000000</frequencyShift>
         <Agc>
             <threshold>0.060000001220032573</threshold>
-            <atackSpeedMs>0.21000000298023225</atackSpeedMs>
-            <holdingTimeMs>800</holdingTimeMs>
-            <releaseSpeed>3.0000004294561232e-05</releaseSpeed>
+            <atackSpeedMs>0.15000000000000002</atackSpeedMs>
+            <holdingTimeMs>999.99999998509884</holdingTimeMs>
+            <releaseSpeed>5.0000003789318735e-05</releaseSpeed>
         </Agc>
     </Receiver>
     <Waterfall>
-        <min>-108.23186</min>
-        <max>-70.574883</max>
+        <min>-179.07207</min>
+        <max>-64.935646</max>
         <speed>2</speed>
     </Waterfall>
     <Spectre>
-        <ratio>-40.584923</ratio>
-        <min>-121.22182</min>
+        <ratio>-47.349297</ratio>
+        <min>-179.65842</min>
         <speed>5</speed>
         <speed2>2</speed2>
         <!-- Must be a power of 2. The total will be fftLen = fftLen * 1024 -->
         <fftLen>262144</fftLen>
-        <startBin>66697</startBin>
-        <stopBin>70043</stopBin>
+        <startBin>66402</startBin>
+        <stopBin>67946</stopBin>
         <removeDCBias>1</removeDCBias>
-        <style>1</style>
+        <style>2</style>
         <contourShowsPower>0</contourShowsPower>
-        <bottomCoeff>0.93800002</bottomCoeff>
-        <topCoeff>1.115</topCoeff>
+        <bottomCoeff>0.91500002</bottomCoeff>
+        <topCoeff>1.207</topCoeff>
         <hangAndDecay>1</hangAndDecay>
-        <decaySpeed>0.068999998</decaySpeed>
-        <decaySpeedDelta>1.2690001</decaySpeedDelta>
+        <decaySpeed>0.068000004</decaySpeed>
+        <decaySpeedDelta>1.4349999</decaySpeedDelta>
         <smoothingDepth>2</smoothingDepth>
-        <spectreCorrectionDb>-137</spectreCorrectionDb>
+        <spectreCorrectionDb>-174</spectreCorrectionDb>
     </Spectre>
     <ColorTheme>
         <spectreFillColor>4281337632</spectreFillColor>
         <spectreProfileColor>4291151301</spectreProfileColor>
         <mainBGColor>4282324747</mainBGColor>
-        <windowsBGColor>4278190080</windowsBGColor>
+        <windowsBGColor>4280098077</windowsBGColor>
         <windowsTitleBGColor>4284887578</windowsTitleBGColor>
         <receiveRegionColor>1655028244</receiveRegionColor>
     </ColorTheme>
     <Memory>
         <record>
-            <desc>7.143.713</desc>
-            <freq>7143713</freq>
-            <modulation>1</modulation>
+            <desc>10mhz boltovnya</desc>
+            <freq>10454900</freq>
+            <modulation>0</modulation>
             <filterWidth>2700</filterWidth>
         </record>
     </Memory>

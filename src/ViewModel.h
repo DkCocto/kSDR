@@ -10,6 +10,9 @@ class ViewModel {
 	Config* config;
 public:
 
+	void storeToConfig();
+	void loadFromConfig();
+
 	ViewModel(Config* config);
 	~ViewModel();
 

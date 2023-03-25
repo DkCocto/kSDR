@@ -21,7 +21,7 @@ class Environment {
 
 		CircleBuffer* soundBuffer = nullptr;
 
-		FFTSpectreHandler* fftSpectreHandler = nullptr;
+		SpectreHandler* specHandler = nullptr;
 
 		SoundProcessorThread* soundProcessor = nullptr;
 
@@ -31,24 +31,30 @@ class Environment {
 
 		ViewModel* viewModel = nullptr;
 
-		FlowingFFTSpectre* flowingFFTSpectre = nullptr;
+		FlowingSpectre* flowingSpec = nullptr;
 
-		ReceiverLogic* receiverLogicNew = nullptr;
+		ReceiverLogic* receiverLogic = nullptr;
 
 	public:
+
+		std::atomic_bool reloading = false;
+
 		Environment();
 		~Environment();
+		void cleanUp();
 		Config* getConfig();
 		DeviceController* getDeviceController();
 		CircleBuffer* getIQSourceBuffer();
 		void startProcessing();
 		void stopProcessing();
-		FFTSpectreHandler* getFFTSpectreHandler();
+		void makeReload();
+		void reload();
+		SpectreHandler* getFFTSpectreHandler();
 		CircleBuffer* getSoundBuffer();
 		SoundProcessorThread* getSoundProcessor();
 		void init();
 		SoundCard* getSoundCard();
 		ViewModel* getViewModel();
 		ReceiverLogic* getReceiverLogic();
-		FlowingFFTSpectre* getFlowingSpectre();
+		FlowingSpectre* getFlowingSpectre();
 };

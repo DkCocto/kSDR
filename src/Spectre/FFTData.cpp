@@ -1,20 +1,23 @@
 #include "FFTData.h"
 
-#include "../Semaphore.h"
-
-Semaphore s;
-
 FFTData::FFTData(int startSpectreLen) {
-	
-	spectreDataN = new OUTPUT { new float[startSpectreLen], startSpectreLen };
+	init(startSpectreLen);
+}
+
+void FFTData::init(int startSpectreLen) {
+	destroyData(spectreDataN);
+	spectreDataN = new OUTPUT{ new float[startSpectreLen], startSpectreLen };
 	memset(spectreDataN->data, 0, sizeof(float) * spectreDataN->len);
 
+	destroyData(waterfallDataN);
 	waterfallDataN = new OUTPUT{ new float[startSpectreLen], startSpectreLen };
 	memset(waterfallDataN->data, 0, sizeof(float) * waterfallDataN->len);
 
+	destroyData(shadowSpectreDataN);
 	shadowSpectreDataN = new OUTPUT{ new float[startSpectreLen], startSpectreLen };
 	memset(shadowSpectreDataN->data, 0, sizeof(float) * shadowSpectreDataN->len);
 
+	destroyData(shadowWaterfallDataN);
 	shadowWaterfallDataN = new OUTPUT{ new float[startSpectreLen], startSpectreLen };
 	memset(shadowWaterfallDataN->data, 0, sizeof(float) * shadowWaterfallDataN->len);
 
@@ -31,6 +34,12 @@ FFTData::FFTData(int startSpectreLen) {
 	std::fill(shadowWaterfallData.begin(), shadowWaterfallData.end(), 0);*/
 }
 
+/// <summary>
+/// ѕоместить данные спектра и водопада в контейнер.
+/// </summary>
+/// <param name="spectreData"></param>
+/// <param name="waterfallData"></param>
+/// <param name="len"></param>
 void FFTData::setData(float* spectreData, float* waterfallData, int len) {
 	if (!mutex.try_lock()) return;
 
@@ -56,6 +65,12 @@ void FFTData::setData(float* spectreData, float* waterfallData, int len) {
 	mutex.unlock();
 }
 
+/// <summary>
+/// ¬озвращает копию данных дл€ спектра иди водопада. ¬одопад или спектр выбираетс€ через задани€ 
+/// параметра waterfall в функцию. Ќе забывать уничтожать данные после использовани€!
+/// </summary>
+/// <param name="waterfall"></param>
+/// <returns></returns>
 FFTData::OUTPUT* FFTData::getDataCopy(bool waterfall) {
 	int size = (waterfall == true) ? waterfallDataN->len : spectreDataN->len;
 	int sizeDiv2 = size / 2;
@@ -96,7 +111,7 @@ FFTData::OUTPUT* FFTData::getDataCopy(bool waterfall) {
 }
 
 /// <summary>
-/// ¬озвращает кусок из данных. Ќе забывать очищать данные после использовани€.
+/// ¬озвращает кусок из данных начина€ с определенной позиции и определенной длины. Ќе забывать уничтожать данные после использовани€!
 /// </summary>
 /// <param name="startPos"></param>
 /// <param name="len"></param>
@@ -114,15 +129,31 @@ FFTData::OUTPUT* FFTData::getDataCopy(int startPos, int len, bool waterfall) {
 	return dataCopy;
 }
 
-FFTData::OUTPUT* FFTData::getDataCopy(OUTPUT* data, int startPos, int len, bool waterfall) {
+/// <summary>
+/// ¬озвращает кусок из данных начина€ с определенной позиции и определенной длины из предоставленных данных. 
+/// Ќе забывать уничтожать данные после использовани€!
+/// </summary>
+/// <param name="data"></param>
+/// <param name="startPos"></param>
+/// <param name="len"></param>
+/// <returns></returns>
+FFTData::OUTPUT* FFTData::getDataCopy(OUTPUT* data, int startPos, int len) {
 	OUTPUT* dataCopy = new OUTPUT{ new float[len], len };
 	memcpy(dataCopy->data, data->data + startPos, sizeof(float) * len);
 	return dataCopy;
 }
 
+/// <summary>
+/// ѕолное удаление объекта типа OUTPUT из пам€ти.
+/// </summary>
+/// <param name="data"></param>
 void FFTData::destroyData(OUTPUT* data) {
-	delete[] data->data;
-	delete data;
+	if (data != nullptr) {
+		if (data->data != nullptr) {
+			delete[] data->data;
+		}
+		delete data;
+	}
 }
 
 /*std::vector<float> FFTData::getData(int startPos, int len, bool waterfall) {

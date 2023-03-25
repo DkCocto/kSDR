@@ -6,7 +6,7 @@
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 #include "FlowingFFTSpectre.h"
-#include "ReceiverLogicNew.h"
+#include "ReceiverLogic.h"
 #include "ViewModel.h"
 #include "KalmanFilter.h"
 #include "Waterfall.h"
@@ -67,23 +67,23 @@ private:
 
 	Spectre::MIN_MAX getMinMaxInSpectre(std::vector<float> spectreData, int len);
 
-	void handleEvents(int spectreWidthInPX, ReceiverLogic* receiverLogicNew, FlowingFFTSpectre* flowingSpectre);
+	void handleEvents(int spectreWidthInPX, ReceiverLogic* receiverLogic, FlowingSpectre* flowingSpectre);
 
 	int getMousePosXOnSpectreWindow();
 
-	void drawFreqMarks(ImDrawList* draw_list, ImVec2 startWindowPoint, ImVec2 windowLeftBottomCorner, int spectreWidthInPX, int spectreHeight, FlowingFFTSpectre* flowingFFTSpectre);
+	void drawFreqMarks(ImDrawList* draw_list, ImVec2 startWindowPoint, ImVec2 windowLeftBottomCorner, int spectreWidthInPX, int spectreHeight, FlowingSpectre* flowingSpec);
 
-	void drawSpectreContour(FFTData::OUTPUT* fullSpectreData, ImDrawList* draw_list, FlowingFFTSpectre* flowingFFTSpectre);
+	void drawSpectreContour(FFTData::OUTPUT* fullSpectreData, ImDrawList* draw_list, FlowingSpectre* flowingSpec, SpectreHandler* specHandler);
 
-	void drawFreqPointerMark(ImVec2 startWindowPoint, ImVec2 windowLeftBottomCorner, int spectreWidthInPX, ImDrawList* draw_list, ReceiverLogic* receiverLogicNew);
+	void drawFreqPointerMark(ImVec2 startWindowPoint, ImVec2 windowLeftBottomCorner, int spectreWidthInPX, ImDrawList* draw_list, ReceiverLogic* receiverLogic);
 
-	void drawMemoryMarks(ImDrawList* draw_list, FlowingFFTSpectre* flowingFFTSpectre, ReceiverLogic* receiverLogicNew);
+	void drawMemoryMarks(ImDrawList* draw_list, FlowingSpectre* flowingSpec, ReceiverLogic* receiverLogic);
 
 	ReceiverRegionInterface receiverRegionInterface;
 
 public:
 
-	void executeMemoryRecord(Config::MemoryRecord record, ReceiverLogic* receiverLogicNew);
+	void executeMemoryRecord(Config::MemoryRecord record, ReceiverLogic* receiverLogic);
 
 	unique_ptr<Waterfall> waterfall;
 
@@ -91,9 +91,9 @@ public:
 
 	Spectre(Config* config, ViewModel* viewModel);
 	
-	void draw(ReceiverLogic* receiverLogicNew, FlowingFFTSpectre* flowingFFTSpectre);
+	void draw(ReceiverLogic* receiverLogic, FlowingSpectre* flowingSpec, SpectreHandler* specHandler);
 
-	void storeSignaldB(FFTData::OUTPUT* spectreData, ReceiverLogic* receiverLogicNew);
+	void storeSignaldB(FFTData::OUTPUT* spectreData, ReceiverLogic* receiverLogic);
 
 	WINDOW_FRAME windowFrame { ImVec2(0, 0), ImVec2(0, 0) };
 

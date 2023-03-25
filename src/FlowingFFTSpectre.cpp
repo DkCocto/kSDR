@@ -1,45 +1,36 @@
 #include "FlowingFFTSpectre.h"
 
-FlowingFFTSpectre::FlowingFFTSpectre(Config* config, ViewModel* viewModel, FFTSpectreHandler* fftSH) {
+FlowingSpectre::FlowingSpectre(Config* config, ViewModel* viewModel) {
 	this->config = config;
-	this->fftSH = fftSH;
 	this->viewModel = viewModel;
 	A = config->startBin;
 	B = config->stopBin;
 	if (DEBUG) printCurrentPos();
 }
 
-FlowingFFTSpectre::~FlowingFFTSpectre() {
+FlowingSpectre::~FlowingSpectre() {
 	config->startBin = A;
 	config->stopBin = B;
 }
 
-FFTData::OUTPUT* FlowingFFTSpectre::getDataCopy(FFTData::OUTPUT* spectreData) {
-	return fftSH->getFFTData()->getDataCopy(spectreData, A, getLen(), false);
-}
-
-/*FFTData::OUTPUT* FlowingFFTSpectre::getWaterfallDataCopy(FFTData::OUTPUT* waterfallData) {
-	return fftSH->getFFTData()->getDataCopy(waterfallData, A, getLen(), true);
-}*/
-
-void FlowingFFTSpectre::setPos(int A, int B) {
+void FlowingSpectre::setPos(int A, int B) {
 	if (A < 0) A = 0;
 	if (B > config->fftLen / 2 - 1) B = config->fftLen / 2 - 1;
 	this->A = A;
 	this->B = B;
 }
 
-int FlowingFFTSpectre::getLen() {
+int FlowingSpectre::getLen() {
 	return (B - A) + 1;
 }
 
-int FlowingFFTSpectre::getAbsoluteSpectreLen() {
+int FlowingSpectre::getAbsoluteSpectreLen() {
 	return config->fftLen / 2;
 }
 
 //—двинуть спектр на количество единиц вперед или назад. «ависит от знака параметра delta
 //¬озвращает сдвиг частоты на который надо сдвинуть центрульную частоту приема 
-float FlowingFFTSpectre::move(int delta) {
+float FlowingSpectre::move(int delta) {
 	if (delta > 0) {
 		if (B + delta > config->fftLen / 2 - 1) {
 
@@ -79,13 +70,13 @@ float FlowingFFTSpectre::move(int delta) {
 	return 0.0;
 }
 
-float FlowingFFTSpectre::move(SPECTRE_POSITION fromSpectrePosition, int delta) {
+float FlowingSpectre::move(SPECTRE_POSITION fromSpectrePosition, int delta) {
 	A = fromSpectrePosition.A;
 	B = fromSpectrePosition.B;
 	return move(delta);
 }
 
-void FlowingFFTSpectre::zoomIn(int step) {
+void FlowingSpectre::zoomIn(int step) {
 	if (getLen() <= 128) return;
 	if (A + step < B - step) {
 		A += step;
@@ -94,7 +85,7 @@ void FlowingFFTSpectre::zoomIn(int step) {
 	if (DEBUG) printCurrentPos();
 }
 
-void FlowingFFTSpectre::zoomOut(int step) {
+void FlowingSpectre::zoomOut(int step) {
 	if (A - step < 0) A = 0;
 	else A -= step;
 	if (B + step > config->fftLen / 2 - 1) B = config->fftLen / 2 - 1;
@@ -103,38 +94,34 @@ void FlowingFFTSpectre::zoomOut(int step) {
 	if (DEBUG) printCurrentPos();
 }
 
-void FlowingFFTSpectre::zoomIn() {
+void FlowingSpectre::zoomIn() {
 	zoomIn(getLen() / 8);
 }
 
-void FlowingFFTSpectre::zoomOut() {
+void FlowingSpectre::zoomOut() {
 	zoomOut(getLen() / 8);
 }
 
-FFTSpectreHandler* FlowingFFTSpectre::getSpectreHandler() {
-	return fftSH;
-}
-
-void FlowingFFTSpectre::printCurrentPos() {
+void FlowingSpectre::printCurrentPos() {
 	printf("A=%i B=%i Len=%i, Total spectre[0; %i] Len: %i\r\n", A, B, getLen(), config->fftLen / 2 - 1, config->fftLen / 2);
 }
 
-float FlowingFFTSpectre::getAbsoluteFreqBySpectrePos(int pos) {
+float FlowingSpectre::getAbsoluteFreqBySpectrePos(int pos) {
 	return (float)viewModel->centerFrequency - ((float)config->inputSamplerate / 2.0) + getFreqByPosFromSamplerate(pos);
 }
 
-float FlowingFFTSpectre::getFreqByPosFromSamplerate(int pos) {
+float FlowingSpectre::getFreqByPosFromSamplerate(int pos) {
 	return (float)pos * ((float)config->inputSamplerate / (float)(config->fftLen / 2));
 }
 
-FlowingFFTSpectre::FREQ_RANGE FlowingFFTSpectre::getVisibleFreqRangeFromSamplerate() {
+FlowingSpectre::FREQ_RANGE FlowingSpectre::getVisibleFreqRangeFromSamplerate() {
 	FREQ_RANGE freqRange{};
 	freqRange.first = getFreqByPosFromSamplerate(A);
 	freqRange.second = getFreqByPosFromSamplerate(B + 1);
 	return freqRange;
 }
 
-FlowingFFTSpectre::FREQ_RANGE FlowingFFTSpectre::getVisibleFreqsRangeAbsolute() {
+FlowingSpectre::FREQ_RANGE FlowingSpectre::getVisibleFreqsRangeAbsolute() {
 	FREQ_RANGE freqRange{};
 	freqRange.first = getAbsoluteFreqBySpectrePos(A);
 	freqRange.second = getAbsoluteFreqBySpectrePos(B + 1);
@@ -145,26 +132,26 @@ FlowingFFTSpectre::FREQ_RANGE FlowingFFTSpectre::getVisibleFreqsRangeAbsolute() 
 /// Returns the frequency range that the receiver is currently digitizing.
 /// </summary>
 /// <returns></returns>
-FlowingFFTSpectre::FREQ_RANGE FlowingFFTSpectre::getTotalFreqsRange() {
+FlowingSpectre::FREQ_RANGE FlowingSpectre::getTotalFreqsRange() {
 	FREQ_RANGE freqRange {};
 	freqRange.first = (float)(viewModel->centerFrequency - (config->inputSamplerate / 2));
 	freqRange.second = (float)(viewModel->centerFrequency + (config->inputSamplerate / 2));
 	return freqRange;
 }
 
-float FlowingFFTSpectre::getVisibleStartFrequency() {
+float FlowingSpectre::getVisibleStartFrequency() {
 	return getAbsoluteFreqBySpectrePos(A);
 }
 
-int FlowingFFTSpectre::getA() {
+int FlowingSpectre::getA() {
 	return A;
 }
 
-int FlowingFFTSpectre::getB() {
+int FlowingSpectre::getB() {
 	return B;
 }
 
-void FlowingFFTSpectre::prepareForMovingSpectreByMouse(float mouseSpectrePos) {
+void FlowingSpectre::prepareForMovingSpectreByMouse(float mouseSpectrePos) {
 	this->savedMouseSpectrePos = mouseSpectrePos;
 	this->savedPosition.A = getA();
 	this->savedPosition.B = getB();
@@ -172,9 +159,9 @@ void FlowingFFTSpectre::prepareForMovingSpectreByMouse(float mouseSpectrePos) {
 }
 
 //¬озвращает новую центральную частоту приЄма
-float FlowingFFTSpectre::moveSpectreByMouse(float spectreWidthInPx, float mouseSpectrePos) {
+float FlowingSpectre::moveSpectreByMouse(float spectreWidthInPx, float mouseSpectrePos) {
 	float delta = savedMouseSpectrePos - mouseSpectrePos;
-	FlowingFFTSpectre::FREQ_RANGE freqRange = getVisibleFreqRangeFromSamplerate();
+	FlowingSpectre::FREQ_RANGE freqRange = getVisibleFreqRangeFromSamplerate();
 	float spectreFreqWidth = freqRange.second - freqRange.first;
 	
 	float freqWidthByOnePx = spectreFreqWidth / spectreWidthInPx;
@@ -185,22 +172,22 @@ float FlowingFFTSpectre::moveSpectreByMouse(float spectreWidthInPx, float mouseS
 	return savedCenterFreq + move(savedPosition, countSpectreBinsInDelta);
 }
 
-float FlowingFFTSpectre::getFreqOfOneSpectreBin() {
-	FlowingFFTSpectre::FREQ_RANGE freqRange = getVisibleFreqRangeFromSamplerate();
+float FlowingSpectre::getFreqOfOneSpectreBin() {
+	FlowingSpectre::FREQ_RANGE freqRange = getVisibleFreqRangeFromSamplerate();
 	float spectreFreqWidth = freqRange.second - freqRange.first;
 	return spectreFreqWidth / (float)getLen();
 }
 
-std::vector<float> FlowingFFTSpectre::getReducedData(FFTData::OUTPUT* fullSpectreData, int desiredBins) {
+std::vector<float> FlowingSpectre::getReducedData(FFTData::OUTPUT* fullSpectreData, int desiredBins, SpectreHandler* specHandler) {
 	
 	int flowingSpectreLen = getLen();
 
 	if (flowingSpectreLen <= desiredBins) {
-		FFTData::OUTPUT* reducedSpectreData = getDataCopy(fullSpectreData);
+		FFTData::OUTPUT* reducedSpectreData = specHandler->getFFTData()->getDataCopy(fullSpectreData, A, getLen());
 		//int spectreLen = flowingSpectreLen;
 		std::vector<float> v;
 		v.assign(reducedSpectreData->data, reducedSpectreData->data + reducedSpectreData->len);
-		fftSH->getFFTData()->destroyData(reducedSpectreData);
+		specHandler->getFFTData()->destroyData(reducedSpectreData);
 		//delete[] spectreData;
 		
 		return v;

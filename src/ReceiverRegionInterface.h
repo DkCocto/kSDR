@@ -7,7 +7,7 @@
 #include "SpectreWindowData.h"
 #include "Config.h"
 #include "ViewModel.h"
-#include "ReceiverLogicNew.h"
+#include "ReceiverLogic.h"
 #include "string"
 
 #define GRAY IM_COL32(95, 95, 95, 255)
@@ -38,7 +38,7 @@ public:
 
 	ReceiverRegionInterface(SpectreWindowData* sWD, Config* config, ViewModel* viewModel);
 
-	void drawRegion(ImDrawList* draw_list, ReceiverLogic* receiverLogicNew);
+	void drawRegion(ImDrawList* draw_list, ReceiverLogic* receiverLogic);
 
 	int getFreqTextWidth();
 	int getFreqTextHeight();
@@ -46,11 +46,11 @@ public:
 	int getFreqTextY();
 
 	void underlineDigit(ImDrawList* draw_list, int num);
-	bool markDigitByMouse(ImDrawList* draw_list, ReceiverLogic* receiverLogicNew);
+	bool markDigitByMouse(ImDrawList* draw_list, ReceiverLogic* receiverLogic);
 
 	bool isDigitSelected();
 
 	int getSelectedDigit();
 
-	void setupNewFreq(bool positive, ReceiverLogic* receiverLogicNew);
+	void setupNewFreq(bool positive, ReceiverLogic* receiverLogic);
 };

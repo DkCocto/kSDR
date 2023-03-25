@@ -1,14 +1,18 @@
 #include "ListSetting.h"
 
-ListSetting::ListSetting(Config* config, map<int, string> list, const char* settingName, bool needToRestart) {
+ListSetting::ListSetting(Environment* env, map<int, string> list, const char* settingName, bool needToRestart) {
+	this->env = env;
 	this->list = list;
-	this->config = config;
+	this->config = env->getConfig();
 	this->settingName = settingName;
 	this->needToRestart = needToRestart;
 }
 
+uint32_t lastSelected = 0;
+
 void ListSetting::bindVariable(int* var) {
 	this->var = var;
+	lastSelected = *var;
 }
 
 vector<const char*>* ListSetting::createItemsArray() {	
@@ -41,6 +45,11 @@ void ListSetting::drawSetting() {
 				uint32_t tmpVar;
 				Utils::parse_u32((char*)items[n], &tmpVar);
 				*var = tmpVar;
+				if (lastSelected != tmpVar && needToRestart) {
+					lastSelected = tmpVar;
+					env->stopProcessing();
+					env->makeReload();
+				}
 			}
 			if (is_selected) ImGui::SetItemDefaultFocus();
 		}
@@ -48,7 +57,6 @@ void ListSetting::drawSetting() {
 	}
 
 	delete itemsArray;
-	
 }
 
 int ListSetting::getSelectedSetting() {

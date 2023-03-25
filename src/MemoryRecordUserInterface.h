@@ -35,5 +35,5 @@ public:
 	MemoryRecordUserInterface() {};
 	MemoryRecordUserInterface(Config* config, ViewModel* viewModel, Spectre* spectre);
 
-	void drawMemoryBlock(ReceiverLogic* receiverLogicNew);
+	void drawMemoryBlock(ReceiverLogic* receiverLogic);
 };

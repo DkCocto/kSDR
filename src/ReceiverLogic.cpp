@@ -1,4 +1,4 @@
-#include "ReceiverLogicNew.h"
+#include "ReceiverLogic.h"
 
 void ReceiverLogic::setCenterFrequency(double frequency) {
 	this->centerFrequency = frequency;
@@ -17,18 +17,18 @@ void ReceiverLogic::setFrequencyDelta(double frequencyDelta) {
 
 	double freqFromZero = config->inputSamplerate / 2.0 + frequencyDelta;
 
-	FlowingFFTSpectre::FREQ_RANGE range = flowingFFTSpectre->getVisibleFreqRangeFromSamplerate();
+	FlowingSpectre::FREQ_RANGE range = flowingSpec->getVisibleFreqRangeFromSamplerate();
 
-	receiverPosOnBin = round(freqFromZero * (double)flowingFFTSpectre->getLen() / (range.second - range.first));
+	receiverPosOnBin = round(freqFromZero * (double)flowingSpec->getLen() / (range.second - range.first));
 
-	receiverPosOnPx = round((receiverPosOnBin - (double)flowingFFTSpectre->getA()) * (double)spectreWidthPx / (double)flowingFFTSpectre->getLen());
+	receiverPosOnPx = round((receiverPosOnBin - (double)flowingSpec->getA()) * (double)spectreWidthPx / (double)flowingSpec->getLen());
 }
 
 void ReceiverLogic::setFrequencyDeltaBySpectrePosPx(double positionInSpectrePx) {
 	receiverPosOnPx = positionInSpectrePx;
-	receiverPosOnBin = round((double)flowingFFTSpectre->getA() + (double)receiverPosOnPx / ((double)spectreWidthPx / (double)flowingFFTSpectre->getLen()));
+	receiverPosOnBin = round((double)flowingSpec->getA() + (double)receiverPosOnPx / ((double)spectreWidthPx / (double)flowingSpec->getLen()));
 	
-	double pos = receiverPosOnBin * flowingFFTSpectre->getFreqOfOneSpectreBin();
+	double pos = receiverPosOnBin * flowingSpec->getFreqOfOneSpectreBin();
 	if (pos > (double)config->inputSamplerate / 2.0) frequencyDelta = pos - (double)config->inputSamplerate / 2.0;
 	else if (pos < (double)config->inputSamplerate / 2.0) frequencyDelta = (-1.0) * ((double)config->inputSamplerate / 2.0 - pos);
 	else frequencyDelta = 0.0;
@@ -65,11 +65,11 @@ double ReceiverLogic::getFrequencyDelta() {
 	return frequencyDelta;
 }
 
-ReceiverLogic::ReceiverLogic(Config* config, ViewModel* viewModel, FlowingFFTSpectre* flowingFFTSpectre) {
+ReceiverLogic::ReceiverLogic(Config* config, ViewModel* viewModel, FlowingSpectre* flowingSpec) {
+	this->flowingSpec = flowingSpec;
 	this->config = config;
 	this->centerFrequency = config->startFrequency;
 	this->viewModel = viewModel;
-	this->flowingFFTSpectre = flowingFFTSpectre;
 }
 
 constexpr auto SHIFT = 200000.0f;
@@ -81,12 +81,12 @@ void ReceiverLogic::setFreq(double freq) {
 
 	if (freq < 0) return;
 
-	FlowingFFTSpectre::FREQ_RANGE visibleFreqsRange = flowingFFTSpectre->getVisibleFreqsRangeAbsolute();
+	FlowingSpectre::FREQ_RANGE visibleFreqsRange = flowingSpec->getVisibleFreqsRangeAbsolute();
 	if (freq >= visibleFreqsRange.first && freq <= visibleFreqsRange.second) {
 		double delta = freq - centerFrequency;
 		setFrequencyDelta(delta);
 	} else {
-		FlowingFFTSpectre::FREQ_RANGE totalFreqsRange = flowingFFTSpectre->getTotalFreqsRange();
+		FlowingSpectre::FREQ_RANGE totalFreqsRange = flowingSpec->getTotalFreqsRange();
 		//if (freq >= totalFreqsRange.first && freq <= totalFreqsRange.second) {
 			//empty
 		//} else {
@@ -98,7 +98,7 @@ void ReceiverLogic::setFreq(double freq) {
 		double delta = freq - viewModel->centerFrequency;
 		setFrequencyDelta(delta);
 
-		int spectreLenBin = flowingFFTSpectre->getLen();
+		int spectreLenBin = flowingSpec->getLen();
 		int positionOnBin = getPositionOnBin();
 
 		int totalSpectreSize = config->fftLen / 2;
@@ -108,7 +108,7 @@ void ReceiverLogic::setFreq(double freq) {
 		int B = (positionOnBin + deltaPos < totalSpectreSize) ? positionOnBin + deltaPos : totalSpectreSize;
 		int A = (positionOnBin - deltaPos >= 0) ? positionOnBin - deltaPos : 0;
 
-		flowingFFTSpectre->setPos(A, B);
+		flowingSpec->setPos(A, B);
 
 		setFrequencyDelta(delta);
 	}
@@ -126,7 +126,7 @@ ReceiverLogic::ReceiveBinArea ReceiverLogic::getReceiveBinsArea(int filterWidth,
 
 	int totalBin = config->fftLen / 2;
 
-	int deltaBin = (int)((double)filterWidth / flowingFFTSpectre->getFreqOfOneSpectreBin());
+	int deltaBin = (int)((double)filterWidth / flowingSpec->getFreqOfOneSpectreBin());
 
 	switch (receiverMode) {
 		case USB:
@@ -152,12 +152,12 @@ ReceiverLogic::ReceiveBinArea ReceiverLogic::getReceiveBinsArea(int filterWidth,
 }
 
 double ReceiverLogic::getFilterWidthAbs(int filterWidth) {
-	FlowingFFTSpectre::FREQ_RANGE freqRange = flowingFFTSpectre->getVisibleFreqRangeFromSamplerate();
+	FlowingSpectre::FREQ_RANGE freqRange = flowingSpec->getVisibleFreqRangeFromSamplerate();
 	return ((double)filterWidth * spectreWidthPx) / (freqRange.second - freqRange.first);
 }
 
 double ReceiverLogic::getFreqByPosOnSpectrePx(int px) {
-	FlowingFFTSpectre::FREQ_RANGE freqRange = flowingFFTSpectre->getVisibleFreqsRangeAbsolute();
+	FlowingSpectre::FREQ_RANGE freqRange = flowingSpec->getVisibleFreqsRangeAbsolute();
 	double freq = round((int)freqRange.first + (px * ((int)freqRange.second - (int)freqRange.first)) / (int)spectreWidthPx);
 	return freq;
 }
@@ -168,7 +168,7 @@ double ReceiverLogic::getFreqByPosOnSpectrePx(int px) {
 /// <param name="freq"></param>
 /// <returns>Позицию на спектре или -1 если частота в данный момент находится вне границ видимого спектра</returns>
 int ReceiverLogic::getPosOnSpectreByFreq(double freq) {
-	FlowingFFTSpectre::FREQ_RANGE freqRange = flowingFFTSpectre->getVisibleFreqsRangeAbsolute();
+	FlowingSpectre::FREQ_RANGE freqRange = flowingSpec->getVisibleFreqsRangeAbsolute();
 	if (freq >= freqRange.first && freq <= freqRange.second) {
 		return round(((int)spectreWidthPx * (freq - freqRange.first)) / (freqRange.second - freqRange.first));
 	} else {
@@ -177,7 +177,7 @@ int ReceiverLogic::getPosOnSpectreByFreq(double freq) {
 }
 
 void ReceiverLogic::setReceivedFreqToSpectreCenter() {
-	int spectreLenBin = flowingFFTSpectre->getLen();
+	int spectreLenBin = flowingSpec->getLen();
 	int positionOnBin = getPositionOnBin();
 
 	int totalSpectreSize = config->fftLen / 2;
@@ -187,9 +187,9 @@ void ReceiverLogic::setReceivedFreqToSpectreCenter() {
 	int B = (positionOnBin + deltaPos < totalSpectreSize) ? positionOnBin + deltaPos : totalSpectreSize;
 	int A = (positionOnBin - deltaPos >= 0) ? positionOnBin - deltaPos : 0;
 
-	flowingFFTSpectre->setPos(A, B);
+	flowingSpec->setPos(A, B);
 
 	double delta = getSelectedFreqNew() - viewModel->centerFrequency;
-	//printf("%f\n", delta);
+
 	setFrequencyDelta(delta);
 }

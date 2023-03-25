@@ -56,7 +56,7 @@ public:
 
 	float getDiv();
 
-	void update(FFTData::OUTPUT* spectreData, FlowingFFTSpectre* flowingFFTSpectre);
+	void update(FFTData::OUTPUT* spectreData, FlowingSpectre* flowingSpec, SpectreHandler* specHandler);
 
 	int getSize();
 

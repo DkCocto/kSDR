@@ -10,7 +10,6 @@ class ReceiverLogic {
 private:
 	Config* config;
 	ViewModel* viewModel;
-	FlowingFFTSpectre* flowingFFTSpectre;
 
 	double spectreWidthPx = 0; //Ўирина спектра в пиксел€х
 
@@ -20,9 +19,11 @@ private:
 	double receiverPosOnBin = 0; //позици€ на которой находитс€ маркер приЄма в виде номера spectre data bin 
 	int savedPositionDelta = 0;
 
+	FlowingSpectre* flowingSpec;
+
 public:
 
-	ReceiverLogic(Config* config, ViewModel* viewModel, FlowingFFTSpectre* flowingFFTSpectre);
+	ReceiverLogic(Config* config, ViewModel* viewModel, FlowingSpectre* flowingSpec);
 
 	void setFreq(double freq);
 

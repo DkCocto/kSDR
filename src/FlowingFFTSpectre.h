@@ -9,12 +9,11 @@ constexpr auto SPECTRE = false;
 
 //Класс определяет плавающий спектр, который может меняться внутри полного спектра FFT. С помощью
 //него можно будет контролировать масштаб кусочка спектра внутри полного спектра
-class FlowingFFTSpectre {
+class FlowingSpectre {
 
 	int A = 0;
 	int B = 0;
 
-	FFTSpectreHandler* fftSH;
 	ViewModel* viewModel;
 	Config* config;
 
@@ -32,9 +31,9 @@ class FlowingFFTSpectre {
 
 public:
 
-	FlowingFFTSpectre(Config* config, ViewModel* viewModel, FFTSpectreHandler* fftSH);
-	~FlowingFFTSpectre();
-	FFTData::OUTPUT* getDataCopy(FFTData::OUTPUT* spectreData);
+	FlowingSpectre(Config* config, ViewModel* viewModel);
+	~FlowingSpectre();
+	//FFTData::OUTPUT* getDataCopy(FFTData::OUTPUT* spectreData);
 	//FFTData::OUTPUT* getWaterfallDataCopy(FFTData::OUTPUT* waterfallData);
 	void setPos(int A, int B);
 	int getLen();
@@ -47,7 +46,6 @@ public:
 	void zoomIn();
 	void zoomOut();
 
-	FFTSpectreHandler* getSpectreHandler();
 	void printCurrentPos();
 	float getAbsoluteFreqBySpectrePos(int pos);
 	float getFreqByPosFromSamplerate(int pos);
@@ -69,6 +67,6 @@ public:
 	//void setReceivedFreqToSpectreCenter();
 
 	//desiredBins should be div by 2
-	std::vector<float> getReducedData(FFTData::OUTPUT* fullSpectreData, int desiredBins);
+	std::vector<float> getReducedData(FFTData::OUTPUT* fullSpectreData, int desiredBins, SpectreHandler* specHandler);
 
 };

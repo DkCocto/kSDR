@@ -3,10 +3,7 @@
 #include "Config.h"
 
 #include "Display.h"
-#include "RSP1.h"
-#include "RTLDevice.h"
 #include "SoundProcessorThread.h"
-#include "RSPv2.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
@@ -31,14 +28,12 @@ int main() {
 	}
 	exit(0);*/
 
-	Config* config = env.getConfig();
-
 	env.startProcessing();
 
 	display->init();
 	display->mainLoop();
 
-	env.stopProcessing();
+	//env.stopProcessing();
 
 	delete display;
 }

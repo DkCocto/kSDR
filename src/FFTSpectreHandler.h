@@ -10,7 +10,7 @@
 #include "Spectre/FFTData.h"
 #include "windows.h"
 
-class FFTSpectreHandler : public MyThread {
+class SpectreHandler : public MyThread {
 	
 private:
 
@@ -69,16 +69,10 @@ public:
 
 	FFTData* getFFTData();
 
-	FFTSpectreHandler(Config* config, FFTData* fftData);
-	~FFTSpectreHandler();
+	SpectreHandler(Config* config, FFTData* fftData);
+	~SpectreHandler();
 
 	void putData(float* data);
 	std::thread start();
 	void run();
-
-	//float* getOutputCopy(int startPos, int len, bool forWaterfall);
-	//int getSpectreSize();
-	//void setSpectreSpeed(int speed);
-	//void clear();
-	//void init();
 };

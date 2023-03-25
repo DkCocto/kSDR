@@ -2,29 +2,31 @@
 
 Environment::Environment() {
 	config = new Config();
-	deviceController = new DeviceController(config);
-	IQSourceBuffer = new CircleBuffer(config->circleBufferLen);
-	deviceController->addReceiver(IQSourceBuffer);
-	soundBuffer = new CircleBuffer(config->circleBufferLen);
-	fftData = new FFTData(config->fftLen / 2);
-	fftSpectreHandler = new FFTSpectreHandler(config, fftData);
-	viewModel = new ViewModel(config);
-	flowingFFTSpectre = new FlowingFFTSpectre(config, viewModel, fftSpectreHandler);
-	receiverLogicNew = new ReceiverLogic(config, viewModel, flowingFFTSpectre);
+	deviceController = new DeviceController(config);					//is not need to recreate
+	IQSourceBuffer = new CircleBuffer(config->circleBufferLen);			//is not need to recreate
+	deviceController->addReceiver(IQSourceBuffer);						//is not need to recreate
+	soundBuffer = new CircleBuffer(config->circleBufferLen);			//is not need to recreate
+	fftData = new FFTData(config->fftLen / 2);							//is not need to recreate
+	specHandler = new SpectreHandler(config, fftData);					//neet to recreate
+	viewModel = new ViewModel(config);									//is not need to recreate
+	flowingSpec = new FlowingSpectre(config, viewModel);				//is not need to recreate
+	receiverLogic = new ReceiverLogic(config, viewModel, flowingSpec);	//need to setup new flowingSpec during its recreating
 }
 
 Environment::~Environment() {
-	delete config;
-	/*delete IQSourceBuffer;
-	delete deviceController;
-	delete fftSpectreHandler;
-	delete soundBuffer;
-	delete soundProcessor;
-	delete circleBufferWriterThread;
-	delete soundCard;
+	cleanUp();
+}
+
+void Environment::cleanUp() {
+	stopProcessing();
 	delete viewModel;
-	delete flowingFFTSpectre;
-	delete receiverLogicNew;*/
+	delete flowingSpec;
+	delete config;
+	delete specHandler;
+	delete deviceController;
+	delete soundBuffer;
+	delete receiverLogic;
+	delete IQSourceBuffer;
 }
 
 Config* Environment::getConfig() {
@@ -41,8 +43,36 @@ CircleBuffer* Environment::getIQSourceBuffer() {
 
 void Environment::init() {
 	soundCard = new SoundCard(config);
-	soundProcessor = new SoundProcessorThread(deviceController, viewModel, receiverLogicNew, config, IQSourceBuffer, soundBuffer, fftSpectreHandler);
+	soundProcessor = new SoundProcessorThread(deviceController, viewModel, receiverLogic, config, IQSourceBuffer, soundBuffer, specHandler);
 	circleBufferWriterThread = new CircleBufferWriterThread(config, deviceController, soundBuffer, soundCard);
+}
+
+void Environment::makeReload() {
+	if (soundProcessor != nullptr) {
+		printf("Need to stop processing first!\r\n");
+		reloading = false;
+		return;
+	}
+	reloading = true;
+}
+
+void Environment::reload() {
+	viewModel->storeToConfig();
+	config->save();
+	config->prepareConfiguration();
+	viewModel->loadFromConfig();
+	//viewModel = new ViewModel(config);
+
+	fftData->init(config->fftLen / 2);
+
+	delete specHandler;
+	specHandler = nullptr;
+	specHandler = new SpectreHandler(config, fftData);
+
+	receiverLogic->setFreq(config->lastSelectedFreq);
+
+	startProcessing();
+	reloading = false;
 }
 
 void Environment::startProcessing() {
@@ -53,13 +83,16 @@ void Environment::startProcessing() {
 		
 		init();
 
-		fftSpectreHandler->start().detach();
+		specHandler->start().detach();
 
 		//Инициализируем звуковую карту
 		soundCard->open();
 
 		circleBufferWriterThread->start().detach();
 		soundProcessor->start().detach();
+
+		//while (!soundProcessor->isWorking() || !circleBufferWriterThread->isWorking() || !specHandler->isWorking());
+		
 	}
 }
 
@@ -69,7 +102,7 @@ void Environment::stopProcessing() {
 	//Stop 3 threads: sound process, soundcard writer, fft handler
 	config->WORKING = false; 
 
-	while (soundProcessor->isWorking() || circleBufferWriterThread->isWorking() || fftSpectreHandler->isWorking()) {}
+	while(soundProcessor->isWorking() || circleBufferWriterThread->isWorking() || specHandler->isWorking());
 
 	delete soundProcessor;
 	soundProcessor = nullptr;
@@ -81,8 +114,8 @@ void Environment::stopProcessing() {
 	soundCard = nullptr;
 }
 
-FFTSpectreHandler* Environment::getFFTSpectreHandler() {
-	return fftSpectreHandler;
+SpectreHandler* Environment::getFFTSpectreHandler() {
+	return specHandler;
 }
 
 CircleBuffer* Environment::getSoundBuffer() {
@@ -102,9 +135,9 @@ ViewModel* Environment::getViewModel() {
 }
 
 ReceiverLogic* Environment::getReceiverLogic() {
-	return receiverLogicNew;
+	return receiverLogic;
 }
 
-FlowingFFTSpectre* Environment::getFlowingSpectre() {
-	return flowingFFTSpectre;
+FlowingSpectre* Environment::getFlowingSpectre() {
+	return flowingSpec;
 }

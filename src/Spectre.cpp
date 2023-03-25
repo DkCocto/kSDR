@@ -59,9 +59,9 @@ bool isFirstFrame = true;
 
 bool controlButtonHovered = false;
 
-void Spectre::draw(ReceiverLogic* receiverLogicNew, FlowingFFTSpectre* flowingFFTSpectre) {
+void Spectre::draw(ReceiverLogic* receiverLogic, FlowingSpectre* flowingSpec, SpectreHandler* specHandler) {
 
-	receiverLogicNew->setCenterFrequency(viewModel->centerFrequency);
+	receiverLogic->setCenterFrequency(viewModel->centerFrequency);
 
 	ImGuiIO& io = ImGui::GetIO();
 
@@ -78,10 +78,10 @@ void Spectre::draw(ReceiverLogic* receiverLogicNew, FlowingFFTSpectre* flowingFF
 		spectreHeight = sWD.windowLeftBottomCorner.y / 2.0;
 		spectreWidth = sWD.windowLeftBottomCorner.x - sWD.rightPadding - sWD.leftPadding;
 
-		handleEvents(spectreWidth, receiverLogicNew, flowingFFTSpectre);
+		handleEvents(spectreWidth, receiverLogic, flowingSpec);
 
-		FFTData::OUTPUT* fullSpectreData = flowingFFTSpectre->getSpectreHandler()->getFFTData()->getDataCopy(false);
-		FFTData::OUTPUT* fullWaterfallData = flowingFFTSpectre->getSpectreHandler()->getFFTData()->getDataCopy(true);
+		FFTData::OUTPUT* fullSpectreData = specHandler->getFFTData()->getDataCopy(false);
+		FFTData::OUTPUT* fullWaterfallData = specHandler->getFFTData()->getDataCopy(true);
 
 		ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
@@ -96,7 +96,7 @@ void Spectre::draw(ReceiverLogic* receiverLogicNew, FlowingFFTSpectre* flowingFF
 			bool spectreAutoButtonHovered = ImGui::IsItemHovered();
 			ImGui::SameLine();
 
-			if (ImGui::Button("<|>")) { receiverLogicNew->setReceivedFreqToSpectreCenter(); waterfall->clear();	}
+			if (ImGui::Button("<|>")) { receiverLogic->setReceivedFreqToSpectreCenter(); waterfall->clear();	}
 			bool freqToCenterButtonHovered = ImGui::IsItemHovered();
 			ImGui::SameLine();
 
@@ -116,11 +116,11 @@ void Spectre::draw(ReceiverLogic* receiverLogicNew, FlowingFFTSpectre* flowingFF
 
 			ImGui::SetCursorPos(ImVec2(0, 0));
 
-			drawMemoryMarks(draw_list, flowingFFTSpectre, receiverLogicNew);
+			drawMemoryMarks(draw_list, flowingSpec, receiverLogic);
 
-			storeSignaldB(fullSpectreData, receiverLogicNew);
+			storeSignaldB(fullSpectreData, receiverLogic);
 
-			drawSpectreContour(fullSpectreData, draw_list, flowingFFTSpectre);
+			drawSpectreContour(fullSpectreData, draw_list, flowingSpec, specHandler);
 
 			//dB mark line
 			float stepInPX = (float)spectreHeight / (float)SPECTRE_DB_MARK_COUNT;
@@ -138,7 +138,7 @@ void Spectre::draw(ReceiverLogic* receiverLogicNew, FlowingFFTSpectre* flowingFF
 			}
 			//---------------
 			
-			drawFreqMarks(draw_list, sWD.startWindowPoint, sWD.windowLeftBottomCorner, spectreWidth, spectreHeight, flowingFFTSpectre);
+			drawFreqMarks(draw_list, sWD.startWindowPoint, sWD.windowLeftBottomCorner, spectreWidth, spectreHeight, flowingSpec);
 
 		ImGui::EndChild();
 
@@ -146,12 +146,12 @@ void Spectre::draw(ReceiverLogic* receiverLogicNew, FlowingFFTSpectre* flowingFF
 			
 			if (countFrames % config->waterfall.speed == 0) {
 				waterfall->setMinMaxValue(viewModel->waterfallMin, viewModel->waterfallMax);
-				waterfall->update(fullWaterfallData, flowingFFTSpectre);
+				waterfall->update(fullWaterfallData, flowingSpec, specHandler);
 			}
 
 			int waterfallHeight = sWD.windowLeftBottomCorner.y - spectreHeight - sWD.waterfallPaddingTop;
 
-			int spectreSize = flowingFFTSpectre->getLen();
+			int spectreSize = flowingSpec->getLen();
 
 			float stepX = spectreWidth / (spectreSize / waterfall->getDiv());
 			float stepY = (float)(waterfallHeight + sWD.waterfallPaddingTop) / (float)waterfall->getSize();
@@ -170,25 +170,25 @@ void Spectre::draw(ReceiverLogic* receiverLogicNew, FlowingFFTSpectre* flowingFF
 			}
 
 			//receive region
-			receiverRegionInterface.drawRegion(draw_list, receiverLogicNew);
+			receiverRegionInterface.drawRegion(draw_list, receiverLogic);
 			//--
 		ImGui::EndChild();
 
-		if (!disableControl_ && !receiverRegionInterface.isDigitSelected()) drawFreqPointerMark(sWD.startWindowPoint, sWD.windowLeftBottomCorner, spectreWidth, draw_list, receiverLogicNew);
+		if (!disableControl_ && !receiverRegionInterface.isDigitSelected()) drawFreqPointerMark(sWD.startWindowPoint, sWD.windowLeftBottomCorner, spectreWidth, draw_list, receiverLogic);
 
 	ImGui::End();
 
 	if (isFirstFrame) {
-		receiverLogicNew->setFreq(config->lastSelectedFreq); //load last selected freq
+		receiverLogic->setFreq(config->lastSelectedFreq); //load last selected freq
 		isFirstFrame = false;
 	}
 	countFrames++;
-	flowingFFTSpectre->getSpectreHandler()->getFFTData()->destroyData(fullSpectreData);
-	flowingFFTSpectre->getSpectreHandler()->getFFTData()->destroyData(fullWaterfallData);
+	specHandler->getFFTData()->destroyData(fullSpectreData);
+	specHandler->getFFTData()->destroyData(fullWaterfallData);
 }
 
-void Spectre::storeSignaldB(FFTData::OUTPUT* spectreData, ReceiverLogic* receiverLogicNew) {
-	ReceiverLogic::ReceiveBinArea r = receiverLogicNew->getReceiveBinsArea(viewModel->filterWidth, viewModel->receiverMode);
+void Spectre::storeSignaldB(FFTData::OUTPUT* spectreData, ReceiverLogic* receiverLogic) {
+	ReceiverLogic::ReceiveBinArea r = receiverLogic->getReceiveBinsArea(viewModel->filterWidth, viewModel->receiverMode);
 
 	float sum = 0.0;
 	int len = r.B - r.A;
@@ -235,7 +235,7 @@ Spectre::MIN_MAX Spectre::getMinMaxInSpectre(std::vector<float> spectreData, int
 	return MIN_MAX { min, max, sum / len };
 }
 
-void Spectre::handleEvents(int spectreWidthInPX, ReceiverLogic* receiverLogicNew, FlowingFFTSpectre* flowingFFTSpectre) {
+void Spectre::handleEvents(int spectreWidthInPX, ReceiverLogic* receiverLogic, FlowingSpectre* flowingSpec) {
 	if (disableControl_) return;
 
 	bool isMouseOnSpectre = isMouseOnRegion(
@@ -271,28 +271,28 @@ void Spectre::handleEvents(int spectreWidthInPX, ReceiverLogic* receiverLogicNew
 		float mouseWheelVal = io.MouseWheel;
 		if (mouseWheelVal != 0) {
 			if (isMouseOnReceiverFreq) {
-				receiverRegionInterface.setupNewFreq(mouseWheelVal > 0, receiverLogicNew);
+				receiverRegionInterface.setupNewFreq(mouseWheelVal > 0, receiverLogic);
 			} else {
 				if (!ctrlPressed) {
 					int mouseWheelStep = 100;
-					int selectedFreq = receiverLogicNew->getSelectedFreqNew();
+					int selectedFreq = receiverLogic->getSelectedFreqNew();
 					int selectedFreqShortByStep = selectedFreq / mouseWheelStep;
-					if (mouseWheelVal > 0) receiverLogicNew->setFreq(mouseWheelStep * selectedFreqShortByStep + mouseWheelVal * mouseWheelStep);
+					if (mouseWheelVal > 0) receiverLogic->setFreq(mouseWheelStep * selectedFreqShortByStep + mouseWheelVal * mouseWheelStep);
 					else {
 						if (selectedFreq - selectedFreqShortByStep * mouseWheelStep > 0) {
-							receiverLogicNew->setFreq(mouseWheelStep * selectedFreqShortByStep);
+							receiverLogic->setFreq(mouseWheelStep * selectedFreqShortByStep);
 						} else {
-							receiverLogicNew->setFreq(mouseWheelStep * selectedFreqShortByStep + mouseWheelVal * mouseWheelStep);
+							receiverLogic->setFreq(mouseWheelStep * selectedFreqShortByStep + mouseWheelVal * mouseWheelStep);
 						}
 					}
 				}
 				else {
 					if (mouseWheelVal > 0) {
-						flowingFFTSpectre->zoomIn();
+						flowingSpec->zoomIn();
 					} else {
-						flowingFFTSpectre->zoomOut();
+						flowingSpec->zoomOut();
 					}
-					receiverLogicNew->setFrequencyDelta(receiverLogicNew->getFrequencyDelta());
+					receiverLogic->setFrequencyDelta(receiverLogic->getFrequencyDelta());
 					waterfall->clear();
 					spectreRatioAutoCorrection();
 					waterfallAutoColorCorrection();
@@ -304,30 +304,30 @@ void Spectre::handleEvents(int spectreWidthInPX, ReceiverLogic* receiverLogicNew
 	//¬ыполн¤етс¤ если Ќажатие мышки произошло внутри спектра и мышка не была где то уже нажата вне окна
 	if (!viewModel->mouseBusy && (ImGui::IsMouseClicked(0) || ImGui::IsMouseClicked(1)) && (isMouseOnSpectre || isMouseOnWaterfall)) {
 		if (ImGui::IsMouseClicked(0) && isMouseOnSpectre && !isMouseOnWaterfall) {
-			receiverLogicNew->saveSpectrePositionDelta(getMousePosXOnSpectreWindow());
+			receiverLogic->saveSpectrePositionDelta(getMousePosXOnSpectreWindow());
 		}
 		if (ImGui::IsMouseClicked(1) && (isMouseOnWaterfall || isMouseOnSpectre)) {
-			flowingFFTSpectre->prepareForMovingSpectreByMouse(getMousePosXOnSpectreWindow());
+			flowingSpec->prepareForMovingSpectreByMouse(getMousePosXOnSpectreWindow());
 		}
 	}
 
 	if (!viewModel->mouseBusy && ImGui::IsMouseDown(0) && isMouseOnWaterfall) {
 		if (ImGui::IsMouseDown(0)) {
 			int cursorPos = getMousePosXOnSpectreWindow();
-			float freq = receiverLogicNew->getFreqByPosOnSpectrePx(cursorPos);
-			receiverLogicNew->setFreq(freq);
+			float freq = receiverLogic->getFreqByPosOnSpectrePx(cursorPos);
+			receiverLogic->setFreq(freq);
 		}
 	}
 
 	//¬ыполн¤етс¤ если удержание кнопки мышки произошло внутри спектра и мышка не была где то уже нажата вне окна
 	if (!viewModel->mouseBusy && (ImGui::IsMouseDown(0) || ImGui::IsMouseDown(1)) && (isMouseOnSpectre || isMouseOnWaterfall)) {
 		if (ImGui::IsMouseDown(0) && isMouseOnSpectre && !isMouseOnWaterfall) {
-			receiverLogicNew->setFrequencyDeltaFromSavedPosition((float)getMousePosXOnSpectreWindow());
+			receiverLogic->setFrequencyDeltaFromSavedPosition((float)getMousePosXOnSpectreWindow());
 		}
 		if (ImGui::IsMouseDown(1) && (isMouseOnWaterfall || isMouseOnSpectre)) {
-			float newCenterFreq = flowingFFTSpectre->moveSpectreByMouse(spectreWidthInPX, getMousePosXOnSpectreWindow());
+			float newCenterFreq = flowingSpec->moveSpectreByMouse(spectreWidthInPX, getMousePosXOnSpectreWindow());
 
-			receiverLogicNew->setFrequencyDelta(receiverLogicNew->getFrequencyDelta());
+			receiverLogic->setFrequencyDelta(receiverLogic->getFrequencyDelta());
 			waterfall->clear();
 		}
 	}
@@ -339,7 +339,7 @@ void Spectre::handleEvents(int spectreWidthInPX, ReceiverLogic* receiverLogicNew
 
 	//ќпредел¤ем изменилс¤ ли размер окна по x
 	if (savedEndWindowX != sWD.windowLeftBottomCorner.x) {
-		receiverLogicNew->updateSpectreWidth(savedSpectreWidthInPX, spectreWidthInPX);
+		receiverLogic->updateSpectreWidth(savedSpectreWidthInPX, spectreWidthInPX);
 		savedSpectreWidthInPX = spectreWidthInPX;
 		savedEndWindowX = sWD.windowLeftBottomCorner.x;
 	}
@@ -350,7 +350,7 @@ int Spectre::getMousePosXOnSpectreWindow() {
 	return io.MousePos.x - (sWD.startWindowPoint.x + sWD.rightPadding);
 }
 
-void Spectre::drawFreqMarks(ImDrawList* draw_list, ImVec2 startWindowPoint, ImVec2 windowLeftBottomCorner, int spectreWidthInPX, int spectreHeight, FlowingFFTSpectre* flowingFFTSpectre) {
+void Spectre::drawFreqMarks(ImDrawList* draw_list, ImVec2 startWindowPoint, ImVec2 windowLeftBottomCorner, int spectreWidthInPX, int spectreHeight, FlowingSpectre* flowingSpec) {
 	//Horizontal
 	draw_list->AddLine(
 		ImVec2(startWindowPoint.x + sWD.rightPadding, startWindowPoint.y + spectreHeight),
@@ -367,7 +367,7 @@ void Spectre::drawFreqMarks(ImDrawList* draw_list, ImVec2 startWindowPoint, ImVe
 	//Отметки частоты должны зависить от ширины окна спектра, подобрал такую зависимость
 	int markCount = (int)(0.008 * windowLeftBottomCorner.x) * SPECTRE_FREQ_MARK_COUNT_DIV;
 	
-	FlowingFFTSpectre::FREQ_RANGE freqRange = flowingFFTSpectre->getVisibleFreqRangeFromSamplerate();
+	FlowingSpectre::FREQ_RANGE freqRange = flowingSpec->getVisibleFreqRangeFromSamplerate();
 
 	float freqStep = (freqRange.second - freqRange.first) / (float)markCount;
 	float stepInPX = (float)spectreWidthInPX / (float)markCount;
@@ -378,7 +378,7 @@ void Spectre::drawFreqMarks(ImDrawList* draw_list, ImVec2 startWindowPoint, ImVe
 			draw_list->AddText(
 				ImVec2(startWindowPoint.x + sWD.rightPadding + i * stepInPX - 25.0, startWindowPoint.y + spectreHeight + 10.0),
 				IM_COL32_WHITE,
-				Utils::getShortPrittyFreq((int)(flowingFFTSpectre->getVisibleStartFrequency() + (float)i * freqStep)).c_str()
+				Utils::getShortPrittyFreq((int)(flowingSpec->getVisibleStartFrequency() + (float)i * freqStep)).c_str()
 			);
 			draw_list->AddLine(
 				ImVec2(startWindowPoint.x + sWD.rightPadding + i * stepInPX, startWindowPoint.y + spectreHeight - 2),
@@ -399,9 +399,9 @@ void Spectre::drawFreqMarks(ImDrawList* draw_list, ImVec2 startWindowPoint, ImVe
 
 int MAX_THICKNESS = 2.0f;
 
-void Spectre::drawSpectreContour(FFTData::OUTPUT* fullSpectreData, ImDrawList* draw_list, FlowingFFTSpectre* flowingFFTSpectre) {
+void Spectre::drawSpectreContour(FFTData::OUTPUT* fullSpectreData, ImDrawList* draw_list, FlowingSpectre* flowingSpec, SpectreHandler* specHandler) {
 
-	std::vector<float> reducedSpectreData = flowingFFTSpectre->getReducedData(fullSpectreData, config->visibleSpectreBinCount);
+	std::vector<float> reducedSpectreData = flowingSpec->getReducedData(fullSpectreData, config->visibleSpectreBinCount, specHandler);
 
 	minMax = getMinMaxInSpectre(reducedSpectreData, reducedSpectreData.size());
 
@@ -585,7 +585,7 @@ void Spectre::drawSpectreContour(FFTData::OUTPUT* fullSpectreData, ImDrawList* d
 	//reducedSpectreData.clear();
 }
 
-void Spectre::drawFreqPointerMark(ImVec2 startWindowPoint, ImVec2 windowLeftBottomCorner, int spectreWidthInPX, ImDrawList* draw_list, ReceiverLogic* receiverLogicNew) {
+void Spectre::drawFreqPointerMark(ImVec2 startWindowPoint, ImVec2 windowLeftBottomCorner, int spectreWidthInPX, ImDrawList* draw_list, ReceiverLogic* receiverLogic) {
 	ImGuiIO& io = ImGui::GetIO();
 	
 	int baseX = 20;
@@ -624,16 +624,16 @@ void Spectre::drawFreqPointerMark(ImVec2 startWindowPoint, ImVec2 windowLeftBott
 		//delete [] polygon;
 
 		ImGui::SetCursorPos(ImVec2(io.MousePos.x - (startWindowPoint.x + sWD.rightPadding) + 100, io.MousePos.y - startWindowPoint.y + 62));
-		ImGui::Text(Utils::getPrittyFreq((int)receiverLogicNew->getFreqByPosOnSpectrePx(io.MousePos.x - (startWindowPoint.x + sWD.rightPadding))).c_str());
+		ImGui::Text(Utils::getPrittyFreq((int)receiverLogic->getFreqByPosOnSpectrePx(io.MousePos.x - (startWindowPoint.x + sWD.rightPadding))).c_str());
 		ImGui::SetCursorPos(ImVec2(0, 0));
 	}
 }
 
-void Spectre::drawMemoryMarks(ImDrawList* draw_list, FlowingFFTSpectre* flowingFFTSpectre, ReceiverLogic* receiverLogicNew) {
+void Spectre::drawMemoryMarks(ImDrawList* draw_list, FlowingSpectre* flowingSpec, ReceiverLogic* receiverLogic) {
 	const int MARK_HEIGHT_INDENT = -30;
-	auto range = flowingFFTSpectre->getVisibleFreqsRangeAbsolute();
+	auto range = flowingSpec->getVisibleFreqsRangeAbsolute();
 	for (int i = 0; i < config->memoryVector.size(); i++) {
-		auto posX = receiverLogicNew->getPosOnSpectreByFreq(config->memoryVector[i].freq);
+		auto posX = receiverLogic->getPosOnSpectreByFreq(config->memoryVector[i].freq);
 		if (posX > -1) {
 			string mark; 
 			mark.append("[").append(to_string(i)).append("]");
@@ -656,7 +656,7 @@ void Spectre::drawMemoryMarks(ImDrawList* draw_list, FlowingFFTSpectre* flowingF
 				ImGui::EndTooltip();
 				if (ImGui::IsItemClicked()) {
 					waterfall->clear();
-					executeMemoryRecord(config->memoryVector[i], receiverLogicNew);
+					executeMemoryRecord(config->memoryVector[i], receiverLogic);
 				}
 			} else enableControl(i);
 			ImGui::SetCursorPos(ImVec2(0, 0));
@@ -666,9 +666,9 @@ void Spectre::drawMemoryMarks(ImDrawList* draw_list, FlowingFFTSpectre* flowingF
 
 }
 
-void Spectre::executeMemoryRecord(Config::MemoryRecord record, ReceiverLogic* receiverLogicNew) {
+void Spectre::executeMemoryRecord(Config::MemoryRecord record, ReceiverLogic* receiverLogic) {
 	waterfall->clear();
-	receiverLogicNew->setFreq(record.freq);
+	receiverLogic->setFreq(record.freq);
 	viewModel->receiverMode = record.modulation;
 	viewModel->filterWidth = record.filterWidth;
 }

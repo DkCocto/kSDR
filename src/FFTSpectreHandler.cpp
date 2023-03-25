@@ -3,11 +3,11 @@
 float* tmpArray;
 float* tmpArray2;
 
-FFTSpectreHandler::~FFTSpectreHandler() {
+SpectreHandler::~SpectreHandler() {
 	fftw_destroy_plan(fftwPlan);
 }
 
-FFTSpectreHandler::FFTSpectreHandler(Config* config, FFTData* fftData) {
+SpectreHandler::SpectreHandler(Config* config, FFTData* fftData) {
 	this->config = config;
 	
 	this->fftData = fftData;
@@ -71,15 +71,15 @@ FFTSpectreHandler::FFTSpectreHandler(Config* config, FFTData* fftData) {
 	delete[] speedDelta;
  }*/
 
-FFTData* FFTSpectreHandler::getFFTData() {
+FFTData* SpectreHandler::getFFTData() {
 	return fftData;
 }
 
-void FFTSpectreHandler::run() {
+void SpectreHandler::run() {
 	isWorking_ = true;
 	while (true) {
 		if (!config->WORKING) {
-			printf("FFTSpectreHandler Stopped\r\n");
+			printf("SpectreHandler Stopped\r\n");
 			isWorking_ = false;
 			return;
 		}
@@ -89,12 +89,12 @@ void FFTSpectreHandler::run() {
 			spectreDataMutex.unlock();
 			ready = false;
 		} else {
-			std::this_thread::sleep_for(std::chrono::microseconds(1));
+			std::this_thread::sleep_for(std::chrono::microseconds(100));
 		}
 	}
 }
 
-void FFTSpectreHandler::putData(float* data) {
+void SpectreHandler::putData(float* data) {
 	if (!spectreDataMutex.try_lock()) {
 		return;
 	}
@@ -124,7 +124,7 @@ void FFTSpectreHandler::putData(float* data) {
 	return dataCopy;
 }*/
 
-void FFTSpectreHandler::processFFT() {
+void SpectreHandler::processFFT() {
 	//Apply window function
 	for (int i = 0; i < spectreSize; i++) {
 		inData[i][0] = dataBuffer[2 * i] * wbh->getWeights()[i];
@@ -181,14 +181,14 @@ void FFTSpectreHandler::processFFT() {
 }
 
 
-float FFTSpectreHandler::average(float avg, float new_sample, int n) {
+float SpectreHandler::average(float avg, float new_sample, int n) {
 	float tmp = avg;
 	tmp -= avg / (float)n;
 	tmp += new_sample / (float)n;
 	return tmp;
 }
 
-void FFTSpectreHandler::dataPostprocess() {
+void SpectreHandler::dataPostprocess() {
 	for (int i = 0; i < spectreSize; i++) {
 		float psd = this->psd(outData[i][0], outData[i][1]) + config->spectre.spectreCorrectionDb;
 		if (firstRun) {
@@ -205,9 +205,9 @@ void FFTSpectreHandler::dataPostprocess() {
 
 	for (int n = 0; n <= config->spectre.smoothingDepth; n++) {
 		for (int j = 0; j < spectreSize; j++) {
-			if (j >= 2 && j < spectreSize - 2) {
-				//tmpArray2[j] = (tmpArray[j - 1] + tmpArray[j] + tmpArray[j + 1]) / 3;
-				tmpArray2[j] = (tmpArray[j - 2] + 2.0f * tmpArray[j - 1] + 3.0f * tmpArray[j] + 2.0f * tmpArray[j + 1] + tmpArray[j + 2]) / 9.0f;
+			if (j >= 1 && j < spectreSize - 1) {
+				tmpArray2[j] = (tmpArray[j - 1] + tmpArray[j] + tmpArray[j + 1]) / 3;
+				//tmpArray2[j] = (tmpArray[j - 2] + 2.0f * tmpArray[j - 1] + 3.0f * tmpArray[j] + 2.0f * tmpArray[j + 1] + tmpArray[j + 2]) / 9.0f;
 			}
 			else {
 				tmpArray2[j] = tmpArray[j];
@@ -234,16 +234,12 @@ void FFTSpectreHandler::dataPostprocess() {
 	}
 }
 
-/*int FFTSpectreHandler::getSpectreSize() {
-	return spectreSize;
-}*/
-
-float FFTSpectreHandler::psd(float re, float im) {
+float SpectreHandler::psd(float re, float im) {
 	return 10 * log(re * re + im * im);
 }
 
-std::thread FFTSpectreHandler::start() {
-	std::thread p(&FFTSpectreHandler::run, this);
+std::thread SpectreHandler::start() {
+	std::thread p(&SpectreHandler::run, this);
 	SetThreadPriority(p.native_handle(), THREAD_PRIORITY_HIGHEST);
 	DWORD result = ::SetThreadIdealProcessor(p.native_handle(), 2);
 	return p;

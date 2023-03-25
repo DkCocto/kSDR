@@ -62,7 +62,7 @@
     <ClCompile Include="src\Mixer.cpp" />
     <ClCompile Include="src\Oscillator.cpp" />
     <ClCompile Include="src\PolyPhaseFilter.cpp" />
-    <ClCompile Include="src\ReceiverLogicNew.cpp" />
+    <ClCompile Include="src\ReceiverLogic.cpp" />
     <ClCompile Include="src\ReceiverRegionInterface.cpp" />
     <ClCompile Include="src\RSP1.cpp" />
     <ClCompile Include="src\RSPv2.cpp" />
@@ -134,7 +134,7 @@
     <ClInclude Include="src\Mixer.h" />
     <ClInclude Include="src\Oscillator.h" />
     <ClInclude Include="src\PolyPhaseFilter.h" />
-    <ClInclude Include="src\ReceiverLogicNew.h" />
+    <ClInclude Include="src\ReceiverLogic.h" />
     <ClInclude Include="src\ReceiverRegionInterface.h" />
     <ClInclude Include="src\RSP1.h" />
     <ClInclude Include="src\RSPv2.h" />
