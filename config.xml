@@ -31,12 +31,12 @@
         <HackRF>
             <!-- App sampling rate will be: deviceSamplingRate / decimation -->
             <deviceSamplingRate>8000000</deviceSamplingRate>
-            <basebandFilter>1750000</basebandFilter>
+            <basebandFilter>2500000</basebandFilter>
             <rxAmp>0</rxAmp>
             <!-- 0 1 2 3 4-->
             <lnaGain>3</lnaGain>
             <!-- 0 .. 30 -->
-            <vgaGain>16</vgaGain>
+            <vgaGain>15</vgaGain>
             <!-- 0 .. 40 step 2-->
             <txAmp>20</txAmp>
         </HackRF>
@@ -46,12 +46,12 @@
         </RTL>
     </Device>
     <Receiver>
-        <startFreq>6900000</startFreq>
-        <lastSelectedFreq>7135000</lastSelectedFreq>
-        <volume>1.2079999</volume>
-        <filterWidth>2700</filterWidth>
+        <startFreq>3500000</startFreq>
+        <lastSelectedFreq>3119440.8</lastSelectedFreq>
+        <volume>1.174</volume>
+        <filterWidth>3200</filterWidth>
         <!-- USB:0, LSB:1, AM:2, nFM:3 -->
-        <modulation>1</modulation>
+        <modulation>2</modulation>
         <enableFrequencyShift>0</enableFrequencyShift>
         <frequencyShift>100000000</frequencyShift>
         <Agc>
@@ -62,37 +62,37 @@
         </Agc>
     </Receiver>
     <Waterfall>
-        <min>-168.11618</min>
-        <max>-90.925438</max>
+        <min>-123.98094</min>
+        <max>12.159882</max>
         <speed>2</speed>
     </Waterfall>
     <Spectre>
-        <ratio>-66.441246</ratio>
-        <min>-175.60037</min>
+        <ratio>13.836704</ratio>
+        <min>-108.65776</min>
         <speed>5</speed>
-        <speed2>2</speed2>
+        <speed2>14</speed2>
         <!-- Must be a power of 2. The total will be fftLen = fftLen * 1024 -->
         <fftLen>262144</fftLen>
-        <visibleStartFreq>7087195</visibleStartFreq>
-        <visibleStopFreq>7183447</visibleStopFreq>
-        <startBin>68603</startBin>
-        <stopBin>70179</stopBin>
+        <visibleStartFreq>2573120</visibleStartFreq>
+        <visibleStopFreq>3740234</visibleStopFreq>
+        <startBin>50350</startBin>
+        <stopBin>69471</stopBin>
         <removeDCBias>1</removeDCBias>
-        <style>1</style>
+        <style>2</style>
         <contourShowsPower>0</contourShowsPower>
         <bottomCoeff>0.935</bottomCoeff>
         <topCoeff>1.073</topCoeff>
         <hangAndDecay>1</hangAndDecay>
-        <decaySpeed>0.068000004</decaySpeed>
-        <decaySpeedDelta>1.4349999</decaySpeedDelta>
+        <decaySpeed>0.050999999</decaySpeed>
+        <decaySpeedDelta>0.884</decaySpeedDelta>
         <smoothingDepth>1</smoothingDepth>
-        <spectreCorrectionDb>-174</spectreCorrectionDb>
+        <spectreCorrectionDb>-121</spectreCorrectionDb>
     </Spectre>
     <ColorTheme>
         <spectreFillColor>4281337632</spectreFillColor>
         <spectreProfileColor>4291151301</spectreProfileColor>
         <mainBGColor>4282324747</mainBGColor>
-        <windowsBGColor>4280098077</windowsBGColor>
+        <windowsBGColor>4278190080</windowsBGColor>
         <windowsTitleBGColor>4284887578</windowsTitleBGColor>
         <receiveRegionColor>1655028244</receiveRegionColor>
     </ColorTheme>

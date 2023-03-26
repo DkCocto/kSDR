@@ -36,6 +36,8 @@ SoundProcessorThread::SoundProcessorThread(DeviceController* devCnt,
 
 SoundProcessorThread::~SoundProcessorThread() {
 	printf("~SoundProcessorThread()\r\n");
+	delete[] decimateBufferI;
+	delete[] decimateBufferQ;
 }
 
 void SoundProcessorThread::initFilters(int filterWidth) {
@@ -63,6 +65,8 @@ void SoundProcessorThread::process() {
 	while (true) {
 		if (!config->WORKING) {
 			printf("SoundProcess Stopped\r\n");
+			delete[] data;
+			delete[] outputData;
 			isWorking_ = false;
 			return;
 		}
@@ -81,8 +85,6 @@ void SoundProcessorThread::process() {
 
 			long count = 0;
 			for (int i = 0; i < len / 2; i++) {
-
-				if (viewModel->removeDCBias) dcRemove.process(&data[2 * i], &data[2 * i + 1]);
 
 				mixer.setFreq(receiverLogic->getFrequencyDelta());
 				Signal mixedSignal = mixer.mix(data[2 * i], data[2 * i + 1]);
@@ -144,7 +146,7 @@ void SoundProcessorThread::process() {
 
 			soundWriterCircleBuffer->write(outputData, (len / 2) / config->outputSamplerateDivider);
 			//fftSpectreHandler->setSpectreSpeed(Display::instance->viewModel->spectreSpeed);
-			specHandler->putData(data);
+			//specHandler->putData(data);
 		} else {
 			//printf("SoundProcessorThread: Waiting for iqSignalsCircleBuffer...\r\n");
 			std::this_thread::sleep_for(std::chrono::milliseconds(10));
@@ -154,7 +156,7 @@ void SoundProcessorThread::process() {
 
 std::thread SoundProcessorThread::start() {
 	std::thread p(&SoundProcessorThread::process, this);
-	DWORD result = ::SetThreadIdealProcessor(p.native_handle(), 2);
-	SetThreadPriority(p.native_handle(), THREAD_PRIORITY_HIGHEST);
+	/*DWORD result = ::SetThreadIdealProcessor(p.native_handle(), 2);
+	SetThreadPriority(p.native_handle(), THREAD_PRIORITY_HIGHEST);*/
 	return p;
 }

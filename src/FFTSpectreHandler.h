@@ -9,6 +9,9 @@
 #include "Thread/MyThread.h"
 #include "Spectre/FFTData.h"
 #include "windows.h"
+#include "../DataReceiver.h"
+#include "DCRemove.h"
+#include "CircleBuffer.h"
 
 class SpectreHandler : public MyThread {
 	
@@ -65,11 +68,17 @@ private:
 
 	std::atomic_bool ready = false;
 
+	DCRemove dcRemove;
+
+	ViewModel* viewModel;
+
+	CircleBuffer* circleBuffer;
+
 public:
 
 	FFTData* getFFTData();
 
-	SpectreHandler(Config* config, FFTData* fftData);
+	SpectreHandler(Config* config, FFTData* fftData, ViewModel* viewModel, CircleBuffer* circleBuffer);
 	~SpectreHandler();
 
 	void putData(float* data);

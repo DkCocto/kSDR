@@ -8,7 +8,7 @@ class DeviceN {
 	
 	private:
 
-		std::vector<CircleBuffer*>* receivers = nullptr;
+		std::vector<DataReceiver*>* receivers = nullptr;
 
 	public:
 
@@ -16,8 +16,8 @@ class DeviceN {
 
 		DeviceN(Config* config);
 		
-		void setReceivers(std::vector<CircleBuffer*>* receivers);
-		std::vector<CircleBuffer*>* getReceivers();
+		void setReceivers(std::vector<DataReceiver*>* receivers);
+		std::vector<DataReceiver*>* getReceivers();
 
 		virtual ~DeviceN() {};
 
@@ -40,5 +40,5 @@ class DeviceN {
 		virtual Result start() = 0;
 		virtual void stop() = 0;
 
-		CircleBuffer* getReceiver();
+		//DataReceiver* getReceiver();
 };

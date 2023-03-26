@@ -2,15 +2,21 @@
 
 Environment::Environment() {
 	config = new Config();
+	viewModel = new ViewModel(config);									//is not need to recreate
 	deviceController = new DeviceController(config);					//is not need to recreate
 	IQSourceBuffer = new CircleBuffer(config->circleBufferLen);			//is not need to recreate
-	deviceController->addReceiver(IQSourceBuffer);						//is not need to recreate
+	IQSourceBuffer2 = new CircleBuffer(config->circleBufferLen);			//is not need to recreate
 	soundBuffer = new CircleBuffer(config->circleBufferLen);			//is not need to recreate
 	fftData = new FFTData(config->fftLen / 2);							//is not need to recreate
-	specHandler = new SpectreHandler(config, fftData);					//need to recreate
-	viewModel = new ViewModel(config);									//is not need to recreate
+	specHandler = new SpectreHandler(config, fftData, viewModel, IQSourceBuffer2);	//need to recreate
 	flowingSpec = new FlowingSpectre(config, viewModel);				//is not need to recreate
 	receiverLogic = new ReceiverLogic(config, viewModel, flowingSpec);	//need to setup new flowingSpec during its recreating
+	initReceivers();
+}
+
+void Environment::initReceivers() {
+	deviceController->addReceiver(IQSourceBuffer);						//is not need to recreate
+	deviceController->addReceiver(IQSourceBuffer2);							//is not need to recreate
 }
 
 Environment::~Environment() {
@@ -66,7 +72,10 @@ void Environment::reload() {
 
 	delete specHandler;
 	specHandler = nullptr;
-	specHandler = new SpectreHandler(config, fftData);
+	specHandler = new SpectreHandler(config, fftData, viewModel, IQSourceBuffer2);
+
+	deviceController->getReceivers()->clear();
+	initReceivers();
 
 	flowingSpec->setPos(
 		flowingSpec->getSpectrePosByAbsoluteFreq((double)config->spectre.visibleStartFreq),
@@ -80,6 +89,14 @@ void Environment::reload() {
 }
 
 void Environment::startProcessing() {
+
+	if (soundProcessor != nullptr) {
+		if (soundProcessor->isWorking()) {
+			printf("Need to stop processing first!\r\n");
+			return;
+		}
+	}
+
 	deviceController->start(config->deviceType);
 
 	if (deviceController->isReadyToReceiveCmd()) {

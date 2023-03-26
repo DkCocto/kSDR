@@ -101,6 +101,10 @@ void DeviceController::resetResult() {
     result = DeviceN::Result { DeviceN::NOT_CREATED, "" };
 }
 
+std::vector<DataReceiver*>* DeviceController::getReceivers() {
+    return &receivers;
+}
+
 DeviceController::DeviceController(Config* config) {
     this->config = config;
 }
@@ -110,6 +114,6 @@ DeviceController::~DeviceController() {
     delete deviceInterface;
 }
 
-void DeviceController::addReceiver(CircleBuffer* circleBuffer) {
-    receivers.push_back(circleBuffer);
+void DeviceController::addReceiver(DataReceiver* dataRceiver) {
+    receivers.push_back(dataRceiver);
 }

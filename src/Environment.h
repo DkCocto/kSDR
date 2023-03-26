@@ -18,6 +18,7 @@ class Environment {
 
 		//Буфер для сигналов I Q
 		CircleBuffer* IQSourceBuffer = nullptr;
+		CircleBuffer* IQSourceBuffer2 = nullptr;
 
 		CircleBuffer* soundBuffer = nullptr;
 
@@ -40,6 +41,7 @@ class Environment {
 		std::atomic_bool reloading = false;
 
 		Environment();
+		void initReceivers();
 		~Environment();
 		void cleanUp();
 		Config* getConfig();

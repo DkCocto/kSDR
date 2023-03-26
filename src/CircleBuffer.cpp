@@ -57,7 +57,7 @@ int CircleBuffer::available() {
 }
 
 void CircleBuffer::reset() {
-	printf("Buffer reset...\r\n");
+	//printf("Buffer reset...\r\n");
 	writePointer = -1;
 	readPointer = -1;
 }

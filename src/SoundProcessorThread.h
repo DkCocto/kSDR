@@ -8,7 +8,6 @@
 #include "CircleBuffer.h"
 #include "AGC.h"
 #include "FIR.h"
-#include "DCRemove.h"
 #include "FMDemodulator.h"
 #include "Device/DeviceController.h"
 #include "ReceiverLogic.h"
@@ -44,8 +43,6 @@ class SoundProcessorThread : public MyThread {
 	FIR firI;
 	FIR firQ;
 	//FIR audioFilterFM;
-
-	DCRemove dcRemove;
 
 	DeviceController* devCnt;
 

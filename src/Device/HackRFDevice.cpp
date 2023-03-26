@@ -186,7 +186,7 @@ int HackRFDevice::rx_callback(hackrf_transfer* transfer) {
 	int bytes_to_write = transfer->buffer_length;
 
 	HackRFDevice* hackRFDevice = (HackRFDevice*)transfer->rx_ctx;
-	std::vector<CircleBuffer*>* receivers = hackRFDevice->getReceivers();
+	std::vector<DataReceiver*>* receivers = hackRFDevice->getReceivers();
 
 	for (int i = 0; i < (bytes_to_write / 2 - 1); i++) {
 		transfer->buffer[2 * i] ^= (uint8_t)0x80;
@@ -197,8 +197,10 @@ int HackRFDevice::rx_callback(hackrf_transfer* transfer) {
 
 		if (receivers != nullptr) {
 			for (int j = 0; j < receivers->size(); j++) {
-				receivers->at(j)->write(I);
-				receivers->at(j)->write(Q);
+				if (receivers->at(j) != nullptr) {
+					receivers->at(j)->write(I);
+					receivers->at(j)->write(Q);
+				}
 			}
 		}
 	}

@@ -174,9 +174,6 @@ void Display::renderImGUIFirst() {
 		return;
 	}
 
-	//DeviceN* device = environment->getDeviceController()->getDevice();
-	//DeviceController* deviceController = environment->getDeviceController();
-
 	//Store window size
 	env->getConfig()->app.winWidth = width;
 	env->getConfig()->app.winHeight = height;
@@ -489,7 +486,6 @@ void Display::renderImGUIFirst() {
 	auto range = env->getFlowingSpectre()->getVisibleFreqsRangeAbsolute();
 	env->getConfig()->spectre.visibleStartFreq = range.first;
 	env->getConfig()->spectre.visibleStopFreq = range.second;
-
 }
 
 void Display::showSelectDeviceSetting() {
@@ -740,7 +736,7 @@ void Display::initSettings() {
 	spectreStyleMap.insert(pair<int, string> {0, "0"});
 	spectreStyleMap.insert(pair<int, string> {1, "1"});
 	spectreStyleMap.insert(pair<int, string> {2, "2"});
-	spectreStyleLS = std::make_unique<ListSetting>(env, spectreStyleMap, "Spectre style", true);
+	spectreStyleLS = std::make_unique<ListSetting>(env, spectreStyleMap, "Spectre style", false);
 	spectreStyleLS->bindVariable(&env->getConfig()->spectre.style);
 
 	std::map<int, std::string> smoothingDepthMap;

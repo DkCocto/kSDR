@@ -173,6 +173,8 @@ public:
 
 	void prepareConfiguration();
 
+	std::atomic_bool ends5frame = false;
+
 private:
 	void calcOutputSamplerate();
 };

@@ -24,16 +24,18 @@ class DeviceController {
 
 		void destroy();
 
-		std::vector<CircleBuffer*> receivers;
+		std::vector<DataReceiver*> receivers;
 
 		void resetReceivers();
 
 	public:
 
+		std::vector<DataReceiver*>* getReceivers();
+
 		DeviceController(Config* config);
 		~DeviceController();
 
-		void addReceiver(CircleBuffer* circleBuffer);
+		void addReceiver(DataReceiver* dataRceiver);
 		DeviceType getCurrentDeviceType();
 
 		DeviceN* getDevice();

@@ -21,8 +21,10 @@ SpectreHandler::~SpectreHandler() {
 	delete[] speedDelta;
 }
 
-SpectreHandler::SpectreHandler(Config* config, FFTData* fftData) {
+SpectreHandler::SpectreHandler(Config* config, FFTData* fftData, ViewModel* viewModel, CircleBuffer* circleBuffer) {
 	this->config = config;
+	this->viewModel = viewModel;
+	this->circleBuffer = circleBuffer;
 	
 	this->fftData = fftData;
 
@@ -72,6 +74,8 @@ FFTData* SpectreHandler::getFFTData() {
 	return fftData;
 }
 
+std::atomic_int idx = 0;
+
 void SpectreHandler::run() {
 	isWorking_ = true;
 	while (true) {
@@ -80,14 +84,23 @@ void SpectreHandler::run() {
 			isWorking_ = false;
 			return;
 		}
-		if (ready) {
+		int available = circleBuffer->available();
+		if (available >= config->fftLen) {
+			circleBuffer->read(dataBuffer, config->fftLen);
+			processFFT();
+		} else {
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		}
+
+		/*if (ready) {
 			spectreDataMutex.lock();
 			processFFT();
+			idx = 0;
 			spectreDataMutex.unlock();
 			ready = false;
 		} else {
-			std::this_thread::sleep_for(std::chrono::microseconds(100));
-		}
+			std::this_thread::sleep_for(std::chrono::nanoseconds(1));
+		}*/
 	}
 }
 
@@ -100,30 +113,22 @@ void SpectreHandler::putData(float* data) {
 	ready = true;
 }
 
-/*float* FFTSpectreHandler::getOutputCopy(int startPos, int len, bool forWaterfall) {
-	float* buffer = new float[spectreSize];
+/*void SpectreHandler::write(float val) {
+	if (ready) return;
+	dataBuffer[idx] = val;
+	idx++;
+	if (idx >= spectreSize) ready = true;
+}*/
 
-	//spectreDataMutex.lock();
-
-	float* data = (forWaterfall == true) ? outputWaterfall : superOutput;
-
-	memcpy(buffer, data + (spectreSize / 2), sizeof(data) * (spectreSize / 2));
-	memcpy(buffer + (spectreSize / 2), data, sizeof(data) * (spectreSize / 2));
-
-	//spectreDataMutex.unlock();
-
-	float* dataCopy = new float[len];
-
-	memcpy(dataCopy, buffer + startPos, sizeof(float) * len);
-
-	delete[] buffer;
-
-	return dataCopy;
+/*void SpectreHandler::reset() {
+	idx = 0;
 }*/
 
 void SpectreHandler::processFFT() {
 	//Apply window function
+
 	for (int i = 0; i < spectreSize; i++) {
+		if (viewModel->removeDCBias) dcRemove.process(&dataBuffer[2 * i], &dataBuffer[2 * i + 1]);
 		inData[i][0] = dataBuffer[2 * i] * wbh->getWeights()[i];
 		inData[i][1] = dataBuffer[2 * i + 1] * wbh->getWeights()[i];
 	}
@@ -241,3 +246,24 @@ std::thread SpectreHandler::start() {
 	DWORD result = ::SetThreadIdealProcessor(p.native_handle(), 2);
 	return p;
 }
+
+/*float* FFTSpectreHandler::getOutputCopy(int startPos, int len, bool forWaterfall) {
+	float* buffer = new float[spectreSize];
+
+	//spectreDataMutex.lock();
+
+	float* data = (forWaterfall == true) ? outputWaterfall : superOutput;
+
+	memcpy(buffer, data + (spectreSize / 2), sizeof(data) * (spectreSize / 2));
+	memcpy(buffer + (spectreSize / 2), data, sizeof(data) * (spectreSize / 2));
+
+	//spectreDataMutex.unlock();
+
+	float* dataCopy = new float[len];
+
+	memcpy(dataCopy, buffer + startPos, sizeof(float) * len);
+
+	delete[] buffer;
+
+	return dataCopy;
+}*/

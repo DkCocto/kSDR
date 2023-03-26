@@ -2,17 +2,16 @@
 
 #include "stdio.h"
 #include "mutex"
+#include "../DataReceiver.h"
 
-class CircleBuffer {
+class CircleBuffer: public DataReceiver {
 	float* buf = 0;
 	int size;
 
 	int readPointer = -1;
-
-	std::mutex m;
+	int writePointer = -1;
 
 	public:
-		int writePointer = -1;
 		CircleBuffer(int size);
 		void write(float val);
 		void write(float buf[], int bufLen);

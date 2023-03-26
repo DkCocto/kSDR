@@ -225,6 +225,9 @@
     <ClCompile Include="src\Spectre\FFTData.cpp">
       <Filter>Исходные файлы\Spectre</Filter>
     </ClCompile>
+    <ClCompile Include="DataReceiver.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Config.h">
@@ -436,6 +439,9 @@
     </ClInclude>
     <ClInclude Include="src\Spectre\FFTData.h">
       <Filter>Файлы заголовков\Spectre</Filter>
+    </ClInclude>
+    <ClInclude Include="DataReceiver.h">
+      <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
