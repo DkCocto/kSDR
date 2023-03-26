@@ -10,6 +10,7 @@ class WindowBlackmanHarris {
 public:
 
     WindowBlackmanHarris(int fftLen); //this->len = fftLen * 2; 
+    ~WindowBlackmanHarris();
 
     float* getWeights();
 

@@ -220,6 +220,12 @@ void Config::loadXml() {
             tinyxml2::XMLElement* pstopBin = pSpectre->FirstChildElement("stopBin");
             stopBin = std::stoi(std::string(pstopBin->GetText()));
 
+            tinyxml2::XMLElement* pvisibleStartFreq = pSpectre->FirstChildElement("visibleStartFreq");
+            spectre.visibleStartFreq = std::stoi(std::string(pvisibleStartFreq->GetText()));
+
+            tinyxml2::XMLElement* pvisibleStopFreq = pSpectre->FirstChildElement("visibleStopFreq");
+            spectre.visibleStopFreq = std::stoi(std::string(pvisibleStopFreq->GetText()));
+
             //Проверка на случай если fftLen изменилось, а границы спектра выходят за общую границу FFT
             if (startBin > (fftLen / 2) || stopBin > (fftLen / 2)) {
                 startBin = 0;
@@ -507,6 +513,12 @@ void Config::save() {
 
             tinyxml2::XMLElement* pstopBin = pSpectre->FirstChildElement("stopBin");
             pstopBin->SetText(stopBin);
+
+            tinyxml2::XMLElement* pvisibleStartFreq = pSpectre->FirstChildElement("visibleStartFreq");
+            pvisibleStartFreq->SetText(spectre.visibleStartFreq);
+
+            tinyxml2::XMLElement* pvisibleStopFreq = pSpectre->FirstChildElement("visibleStopFreq");
+            pvisibleStopFreq->SetText(spectre.visibleStopFreq);
 
             tinyxml2::XMLElement* premoveDCBias = pSpectre->FirstChildElement("removeDCBias");
             premoveDCBias->SetText(removeDCBias);

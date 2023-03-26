@@ -47,6 +47,7 @@ public:
 	void zoomOut();
 
 	void printCurrentPos();
+	int getSpectrePosByAbsoluteFreq(double freq);
 	float getAbsoluteFreqBySpectrePos(int pos);
 	float getFreqByPosFromSamplerate(int pos);
 	struct FREQ_RANGE {

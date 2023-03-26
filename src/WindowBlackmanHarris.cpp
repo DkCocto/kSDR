@@ -5,6 +5,10 @@ WindowBlackmanHarris::WindowBlackmanHarris(int fftLen) {
 	init();
 }
 
+WindowBlackmanHarris::~WindowBlackmanHarris() {
+    delete[] weightArray;
+}
+
 float* WindowBlackmanHarris::getWeights() {
 	return weightArray;
 }

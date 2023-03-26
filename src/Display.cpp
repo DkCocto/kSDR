@@ -377,9 +377,9 @@ void Display::renderImGUIFirst() {
 			}
 			if (ImGui::BeginTabItem("Settings")) {
 				ImGui::Spacing();
-				ImGui::Text("After changing the settings marked with an asterisk, you need to restart the application.\n");
+				ImGui::Text("After changing the settings marked with an asterisk\napplication components will be reinitialized.");
 
-				decimationLS->drawSetting();
+				//decimationLS->drawSetting();
 
 				ImGui::Spacing();
 				ImGui::SeparatorText("Frequency shift");
@@ -485,6 +485,11 @@ void Display::renderImGUIFirst() {
 	ImGui::PopStyleColor();
 
 	env->getConfig()->lastSelectedFreq = env->getReceiverLogic()->getSelectedFreqNew(); //saving last selected freq to env->getConfig() class
+	
+	auto range = env->getFlowingSpectre()->getVisibleFreqsRangeAbsolute();
+	env->getConfig()->spectre.visibleStartFreq = range.first;
+	env->getConfig()->spectre.visibleStopFreq = range.second;
+
 }
 
 void Display::showSelectDeviceSetting() {
@@ -577,7 +582,7 @@ void Display::showColorPicker(string title, unsigned int* configVal, bool withTr
 
 
 void Display::initDynamicSettings() {
-	std::map<int, std::string> decimationMap;
+	/*std::map<int, std::string> decimationMap;
 	for (int i = 1, j = 0; i <= 64; i++) {
 		if (env->getConfig()->deviceType == DeviceType::HACKRF) {
 			if (env->getConfig()->hackrf.deviceSamplingRate % i == 0) {
@@ -600,7 +605,7 @@ void Display::initDynamicSettings() {
 		}
 	}
 	decimationLS = std::make_unique<ListSetting>(env, decimationMap, "Decimation", true);
-	decimationLS->bindVariable(&env->getConfig()->delayedInputSamplerateDivider);
+	decimationLS->bindVariable(&env->getConfig()->delayedInputSamplerateDivider);*/
 
 	if (env->getConfig()->deviceType == DeviceType::RSP) {
 		std::map<int, std::string> rspDecimationFactorMap;

@@ -100,6 +100,8 @@ public:
 		int spectreSpeed2 = 5;
 		int smoothingDepth = 2;
 		int spectreCorrectionDb = -50;
+		int visibleStartFreq = 7000000;
+		int visibleStopFreq = 7200000;
 	} spectre;
 
 	struct Receiver {

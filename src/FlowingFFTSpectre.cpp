@@ -106,12 +106,16 @@ void FlowingSpectre::printCurrentPos() {
 	printf("A=%i B=%i Len=%i, Total spectre[0; %i] Len: %i\r\n", A, B, getLen(), config->fftLen / 2 - 1, config->fftLen / 2);
 }
 
+int FlowingSpectre::getSpectrePosByAbsoluteFreq(double freq) {
+	return round(((float)(config->fftLen / 2.0) / (float)config->inputSamplerate) * (freq - (float)viewModel->centerFrequency + ((float)config->inputSamplerate / 2.0)));
+}
+
 float FlowingSpectre::getAbsoluteFreqBySpectrePos(int pos) {
 	return (float)viewModel->centerFrequency - ((float)config->inputSamplerate / 2.0) + getFreqByPosFromSamplerate(pos);
 }
 
 float FlowingSpectre::getFreqByPosFromSamplerate(int pos) {
-	return (float)pos * ((float)config->inputSamplerate / (float)(config->fftLen / 2));
+	return (float)pos * ((float)config->inputSamplerate / (float)(config->fftLen / 2.0));
 }
 
 FlowingSpectre::FREQ_RANGE FlowingSpectre::getVisibleFreqRangeFromSamplerate() {

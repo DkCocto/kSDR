@@ -5,6 +5,10 @@ WindowBlackman::WindowBlackman(int fftLen) {
     init();
 }
 
+WindowBlackman::~WindowBlackman() {
+    delete[] weightArray;
+}
+
 float* WindowBlackman::getWeights() {
     return weightArray;
 }

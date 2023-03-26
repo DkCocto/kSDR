@@ -30,13 +30,13 @@
         </RSP>
         <HackRF>
             <!-- App sampling rate will be: deviceSamplingRate / decimation -->
-            <deviceSamplingRate>16000000</deviceSamplingRate>
+            <deviceSamplingRate>8000000</deviceSamplingRate>
             <basebandFilter>1750000</basebandFilter>
             <rxAmp>0</rxAmp>
             <!-- 0 1 2 3 4-->
-            <lnaGain>4</lnaGain>
+            <lnaGain>3</lnaGain>
             <!-- 0 .. 30 -->
-            <vgaGain>11</vgaGain>
+            <vgaGain>16</vgaGain>
             <!-- 0 .. 40 step 2-->
             <txAmp>20</txAmp>
         </HackRF>
@@ -46,12 +46,12 @@
         </RTL>
     </Device>
     <Receiver>
-        <startFreq>9439387</startFreq>
-        <lastSelectedFreq>9640065</lastSelectedFreq>
+        <startFreq>6900000</startFreq>
+        <lastSelectedFreq>7135000</lastSelectedFreq>
         <volume>1.2079999</volume>
-        <filterWidth>8000</filterWidth>
+        <filterWidth>2700</filterWidth>
         <!-- USB:0, LSB:1, AM:2, nFM:3 -->
-        <modulation>2</modulation>
+        <modulation>1</modulation>
         <enableFrequencyShift>0</enableFrequencyShift>
         <frequencyShift>100000000</frequencyShift>
         <Agc>
@@ -62,28 +62,30 @@
         </Agc>
     </Receiver>
     <Waterfall>
-        <min>-179.07207</min>
-        <max>-64.935646</max>
+        <min>-168.11618</min>
+        <max>-90.925438</max>
         <speed>2</speed>
     </Waterfall>
     <Spectre>
-        <ratio>-47.349297</ratio>
-        <min>-179.65842</min>
+        <ratio>-66.441246</ratio>
+        <min>-175.60037</min>
         <speed>5</speed>
         <speed2>2</speed2>
         <!-- Must be a power of 2. The total will be fftLen = fftLen * 1024 -->
         <fftLen>262144</fftLen>
-        <startBin>66402</startBin>
-        <stopBin>67946</stopBin>
+        <visibleStartFreq>7087195</visibleStartFreq>
+        <visibleStopFreq>7183447</visibleStopFreq>
+        <startBin>68603</startBin>
+        <stopBin>70179</stopBin>
         <removeDCBias>1</removeDCBias>
-        <style>2</style>
+        <style>1</style>
         <contourShowsPower>0</contourShowsPower>
-        <bottomCoeff>0.91500002</bottomCoeff>
-        <topCoeff>1.207</topCoeff>
+        <bottomCoeff>0.935</bottomCoeff>
+        <topCoeff>1.073</topCoeff>
         <hangAndDecay>1</hangAndDecay>
         <decaySpeed>0.068000004</decaySpeed>
         <decaySpeedDelta>1.4349999</decaySpeedDelta>
-        <smoothingDepth>2</smoothingDepth>
+        <smoothingDepth>1</smoothingDepth>
         <spectreCorrectionDb>-174</spectreCorrectionDb>
     </Spectre>
     <ColorTheme>

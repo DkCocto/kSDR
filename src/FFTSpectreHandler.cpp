@@ -5,6 +5,20 @@ float* tmpArray2;
 
 SpectreHandler::~SpectreHandler() {
 	fftw_destroy_plan(fftwPlan);
+	delete wb;
+	delete wbh;
+	delete[] dataBuffer;
+	delete[] realInput;
+	delete[] imInput;
+	delete[] realOut;
+	delete[] imOut;
+	delete[] superOutput;
+	delete[] outputWaterfall;
+	delete[] tmpArray;
+	delete[] tmpArray2;
+	delete[] inData;
+	delete[] outData;
+	delete[] speedDelta;
 }
 
 SpectreHandler::SpectreHandler(Config* config, FFTData* fftData) {
@@ -53,23 +67,6 @@ SpectreHandler::SpectreHandler(Config* config, FFTData* fftData) {
 	speedDelta = new float[spectreSize];
 	//memset(speedDelta, 1, sizeof(float) * spectreSize);
 }
-
-/*void FFTSpectreHandler::clear() {
-	delete wb;
-	delete wbh;
-	delete[] dataBuffer;
-	delete[] realInput;
-	delete[] imInput;
-	delete[] realOut;
-	delete[] imOut;
-	delete[] superOutput;
-	delete[] outputWaterfall;
-	delete[] tmpArray;
-	delete[] tmpArray2;
-	delete[] inData;
-	delete[] outData;
-	delete[] speedDelta;
- }*/
 
 FFTData* SpectreHandler::getFFTData() {
 	return fftData;

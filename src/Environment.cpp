@@ -7,7 +7,7 @@ Environment::Environment() {
 	deviceController->addReceiver(IQSourceBuffer);						//is not need to recreate
 	soundBuffer = new CircleBuffer(config->circleBufferLen);			//is not need to recreate
 	fftData = new FFTData(config->fftLen / 2);							//is not need to recreate
-	specHandler = new SpectreHandler(config, fftData);					//neet to recreate
+	specHandler = new SpectreHandler(config, fftData);					//need to recreate
 	viewModel = new ViewModel(config);									//is not need to recreate
 	flowingSpec = new FlowingSpectre(config, viewModel);				//is not need to recreate
 	receiverLogic = new ReceiverLogic(config, viewModel, flowingSpec);	//need to setup new flowingSpec during its recreating
@@ -61,13 +61,17 @@ void Environment::reload() {
 	config->save();
 	config->prepareConfiguration();
 	viewModel->loadFromConfig();
-	//viewModel = new ViewModel(config);
 
 	fftData->init(config->fftLen / 2);
 
 	delete specHandler;
 	specHandler = nullptr;
 	specHandler = new SpectreHandler(config, fftData);
+
+	flowingSpec->setPos(
+		flowingSpec->getSpectrePosByAbsoluteFreq((double)config->spectre.visibleStartFreq),
+		flowingSpec->getSpectrePosByAbsoluteFreq((double)config->spectre.visibleStopFreq)
+	);
 
 	receiverLogic->setFreq(config->lastSelectedFreq);
 
