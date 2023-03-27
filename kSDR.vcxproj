@@ -91,6 +91,7 @@
     <ClInclude Include="src\AGC.h" />
     <ClInclude Include="src\Average.h" />
     <ClInclude Include="src\CircleBuffer.h" />
+    <ClInclude Include="src\CircleBufferNew.h" />
     <ClInclude Include="src\CircleBufferReaderThread.h" />
     <ClInclude Include="src\CircleBufferWriterThread.h" />
     <ClInclude Include="src\ColoredSpectreBG.h" />

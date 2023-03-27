@@ -443,6 +443,9 @@
     <ClInclude Include="DataReceiver.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="src\CircleBufferNew.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="kSDR.rc">
