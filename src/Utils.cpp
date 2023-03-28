@@ -15,7 +15,7 @@ void Utils::printArray(double* array, int len) {
 
 void Utils::printArray(int* array, int len) {
 	for (int i = 0; i < len; i++) {
-		printf("%i %i\r\n", i, array[i]);
+		printf("[%i]=%i\r\n", i, array[i]);
 	}
 }
 

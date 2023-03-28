@@ -471,9 +471,9 @@ void Display::renderImGUIFirst() {
 
 	spectre->draw(env->getReceiverLogic(), env->getFlowingSpectre(), env->getFFTSpectreHandler());
 
-	if (env->getDeviceController()->getResult()->status == DeviceN::INIT_BUT_FAIL) {
+	if (env->getDeviceController()->getResult()->status == INIT_BUT_FAIL) {
 		showAlertOKDialog(std::string("Warning"), std::string("Application couldn't init a selected device.\nPlease, go to settings and select the correct device or plug your device to USB port.\nMake sure you have selected the correct api version in the settings for RSP devices.\n\nReturned answer:\n\n").append(env->getDeviceController()->getResult()->err));
-		if (env->getDeviceController()->getResult()->status != DeviceN::INIT_OK && !errorInitDeviceUserInformed) {
+		if (env->getDeviceController()->getResult()->status != INIT_OK && !errorInitDeviceUserInformed) {
 			spectre->disableControl(DISABLE_CONTROL_DIALOG);
 			ImGui::OpenPopup(std::string("Warning").c_str());
 			errorInitDeviceUserInformed = true;

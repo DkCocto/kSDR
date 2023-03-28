@@ -20,7 +20,11 @@ Display* Display::instance = &d;
 
 int main() {
 
-	int* p5 = new int[5];
+	//printf("%d\n", CircleBufferNew<int>::test2());
+
+	//exit(0);
+
+	/*int* p5 = new int[5];
 	p5[0] = 1; 
 	p5[1] = 2;
 	p5[2] = 3;
@@ -97,9 +101,9 @@ int main() {
 	//printf("%d\n", cb.available());
 	//cb.write(p10, 10);
 	//cb.write(p7, 2);
-	//cb.write(p10, 5);
+	//cb.write(p10, 5);*/
 
-	exit(0);
+
 	/*float* p = new float(5);
 	p[0] = 1; p[1] = 2; p[2] = 3; p[3] = 4; p[4] = 5;
 

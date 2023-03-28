@@ -8,7 +8,7 @@
 
 class CircleBufferWriterThread : public MyThread {
 
-	CircleBuffer* soundWriterCircleBuffer;
+	CircleBufferNew<float>* soundWriterCircleBuffer;
 	SoundCard* soundCard;
 
 	int len;
@@ -18,8 +18,8 @@ class CircleBufferWriterThread : public MyThread {
 
 public:
 
-	CircleBufferWriterThread(Config* config, DeviceController* deviceController, CircleBuffer* cb, SoundCard* sc);
-
+	CircleBufferWriterThread(Config* config, DeviceController* deviceController, CircleBufferNew<float>* cb, SoundCard* sc);
+	~CircleBufferWriterThread();
 	void run();
 	std::thread start();
 };

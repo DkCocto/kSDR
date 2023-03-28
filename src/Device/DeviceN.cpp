@@ -1,13 +1,13 @@
 #include "DeviceN.h"
 
-DeviceN::DeviceN(Config* config) {
-	this->config = config;
-}
+/*DeviceN::DeviceN(Config* config) {
 
-void DeviceN::setReceivers(std::vector<DataReceiver*>* receivers) {
+}*/
+
+/*void DeviceN::setReceivers(std::vector<DataReceiver*>* receivers) {
 	this->receivers = receivers;
 }
 
 std::vector<DataReceiver*>* DeviceN::getReceivers() {
 	return receivers;
-}
+}*/

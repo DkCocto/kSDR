@@ -30,16 +30,16 @@ void DeviceController::destroy() {
     }
 }
 
-void DeviceController::resetReceivers() {
+/*void DeviceController::resetReceivers() {
     for (int i = 0; i < receivers.size(); i++) {
         receivers[i]->reset();
     }
-}
+}*/
 
 void DeviceController::start(DeviceType deviceType) {
     if (DEBUG) printf("Starting device...\r\n");
 
-    if (result.status == DeviceN::INIT_OK) {
+    if (result.status == INIT_OK) {
         if (DEBUG) printf("Device already started! You need to stop device first!\r\n");
         return;
     }
@@ -65,10 +65,10 @@ void DeviceController::start(DeviceType deviceType) {
         default:
             createHackRFDevice();
     }
-    resetReceivers();
+    //resetReceivers();
 }
 
-DeviceN::Result* DeviceController::getResult() {
+Result* DeviceController::getResult() {
     return &result;
 }
 
@@ -77,19 +77,19 @@ HackRfInterface* DeviceController::getHackRfInterface() {
 }
 
 bool DeviceController::isReadyToReceiveCmd() {
-    return result.status == DeviceN::INIT_OK;
+    return result.status == INIT_OK;
 }
 
 void DeviceController::createHackRFDevice() {
     device = new HackRFDevice(config);
-    device->setReceivers(&receivers);
+    //device->setReceivers(&receivers);
     deviceInterface = new HackRfInterface((HackRFDevice*)device);
     config->deviceType = HACKRF;
-    result = DeviceN::Result { DeviceN::CREATED_BUT_NOT_INIT };
+    result = Result { CREATED_BUT_NOT_INIT };
     result = device->start();
 
     if (DEBUG) {
-        if (result.status == DeviceN::INIT_OK) {
+        if (result.status == INIT_OK) {
             printf("Device started!\r\n");
         } else {
             printf("Error starting device!\r\n");
@@ -98,12 +98,12 @@ void DeviceController::createHackRFDevice() {
 }
 
 void DeviceController::resetResult() {
-    result = DeviceN::Result { DeviceN::NOT_CREATED, "" };
+    result = Result { NOT_CREATED, "" };
 }
 
-std::vector<DataReceiver*>* DeviceController::getReceivers() {
+/*std::vector<DataReceiver*>* DeviceController::getReceivers() {
     return &receivers;
-}
+}*/
 
 DeviceController::DeviceController(Config* config) {
     this->config = config;
@@ -114,6 +114,6 @@ DeviceController::~DeviceController() {
     delete deviceInterface;
 }
 
-void DeviceController::addReceiver(DataReceiver* dataRceiver) {
+/*void DeviceController::addReceiver(DataReceiver* dataRceiver) {
     receivers.push_back(dataRceiver);
-}
+}*/

@@ -1,5 +1,44 @@
 #include "HackRFDevice.h"
 
+int HackRFDevice::rx_callback(hackrf_transfer* transfer) {
+	int bytes_to_write = transfer->buffer_length;
+
+	HackRFDevice* hackRFDevice = (HackRFDevice*)transfer->rx_ctx;
+
+	hackRFDevice->getBufferForSpec()->write(transfer->buffer, transfer->buffer_length);
+	hackRFDevice->getBufferForProc()->write(transfer->buffer, transfer->buffer_length);
+
+	//std::vector<DataReceiver*>* receivers = hackRFDevice->getReceivers();
+
+	//((CircleBufferNew<uint8_t>*)receivers->at(0))->write(transfer->buffer, transfer->buffer_length);
+
+	/*for (int j = 0; j < receivers->size(); j++) {
+		if (receivers->at(j) != nullptr) {
+			((CircleBufferNew<uint8_t>*)receivers->at(j))->write(transfer->buffer, transfer->buffer_length);
+		}
+	}*/
+
+	/*for (int i = 0; i < (bytes_to_write / 2 - 1); i++) {
+		transfer->buffer[2 * i] ^= (uint8_t)0x80;
+		transfer->buffer[2 * i + 1] ^= (uint8_t)0x80;
+
+		float I = (((float)transfer->buffer[2 * i] / 130.0f) - 1.0f);
+		float Q = (((float)transfer->buffer[2 * i + 1] / 130.0f) - 1.0f);
+
+		if (receivers != nullptr) {
+			for (int j = 0; j < receivers->size(); j++) {
+				if (receivers->at(j) != nullptr) {
+					receivers->at(j)->write(I);
+					receivers->at(j)->write(Q);
+					((CircleBufferNew<uint8_t>*)receivers->at(j))->write(transfer->buffer, transfer->buffer_length);
+				}
+			}
+		}
+	}*/
+
+	return 0;
+}
+
 void HackRFDevice::setFreq(uint64_t frequency) {
 	//lo = 85Mhz...4200Mhz
 	//if = 2300Mhz...2700Mhz
@@ -65,9 +104,11 @@ void HackRFDevice::setSampleRate(int sampleRate) {
 HackRFDevice::~HackRFDevice() {
 	printf("~HackRFDevice()\r\n");
 	stop();
+	delete bufferForSpec;
+	delete bufferForProc;
 }
 
-DeviceN::Result HackRFDevice::start() {
+Result HackRFDevice::start() {
 	uint8_t amp = config->hackrf.rxAmp;
 	uint8_t antenna = 0;
 	uint32_t baseband = config->hackrf.basebandFilter;
@@ -182,32 +223,6 @@ DeviceN::Result HackRFDevice::start() {
 	if (DEBUG) printf("HackRFDevice::init()\r\n");
 }
 
-int HackRFDevice::rx_callback(hackrf_transfer* transfer) {
-	int bytes_to_write = transfer->buffer_length;
-
-	HackRFDevice* hackRFDevice = (HackRFDevice*)transfer->rx_ctx;
-	std::vector<DataReceiver*>* receivers = hackRFDevice->getReceivers();
-
-	for (int i = 0; i < (bytes_to_write / 2 - 1); i++) {
-		transfer->buffer[2 * i] ^= (uint8_t)0x80;
-		transfer->buffer[2 * i + 1] ^= (uint8_t)0x80;
-
-		float I = (((float)transfer->buffer[2 * i] / 130.0f) - 1.0f);
-		float Q = (((float)transfer->buffer[2 * i + 1] / 130.0f) - 1.0f);
-
-		if (receivers != nullptr) {
-			for (int j = 0; j < receivers->size(); j++) {
-				if (receivers->at(j) != nullptr) {
-					receivers->at(j)->write(I);
-					receivers->at(j)->write(Q);
-				}
-			}
-		}
-	}
-
-	return 0;
-}
-
 void HackRFDevice::stop() {
 	hackrf_error result = HACKRF_ERROR_OTHER;
 	if (device != NULL) {
@@ -222,4 +237,17 @@ void HackRFDevice::stop() {
 		hackrf_exit();
 		if (DEBUG) printf("Device stopped!\r\n");
 	}
+}
+
+CircleBufferNew<uint8_t>* HackRFDevice::getBufferForSpec() {
+	return bufferForSpec;
+}
+
+CircleBufferNew<uint8_t>* HackRFDevice::getBufferForProc() {
+	return bufferForProc;
+}
+
+float HackRFDevice::prepareData(uint8_t val) {
+	val ^= (uint8_t)0x80;
+	return (((float)val / 130.0f) - 1.0f);
 }

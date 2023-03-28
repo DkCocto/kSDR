@@ -4,8 +4,7 @@ SoundProcessorThread::SoundProcessorThread(DeviceController* devCnt,
 											ViewModel* viewModel, 
 											ReceiverLogic* receiverLogic, 
 											Config* config, 
-											CircleBuffer* iqSignalsCircleBuffer, 
-											CircleBuffer* sWCB, 
+											CircleBufferNew<float>* soundWriterCircleBuffer,
 											SpectreHandler* specHandler) {
 	this->config = config;
 	this->devCnt = devCnt;
@@ -16,8 +15,7 @@ SoundProcessorThread::SoundProcessorThread(DeviceController* devCnt,
 
 	len = config->readSoundProcessorBufferLen;
 
-	this->iqSignalsCircleBuffer = iqSignalsCircleBuffer;
-	this->soundWriterCircleBuffer = sWCB;
+	this->soundWriterCircleBuffer = soundWriterCircleBuffer;
 	this->specHandler = specHandler;
 
 	hilbertTransform = HilbertTransform(config->inputSamplerate, config->hilbertTransformLen);
@@ -30,6 +28,8 @@ SoundProcessorThread::SoundProcessorThread(DeviceController* devCnt,
 	decimateBufferQ = new double[config->outputSamplerateDivider];
 	memset(decimateBufferQ, 0, sizeof(double) * config->outputSamplerateDivider);
 
+	outputData = new float[(len / 2) / config->outputSamplerateDivider];
+
 	//Инициализация полифазных фильтров
 	initFilters(config->defaultFilterWidth);
 }
@@ -38,6 +38,7 @@ SoundProcessorThread::~SoundProcessorThread() {
 	printf("~SoundProcessorThread()\r\n");
 	delete[] decimateBufferI;
 	delete[] decimateBufferQ;
+	delete[] outputData;
 }
 
 void SoundProcessorThread::initFilters(int filterWidth) {
@@ -49,24 +50,14 @@ void SoundProcessorThread::initFilters(int filterWidth) {
 	firQ.init(fir.LOWPASS, fir.BARTLETT, 256, filterWidth, 0, config->outputSamplerate);
 }
 
-void SoundProcessorThread::process() {
+void SoundProcessorThread::run() {
 	isWorking_ = true;
 
-	outputData = new float[(len / 2) / config->outputSamplerateDivider];
-
 	int storedFilterWidth = config->defaultFilterWidth;
-
-	short decimationCount = 0;
-
-	float* data = new float[len];
-
-	FMDemodulator fmDemodulator;
 
 	while (true) {
 		if (!config->WORKING) {
 			printf("SoundProcess Stopped\r\n");
-			delete[] data;
-			delete[] outputData;
 			isWorking_ = false;
 			return;
 		}
@@ -78,85 +69,97 @@ void SoundProcessorThread::process() {
 		}
 		//------------------------
 
-		int available = iqSignalsCircleBuffer->available();
-		viewModel->setBufferAvailable(available);
-		if (available >= len) {
-			iqSignalsCircleBuffer->read(data, len);
+		DeviceN* device = devCnt->getDevice();
+		if (device != nullptr) {
+			if (devCnt->getCurrentDeviceType() == HACKRF) {
+				auto buffer = ((HackRFDevice*)device)->getBufferForProc();
+				int available = buffer->available();
+				viewModel->setBufferAvailable(available);
+				if (available >= len) {
+					auto data = buffer->read(len);
 
-			long count = 0;
-			for (int i = 0; i < len / 2; i++) {
+					processData<uint8_t, HackRFDevice>(data, (HackRFDevice*)device);
 
-				mixer.setFreq(receiverLogic->getFrequencyDelta());
-				Signal mixedSignal = mixer.mix(data[2 * i], data[2 * i + 1]);
-
-				decimateBufferI[decimationCount] = mixedSignal.I;
-				decimateBufferQ[decimationCount] = mixedSignal.Q;
-
-				decimationCount++;
-
-				if (i % config->outputSamplerateDivider == 0) {
-
-					decimationCount = 0;
-
-					double audioI = firFilterI.filter(decimateBufferI, config->outputSamplerateDivider);
-					double audioQ = firFilterQ.filter(decimateBufferQ, config->outputSamplerateDivider);
-
-					int mode = USB;
-
-					mode = viewModel->receiverMode;
-					//mode = FM;
-
-					double audio = 0;
-
-					switch (mode) {
-						case USB:
-							audioQ = hilbertTransform.filter(audioQ);
-							audioI = delay.filter(audioI);
-							audio = audioI - audioQ; // LSB
-							break;
-						case LSB:
-							audioQ = hilbertTransform.filter(audioQ);
-							audioI = delay.filter(audioI);
-							audio = audioI + audioQ; // USB
-							break;
-						case AM:
-							audioI = firI.proc(audioI);
-							audioQ = firQ.proc(audioQ);
-							audio = sqrt(audioI * audioI + audioQ * audioQ);
-							break;
-						case nFM:
-							audioI = firI.proc(audioI);
-							audioQ = firQ.proc(audioQ);
-							audio = fmDemodulator.demodulate(audioI, audioQ);
-							//audio = audioFilterFM.proc(audio);
-							break;
-					}
-					//-------------------audio = audioFilter->filter(audio);
-					audio = fir.proc(audio);
-					//audio = agc->process(audio);
-					audio = agc.processNew(audio);
-					//Если AM, то немного усилим сигнал
-					if (mode == AM) audio *= 3.0f;
-					if (mode == nFM) audio *= 2.0f;
-					outputData[count] = audio * viewModel->volume;
-					count++;
-				}
-		
+					delete[] data;
+					
+				} else std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			}
-
-			soundWriterCircleBuffer->write(outputData, (len / 2) / config->outputSamplerateDivider);
-			//fftSpectreHandler->setSpectreSpeed(Display::instance->viewModel->spectreSpeed);
-			//specHandler->putData(data);
-		} else {
-			//printf("SoundProcessorThread: Waiting for iqSignalsCircleBuffer...\r\n");
-			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		}
 	}
 }
 
+template<typename T, typename D> void SoundProcessorThread::processData(T* data, D* device) {
+	long count = 0;
+	short decimationCount = 0;
+	for (int i = 0; i < len / 2; i++) {
+
+		float I = device->prepareData(data[2 * i]);
+		float Q = device->prepareData(data[2 * i + 1]);
+
+		mixer.setFreq(receiverLogic->getFrequencyDelta());
+		Signal mixedSignal = mixer.mix(I, Q);
+
+		decimateBufferI[decimationCount] = mixedSignal.I;
+		decimateBufferQ[decimationCount] = mixedSignal.Q;
+
+		decimationCount++;
+
+		if (i % config->outputSamplerateDivider == 0) {
+
+			decimationCount = 0;
+
+			double audioI = firFilterI.filter(decimateBufferI, config->outputSamplerateDivider);
+			double audioQ = firFilterQ.filter(decimateBufferQ, config->outputSamplerateDivider);
+
+			int mode = USB;
+
+			mode = viewModel->receiverMode;
+			//mode = FM;
+
+			double audio = 0;
+
+			switch (mode) {
+				case USB:
+					audioQ = hilbertTransform.filter(audioQ);
+					audioI = delay.filter(audioI);
+					audio = audioI - audioQ; // LSB
+					break;
+				case LSB:
+					audioQ = hilbertTransform.filter(audioQ);
+					audioI = delay.filter(audioI);
+					audio = audioI + audioQ; // USB
+					break;
+				case AM:
+					audioI = firI.proc(audioI);
+					audioQ = firQ.proc(audioQ);
+					audio = sqrt(audioI * audioI + audioQ * audioQ);
+					break;
+				case nFM:
+					audioI = firI.proc(audioI);
+					audioQ = firQ.proc(audioQ);
+					audio = fmDemodulator.demodulate(audioI, audioQ);
+					//audio = audioFilterFM.proc(audio);
+					break;
+			}
+			//-------------------audio = audioFilter->filter(audio);
+			audio = fir.proc(audio);
+			//audio = agc->process(audio);
+			audio = agc.processNew(audio);
+			//Если AM, то немного усилим сигнал
+			if (mode == AM) audio *= 3.0f;
+			if (mode == nFM) audio *= 2.0f;
+			outputData[count] = audio * viewModel->volume;
+			count++;
+		}
+
+	}
+
+	soundWriterCircleBuffer->write(outputData, (len / 2) / config->outputSamplerateDivider);
+}
+
 std::thread SoundProcessorThread::start() {
-	std::thread p(&SoundProcessorThread::process, this);
-	/*DWORD result = ::SetThreadIdealProcessor(p.native_handle(), 2);
-	SetThreadPriority(p.native_handle(), THREAD_PRIORITY_HIGHEST);*/
+	std::thread p(&SoundProcessorThread::run, this);
+	//DWORD result = ::SetThreadIdealProcessor(p.native_handle(), 2);
+	//SetThreadPriority(p.native_handle(), THREAD_PRIORITY_HIGHEST);
 	return p;
 }

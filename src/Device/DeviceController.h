@@ -9,9 +9,10 @@
 class DeviceController {
 	private:
 		Config* config = nullptr;
+
 		DeviceN* device = nullptr;
 
-		DeviceN::Result result;
+		Result result;
 
 		void createHackRFDevice();
 		//void initRSPApi2Device();
@@ -24,18 +25,18 @@ class DeviceController {
 
 		void destroy();
 
-		std::vector<DataReceiver*> receivers;
+		//std::vector<DataReceiver*> receivers;
 
-		void resetReceivers();
+		//void resetReceivers();
 
 	public:
 
-		std::vector<DataReceiver*>* getReceivers();
+		//std::vector<DataReceiver*>* getReceivers();
 
 		DeviceController(Config* config);
 		~DeviceController();
 
-		void addReceiver(DataReceiver* dataRceiver);
+		//void addReceiver(DataReceiver* dataRceiver);
 		DeviceType getCurrentDeviceType();
 
 		DeviceN* getDevice();
@@ -44,7 +45,7 @@ class DeviceController {
 
 		void start(DeviceType deviceType);
 
-		DeviceN::Result* getResult();
+		Result* getResult();
 
 		HackRfInterface* getHackRfInterface();
 

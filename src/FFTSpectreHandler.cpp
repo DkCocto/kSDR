@@ -1,40 +1,19 @@
 #include "FFTSpectreHandler.h"
 
-float* tmpArray;
-float* tmpArray2;
-
-SpectreHandler::~SpectreHandler() {
-	fftw_destroy_plan(fftwPlan);
-	delete wb;
-	delete wbh;
-	delete[] dataBuffer;
-	delete[] realInput;
-	delete[] imInput;
-	delete[] realOut;
-	delete[] imOut;
-	delete[] superOutput;
-	delete[] outputWaterfall;
-	delete[] tmpArray;
-	delete[] tmpArray2;
-	delete[] inData;
-	delete[] outData;
-	delete[] speedDelta;
-}
-
-SpectreHandler::SpectreHandler(Config* config, FFTData* fftData, ViewModel* viewModel, CircleBuffer* circleBuffer) {
+SpectreHandler::SpectreHandler(Config* config, FFTData* fftData, ViewModel* viewModel, DeviceController* deviceController) {
 	this->config = config;
 	this->viewModel = viewModel;
-	this->circleBuffer = circleBuffer;
-	
+
 	this->fftData = fftData;
+	this->deviceController = deviceController;
 
 	spectreSize = config->fftLen / 2;
 
 	wb = new WindowBlackman(config->fftLen);
 	wbh = new WindowBlackmanHarris(config->fftLen);
 
-	dataBuffer = new float[config->fftLen];
-	memset(dataBuffer, 0, sizeof(float) * config->fftLen);
+	//dataBuffer = new uint8_t[config->fftLen];
+	//memset(dataBuffer, 0, sizeof(dataBuffer) * config->fftLen);
 
 	complexLen = config->fftLen / 2 + 1;
 
@@ -70,11 +49,23 @@ SpectreHandler::SpectreHandler(Config* config, FFTData* fftData, ViewModel* view
 	//memset(speedDelta, 1, sizeof(float) * spectreSize);
 }
 
-FFTData* SpectreHandler::getFFTData() {
-	return fftData;
+SpectreHandler::~SpectreHandler() {
+	fftw_destroy_plan(fftwPlan);
+	delete wb;
+	delete wbh;
+	//delete[] dataBuffer;
+	delete[] realInput;
+	delete[] imInput;
+	delete[] realOut;
+	delete[] imOut;
+	delete[] superOutput;
+	delete[] outputWaterfall;
+	delete[] tmpArray;
+	delete[] tmpArray2;
+	delete[] inData;
+	delete[] outData;
+	delete[] speedDelta;
 }
-
-std::atomic_int idx = 0;
 
 void SpectreHandler::run() {
 	isWorking_ = true;
@@ -84,53 +75,35 @@ void SpectreHandler::run() {
 			isWorking_ = false;
 			return;
 		}
-		int available = circleBuffer->available();
-		if (available >= config->fftLen) {
-			circleBuffer->read(dataBuffer, config->fftLen);
-			processFFT();
-		} else {
-			std::this_thread::sleep_for(std::chrono::milliseconds(1));
-		}
 
-		/*if (ready) {
-			spectreDataMutex.lock();
-			processFFT();
-			idx = 0;
-			spectreDataMutex.unlock();
-			ready = false;
-		} else {
-			std::this_thread::sleep_for(std::chrono::nanoseconds(1));
-		}*/
+		DeviceN* device = deviceController->getDevice();
+		if (device != nullptr) {
+			if (deviceController->getCurrentDeviceType() == HACKRF) {
+				
+				auto buffer = ((HackRFDevice*)device)->getBufferForSpec();
+
+				if (buffer->available() >= config->fftLen) {
+
+					uint8_t* data = buffer->read(config->fftLen);
+					processFFT<uint8_t, HackRFDevice>(data, (HackRFDevice*)device);
+					delete[] data;
+
+				} else std::this_thread::sleep_for(std::chrono::milliseconds(10));
+			}
+		} else std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 }
 
-void SpectreHandler::putData(float* data) {
-	if (!spectreDataMutex.try_lock()) {
-		return;
-	}
-	memcpy(dataBuffer, data, sizeof(float) * config->fftLen);
-	spectreDataMutex.unlock(); // не забываем ставить unlock()!!!*/
-	ready = true;
-}
 
-/*void SpectreHandler::write(float val) {
-	if (ready) return;
-	dataBuffer[idx] = val;
-	idx++;
-	if (idx >= spectreSize) ready = true;
-}*/
-
-/*void SpectreHandler::reset() {
-	idx = 0;
-}*/
-
-void SpectreHandler::processFFT() {
-	//Apply window function
-
+template<typename T, typename D> void SpectreHandler::processFFT(T* data, D* device) {
 	for (int i = 0; i < spectreSize; i++) {
-		if (viewModel->removeDCBias) dcRemove.process(&dataBuffer[2 * i], &dataBuffer[2 * i + 1]);
-		inData[i][0] = dataBuffer[2 * i] * wbh->getWeights()[i];
-		inData[i][1] = dataBuffer[2 * i + 1] * wbh->getWeights()[i];
+		float I = device->prepareData(data[2 * i]);
+		float Q = device->prepareData(data[2 * i + 1]);
+
+		if (viewModel->removeDCBias) dcRemove.process(&I, &Q);
+
+		inData[i][0] = I * wbh->getWeights()[i];
+		inData[i][1] = Q * wbh->getWeights()[i];
 	}
 
 	fftw_execute(fftwPlan);
@@ -138,50 +111,7 @@ void SpectreHandler::processFFT() {
 	dataPostprocess();
 
 	fftData->setData(superOutput, outputWaterfall, spectreSize);
-
-	//memcpy(output, dataBuffer, sizeof(output) * bufferLen);
-
-	//memset(imOut, 0, sizeof(float) * bufferLen);
-
-	//float* realIn = new float[bufferLen];
-	//memset(realIn, 0, sizeof(float) * bufferLen);
-
-	//prepareData();
-
-	//std::vector<float> re(audiofft::AudioFFT::ComplexSize(FFT_LENGTH));
-	//std::vector<float> im(audiofft::AudioFFT::ComplexSize(FFT_LENGTH));
-
-	//cout << "im.size() " << audiofft::AudioFFT::ComplexSize(FFT_LENGTH) << "\r\n";
-
-	//auto begin = std::chrono::steady_clock::now();
-
-	//fft3(realInput, imInput, config->fftLen / 2, realOut, imOut);
-
-	/*auto end = std::chrono::steady_clock::now();
-	auto elapsed_ms = std::chrono::duration_cast<std::chrono::microseconds>(end - begin);
-	std::cout << "The time: " << elapsed_ms.count() << " micros\n";*/
-
-	//for (int i = 0; i < 32 * 1024; i++) printf("freq: %3d %+9.5f %+9.5f I\n", i, out[i][0], out[i][1]);
-
-	/*for (int i = 0; i < config->fftLen / 2; i++) {
-		realOut[i] = out[i][0];
-		imOut[i] = out[i][1];
-	}*/
-
-	//fft3(realInput, imInput, config->fftLen / 2, realOut, imOut);
-
-	//fft.fft(dataBuffer, realOut, imOut);
-
-	//memcpy(output, realOut, sizeof(realOut));
-	//memcpy(output + sizeof(realOut), imOut, sizeof(imOut));
-
-
-	//Utils::printArray(inOut, bufferLen);
-
-	//fft.process(1, 10, output, kakashka);
-	//semaphore->unlock();
 }
-
 
 float SpectreHandler::average(float avg, float new_sample, int n) {
 	float tmp = avg;
@@ -196,7 +126,8 @@ void SpectreHandler::dataPostprocess() {
 		if (firstRun) {
 			tmpArray[i] = psd;
 			firstRun = false;
-		} else {
+		}
+		else {
 			tmpArray[i] = average(tmpArray[i], psd, config->spectre.spectreSpeed);
 		}
 	}
@@ -227,7 +158,8 @@ void SpectreHandler::dataPostprocess() {
 						superOutput[j] -= config->spectre.decaySpeed * speedDelta[j];
 						speedDelta[j] += config->spectre.decaySpeedDelta;
 					}
-				} else {
+				}
+				else {
 					superOutput[j] = average(superOutput[j], tmpArray2[j], config->spectre.spectreSpeed2);
 				}
 			}
@@ -240,12 +172,40 @@ float SpectreHandler::psd(float re, float im) {
 	return 10 * log(re * re + im * im);
 }
 
+FFTData* SpectreHandler::getFFTData() {
+	return fftData;
+}
+
 std::thread SpectreHandler::start() {
 	std::thread p(&SpectreHandler::run, this);
-	SetThreadPriority(p.native_handle(), THREAD_PRIORITY_HIGHEST);
-	DWORD result = ::SetThreadIdealProcessor(p.native_handle(), 2);
+	//SetThreadPriority(p.native_handle(), THREAD_PRIORITY_HIGHEST);
+	//DWORD result = ::SetThreadIdealProcessor(p.native_handle(), 1);
 	return p;
 }
+
+
+//std::atomic_int idx = 0;
+
+/*void SpectreHandler::putData(float* data) {
+	if (!spectreDataMutex.try_lock()) {
+		return;
+	}
+	memcpy(dataBuffer, data, sizeof(float) * config->fftLen);
+	spectreDataMutex.unlock(); // не забываем ставить unlock()!!!
+	ready = true;
+}*/
+
+/*void SpectreHandler::write(float val) {
+	if (ready) return;
+	dataBuffer[idx] = val;
+	idx++;
+	if (idx >= spectreSize) ready = true;
+}*/
+
+/*void SpectreHandler::reset() {
+	idx = 0;
+}*/
+
 
 /*float* FFTSpectreHandler::getOutputCopy(int startPos, int len, bool forWaterfall) {
 	float* buffer = new float[spectreSize];
@@ -267,3 +227,45 @@ std::thread SpectreHandler::start() {
 
 	return dataCopy;
 }*/
+
+//memcpy(output, dataBuffer, sizeof(output) * bufferLen);
+
+//memset(imOut, 0, sizeof(float) * bufferLen);
+
+//float* realIn = new float[bufferLen];
+//memset(realIn, 0, sizeof(float) * bufferLen);
+
+//prepareData();
+
+//std::vector<float> re(audiofft::AudioFFT::ComplexSize(FFT_LENGTH));
+//std::vector<float> im(audiofft::AudioFFT::ComplexSize(FFT_LENGTH));
+
+//cout << "im.size() " << audiofft::AudioFFT::ComplexSize(FFT_LENGTH) << "\r\n";
+
+//auto begin = std::chrono::steady_clock::now();
+
+//fft3(realInput, imInput, config->fftLen / 2, realOut, imOut);
+
+/*auto end = std::chrono::steady_clock::now();
+auto elapsed_ms = std::chrono::duration_cast<std::chrono::microseconds>(end - begin);
+std::cout << "The time: " << elapsed_ms.count() << " micros\n";*/
+
+//for (int i = 0; i < 32 * 1024; i++) printf("freq: %3d %+9.5f %+9.5f I\n", i, out[i][0], out[i][1]);
+
+/*for (int i = 0; i < config->fftLen / 2; i++) {
+	realOut[i] = out[i][0];
+	imOut[i] = out[i][1];
+}*/
+
+//fft3(realInput, imInput, config->fftLen / 2, realOut, imOut);
+
+//fft.fft(dataBuffer, realOut, imOut);
+
+//memcpy(output, realOut, sizeof(realOut));
+//memcpy(output + sizeof(realOut), imOut, sizeof(imOut));
+
+
+//Utils::printArray(inOut, bufferLen);
+
+//fft.process(1, 10, output, kakashka);
+//semaphore->unlock();

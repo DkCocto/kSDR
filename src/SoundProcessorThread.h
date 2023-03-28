@@ -13,6 +13,7 @@
 #include "ReceiverLogic.h"
 #include "Thread/MyThread.h"
 
+
 class SoundProcessorThread : public MyThread {
 
 	//float* data = nullptr;
@@ -33,8 +34,7 @@ class SoundProcessorThread : public MyThread {
 	double* decimateBufferI;
 	double* decimateBufferQ;
 
-	CircleBuffer* iqSignalsCircleBuffer;
-	CircleBuffer* soundWriterCircleBuffer;
+	CircleBufferNew<float>* soundWriterCircleBuffer;
 	SpectreHandler* specHandler;
 
 	Config* config;
@@ -52,17 +52,20 @@ class SoundProcessorThread : public MyThread {
 
 	AGC agc;
 
+	FMDemodulator fmDemodulator;
+
 public: 
 
 	int len; //Размер считывания за 1 раз из кругового буфера
 
-	SoundProcessorThread(DeviceController* devCnt, ViewModel* viewModel, ReceiverLogic* receiverLogic, Config* config, CircleBuffer* sPCB, CircleBuffer* sWCB, SpectreHandler* specHandler);
+	SoundProcessorThread(DeviceController* devCnt, ViewModel* viewModel, ReceiverLogic* receiverLogic, Config* config, CircleBufferNew<float>* soundWriterCircleBuffer, SpectreHandler* specHandler);
 	~SoundProcessorThread();
 
 	void initFilters(int filterWidth);
 
-	void process();
+	template<typename T, typename D> void processData(T* data, D* device);
+
+	void run();
 
 	std::thread start();
-
 };

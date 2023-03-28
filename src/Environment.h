@@ -7,6 +7,8 @@
 #include "SoundCard.h"
 #include "SoundProcessorThread.h"
 #include "ViewModel.h"
+#include "CircleBufferNew.h"
+#include "Buffer.h"
 
 class Environment {
 	private:
@@ -17,10 +19,11 @@ class Environment {
 		DeviceController* deviceController = nullptr;
 
 		//Буфер для сигналов I Q
-		CircleBuffer* IQSourceBuffer = nullptr;
-		CircleBuffer* IQSourceBuffer2 = nullptr;
+		//CircleBufferNew<uint8_t>* IQBufForSoundProc = nullptr;
+		//CircleBufferNew<uint8_t>* IQBufForSpectre = nullptr;
 
-		CircleBuffer* soundBuffer = nullptr;
+		//CircleBuffer* IQSourceBuffer2 = nullptr;
+		CircleBufferNew<float>* soundBuffer = nullptr;
 
 		SpectreHandler* specHandler = nullptr;
 
@@ -41,18 +44,16 @@ class Environment {
 		std::atomic_bool reloading = false;
 
 		Environment();
-		void initReceivers();
+		//void initReceivers();
 		~Environment();
 		void cleanUp();
 		Config* getConfig();
 		DeviceController* getDeviceController();
-		CircleBuffer* getIQSourceBuffer();
 		void startProcessing();
 		void stopProcessing();
 		void makeReload();
 		void reload();
 		SpectreHandler* getFFTSpectreHandler();
-		CircleBuffer* getSoundBuffer();
 		SoundProcessorThread* getSoundProcessor();
 		void init();
 		SoundCard* getSoundCard();
