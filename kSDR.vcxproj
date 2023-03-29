@@ -38,6 +38,8 @@
     <ClCompile Include="src\Device\DeviceN.cpp" />
     <ClCompile Include="src\Device\HackRFDevice.cpp" />
     <ClCompile Include="src\Device\HackRFInterface.cpp" />
+    <ClCompile Include="src\Device\RTLDevice.cpp" />
+    <ClCompile Include="src\Device\RTLInterface.cpp" />
     <ClCompile Include="src\Display.cpp" />
     <ClCompile Include="src\Environment.cpp" />
     <ClCompile Include="src\FastMath.cpp" />
@@ -67,7 +69,6 @@
     <ClCompile Include="src\ReceiverRegionInterface.cpp" />
     <ClCompile Include="src\RSP1.cpp" />
     <ClCompile Include="src\RSPv2.cpp" />
-    <ClCompile Include="src\RTLDevice.cpp" />
     <ClCompile Include="src\Semaphore.cpp" />
     <ClCompile Include="src\SinOscillator.cpp" />
     <ClCompile Include="src\SMeter.cpp" />
@@ -109,6 +110,8 @@
     <ClInclude Include="src\Device\DeviceN.h" />
     <ClInclude Include="src\Device\HackRFDevice.h" />
     <ClInclude Include="src\Device\HackRFInterface.h" />
+    <ClInclude Include="src\Device\RTLDevice.h" />
+    <ClInclude Include="src\Device\RTLInterface.h" />
     <ClInclude Include="src\Display.h" />
     <ClInclude Include="src\Env.h" />
     <ClInclude Include="src\Environment.h" />
@@ -142,7 +145,6 @@
     <ClInclude Include="src\ReceiverRegionInterface.h" />
     <ClInclude Include="src\RSP1.h" />
     <ClInclude Include="src\RSPv2.h" />
-    <ClInclude Include="src\RTLDevice.h" />
     <ClInclude Include="src\Semaphore.h" />
     <ClInclude Include="src\SinOscillator.h" />
     <ClInclude Include="src\SMeter.h" />

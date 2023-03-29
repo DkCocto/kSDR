@@ -2,13 +2,12 @@
 
 #include "hackrf\hackrf.h"
 #include "DeviceN.h"
-#include "string"
 #include "../CircleBufferNew.h"
-
-constexpr bool DEBUG = true;
 
 class HackRFDevice : public DeviceN {
 	private:
+
+		const bool DEBUG = true;
 
 		hackrf_device* device = NULL;
 
@@ -31,8 +30,6 @@ class HackRFDevice : public DeviceN {
 		};
 
 		~HackRFDevice();
-
-		void setSampleRate(int sampleRate);
 
 		Result start();
 		void stop();

@@ -32,10 +32,11 @@ void Spectre::spectreRatioAutoCorrection() {
 	viewModel->ratio = minMax.max + 40;
 }
 
-Spectre::Spectre(Config* config, ViewModel* viewModel) {
+Spectre::Spectre(Environment* env) {
+	this->env = env;
 	//waterfall->start().detach();
-	this->config = config;
-	this->viewModel = viewModel;
+	this->config = env->getConfig();
+	this->viewModel = env->getViewModel();
 
 	maxdBKalman = make_unique<KalmanFilter>(1, 0.005);
 	ratioKalman = make_unique<KalmanFilter>(1, 0.01);
@@ -59,9 +60,9 @@ bool isFirstFrame = true;
 
 bool controlButtonHovered = false;
 
-void Spectre::draw(ReceiverLogic* receiverLogic, FlowingSpectre* flowingSpec, SpectreHandler* specHandler) {
+void Spectre::draw() {
 
-	receiverLogic->setCenterFrequency(viewModel->centerFrequency);
+	env->getReceiverLogic()->setCenterFrequency(viewModel->centerFrequency);
 
 	ImGuiIO& io = ImGui::GetIO();
 
@@ -78,10 +79,10 @@ void Spectre::draw(ReceiverLogic* receiverLogic, FlowingSpectre* flowingSpec, Sp
 		spectreHeight = sWD.windowLeftBottomCorner.y / 2.0;
 		spectreWidth = sWD.windowLeftBottomCorner.x - sWD.rightPadding - sWD.leftPadding;
 
-		handleEvents(spectreWidth, receiverLogic, flowingSpec);
+		handleEvents(spectreWidth, env->getReceiverLogic(), env->getFlowingSpectre());
 
-		FFTData::OUTPUT* fullSpectreData = specHandler->getFFTData()->getDataCopy(false);
-		FFTData::OUTPUT* fullWaterfallData = specHandler->getFFTData()->getDataCopy(true);
+		FFTData::OUTPUT* fullSpectreData = env->getFFTSpectreHandler()->getFFTData()->getDataCopy(false);
+		FFTData::OUTPUT* fullWaterfallData = env->getFFTSpectreHandler()->getFFTData()->getDataCopy(true);
 
 		ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
@@ -96,7 +97,7 @@ void Spectre::draw(ReceiverLogic* receiverLogic, FlowingSpectre* flowingSpec, Sp
 			bool spectreAutoButtonHovered = ImGui::IsItemHovered();
 			ImGui::SameLine();
 
-			if (ImGui::Button("<|>")) { receiverLogic->setReceivedFreqToSpectreCenter(); waterfall->clear();	}
+			if (ImGui::Button("<|>")) { env->getReceiverLogic()->setReceivedFreqToSpectreCenter(); waterfall->clear(); }
 			bool freqToCenterButtonHovered = ImGui::IsItemHovered();
 			ImGui::SameLine();
 
@@ -116,11 +117,11 @@ void Spectre::draw(ReceiverLogic* receiverLogic, FlowingSpectre* flowingSpec, Sp
 
 			ImGui::SetCursorPos(ImVec2(0, 0));
 
-			drawMemoryMarks(draw_list, flowingSpec, receiverLogic);
+			drawMemoryMarks(draw_list, env->getFlowingSpectre(), env->getReceiverLogic());
 
-			storeSignaldB(fullSpectreData, receiverLogic);
+			storeSignaldB(fullSpectreData, env->getReceiverLogic());
 
-			drawSpectreContour(fullSpectreData, draw_list, flowingSpec, specHandler);
+			drawSpectreContour(fullSpectreData, draw_list, env->getFlowingSpectre(), env->getFFTSpectreHandler());
 
 			//dB mark line
 			float stepInPX = (float)spectreHeight / (float)SPECTRE_DB_MARK_COUNT;
@@ -138,31 +139,35 @@ void Spectre::draw(ReceiverLogic* receiverLogic, FlowingSpectre* flowingSpec, Sp
 			}
 			//---------------
 			
-			drawFreqMarks(draw_list, sWD.startWindowPoint, sWD.windowLeftBottomCorner, spectreWidth, spectreHeight, flowingSpec);
+			drawFreqMarks(draw_list, sWD.startWindowPoint, sWD.windowLeftBottomCorner, spectreWidth, spectreHeight, env->getFlowingSpectre());
 
 		ImGui::EndChild();
 
 		ImGui::BeginChild("Waterfall", ImVec2(ImGui::GetContentRegionAvail().x, sWD.windowLeftBottomCorner.y - spectreHeight - 5), false, ImGuiWindowFlags_NoMove);
 			
-			if (countFrames % config->waterfall.speed == 0) {
-				waterfall->setMinMaxValue(viewModel->waterfallMin, viewModel->waterfallMax);
-				waterfall->update(fullWaterfallData, flowingSpec, specHandler);
+			if (env->reloading) waterfall->clear();
+
+			if (env->getDeviceController()->isStatusInitOk()) {
+				if (countFrames % config->waterfall.speed == 0) {
+					waterfall->setMinMaxValue(viewModel->waterfallMin, viewModel->waterfallMax);
+					waterfall->update(fullWaterfallData, env->getFlowingSpectre(), env->getFFTSpectreHandler());
+				}
 			}
 
 			int waterfallHeight = sWD.windowLeftBottomCorner.y - spectreHeight - sWD.waterfallPaddingTop;
 
-			int spectreSize = flowingSpec->getLen();
+			int spectreSize = env->getFlowingSpectre()->getLen();
 
 			float stepX = spectreWidth / (spectreSize / waterfall->getDiv());
 			float stepY = (float)(waterfallHeight + sWD.waterfallPaddingTop) / (float)waterfall->getSize();
 
 			for (int i = 0; i < waterfall->getSize(); i++) {
 				draw_list->AddImage(
-					(void*)(intptr_t)waterfall->getTexturesArray()[i], 
+					(void*)(intptr_t)waterfall->getTexturesArray()[i],
 					ImVec2(
 						sWD.startWindowPoint.x + sWD.rightPadding,
 						sWD.startWindowPoint.y + waterfallHeight + 2 * sWD.waterfallPaddingTop + stepY * i
-					), 
+					),
 					ImVec2(
 						sWD.startWindowPoint.x + sWD.windowLeftBottomCorner.x - sWD.leftPadding,
 						sWD.startWindowPoint.y + waterfallHeight + 2 * sWD.waterfallPaddingTop + stepY * (i + 1)
@@ -170,21 +175,21 @@ void Spectre::draw(ReceiverLogic* receiverLogic, FlowingSpectre* flowingSpec, Sp
 			}
 
 			//receive region
-			receiverRegionInterface.drawRegion(draw_list, receiverLogic);
+			receiverRegionInterface.drawRegion(draw_list, env->getReceiverLogic());
 			//--
 		ImGui::EndChild();
 
-		if (!disableControl_ && !receiverRegionInterface.isDigitSelected()) drawFreqPointerMark(sWD.startWindowPoint, sWD.windowLeftBottomCorner, spectreWidth, draw_list, receiverLogic);
+		if (!disableControl_ && !receiverRegionInterface.isDigitSelected()) drawFreqPointerMark(sWD.startWindowPoint, sWD.windowLeftBottomCorner, spectreWidth, draw_list, env->getReceiverLogic());
 
 	ImGui::End();
 
 	if (isFirstFrame) {
-		receiverLogic->setFreq(config->lastSelectedFreq); //load last selected freq
+		env->getReceiverLogic()->setFreq(config->lastSelectedFreq); //load last selected freq
 		isFirstFrame = false;
 	}
 	countFrames++;
-	specHandler->getFFTData()->destroyData(fullSpectreData);
-	specHandler->getFFTData()->destroyData(fullWaterfallData);
+	env->getFFTSpectreHandler()->getFFTData()->destroyData(fullSpectreData);
+	env->getFFTSpectreHandler()->getFFTData()->destroyData(fullWaterfallData);
 }
 
 void Spectre::storeSignaldB(FFTData::OUTPUT* spectreData, ReceiverLogic* receiverLogic) {
@@ -210,6 +215,10 @@ Spectre::MIN_MAX Spectre::getMinMaxInSpectre() {
 }
 
 int disabledForId = -1;
+
+void Spectre::releaseControl() {
+	this->disableControl_ = false;
+}
 
 void Spectre::disableControl(int id) {
 	if (disableControl_) return;

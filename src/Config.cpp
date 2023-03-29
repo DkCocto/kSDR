@@ -36,7 +36,7 @@ void Config::initSettings() {
 
     audioWriteFrameLen = (outputSamplerateDivider) / 4;
 
-    circleBufferLen = inputSamplerate;
+    circleBufferLen = inputSamplerate / 4;
 
     hilbertTransformLen = 255;
     polyphaseFilterLen = 2 * outputSamplerateDivider;
@@ -180,6 +180,9 @@ void Config::loadXml() {
 
                 tinyxml2::XMLElement* preleaseSpeed = pAgc->FirstChildElement("releaseSpeed");
                 receiver.agc.releaseSpeed = std::stod(std::string(preleaseSpeed->GetText()));
+
+                tinyxml2::XMLElement* plastAmp = pAgc->FirstChildElement("lastAmp");
+                receiver.agc.lastAmp = std::stod(std::string(plastAmp->GetText()));
             }
 
         }
@@ -479,6 +482,9 @@ void Config::save() {
 
                 tinyxml2::XMLElement* preleaseSpeed = pAgc->FirstChildElement("releaseSpeed");
                 preleaseSpeed->SetText(receiver.agc.releaseSpeed);
+
+                tinyxml2::XMLElement* plastAmp = pAgc->FirstChildElement("lastAmp");
+                plastAmp->SetText(receiver.agc.lastAmp);
             }
         }
 

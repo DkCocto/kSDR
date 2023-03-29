@@ -5,6 +5,8 @@
 #include "../CircleBuffer.h"
 #include "HackRFDevice.h"
 #include "HackRFInterface.h"
+#include "RTLDevice.h"
+#include "RTLInterface.h"
 
 class DeviceController {
 	private:
@@ -17,21 +19,24 @@ class DeviceController {
 		void createHackRFDevice();
 		//void initRSPApi2Device();
 		//void initRSPApi3Device();
-		//void initRTLDevice();
+		void createRTLDevice();
 
 		void resetResult();
 
-		HackRfInterface* deviceInterface = nullptr;
-
-		void destroy();
+		DeviceInterface* deviceInterface = nullptr;
 
 		//std::vector<DataReceiver*> receivers;
 
 		//void resetReceivers();
+		const bool DEBUG = true;
 
 	public:
 
+		void destroyDevice();
+
 		//std::vector<DataReceiver*>* getReceivers();
+
+		void setResultToCreatedNotInit();
 
 		DeviceController(Config* config);
 		~DeviceController();
@@ -47,7 +52,8 @@ class DeviceController {
 
 		Result* getResult();
 
-		HackRfInterface* getHackRfInterface();
+		DeviceInterface* getDeviceInterface();
 
-		bool isReadyToReceiveCmd();
+		bool isStatusInitOk();
+		bool isStatusInitFail();
 };

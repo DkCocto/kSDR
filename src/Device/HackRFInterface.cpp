@@ -1,9 +1,5 @@
 #include "HackRFInterface.h"
 
-HackRfInterface::HackRfInterface(HackRFDevice* hackRFDevice) {
-	this->hackRFDevice = hackRFDevice;
-}
-
 void HackRfInterface::setFreq(uint64_t freq) {
 	if (savedFreq != freq) {
 		savedFreq = freq;
@@ -40,6 +36,9 @@ void HackRfInterface::enableAmp(uint8_t amp) {
 }
 
 void HackRfInterface::sendParamsToDevice() {
+
+	HackRFDevice* hackRFDevice = (HackRFDevice*)device;
+
 	if (needToSetFreq) {
 		hackRFDevice->setFreq((savedFreq + ((hackRFDevice->config->receiver.enableFrequencyShift == true) ? hackRFDevice->config->receiver.frequencyShift : 0)));
 		needToSetFreq = false;

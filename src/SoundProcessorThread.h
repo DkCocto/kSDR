@@ -54,6 +54,8 @@ class SoundProcessorThread : public MyThread {
 
 	FMDemodulator fmDemodulator;
 
+	DCRemove dcRemover;
+
 public: 
 
 	int len; //Размер считывания за 1 раз из кругового буфера

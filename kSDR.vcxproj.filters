@@ -168,9 +168,6 @@
     <ClCompile Include="src\ListSetting.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="src\RTLDevice.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="src\FMDemodulator.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
@@ -227,6 +224,12 @@
     </ClCompile>
     <ClCompile Include="src\DataReceiver.cpp">
       <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Device\RTLInterface.cpp">
+      <Filter>Исходные файлы\Device</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Device\RTLDevice.cpp">
+      <Filter>Исходные файлы\Device</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -383,9 +386,6 @@
     <ClInclude Include="src\ListSetting.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="src\RTLDevice.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
     <ClInclude Include="src\FMDemodulator.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
@@ -448,6 +448,12 @@
     </ClInclude>
     <ClInclude Include="src\Buffer.h">
       <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Device\RTLInterface.h">
+      <Filter>Файлы заголовков\Device</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Device\RTLDevice.h">
+      <Filter>Файлы заголовков\Device</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -50,7 +50,7 @@ DeviceController* Environment::getDeviceController() {
 	return deviceController;
 }
 
-void Environment::makeReload() {
+void Environment::makeReinit() {
 	if (soundProcessor != nullptr) {
 		printf("Need to stop processing first!\r\n");
 		reloading = false;
@@ -95,7 +95,7 @@ void Environment::startProcessing() {
 
 	deviceController->start(config->deviceType);
 
-	if (deviceController->isReadyToReceiveCmd()) {
+	if (deviceController->isStatusInitOk()) {
 		config->WORKING = true;
 		
 		init();
@@ -122,14 +122,22 @@ void Environment::stopProcessing() {
 	//Stop 3 threads: sound process, soundcard writer, fft handler
 	config->WORKING = false; 
 
-	while(soundProcessor->isWorking() || circleBufferWriterThread->isWorking() || specHandler->isWorking());
+	if (soundProcessor != nullptr) {
+		while (soundProcessor->isWorking());
+		delete soundProcessor;
+		soundProcessor = nullptr;
+	}
 
-	delete soundProcessor;
-	soundProcessor = nullptr;
-	
-	delete circleBufferWriterThread;
-	circleBufferWriterThread = nullptr;
-	
+	if (circleBufferWriterThread != nullptr) {
+		while (circleBufferWriterThread->isWorking());
+		delete circleBufferWriterThread;
+		circleBufferWriterThread = nullptr;
+	}
+
+	if (specHandler != nullptr) {
+		while (specHandler->isWorking());
+	}
+
 	delete soundCard;
 	soundCard = nullptr;
 

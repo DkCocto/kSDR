@@ -11,15 +11,15 @@ DeviceN* DeviceController::getDevice() {
 bool DeviceController::forceStop() {
     if (DEBUG) printf("Trying to force stop device...\r\n");
     if (device != nullptr) {
-        destroy();
+        destroyDevice();
         return true;
     }
     if (DEBUG) printf("Stopping error. Device was null.\r\n");
     return false;
 }
 
-void DeviceController::destroy() {
-    if (DEBUG) printf("Trying to destroy device...\r\n");
+void DeviceController::destroyDevice() {
+    if (DEBUG) printf("Trying to destroyDevice device...\r\n");
     if (device != nullptr) {
         delete deviceInterface;
         deviceInterface = nullptr;
@@ -30,12 +30,6 @@ void DeviceController::destroy() {
     }
 }
 
-/*void DeviceController::resetReceivers() {
-    for (int i = 0; i < receivers.size(); i++) {
-        receivers[i]->reset();
-    }
-}*/
-
 void DeviceController::start(DeviceType deviceType) {
     if (DEBUG) printf("Starting device...\r\n");
 
@@ -45,7 +39,7 @@ void DeviceController::start(DeviceType deviceType) {
     }
 
     if (device != nullptr) {
-        if (DEBUG) printf("You need to destroy device first!\r\n");
+        if (DEBUG) printf("You need to destroyDevice device first!\r\n");
         return;
     }
 
@@ -54,6 +48,7 @@ void DeviceController::start(DeviceType deviceType) {
             createHackRFDevice();
             break;
         case RTL:
+            createRTLDevice();
             break;
         case RSP:
             /*if (config->rsp.api == 3) {
@@ -72,12 +67,16 @@ Result* DeviceController::getResult() {
     return &result;
 }
 
-HackRfInterface* DeviceController::getHackRfInterface() {
+DeviceInterface* DeviceController::getDeviceInterface() {
     return deviceInterface;
 }
 
-bool DeviceController::isReadyToReceiveCmd() {
+bool DeviceController::isStatusInitOk() {
     return result.status == INIT_OK;
+}
+
+bool DeviceController::isStatusInitFail() {
+    return result.status == INIT_BUT_FAIL;
 }
 
 void DeviceController::createHackRFDevice() {
@@ -97,23 +96,38 @@ void DeviceController::createHackRFDevice() {
     }
 }
 
+void DeviceController::createRTLDevice() {
+    device = new RTLDevice(config);
+    //device->setReceivers(&receivers);
+    deviceInterface = new RTLInterface((RTLDevice*)device);
+    config->deviceType = RTL;
+    result = Result{ CREATED_BUT_NOT_INIT };
+    result = device->start();
+
+    if (DEBUG) {
+        if (result.status == INIT_OK) {
+            printf("Device started!\r\n");
+        }
+        else {
+            printf("Error starting device!\r\n");
+        }
+    }
+}
+
 void DeviceController::resetResult() {
     result = Result { NOT_CREATED, "" };
 }
 
-/*std::vector<DataReceiver*>* DeviceController::getReceivers() {
-    return &receivers;
-}*/
+
+void DeviceController::setResultToCreatedNotInit() {
+    result = Result{ CREATED_BUT_NOT_INIT, "" };
+}
 
 DeviceController::DeviceController(Config* config) {
     this->config = config;
 }
 
 DeviceController::~DeviceController() {
-    delete device;
     delete deviceInterface;
+    delete device;
 }
-
-/*void DeviceController::addReceiver(DataReceiver* dataRceiver) {
-    receivers.push_back(dataRceiver);
-}*/

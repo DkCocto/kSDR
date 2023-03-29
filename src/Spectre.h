@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Env.h"
+#include "Environment.h"
 #include "../include/GLFW/glfw3.h"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
@@ -37,6 +38,8 @@ class Spectre {
 
 	bool disableControl_ = false;
 	
+	Environment* env;
+
 public:
 
 	struct MIN_MAX {
@@ -49,6 +52,8 @@ public:
 		ImVec2 x1;
 		ImVec2 x2;
 	};
+
+	void releaseControl();
 
 	void disableControl(int id);
 	void enableControl(int id);
@@ -83,15 +88,15 @@ private:
 
 public:
 
+	Spectre(Environment* env);
+
 	void executeMemoryRecord(Config::MemoryRecord record, ReceiverLogic* receiverLogic);
 
 	unique_ptr<Waterfall> waterfall;
 
 	MIN_MAX getMinMaxInSpectre();
-
-	Spectre(Config* config, ViewModel* viewModel);
 	
-	void draw(ReceiverLogic* receiverLogic, FlowingSpectre* flowingSpec, SpectreHandler* specHandler);
+	void draw();
 
 	void storeSignaldB(FFTData::OUTPUT* spectreData, ReceiverLogic* receiverLogic);
 

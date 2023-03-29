@@ -98,9 +98,6 @@ void HackRFDevice::enableAmp(uint8_t amp) {
 	printf("AMP enabled set: %d\r\n", (int)amp);
 }
 
-void HackRFDevice::setSampleRate(int sampleRate) {
-}
-
 HackRFDevice::~HackRFDevice() {
 	printf("~HackRFDevice()\r\n");
 	stop();

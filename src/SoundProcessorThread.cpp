@@ -84,6 +84,21 @@ void SoundProcessorThread::run() {
 					
 				} else std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			}
+
+			if (devCnt->getCurrentDeviceType() == RTL) {
+				auto buffer = ((RTLDevice*)device)->getBufferForProc();
+				int available = buffer->available();
+				viewModel->setBufferAvailable(available);
+				if (available >= len) {
+					auto data = buffer->read(len);
+
+					processData<unsigned char, RTLDevice>(data, (RTLDevice*)device);
+
+					delete[] data;
+
+				}
+				else std::this_thread::sleep_for(std::chrono::milliseconds(10));
+			}
 		}
 	}
 }
@@ -95,6 +110,8 @@ template<typename T, typename D> void SoundProcessorThread::processData(T* data,
 
 		float I = device->prepareData(data[2 * i]);
 		float Q = device->prepareData(data[2 * i + 1]);
+
+		dcRemover.process(&I, &Q);
 
 		mixer.setFreq(receiverLogic->getFrequencyDelta());
 		Signal mixedSignal = mixer.mix(I, Q);

@@ -158,7 +158,7 @@ double ReceiverLogic::getFilterWidthAbs(int filterWidth) {
 
 double ReceiverLogic::getFreqByPosOnSpectrePx(int px) {
 	FlowingSpectre::FREQ_RANGE freqRange = flowingSpec->getVisibleFreqsRangeAbsolute();
-	double freq = round((int)freqRange.first + (px * ((int)freqRange.second - (int)freqRange.first)) / (int)spectreWidthPx);
+	double freq = round((int)freqRange.first + (px * (freqRange.second - freqRange.first)) / spectreWidthPx);
 	return freq;
 }
 

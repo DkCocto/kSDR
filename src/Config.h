@@ -114,6 +114,7 @@ public:
 			double atackSpeedMs = 1.0;
 			double holdingTimeMs = 100;
 			double releaseSpeed = 0.00005;
+			double lastAmp = 1;
 		} agc;
 
 	} receiver;

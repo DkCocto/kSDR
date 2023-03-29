@@ -43,7 +43,9 @@ SpectreHandler::SpectreHandler(Config* config, FFTData* fftData, ViewModel* view
 	inData = new fftw_complex[config->fftLen];
 	outData = new fftw_complex[spectreSize];
 
-	fftwPlan = fftw_plan_dft_1d(spectreSize, inData, outData, FFTW_FORWARD, FFTW_ESTIMATE);
+	//FFTW_MEASURE
+	printf("FFT module initializing...\n");
+	fftwPlan = fftw_plan_dft_1d(spectreSize, inData, outData, FFTW_FORWARD, FFTW_MEASURE);
 
 	speedDelta = new float[spectreSize];
 	//memset(speedDelta, 1, sizeof(float) * spectreSize);
@@ -78,8 +80,8 @@ void SpectreHandler::run() {
 
 		DeviceN* device = deviceController->getDevice();
 		if (device != nullptr) {
+
 			if (deviceController->getCurrentDeviceType() == HACKRF) {
-				
 				auto buffer = ((HackRFDevice*)device)->getBufferForSpec();
 
 				if (buffer->available() >= config->fftLen) {
@@ -90,6 +92,20 @@ void SpectreHandler::run() {
 
 				} else std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			}
+
+			if (deviceController->getCurrentDeviceType() == RTL) {
+				auto buffer = ((RTLDevice*)device)->getBufferForSpec();
+
+				if (buffer->available() >= config->fftLen) {
+
+					unsigned char* data = buffer->read(config->fftLen);
+					processFFT<unsigned char, RTLDevice>(data, (RTLDevice*)device);
+					delete[] data;
+
+				}
+				else std::this_thread::sleep_for(std::chrono::milliseconds(10));
+			}
+
 		} else std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 }

@@ -36,12 +36,12 @@ void Display::mouseButtonCallback(GLFWwindow* window, int button, int action, in
 
 Display::Display(Environment* env) {
 	this->env = env;
-	spectre = new Spectre(env->getConfig(), env->getViewModel());
+	spectre = new Spectre(env);
 	viewModel = env->getViewModel();
 	memoryRecordUserInterface = MemoryRecordUserInterface(env->getConfig(), viewModel, spectre);
 }
 
-bool errorInitDeviceUserInformed = false;
+bool errorInitDeviceShowed = false;
 
 int Display::init() {
 
@@ -170,6 +170,7 @@ void Display::renderImGUIFirst() {
 	ImGui::NewFrame();
 
 	if (env->reloading) {
+		errorInitDeviceShowed = false;
 		env->reload();
 		return;
 	}
@@ -202,11 +203,7 @@ void Display::renderImGUIFirst() {
 
 		ImGui::Separator(); ImGui::Spacing(); ImGui::Spacing();
 
-		if (ImGui::Button("Start")) env->startProcessing();
-		ImGui::SameLine();
-		if (ImGui::Button("Stop")) env->stopProcessing();
-		ImGui::SameLine();
-		if (ImGui::Button("Reload")) env->makeReload();
+		ImGui::SliderFloat("Volume", &viewModel->volume, 0, 7);
 
 		if (ImGui::Button("GO")) {
 			env->getReceiverLogic()->setFreq((float)viewModel->goToFreq);
@@ -228,8 +225,6 @@ void Display::renderImGUIFirst() {
 		ImGui::RadioButton("LSB", &viewModel->receiverMode, LSB); ImGui::SameLine();
 		ImGui::RadioButton("AM", &viewModel->receiverMode, AM); ImGui::SameLine();
 		ImGui::RadioButton("nFM", &viewModel->receiverMode, nFM);
-
-		ImGui::SliderFloat("Volume", &viewModel->volume, 0, 5);
 
 		ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
 
@@ -324,14 +319,39 @@ void Display::renderImGUIFirst() {
 				ImGui::EndTabItem();
 			}
 			if (ImGui::BeginTabItem("Device Options")) {
-				ImGui::Spacing();
 
-				showSelectDeviceSetting();
+				ImGui::Spacing();
+				if (!env->getDeviceController()->isStatusInitOk()) ImGui::BeginDisabled();
+				if (ImGui::Button("Stop")) {
+					errorInitDeviceShowed = true;
+					env->stopProcessing();
+					//env->getDeviceController()->getDevice()->stop();
+				}
+				if (!env->getDeviceController()->isStatusInitOk()) ImGui::EndDisabled();
+				
+				ImGui::SameLine();
+				if (env->getDeviceController()->isStatusInitOk()) ImGui::BeginDisabled();
+				if (ImGui::Button("Start")) {
+					errorInitDeviceShowed = false;
+					env->startProcessing();
+				}
+				if (env->getDeviceController()->isStatusInitOk()) ImGui::EndDisabled();
+
+				ImGui::SameLine();
+				if (env->getDeviceController()->isStatusInitOk()) ImGui::BeginDisabled();
+				if (ImGui::Button("Reinit")) {
+					env->makeReinit();
+				}
+				if (env->getDeviceController()->isStatusInitOk()) ImGui::EndDisabled();
+
+				selectDeviceLS->drawSetting();
+
+				//showSelectDeviceSetting();
 
 				if (env->getConfig()->deviceType == DeviceType::HACKRF) {
 					hackRFsampRateLS->drawSetting();
 
-					HackRfInterface* hackRfInterface = env->getDeviceController()->getHackRfInterface();
+					HackRfInterface* hackRfInterface = (HackRfInterface*)env->getDeviceController()->getDeviceInterface();
 
 					ImGui::SliderInt("LNA Gain", &viewModel->hackRFModel.lnaGain, 0, 5);
 					ImGui::SliderInt("VGA Gain", &viewModel->hackRFModel.vgaGain, 0, 31);
@@ -344,7 +364,7 @@ void Display::renderImGUIFirst() {
 						hackRfInterface->enableAmp(viewModel->hackRFModel.enableAmp);
 						hackRfInterface->setBaseband(env->getConfig()->hackrf.basebandFilter);
 
-						if (env->getDeviceController()->isReadyToReceiveCmd()) hackRfInterface->sendParamsToDevice();
+						if (env->getDeviceController()->isStatusInitOk()) hackRfInterface->sendParamsToDevice();
 					}
 				}
 
@@ -368,6 +388,13 @@ void Display::renderImGUIFirst() {
 				if (env->getConfig()->deviceType == DeviceType::RTL) {
 					rtlSampRateLS->drawSetting();
 					rtlDeviceGainLS->drawSetting();
+
+					RTLInterface* rtlInterface = (RTLInterface*)env->getDeviceController()->getDeviceInterface();
+
+					if (rtlInterface != nullptr) {
+						rtlInterface->setGain(env->getConfig()->rtl.gain);
+						if (env->getDeviceController()->isStatusInitOk()) rtlInterface->sendParamsToDevice();
+					}
 				}
 
 				ImGui::EndTabItem();
@@ -377,6 +404,11 @@ void Display::renderImGUIFirst() {
 				ImGui::Text("After changing the settings marked with an asterisk\napplication components will be reinitialized.");
 
 				//decimationLS->drawSetting();
+
+				ImGui::Spacing();
+				ImGui::SeparatorText("FFT");
+
+				fftLenLS->drawSetting();
 
 				ImGui::Spacing();
 				ImGui::SeparatorText("Frequency shift");
@@ -421,8 +453,6 @@ void Display::renderImGUIFirst() {
 				ImGui::Spacing();
 				ImGui::SeparatorText("Other");
 
-				fftLenLS->drawSetting();
-
 				ImGui::Checkbox("Remove DC", &viewModel->removeDCBias);
 
 				waterfallSpeedLS->drawSetting();
@@ -459,26 +489,33 @@ void Display::renderImGUIFirst() {
 		}
 		
 		//Если вкладка опций устройства не выбрана, то все равно устанавливаем конфигурацию на текущее устройство
-		if (env->getDeviceController()->isReadyToReceiveCmd()) {
-			if (env->getDeviceController()->getCurrentDeviceType() == HACKRF) {
-				env->getDeviceController()->getHackRfInterface()->setFreq(viewModel->centerFrequency);
-				env->getDeviceController()->getHackRfInterface()->sendParamsToDevice();
+		if (env->getDeviceController()->isStatusInitOk()) {
+			DeviceInterface* deviceInterface = env->getDeviceController()->getDeviceInterface();
+			if (deviceInterface != nullptr) {
+				if (env->getDeviceController()->getCurrentDeviceType() == HACKRF) {
+					((HackRfInterface*)deviceInterface)->setFreq(viewModel->centerFrequency);
+					((HackRfInterface*)deviceInterface)->sendParamsToDevice();
+				}
+				if (env->getDeviceController()->getCurrentDeviceType() == RTL) {
+					((RTLInterface*)deviceInterface)->setFreq(viewModel->centerFrequency);
+					((RTLInterface*)deviceInterface)->sendParamsToDevice();
+				}
 			}
 		}
-		//if (device != nullptr && env->getConfig()->deviceType == DeviceType::RTL) ((RTLDevice*)env->getConfig()->device)->setenv->getConfig()uration();
 
 	ImGui::End();
 
-	spectre->draw(env->getReceiverLogic(), env->getFlowingSpectre(), env->getFFTSpectreHandler());
+	spectre->draw();
 
-	if (env->getDeviceController()->getResult()->status == INIT_BUT_FAIL) {
+	if (env->getDeviceController()->isStatusInitFail()) {
 		showAlertOKDialog(std::string("Warning"), std::string("Application couldn't init a selected device.\nPlease, go to settings and select the correct device or plug your device to USB port.\nMake sure you have selected the correct api version in the settings for RSP devices.\n\nReturned answer:\n\n").append(env->getDeviceController()->getResult()->err));
-		if (env->getDeviceController()->getResult()->status != INIT_OK && !errorInitDeviceUserInformed) {
+		if (!errorInitDeviceShowed) {
 			spectre->disableControl(DISABLE_CONTROL_DIALOG);
 			ImGui::OpenPopup(std::string("Warning").c_str());
-			errorInitDeviceUserInformed = true;
+			errorInitDeviceShowed = true;
 		}
 	}
+
 	ImGui::PopStyleColor();
 
 	env->getConfig()->lastSelectedFreq = env->getReceiverLogic()->getSelectedFreqNew(); //saving last selected freq to env->getConfig() class
@@ -506,7 +543,7 @@ void Display::showSelectDeviceSetting() {
 }
 
 void Display::showHackrfSamplingRateSetting() {
-	std::map<int, std::string> samplingRateMap = { 
+	/*std::map<int, std::string> samplingRateMap = {
 		{0 , "2000000"},
 		{1 , "4000000"},
 		{2 , "5000000"},
@@ -515,7 +552,7 @@ void Display::showHackrfSamplingRateSetting() {
 		{5 , "12500000"},
 		{6 , "16000000"},
 		{7 , "20000000"}
-	};
+	};*/
 
 	const char* items[] = { "2000000", "4000000", "5000000", "8000000", "10000000", "12500000", "16000000", "20000000" };
 	static int item_current_idx = env->getConfig()->deviceType; // Here we store our selection data as an index.
@@ -612,7 +649,7 @@ void Display::initDynamicSettings() {
 			}
 		}
 
-		rspDecimationFactorLS = std::make_unique<ListSetting>(env, rspDecimationFactorMap, "Decimation factor", true);
+		rspDecimationFactorLS = std::make_unique<ListSetting<int>>(env, rspDecimationFactorMap, "Decimation factor", true);
 		rspDecimationFactorLS->bindVariable(&env->getConfig()->rsp.deviceDecimationFactor);
 	}
 }
@@ -620,38 +657,47 @@ void Display::initDynamicSettings() {
 void Display::initSettings() {
 	//auto begin = std::chrono::steady_clock::now();
 
+	std::map<DeviceType, std::string> selectDeviceMap = {
+		{RSP , "RSP"},
+		{HACKRF , "HACKRF"},
+		{RTL , "RTL"}
+	};
+
+	selectDeviceLS = std::make_unique<ListSetting<DeviceType>>(env, selectDeviceMap, "Select device", true);
+	selectDeviceLS->bindVariable(&env->getConfig()->delayedDeviceType);
+
 	if (env->getConfig()->deviceType == DeviceType::HACKRF) {
 		//-------HackRF settings
 		std::map<int, std::string> hackRFsamplingRateMap = {
-			{0 , "2000000"},
-			{1 , "4000000"},
-			{2 , "5000000"},
-			{3 , "8000000"},
-			{4 , "10000000"},
-			{5 , "12500000"},
-			{6 , "16000000"},
-			{7 , "20000000"}
+			{2000000 , "2000000"},
+			{4000000 , "4000000"},
+			{5000000 , "5000000"},
+			{8000000 , "8000000"},
+			{10000000 , "10000000"},
+			{12500000 , "12500000"},
+			{16000000 , "16000000"},
+			{20000000 , "20000000"}
 		};
 
-		hackRFsampRateLS = std::make_unique<ListSetting>(env, hackRFsamplingRateMap, "Sampling rate", true);
+		hackRFsampRateLS = std::make_unique<ListSetting<int>>(env, hackRFsamplingRateMap, "Sampling rate", true);
 		hackRFsampRateLS->bindVariable(&env->getConfig()->hackrf.deviceSamplingRate);
 
 		//const char* items[] = { "1750000", "2500000", "3500000", "5000000", "5500000", "6000000", "7000000", "8000000", "9000000", "10000000", "20000000" };
 		std::map<int, std::string> hackRFBasebandFilterMap = {
-			{0 , "1750000"},
-			{1 , "2500000"},
-			{2 , "3500000"},
-			{3 , "5000000"},
-			{4 , "5500000"},
-			{5 , "6000000"},
-			{6 , "7000000"},
-			{7 , "8000000"},
-			{8 , "9000000"},
-			{9 , "10000000"},
-			{10 , "20000000"}
+			{1750000 , "1750000"},
+			{2500000 , "2500000"},
+			{3500000 , "3500000"},
+			{5000000 , "5000000"},
+			{5500000 , "5500000"},
+			{6000000 , "6000000"},
+			{7000000 , "7000000"},
+			{8000000 , "8000000"},
+			{9000000 , "9000000"},
+			{10000000 , "10000000"},
+			{20000000 , "20000000"}
 		};
 
-		hackRFbasebandFilterLS = std::make_unique<ListSetting>(env, hackRFBasebandFilterMap, "Baseband filter", false);
+		hackRFbasebandFilterLS = std::make_unique<ListSetting<int>>(env, hackRFBasebandFilterMap, "Baseband filter", false);
 		hackRFbasebandFilterLS->bindVariable(&env->getConfig()->hackrf.basebandFilter);
 		//--------------------
 	}
@@ -659,31 +705,31 @@ void Display::initSettings() {
 	if (env->getConfig()->deviceType == DeviceType::RSP) {
 		//-------RSP settings-
 		std::map<int, std::string> rspSamplingRateMap = {
-			{0 , "2000000"},
-			{1 , "3000000"},
-			{2 , "4000000"},
-			{3 , "6000000"},
-			{4 , "7000000"},
-			{5 , "8000000"},
-			{6 , "10000000"}
+			{2000000 , "2000000"},
+			{3000000 , "3000000"},
+			{4000000 , "4000000"},
+			{6000000 , "6000000"},
+			{7000000 , "7000000"},
+			{8000000 , "8000000"},
+			{10000000 , "10000000"}
 		};
 
-		rspSampRateLS = std::make_unique<ListSetting>(env, rspSamplingRateMap, "Sampling rate", true);
+		rspSampRateLS = std::make_unique<ListSetting<int>>(env, rspSamplingRateMap, "Sampling rate", true);
 		rspSampRateLS->bindVariable(&env->getConfig()->rsp.deviceSamplingRate);
 
 
 		std::map<int, std::string> rspbasebandFilterMap = {
 			{0 , "0"},
-			{1 , "200"},
-			{2 , "300"},
-			{3 , "600"},
-			{4 , "1536"},
-			{5 , "5000"},
-			{6 , "6000"},
-			{7 , "7000"},
-			{8 , "8000"}
+			{200 , "200"},
+			{300 , "300"},
+			{600 , "600"},
+			{1536 , "1536"},
+			{5000 , "5000"},
+			{6000 , "6000"},
+			{7000 , "7000"},
+			{8000 , "8000"}
 		};
-		rspbasebandFilterLS = std::make_unique<ListSetting>(env, rspbasebandFilterMap, "Baseband Filter", false);
+		rspbasebandFilterLS = std::make_unique<ListSetting<int>>(env, rspbasebandFilterMap, "Baseband Filter", false);
 		rspbasebandFilterLS->bindVariable(&env->getConfig()->rsp.basebandFilter);
 		//--------------------
 	}
@@ -692,84 +738,85 @@ void Display::initSettings() {
 		//-10, 15, 40, 65, 90, 115, 140, 165, 190,
 		//215, 240, 290, 340, 420, 430, 450, 470, 490
 		std::map<int, std::string> rtlGainMap = {
-			{0 , "-10"},
-			{1 , "15"},
-			{2 , "40"},
-			{3 , "65"},
-			{4 , "90"},
-			{5 , "115"},
-			{6 , "140"},
-			{7 , "165"},
-			{8 , "190"},
-			{9 , "215"},
-			{10 , "240"},
-			{11 , "290"},
-			{12 , "340"},
-			{13 , "420"},
-			{14 , "430"},
-			{15 , "450"},
-			{16 , "470"},
-			{17 , "490"}
+			{-10 , "-10"},
+			{15 , "15"},
+			{40 , "40"},
+			{65 , "65"},
+			{90 , "90"},
+			{115 , "115"},
+			{140 , "140"},
+			{165 , "165"},
+			{190 , "190"},
+			{215 , "215"},
+			{240 , "240"},
+			{290 , "290"},
+			{340 , "340"},
+			{420 , "420"},
+			{430 , "430"},
+			{450 , "450"},
+			{470 , "470"},
+			{490 , "490"}
 		};
-		rtlDeviceGainLS = std::make_unique<ListSetting>(env, rtlGainMap, "Gain", false);
+		rtlDeviceGainLS = std::make_unique<ListSetting<int>>(env, rtlGainMap, "Gain", false);
 		rtlDeviceGainLS->bindVariable(&env->getConfig()->rtl.gain);
 
 		//225001 - 300000 Hz
 		//900001 - 3200000 Hz
 		std::map<int, std::string> rtlSampRateMap = {
-			{0 , "250000"},
-			{1 , "300000"},
-			{2 , "1000000"},
-			{3 , "1500000"},
-			{4 , "2000000"},
-			{5 , "2500000"},
-			{6 , "3000000"},
-			{7 , "3200000"}
+			{250000 , "250000"},
+			{300000 , "300000"},
+			{1000000 , "1000000"},
+			{1500000 , "1500000"},
+			{2000000 , "2000000"},
+			{2500000 , "2500000"},
+			{3000000 , "3000000"},
+			{3200000 , "3200000"}
 		};
 
-		rtlSampRateLS = std::make_unique<ListSetting>(env, rtlSampRateMap, "Sampling rate", false);
+		rtlSampRateLS = std::make_unique<ListSetting<int>>(env, rtlSampRateMap, "Sampling rate", true);
 		rtlSampRateLS->bindVariable(&env->getConfig()->rtl.deviceSamplingRate);
 	}
 
 	//-------------Spectre
-	std::map<int, std::string> spectreStyleMap;
-	spectreStyleMap.insert(pair<int, string> {0, "0"});
-	spectreStyleMap.insert(pair<int, string> {1, "1"});
-	spectreStyleMap.insert(pair<int, string> {2, "2"});
-	spectreStyleLS = std::make_unique<ListSetting>(env, spectreStyleMap, "Spectre style", false);
+	std::map<int, std::string> spectreStyleMap = { {0, "0"}, {1, "1"}, {2, "2"} };
+
+	spectreStyleLS = std::make_unique<ListSetting<int>>(env, spectreStyleMap, "Spectre style", false);
 	spectreStyleLS->bindVariable(&env->getConfig()->spectre.style);
 
-	std::map<int, std::string> smoothingDepthMap;
-	smoothingDepthMap.insert(pair<int, string> {0, "0"});
-	smoothingDepthMap.insert(pair<int, string> {1, "1"});
-	smoothingDepthMap.insert(pair<int, string> {2, "2"});
-	smoothingDepthMap.insert(pair<int, string> {3, "3"});
-	smoothingDepthMap.insert(pair<int, string> {4, "4"});
-	smoothingDepthMap.insert(pair<int, string> {5, "5"});
-	smoothingDepthMap.insert(pair<int, string> {6, "6"});
-	smoothingDepthMap.insert(pair<int, string> {7, "7"});
-	smoothingDepthMap.insert(pair<int, string> {8, "8"});
-	smoothingDepthLS = std::make_unique<ListSetting>(env, smoothingDepthMap, "Smoothing depth", false);
+	std::map<int, std::string> smoothingDepthMap = {
+		{0, "0"},
+		{1, "1"},
+		{2, "2"},
+		{3, "3"},
+		{4, "4"},
+		{5, "5"},
+		{6, "6"},
+		{7, "7"},
+		{8, "8"}
+	};
+	smoothingDepthLS = std::make_unique<ListSetting<int>>(env, smoothingDepthMap, "Smoothing depth", false);
 	smoothingDepthLS->bindVariable(&env->getConfig()->spectre.smoothingDepth);
 	//--------------------
 
 	//--------------Other-
-	std::map<int, std::string> fftLenMap;
-	fftLenMap.insert(pair<int, string> {0, "8192"});
-	fftLenMap.insert(pair<int, string> {1, "16384"});
-	fftLenMap.insert(pair<int, string> {2, "32768"});
-	fftLenMap.insert(pair<int, string> {3, "65536"});
-	fftLenMap.insert(pair<int, string> {4, "131072"});
-	fftLenMap.insert(pair<int, string> {5, "262144"});
-	fftLenMap.insert(pair<int, string> {6, "524288"});
-	fftLenLS = std::make_unique<ListSetting>(env, fftLenMap, "FFT length", true);
+	std::map<int, std::string> fftLenMap = {
+		{ 8192, "8192"},
+		{ 16384, "16384" },
+		{ 32768, "32768" },
+		{ 65536, "65536" },
+		{ 131072, "131072" },
+		{ 262144, "262144" },
+		{ 524288, "524288" }
+	};
+	fftLenLS = std::make_unique<ListSetting<int>>(env, fftLenMap, "FFT length", true);
 	fftLenLS->bindVariable(&env->getConfig()->delayedFFTLen);
 
-	std::map<int, std::string> waterfallSpeedMap;
-	waterfallSpeedMap.insert(pair<int, string> {0, "1"});
-	waterfallSpeedMap.insert(pair<int, string> {1, "2"});
-	waterfallSpeedMap.insert(pair<int, string> {2, "3"});
-	waterfallSpeedLS = std::make_unique<ListSetting>(env, waterfallSpeedMap, "Waterfall speed", false);
+	std::map<int, std::string> waterfallSpeedMap = {
+		{1, "1"},
+		{2, "2"},
+		{3, "3"}
+	};
+	waterfallSpeedLS = std::make_unique<ListSetting<int>>(env, waterfallSpeedMap, "Waterfall speed", false);
 	waterfallSpeedLS->bindVariable(&env->getConfig()->waterfall.speed);
 	//--------------------
 

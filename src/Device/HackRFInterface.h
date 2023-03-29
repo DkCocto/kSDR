@@ -2,8 +2,9 @@
 
 #include "stdint.h"
 #include "HackRFDevice.h"
+#include "DeviceInterface.h"
 
-class HackRfInterface {
+class HackRfInterface : public DeviceInterface {
 
 	uint64_t savedFreq = 7100000;
 	bool needToSetFreq = false;
@@ -20,11 +21,9 @@ class HackRfInterface {
 	uint8_t savedAmp = 0;
 	bool needToSetAmp = false;
 
-	HackRFDevice* hackRFDevice;
-
 public:
 
-	HackRfInterface(HackRFDevice* hackRFDevice);
+	HackRfInterface(HackRFDevice* hackRFDevice) : DeviceInterface(hackRFDevice) {};
 
 	void setFreq(uint64_t freq);
 	void setLnaGain(uint32_t gain);

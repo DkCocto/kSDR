@@ -121,4 +121,5 @@ int main() {
 	display->mainLoop();
 
 	delete display;
+
 }

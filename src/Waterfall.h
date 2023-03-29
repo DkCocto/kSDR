@@ -20,7 +20,6 @@ class Waterfall {
 	//int maxColor = 0xFF0000; //red
 	//int maxColor = 0x00CC00; //red
 
-
 	unsigned int depth = 4;
 
 	GLuint texName = NULL;

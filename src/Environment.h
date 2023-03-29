@@ -51,7 +51,7 @@ class Environment {
 		DeviceController* getDeviceController();
 		void startProcessing();
 		void stopProcessing();
-		void makeReload();
+		void makeReinit();
 		void reload();
 		SpectreHandler* getFFTSpectreHandler();
 		SoundProcessorThread* getSoundProcessor();

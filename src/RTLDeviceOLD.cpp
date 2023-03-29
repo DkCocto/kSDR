@@ -1,4 +1,4 @@
-#include "RTLDevice.h"
+#include "RTLDeviceOLD.h"
 
 int RTLDevice::nearest_gain(int targetGain) {
 	int i, r, err1, err2, count, nearest;

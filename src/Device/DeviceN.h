@@ -17,11 +17,6 @@ struct Result {
 };
 
 class DeviceN {
-	
-	private:
-
-		//std::vector<DataReceiver*>* receivers = nullptr;
-
 	public:
 
 		Config* config;
@@ -29,16 +24,11 @@ class DeviceN {
 		DeviceN (Config* config) {
 			this->config = config;
 		};
-		
-		/*void setReceivers(std::vector<DataReceiver*>* receivers);
-		std::vector<DataReceiver*>* getReceivers();*/
-
+	
 		virtual ~DeviceN() {};
 
 		DeviceType deviceType = HACKRF;
 
-		virtual void setFreq(uint64_t frequency) = 0;
-		virtual void setSampleRate(int sampleRate) = 0;
 		virtual Result start() = 0;
 		virtual void stop() = 0;
 };

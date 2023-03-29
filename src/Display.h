@@ -16,7 +16,6 @@
 #include "ListSetting.h"
 #include "functional"
 #include "map"
-#include "RTLDevice.h"
 #include "MemoryRecordUserInterface.h"
 
 #include <stb/stb_image.h>
@@ -42,18 +41,19 @@ private:
 	void showSelectDeviceSetting();
 	void showHackrfSamplingRateSetting();
 
-	std::unique_ptr<ListSetting> decimationLS;
-	std::unique_ptr<ListSetting> hackRFsampRateLS;
-	std::unique_ptr<ListSetting> hackRFbasebandFilterLS;
-	std::unique_ptr<ListSetting> rspSampRateLS;
-	std::unique_ptr<ListSetting> rspDecimationFactorLS;
-	std::unique_ptr<ListSetting> rspbasebandFilterLS;
-	std::unique_ptr<ListSetting> fftLenLS;
-	std::unique_ptr<ListSetting> waterfallSpeedLS;
-	std::unique_ptr<ListSetting> smoothingDepthLS;
-	std::unique_ptr<ListSetting> spectreStyleLS;
-	std::unique_ptr<ListSetting> rtlDeviceGainLS;
-	std::unique_ptr<ListSetting> rtlSampRateLS;
+	std::unique_ptr<ListSetting<DeviceType>> selectDeviceLS;
+	std::unique_ptr<ListSetting<int>> decimationLS;
+	std::unique_ptr<ListSetting<int>> hackRFsampRateLS;
+	std::unique_ptr<ListSetting<int>> hackRFbasebandFilterLS;
+	std::unique_ptr<ListSetting<int>> rspSampRateLS;
+	std::unique_ptr<ListSetting<int>> rspDecimationFactorLS;
+	std::unique_ptr<ListSetting<int>> rspbasebandFilterLS;
+	std::unique_ptr<ListSetting<int>> fftLenLS;
+	std::unique_ptr<ListSetting<int>> waterfallSpeedLS;
+	std::unique_ptr<ListSetting<int>> smoothingDepthLS;
+	std::unique_ptr<ListSetting<int>> spectreStyleLS;
+	std::unique_ptr<ListSetting<int>> rtlDeviceGainLS;
+	std::unique_ptr<ListSetting<int>> rtlSampRateLS;
 
 	void initSettings();
 	void initDynamicSettings();
