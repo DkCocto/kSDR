@@ -8,7 +8,7 @@ enum Status {
 	NOT_CREATED,
 	CREATED_BUT_NOT_INIT,
 	INIT_OK,
-	INIT_BUT_FAIL
+	INIT_FAULT
 };
 
 struct Result {

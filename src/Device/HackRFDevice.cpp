@@ -124,7 +124,7 @@ Result HackRFDevice::start() {
 	if (result != HACKRF_SUCCESS) {
 		initResult.err.append("hackrf_init() failed: ");
 		initResult.err.append(hackrf_error_name(result));
-		initResult.status = INIT_BUT_FAIL;
+		initResult.status = INIT_FAULT;
 		return initResult;
 	}
 
@@ -134,7 +134,7 @@ Result HackRFDevice::start() {
 	if (result != HACKRF_SUCCESS) {
 		initResult.err.append("hackrf_open() failed: ");
 		initResult.err.append(hackrf_error_name(result));
-		initResult.status = INIT_BUT_FAIL;
+		initResult.status = INIT_FAULT;
 		return initResult;
 	}
 
@@ -142,7 +142,7 @@ Result HackRFDevice::start() {
 	if (result != HACKRF_SUCCESS) {
 		initResult.err.append("hackrf_set_hw_sync_mode() failed: ");
 		initResult.err.append(hackrf_error_name(result));
-		initResult.status = INIT_BUT_FAIL;
+		initResult.status = INIT_FAULT;
 		return initResult;
 	}
 
@@ -150,7 +150,7 @@ Result HackRFDevice::start() {
 	if (result != HACKRF_SUCCESS) {
 		initResult.err.append("hackrf_set_sample_rate() failed: ");
 		initResult.err.append(hackrf_error_name(result));
-		initResult.status = INIT_BUT_FAIL;
+		initResult.status = INIT_FAULT;
 		return initResult;
 	}
 
@@ -160,7 +160,7 @@ Result HackRFDevice::start() {
 	if (result != HACKRF_SUCCESS) {
 		initResult.err.append("hackrf_set_freq() failed: ");
 		initResult.err.append(hackrf_error_name(result));
-		initResult.status = INIT_BUT_FAIL;
+		initResult.status = INIT_FAULT;
 		return initResult;
 	}
 
@@ -168,7 +168,7 @@ Result HackRFDevice::start() {
 	if (result != HACKRF_SUCCESS) {
 		initResult.err.append("hackrf_set_amp_enable() failed: ");
 		initResult.err.append(hackrf_error_name(result));
-		initResult.status = INIT_BUT_FAIL;
+		initResult.status = INIT_FAULT;
 		return initResult;
 	}
 
@@ -176,7 +176,7 @@ Result HackRFDevice::start() {
 	if (result != HACKRF_SUCCESS) {
 		initResult.err.append("hackrf_set_antenna_enable() failed: ");
 		initResult.err.append(hackrf_error_name(result));
-		initResult.status = INIT_BUT_FAIL;
+		initResult.status = INIT_FAULT;
 		return initResult;
 	}
 
@@ -184,14 +184,14 @@ Result HackRFDevice::start() {
 	if (result != HACKRF_SUCCESS) {
 		initResult.err.append("hackrf_set_vga_gain() failed: ");
 		initResult.err.append(hackrf_error_name(result));
-		initResult.status = INIT_BUT_FAIL;
+		initResult.status = INIT_FAULT;
 		return initResult;
 	}
 	result = (hackrf_error)hackrf_set_lna_gain(device, lna_gain);
 	if (result != HACKRF_SUCCESS) {
 		initResult.err.append("hackrf_set_lna_gain() failed: ");
 		initResult.err.append(hackrf_error_name(result));
-		initResult.status = INIT_BUT_FAIL;
+		initResult.status = INIT_FAULT;
 		return initResult;
 	}
 
@@ -199,13 +199,13 @@ Result HackRFDevice::start() {
 	if (result != HACKRF_SUCCESS) {
 		initResult.err.append("hackrf_set_baseband_filter_bandwidth() failed: ");
 		initResult.err.append(hackrf_error_name(result));
-		initResult.status = INIT_BUT_FAIL;
+		initResult.status = INIT_FAULT;
 		return initResult;
 	}
 
 	result = (hackrf_error)hackrf_start_rx(device, rx_callback, this);
 	if (result != HACKRF_SUCCESS) {
-		initResult.status = INIT_BUT_FAIL;
+		initResult.status = INIT_FAULT;
 		return initResult;
 		initResult.err.append("hackrf_start_rx() failed: ");
 		initResult.err.append(hackrf_error_name(result));

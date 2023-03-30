@@ -71,6 +71,7 @@ private:
 
 	void run();
 	void dataPostprocess();
+	template<typename DEVICE, typename DATATYPE> void prepareToProcess(DEVICE* device);
 	template<typename T, typename D> void processFFT(T* data, D* device);
 	float psd(float re, float im);
 	float average(float avg, float new_sample, int n);

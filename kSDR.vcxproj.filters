@@ -231,6 +231,12 @@
     <ClCompile Include="src\Device\RTLDevice.cpp">
       <Filter>Исходные файлы\Device</Filter>
     </ClCompile>
+    <ClCompile Include="src\Device\RSPDevice.cpp">
+      <Filter>Исходные файлы\Device</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Device\RSPInterface.cpp">
+      <Filter>Исходные файлы\Device</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Config.h">
@@ -453,6 +459,12 @@
       <Filter>Файлы заголовков\Device</Filter>
     </ClInclude>
     <ClInclude Include="src\Device\RTLDevice.h">
+      <Filter>Файлы заголовков\Device</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Device\RSPDevice.h">
+      <Filter>Файлы заголовков\Device</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Device\RSPInterface.h">
       <Filter>Файлы заголовков\Device</Filter>
     </ClInclude>
   </ItemGroup>

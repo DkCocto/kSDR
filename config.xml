@@ -10,7 +10,7 @@
 		1: hackrf
 		2: rtlsdr
 		-->
-        <type>2</type>
+        <type>1</type>
         <decimation>1</decimation>
         <RSP>
             <!-- Total sampling rate = (deviceSamplingRate / deviceDecimationFactor) / decimation
@@ -20,13 +20,13 @@
             	decimation = 2
             	Total sampling rate = (2000000 / 2) / 2 = 500000 
 			-->
-            <deviceSamplingRate>4000000</deviceSamplingRate>
+            <deviceSamplingRate>10000000</deviceSamplingRate>
             <deviceDecimationFactor>1</deviceDecimationFactor>
-            <gain>58</gain>
+            <gain>52</gain>
             <!-- Api can be 2 (v2) and 3 (v3)-->
             <api>3</api>
             <disableLna>1</disableLna>
-            <basebandFilter>5000</basebandFilter>
+            <basebandFilter>600</basebandFilter>
         </RSP>
         <HackRF>
             <!-- App sampling rate will be: deviceSamplingRate / decimation -->
@@ -34,50 +34,50 @@
             <basebandFilter>2500000</basebandFilter>
             <rxAmp>0</rxAmp>
             <!-- 0 1 2 3 4-->
-            <lnaGain>2</lnaGain>
+            <lnaGain>3</lnaGain>
             <!-- 0 .. 30 -->
-            <vgaGain>10</vgaGain>
+            <vgaGain>21</vgaGain>
             <!-- 0 .. 40 step 2-->
             <txAmp>20</txAmp>
         </HackRF>
         <RTL>
-            <deviceSamplingRate>1000000</deviceSamplingRate>
-            <gain>140</gain>
+            <deviceSamplingRate>3200000</deviceSamplingRate>
+            <gain>290</gain>
         </RTL>
     </Device>
     <Receiver>
-        <startFreq>13950000</startFreq>
-        <lastSelectedFreq>14150000</lastSelectedFreq>
-        <volume>1.4809999</volume>
+        <startFreq>3044872</startFreq>
+        <lastSelectedFreq>3152047</lastSelectedFreq>
+        <volume>1.257</volume>
         <filterWidth>6000</filterWidth>
         <!-- USB:0, LSB:1, AM:2, nFM:3 -->
-        <modulation>0</modulation>
-        <enableFrequencyShift>1</enableFrequencyShift>
+        <modulation>2</modulation>
+        <enableFrequencyShift>0</enableFrequencyShift>
         <frequencyShift>52434810</frequencyShift>
         <Agc>
             <threshold>0.060000001220032573</threshold>
             <atackSpeedMs>0.15000000000000002</atackSpeedMs>
             <holdingTimeMs>999.99999998509884</holdingTimeMs>
             <releaseSpeed>5.0000003789318735e-05</releaseSpeed>
-            <lastAmp>12.17825498511697</lastAmp>
+            <lastAmp>2.2013787031044796</lastAmp>
         </Agc>
     </Receiver>
     <Waterfall>
-        <min>-141.92558</min>
-        <max>-35.211082</max>
+        <min>-108.68704</min>
+        <max>-40.087315</max>
         <speed>2</speed>
     </Waterfall>
     <Spectre>
-        <ratio>-7.626152</ratio>
-        <min>-152.51051</min>
+        <ratio>-11.311794</ratio>
+        <min>-120.46256</min>
         <speed>5</speed>
-        <speed2>5</speed2>
+        <speed2>9</speed2>
         <!-- Must be a power of 2. The total will be fftLen = fftLen * 1024 -->
-        <fftLen>32768</fftLen>
-        <visibleStartFreq>14064075</visibleStartFreq>
-        <visibleStopFreq>14236011</visibleStopFreq>
-        <startBin>10061</startBin>
-        <stopBin>12877</stopBin>
+        <fftLen>262144</fftLen>
+        <visibleStartFreq>3066905</visibleStartFreq>
+        <visibleStopFreq>3241161</visibleStopFreq>
+        <startBin>65897</startBin>
+        <stopBin>68751</stopBin>
         <removeDCBias>1</removeDCBias>
         <style>1</style>
         <contourShowsPower>0</contourShowsPower>
@@ -87,7 +87,7 @@
         <decaySpeed>0.034000002</decaySpeed>
         <decaySpeedDelta>1.184</decaySpeedDelta>
         <smoothingDepth>2</smoothingDepth>
-        <spectreCorrectionDb>-112</spectreCorrectionDb>
+        <spectreCorrectionDb>-163</spectreCorrectionDb>
     </Spectre>
     <ColorTheme>
         <spectreFillColor>4281337632</spectreFillColor>

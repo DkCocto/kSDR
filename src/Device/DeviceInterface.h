@@ -9,5 +9,5 @@ class DeviceInterface {
 
 	public:
 		DeviceInterface(DeviceN* device);
-		virtual void sendParamsToDevice() {};
+		virtual void sendParamsToDevice() = 0;
 };

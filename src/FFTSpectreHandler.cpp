@@ -81,33 +81,31 @@ void SpectreHandler::run() {
 		DeviceN* device = deviceController->getDevice();
 		if (device != nullptr) {
 
-			if (deviceController->getCurrentDeviceType() == HACKRF) {
-				auto buffer = ((HackRFDevice*)device)->getBufferForSpec();
-
-				if (buffer->available() >= config->fftLen) {
-
-					uint8_t* data = buffer->read(config->fftLen);
-					processFFT<uint8_t, HackRFDevice>(data, (HackRFDevice*)device);
-					delete[] data;
-
-				} else std::this_thread::sleep_for(std::chrono::milliseconds(10));
-			}
-
-			if (deviceController->getCurrentDeviceType() == RTL) {
-				auto buffer = ((RTLDevice*)device)->getBufferForSpec();
-
-				if (buffer->available() >= config->fftLen) {
-
-					unsigned char* data = buffer->read(config->fftLen);
-					processFFT<unsigned char, RTLDevice>(data, (RTLDevice*)device);
-					delete[] data;
-
-				}
-				else std::this_thread::sleep_for(std::chrono::milliseconds(10));
+			switch (deviceController->getCurrentDeviceType()) {
+				case HACKRF:
+					prepareToProcess<HackRFDevice, uint8_t>((HackRFDevice*)device);
+					break;
+				case RTL:
+					prepareToProcess<RTLDevice, unsigned char>((RTLDevice*)device);
+					break;
+				case RSP:
+					prepareToProcess<RSPDevice, short>((RSPDevice*)device);
+					break;
 			}
 
 		} else std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
+}
+
+template<typename DEVICE, typename DATATYPE> void SpectreHandler::prepareToProcess(DEVICE* device) {
+	auto buffer = device->getBufferForSpec();
+	if (buffer->available() >= config->fftLen) {
+
+		DATATYPE* data = buffer->read(config->fftLen);
+		processFFT<DATATYPE, DEVICE>(data, device);
+		delete[] data;
+
+	} else std::this_thread::sleep_for(std::chrono::milliseconds(10));
 }
 
 

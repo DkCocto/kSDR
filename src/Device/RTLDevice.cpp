@@ -2,7 +2,7 @@
 
 void RTLDevice::stop() {
 	if (initResult.status == INIT_OK) {
-		deviceWorking = false;
+		processing = false;
 		//while (rtlsdr_cancel_async(device) != 0);
 		//while (deviceWorking);
 		//resetBuffer();
@@ -33,7 +33,7 @@ Result RTLDevice::start() {
 	if (list != NULL) {
 		openDevice(list->at(0));
 	} else {
-		initResult.status = INIT_BUT_FAIL;
+		initResult.status = INIT_FAULT;
 		initResult.err.append("Can't find rtl device! Check usb connection or drivers.");
 		return initResult;
 	}
@@ -42,36 +42,36 @@ Result RTLDevice::start() {
 	int r = setFreq((uint32_t)(config->startFrequency + shift));
 
 	if (r < 0) {
-		initResult.status = INIT_BUT_FAIL;
+		initResult.status = INIT_FAULT;
 		return initResult;
 	}
 
 	if (setSampleRate((uint32_t)(config->rtl.deviceSamplingRate / config->inputSamplerateDivider)) < 0) {
-		initResult.status = INIT_BUT_FAIL;
+		initResult.status = INIT_FAULT;
 		return initResult;
 	}
 
 	if (enableAutoGain(false) < 0) {
-		initResult.status = INIT_BUT_FAIL;
+		initResult.status = INIT_FAULT;
 		return initResult;
 	}
 
 	if (setGain(config->rtl.gain) < 0) {
-		initResult.status = INIT_BUT_FAIL;
+		initResult.status = INIT_FAULT;
 		return initResult;
 	}
 
 	if (resetBuffer() < 0) {
-		initResult.status = INIT_BUT_FAIL;
+		initResult.status = INIT_FAULT;
 		return initResult;
 	}
 
 	std::thread t1([&] {
-		deviceWorking = true;
-		unsigned char buf[8192];
-		while (deviceWorking) {
+		processing = true;
+		unsigned char buf[16384];
+		while (processing) {
 			int n_read = 0;
-			rtlsdr_read_sync(device, &buf, 8192, &n_read);
+			rtlsdr_read_sync(device, &buf, 16384, &n_read);
 			getBufferForProc()->write(buf, n_read);
 			getBufferForSpec()->write(buf, n_read);
 
@@ -214,6 +214,6 @@ int RTLDevice::nearest_gain(int targetGain) {
 			nearest = gains[i];
 		}
 	}
-	delete gains;
+	delete[] gains;
 	return nearest;
 }

@@ -71,36 +71,33 @@ void SoundProcessorThread::run() {
 
 		DeviceN* device = devCnt->getDevice();
 		if (device != nullptr) {
-			if (devCnt->getCurrentDeviceType() == HACKRF) {
-				auto buffer = ((HackRFDevice*)device)->getBufferForProc();
-				int available = buffer->available();
-				viewModel->setBufferAvailable(available);
-				if (available >= len) {
-					auto data = buffer->read(len);
-
-					processData<uint8_t, HackRFDevice>(data, (HackRFDevice*)device);
-
-					delete[] data;
-					
-				} else std::this_thread::sleep_for(std::chrono::milliseconds(10));
-			}
-
-			if (devCnt->getCurrentDeviceType() == RTL) {
-				auto buffer = ((RTLDevice*)device)->getBufferForProc();
-				int available = buffer->available();
-				viewModel->setBufferAvailable(available);
-				if (available >= len) {
-					auto data = buffer->read(len);
-
-					processData<unsigned char, RTLDevice>(data, (RTLDevice*)device);
-
-					delete[] data;
-
-				}
-				else std::this_thread::sleep_for(std::chrono::milliseconds(10));
+			switch (devCnt->getCurrentDeviceType()) {
+				case HACKRF:
+					initProcess<HackRFDevice, uint8_t>((HackRFDevice*)device);
+					break;
+				case RTL:
+					initProcess<RTLDevice, unsigned char>((RTLDevice*)device);
+					break;
+				case RSP:
+					initProcess<RSPDevice, short>((RSPDevice*)device);
+					break;
 			}
 		}
 	}
+}
+
+template<typename DEVICE, typename DATATYPE> void SoundProcessorThread::initProcess(DEVICE* device) {
+	auto buffer = device->getBufferForProc();
+	int available = buffer->available();
+	viewModel->setBufferAvailable(available);
+	if (available >= len) {
+		auto data = buffer->read(len);
+
+		processData<DATATYPE, DEVICE>(data, device);
+
+		delete[] data;
+	}
+	else std::this_thread::sleep_for(std::chrono::milliseconds(10));
 }
 
 template<typename T, typename D> void SoundProcessorThread::processData(T* data, D* device) {

@@ -20,7 +20,7 @@ class RTLDevice : public DeviceN {
 	public:
 
 		rtlsdr_dev_t* device = nullptr;
-		std::atomic_bool deviceWorking = false;
+		std::atomic_bool processing = false;
 
 		RTLDevice(Config* config) : DeviceN(config) {
 			bufferForSpec = new CircleBufferNew<unsigned char>(config->circleBufferLen);

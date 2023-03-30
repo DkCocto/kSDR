@@ -45,12 +45,13 @@ void DeviceController::start(DeviceType deviceType) {
 
     switch (deviceType) {
         case HACKRF:
-            createHackRFDevice();
+            createDevice<HackRFDevice, HackRfInterface>(HACKRF);
             break;
         case RTL:
-            createRTLDevice();
+            createDevice<RTLDevice, RTLInterface>(RTL);
             break;
         case RSP:
+            createDevice<RSPDevice, RSPInterface>(RSP);
             /*if (config->rsp.api == 3) {
                 config->device = new RSPv2(config, iqSignalsCircleBuffer);
                 break;
@@ -58,7 +59,7 @@ void DeviceController::start(DeviceType deviceType) {
             config->device = new RSP1(config, iqSignalsCircleBuffer);*/
             break;
         default:
-            createHackRFDevice();
+            createDevice<HackRFDevice, HackRfInterface>(HACKRF);
     }
     //resetReceivers();
 }
@@ -76,39 +77,19 @@ bool DeviceController::isStatusInitOk() {
 }
 
 bool DeviceController::isStatusInitFail() {
-    return result.status == INIT_BUT_FAIL;
+    return result.status == INIT_FAULT;
 }
 
-void DeviceController::createHackRFDevice() {
-    device = new HackRFDevice(config);
-    //device->setReceivers(&receivers);
-    deviceInterface = new HackRfInterface((HackRFDevice*)device);
-    config->deviceType = HACKRF;
+template<typename DEVICE, typename INTERFACE> void DeviceController::createDevice(DeviceType type) {
+    device = new DEVICE(config);
+    deviceInterface = new INTERFACE((DEVICE*)device);
+    config->deviceType = type;
     result = Result { CREATED_BUT_NOT_INIT };
     result = device->start();
-
     if (DEBUG) {
         if (result.status == INIT_OK) {
             printf("Device started!\r\n");
         } else {
-            printf("Error starting device!\r\n");
-        }
-    }
-}
-
-void DeviceController::createRTLDevice() {
-    device = new RTLDevice(config);
-    //device->setReceivers(&receivers);
-    deviceInterface = new RTLInterface((RTLDevice*)device);
-    config->deviceType = RTL;
-    result = Result{ CREATED_BUT_NOT_INIT };
-    result = device->start();
-
-    if (DEBUG) {
-        if (result.status == INIT_OK) {
-            printf("Device started!\r\n");
-        }
-        else {
             printf("Error starting device!\r\n");
         }
     }

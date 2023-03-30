@@ -3,10 +3,9 @@
 #include "../Env.h"
 #include "../Config.h"
 #include "../CircleBuffer.h"
-#include "HackRFDevice.h"
 #include "HackRFInterface.h"
-#include "RTLDevice.h"
 #include "RTLInterface.h"
+#include "RSPInterface.h"
 
 class DeviceController {
 	private:
@@ -16,10 +15,7 @@ class DeviceController {
 
 		Result result;
 
-		void createHackRFDevice();
-		//void initRSPApi2Device();
-		//void initRSPApi3Device();
-		void createRTLDevice();
+		template<typename DEVICE, typename INTERFACE> void createDevice(DeviceType type);
 
 		void resetResult();
 

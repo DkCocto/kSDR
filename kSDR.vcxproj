@@ -38,6 +38,8 @@
     <ClCompile Include="src\Device\DeviceN.cpp" />
     <ClCompile Include="src\Device\HackRFDevice.cpp" />
     <ClCompile Include="src\Device\HackRFInterface.cpp" />
+    <ClCompile Include="src\Device\RSPDevice.cpp" />
+    <ClCompile Include="src\Device\RSPInterface.cpp" />
     <ClCompile Include="src\Device\RTLDevice.cpp" />
     <ClCompile Include="src\Device\RTLInterface.cpp" />
     <ClCompile Include="src\Display.cpp" />
@@ -110,6 +112,8 @@
     <ClInclude Include="src\Device\DeviceN.h" />
     <ClInclude Include="src\Device\HackRFDevice.h" />
     <ClInclude Include="src\Device\HackRFInterface.h" />
+    <ClInclude Include="src\Device\RSPDevice.h" />
+    <ClInclude Include="src\Device\RSPInterface.h" />
     <ClInclude Include="src\Device\RTLDevice.h" />
     <ClInclude Include="src\Device\RTLInterface.h" />
     <ClInclude Include="src\Display.h" />

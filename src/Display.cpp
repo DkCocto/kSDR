@@ -371,6 +371,8 @@ void Display::renderImGUIFirst() {
 				if (env->getConfig()->deviceType == DeviceType::RSP) {
 					ImGui::Text("\nRSP Settings:");
 
+					RSPInterface* rspInterface = (RSPInterface*)env->getDeviceController()->getDeviceInterface();
+
 					rspSampRateLS->drawSetting();
 
 					rspDecimationFactorLS->drawSetting();
@@ -383,6 +385,13 @@ void Display::renderImGUIFirst() {
 					ImGui::Checkbox("Disable LNA", &viewModel->rspModel.lna);
 
 					rspbasebandFilterLS->drawSetting();
+
+					if (rspInterface != nullptr) {
+						rspInterface->setGain(viewModel->rspModel.gain, viewModel->rspModel.lna);
+						rspInterface->setBasebandFilter(env->getConfig()->rsp.basebandFilter);
+
+						if (env->getDeviceController()->isStatusInitOk()) rspInterface->sendParamsToDevice();
+					}
 				}
 
 				if (env->getConfig()->deviceType == DeviceType::RTL) {
@@ -500,6 +509,10 @@ void Display::renderImGUIFirst() {
 					((RTLInterface*)deviceInterface)->setFreq(viewModel->centerFrequency);
 					((RTLInterface*)deviceInterface)->sendParamsToDevice();
 				}
+				if (env->getDeviceController()->getCurrentDeviceType() == RSP) {
+					((RSPInterface*)deviceInterface)->setFreq(viewModel->centerFrequency);
+					((RSPInterface*)deviceInterface)->sendParamsToDevice();
+				}
 			}
 		}
 
@@ -543,17 +556,6 @@ void Display::showSelectDeviceSetting() {
 }
 
 void Display::showHackrfSamplingRateSetting() {
-	/*std::map<int, std::string> samplingRateMap = {
-		{0 , "2000000"},
-		{1 , "4000000"},
-		{2 , "5000000"},
-		{3 , "8000000"},
-		{4 , "10000000"},
-		{5 , "12500000"},
-		{6 , "16000000"},
-		{7 , "20000000"}
-	};*/
-
 	const char* items[] = { "2000000", "4000000", "5000000", "8000000", "10000000", "12500000", "16000000", "20000000" };
 	static int item_current_idx = env->getConfig()->deviceType; // Here we store our selection data as an index.
 	const char* combo_preview_value = items[item_current_idx];  // Pass in the preview value visible before opening the combo (it could be anything)
@@ -644,7 +646,7 @@ void Display::initDynamicSettings() {
 		std::map<int, std::string> rspDecimationFactorMap;
 		for (int i = 1, j = 0; i <= 32; i++) {
 			if (env->getConfig()->rsp.deviceSamplingRate % i == 0 && (i & (i - 1)) == 0) {
-				rspDecimationFactorMap.insert(pair<int, std::string>{j, to_string(i)});
+				rspDecimationFactorMap.insert(pair<int, std::string>{i, to_string(i)});
 				j++;
 			}
 		}
@@ -666,119 +668,116 @@ void Display::initSettings() {
 	selectDeviceLS = std::make_unique<ListSetting<DeviceType>>(env, selectDeviceMap, "Select device", true);
 	selectDeviceLS->bindVariable(&env->getConfig()->delayedDeviceType);
 
-	if (env->getConfig()->deviceType == DeviceType::HACKRF) {
-		//-------HackRF settings
-		std::map<int, std::string> hackRFsamplingRateMap = {
-			{2000000 , "2000000"},
-			{4000000 , "4000000"},
-			{5000000 , "5000000"},
-			{8000000 , "8000000"},
-			{10000000 , "10000000"},
-			{12500000 , "12500000"},
-			{16000000 , "16000000"},
-			{20000000 , "20000000"}
-		};
+	std::map<int, std::string> hackRFsamplingRateMap = {
+		{2000000 , "2000000"},
+		{4000000 , "4000000"},
+		{5000000 , "5000000"},
+		{8000000 , "8000000"},
+		{10000000 , "10000000"},
+		{12500000 , "12500000"},
+		{16000000 , "16000000"},
+		{20000000 , "20000000"}
+	};
 
-		hackRFsampRateLS = std::make_unique<ListSetting<int>>(env, hackRFsamplingRateMap, "Sampling rate", true);
-		hackRFsampRateLS->bindVariable(&env->getConfig()->hackrf.deviceSamplingRate);
+	hackRFsampRateLS = std::make_unique<ListSetting<int>>(env, hackRFsamplingRateMap, "Sampling rate", true);
+	hackRFsampRateLS->bindVariable(&env->getConfig()->hackrf.deviceSamplingRate);
 
-		//const char* items[] = { "1750000", "2500000", "3500000", "5000000", "5500000", "6000000", "7000000", "8000000", "9000000", "10000000", "20000000" };
-		std::map<int, std::string> hackRFBasebandFilterMap = {
-			{1750000 , "1750000"},
-			{2500000 , "2500000"},
-			{3500000 , "3500000"},
-			{5000000 , "5000000"},
-			{5500000 , "5500000"},
-			{6000000 , "6000000"},
-			{7000000 , "7000000"},
-			{8000000 , "8000000"},
-			{9000000 , "9000000"},
-			{10000000 , "10000000"},
-			{20000000 , "20000000"}
-		};
+	//const char* items[] = { "1750000", "2500000", "3500000", "5000000", "5500000", "6000000", "7000000", "8000000", "9000000", "10000000", "20000000" };
+	std::map<int, std::string> hackRFBasebandFilterMap = {
+		{1750000 , "1750000"},
+		{2500000 , "2500000"},
+		{3500000 , "3500000"},
+		{5000000 , "5000000"},
+		{5500000 , "5500000"},
+		{6000000 , "6000000"},
+		{7000000 , "7000000"},
+		{8000000 , "8000000"},
+		{9000000 , "9000000"},
+		{10000000 , "10000000"},
+		{20000000 , "20000000"}
+	};
 
-		hackRFbasebandFilterLS = std::make_unique<ListSetting<int>>(env, hackRFBasebandFilterMap, "Baseband filter", false);
-		hackRFbasebandFilterLS->bindVariable(&env->getConfig()->hackrf.basebandFilter);
-		//--------------------
-	}
-
-	if (env->getConfig()->deviceType == DeviceType::RSP) {
-		//-------RSP settings-
-		std::map<int, std::string> rspSamplingRateMap = {
-			{2000000 , "2000000"},
-			{3000000 , "3000000"},
-			{4000000 , "4000000"},
-			{6000000 , "6000000"},
-			{7000000 , "7000000"},
-			{8000000 , "8000000"},
-			{10000000 , "10000000"}
-		};
-
-		rspSampRateLS = std::make_unique<ListSetting<int>>(env, rspSamplingRateMap, "Sampling rate", true);
-		rspSampRateLS->bindVariable(&env->getConfig()->rsp.deviceSamplingRate);
+	hackRFbasebandFilterLS = std::make_unique<ListSetting<int>>(env, hackRFBasebandFilterMap, "Baseband filter", false);
+	hackRFbasebandFilterLS->bindVariable(&env->getConfig()->hackrf.basebandFilter);
+	//--------------------
 
 
-		std::map<int, std::string> rspbasebandFilterMap = {
-			{0 , "0"},
-			{200 , "200"},
-			{300 , "300"},
-			{600 , "600"},
-			{1536 , "1536"},
-			{5000 , "5000"},
-			{6000 , "6000"},
-			{7000 , "7000"},
-			{8000 , "8000"}
-		};
-		rspbasebandFilterLS = std::make_unique<ListSetting<int>>(env, rspbasebandFilterMap, "Baseband Filter", false);
-		rspbasebandFilterLS->bindVariable(&env->getConfig()->rsp.basebandFilter);
-		//--------------------
-	}
+	//-------RSP settings-
+	std::map<int, std::string> rspSamplingRateMap = {
+		{2000000 , "2000000"},
+		{3000000 , "3000000"},
+		{4000000 , "4000000"},
+		{6000000 , "6000000"},
+		{7000000 , "7000000"},
+		{8000000 , "8000000"},
+		{10000000 , "10000000"}
+	};
 
-	if (env->getConfig()->deviceType == DeviceType::RTL) {
-		//-10, 15, 40, 65, 90, 115, 140, 165, 190,
-		//215, 240, 290, 340, 420, 430, 450, 470, 490
-		std::map<int, std::string> rtlGainMap = {
-			{-10 , "-10"},
-			{15 , "15"},
-			{40 , "40"},
-			{65 , "65"},
-			{90 , "90"},
-			{115 , "115"},
-			{140 , "140"},
-			{165 , "165"},
-			{190 , "190"},
-			{215 , "215"},
-			{240 , "240"},
-			{290 , "290"},
-			{340 , "340"},
-			{420 , "420"},
-			{430 , "430"},
-			{450 , "450"},
-			{470 , "470"},
-			{490 , "490"}
-		};
-		rtlDeviceGainLS = std::make_unique<ListSetting<int>>(env, rtlGainMap, "Gain", false);
-		rtlDeviceGainLS->bindVariable(&env->getConfig()->rtl.gain);
+	rspSampRateLS = std::make_unique<ListSetting<int>>(env, rspSamplingRateMap, "Sampling rate", true);
+	rspSampRateLS->bindVariable(&env->getConfig()->rsp.deviceSamplingRate);
 
-		//225001 - 300000 Hz
-		//900001 - 3200000 Hz
-		std::map<int, std::string> rtlSampRateMap = {
-			{250000 , "250000"},
-			{300000 , "300000"},
-			{1000000 , "1000000"},
-			{1500000 , "1500000"},
-			{2000000 , "2000000"},
-			{2500000 , "2500000"},
-			{3000000 , "3000000"},
-			{3200000 , "3200000"}
-		};
 
-		rtlSampRateLS = std::make_unique<ListSetting<int>>(env, rtlSampRateMap, "Sampling rate", true);
-		rtlSampRateLS->bindVariable(&env->getConfig()->rtl.deviceSamplingRate);
-	}
+	std::map<int, std::string> rspbasebandFilterMap = {
+		{0 , "0"},
+		{200 , "200"},
+		{300 , "300"},
+		{600 , "600"},
+		{1536 , "1536"},
+		{5000 , "5000"},
+		{6000 , "6000"},
+		{7000 , "7000"},
+		{8000 , "8000"}
+	};
+	rspbasebandFilterLS = std::make_unique<ListSetting<int>>(env, rspbasebandFilterMap, "Baseband Filter", false);
+	rspbasebandFilterLS->bindVariable(&env->getConfig()->rsp.basebandFilter);
+	//--------------------
+
+
+
+	//-10, 15, 40, 65, 90, 115, 140, 165, 190,
+	//215, 240, 290, 340, 420, 430, 450, 470, 490
+	std::map<int, std::string> rtlGainMap = {
+		{-10 , "-10"},
+		{15 , "15"},
+		{40 , "40"},
+		{65 , "65"},
+		{90 , "90"},
+		{115 , "115"},
+		{140 , "140"},
+		{165 , "165"},
+		{190 , "190"},
+		{215 , "215"},
+		{240 , "240"},
+		{290 , "290"},
+		{340 , "340"},
+		{420 , "420"},
+		{430 , "430"},
+		{450 , "450"},
+		{470 , "470"},
+		{490 , "490"}
+	};
+	rtlDeviceGainLS = std::make_unique<ListSetting<int>>(env, rtlGainMap, "Gain", false);
+	rtlDeviceGainLS->bindVariable(&env->getConfig()->rtl.gain);
+
+	//225001 - 300000 Hz
+	//900001 - 3200000 Hz
+	std::map<int, std::string> rtlSampRateMap = {
+		{250000 , "250000"},
+		{300000 , "300000"},
+		{1000000 , "1000000"},
+		{1500000 , "1500000"},
+		{2000000 , "2000000"},
+		{2500000 , "2500000"},
+		{3000000 , "3000000"},
+		{3200000 , "3200000"}
+	};
+
+	rtlSampRateLS = std::make_unique<ListSetting<int>>(env, rtlSampRateMap, "Sampling rate", true);
+	rtlSampRateLS->bindVariable(&env->getConfig()->rtl.deviceSamplingRate);
+
 
 	//-------------Spectre
-	std::map<int, std::string> spectreStyleMap = { {0, "0"}, {1, "1"}, {2, "2"} };
+	std::map<int, std::string> spectreStyleMap = { {0, "Colored contour"}, {1, "Only contour"},	{2, "Color filled"} };
 
 	spectreStyleLS = std::make_unique<ListSetting<int>>(env, spectreStyleMap, "Spectre style", false);
 	spectreStyleLS->bindVariable(&env->getConfig()->spectre.style);

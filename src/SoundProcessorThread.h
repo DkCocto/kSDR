@@ -56,6 +56,8 @@ class SoundProcessorThread : public MyThread {
 
 	DCRemove dcRemover;
 
+	template<typename DEVICE, typename DATATYPE> void initProcess(DEVICE* device);
+
 public: 
 
 	int len; //Размер считывания за 1 раз из кругового буфера
