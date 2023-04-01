@@ -61,7 +61,6 @@ void DeviceController::start(DeviceType deviceType) {
         default:
             createDevice<HackRFDevice, HackRfInterface>(HACKRF);
     }
-    //resetReceivers();
 }
 
 Result* DeviceController::getResult() {

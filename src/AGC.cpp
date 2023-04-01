@@ -8,13 +8,13 @@ AGC::AGC(Config* config, SpectreHandler* specHandler) {
 
 int count = 0;
 
-double AGC::processNew(double signal) {
+float AGC::processNew(float signal) {
     if (signal * amp > config->receiver.agc.threshold) {
-        double speed = (abs(amp - (config->receiver.agc.threshold / signal))) / ((config->receiver.agc.atackSpeedMs * config->outputSamplerate) / 1000.0);
+        float speed = (abs(amp - (config->receiver.agc.threshold / signal))) / ((config->receiver.agc.atackSpeedMs * config->outputSamplerate) / 1000.0f);
         atack(signal, speed);
         count = 0;
     } else {
-        if (count > (config->receiver.agc.holdingTimeMs * config->outputSamplerate / 1000.0)) {
+        if (count > (config->receiver.agc.holdingTimeMs * config->outputSamplerate / 1000.0f)) {
             releaseAtack(signal, config->receiver.agc.releaseSpeed);
         }
     }
@@ -28,14 +28,14 @@ double AGC::processNew(double signal) {
     return signal * amp;
 }
 
-void AGC::atack(double signal, double speed) {
+void AGC::atack(float signal, float speed) {
     amp -= speed;
 }
 
-void AGC::releaseAtack(double signal, double speed) {
+void AGC::releaseAtack(float signal, float speed) {
     amp += speed;
 }
 
-double AGC::getAmp() {
+float AGC::getAmp() {
     return amp;
 }

@@ -23,17 +23,17 @@ void MemoryRecordUserInterface::drawMemoryBlock(ReceiverLogic* receiverLogic) {
 
 	initStoreMemRecDialog(storeRecordDialogTitle);
 
-	ImGuiTableFlags flags = ImGuiTableFlags_SizingStretchSame | ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_ContextMenuInBody | ImGuiTableColumnFlags_WidthStretch;
+	//ImGuiTableFlags flags = ;
 
 	auto& memoryVector = config->memoryVector;
 
 	ImGui::Spacing();
 
-	if (ImGui::BeginTable("Memory Records Table", 2, flags)) {
+	if (ImGui::BeginTable("Memory Records Table", 2, NULL)) {
 		// The first column will use the default _WidthStretch when ScrollX is Off and _WidthFixed when ScrollX is On
-		ImGui::TableSetupColumn("Name");
-		ImGui::TableSetupColumn("Controls");
-		ImGui::TableHeadersRow();
+		//ImGui::TableSetupColumn("Name");
+		//ImGui::TableSetupColumn("Controls");
+		//ImGui::TableHeadersRow();
 		for (int row = 0; row < memoryVector.size(); row++) {
 			ImGui::TableNextRow();
 

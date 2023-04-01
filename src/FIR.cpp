@@ -5,17 +5,17 @@ void FIR::init(unsigned char type, unsigned char window, short order, int f1, in
     
     m_fir.clear();
     m_delay.clear();
-    m_fir = std::vector<double>(order);
-    m_delay = std::vector<double>(order);
+    m_fir = std::vector<float>(order);
+    m_delay = std::vector<float>(order);
 
     if (order == 1) {
-        m_fir[0] = 1.0;
+        m_fir[0] = 1.0f;
         return;
     }
 
     const int n2 = order / 2;
-    double w = 2.0 * M_PI * (double)f1 / (double)sampleRate;
-    double sum = 0;
+    float w = 2.0f * M_PI * (float)f1 / (float)sampleRate;
+    float sum = 0.0f;
 
     for (int i = 0; i < order; i++) {
         const int d = i - n2;
@@ -36,18 +36,18 @@ void FIR::init(unsigned char type, unsigned char window, short order, int f1, in
             m_fir[i] = -m_fir[i];
         }
 
-        m_fir[n2] += 1.0;
+        m_fir[n2] += 1.0f;
 
         return;
 
     } else {// если полосовой или режекторный фильтр
 
         // расчитываем верхнюю частоту
-        double* hf = new double[order];
+        float* hf = new float[order];
 
-        w = 2.0 * M_PI * (double)f2 / (double)sampleRate;
+        w = 2.0f * M_PI * (float)f2 / (float)sampleRate;
 
-        sum = 0;
+        sum = 0.0f;
 
         for (int i = 0; i < order; i++) {
             const int d = i - n2;
@@ -65,7 +65,9 @@ void FIR::init(unsigned char type, unsigned char window, short order, int f1, in
             m_fir[i] -= hf[i];
         }
 
-        m_fir[n2] += 1.0;
+        delete[] hf;
+
+        m_fir[n2] += 1.0f;
 
         if (type == BANDSTOP) return;
 
@@ -74,44 +76,44 @@ void FIR::init(unsigned char type, unsigned char window, short order, int f1, in
                 m_fir[i] = -m_fir[i];
             }
 
-            m_fir[n2] += 1.0;
+            m_fir[n2] += 1.0f;
         }
-        delete[] hf;
+
     }
 }
 
-double FIR::getWindow(int i, int n, unsigned char window) {
+float FIR::getWindow(int i, int n, unsigned char window) {
     if (window == BARTLETT) {// устраняем нулевые значения
-        double a = i - (n - 1) / 2.0;
+        float a = i - (n - 1) / 2.0f;
         if (a < 0) a = -a;
-        return 2.0 / n * (n / 2.0 - a);
+        return 2.0f / n * (n / 2.0f - a);
     }
     else if (window == HANNING)// устраняем нулевые значения
-        return 0.5 - 0.5 * cos(M_PI / n * (1.0 + 2.0 * i));
+        return 0.5f - 0.5f * cos(M_PI / n * (1.0f + 2.0f * i));
     if (window == BLACKMAN) {// устраняем нулевые значения
-        double a = M_PI / n * (1.0 + 2.0 * i);
-        return 0.5 * (1.0 - 0.16 - cos(a) + 0.16 * cos(2.0 * a));
+        float a = M_PI / n * (1.0f + 2.0f * i);
+        return 0.5f * (1.0f - 0.16f - cos(a) + 0.16f * cos(2.0f * a));
     } else {
-        double a = 2.0 * M_PI * i / (n - 1);
+        float a = 2.0f * M_PI * i / (n - 1);
 
-        if (window == HAMMING) return 0.54 - 0.46 * cos(a);
-        else if (window == BLACKMAN_HARRIS) return 0.35875 - 0.48829 * cos(a) + 0.14128 * cos(2.0 * a) - 0.01168 * cos(3.0 * a);
-        else if (window == BLACKMAN_NUTTAL) return 0.35819 - 0.4891775 * cos(a) + 0.1365995 * cos(2.0 * a) - 0.0106411 * cos(3.0 * a);
+        if (window == HAMMING) return 0.54f - 0.46f * cos(a);
+        else if (window == BLACKMAN_HARRIS) return 0.35875f - 0.48829f * cos(a) + 0.14128f * cos(2.0f * a) - 0.01168f * cos(3.0f * a);
+        else if (window == BLACKMAN_NUTTAL) return 0.35819f - 0.4891775f * cos(a) + 0.1365995f * cos(2.0f * a) - 0.0106411f * cos(3.0f * a);
 
-        else if (window == NUTTAL) return 0.355768 - 0.487396 * cos(a) + 0.144232 * cos(2.0 * a) - 0.012604 * cos(3.0 * a);
+        else if (window == NUTTAL) return 0.355768f - 0.487396f * cos(a) + 0.144232f * cos(2.0f * a) - 0.012604f * cos(3.0f * a);
 
     }
-    return 1.0;
+    return 1.0f;
 }
 
-double FIR::proc(double sample) {
+float FIR::proc(float sample) {
     // линия задержки
     for (int i = len; --i > 0;) m_delay[i] = m_delay[i - 1];
 
     m_delay[0] = sample;
 
     // расчёт отклика
-    double out = 0;
+    float out = 0.0f;
     for (int i = 0; i < len; i++) out += m_delay[i] * m_fir[i];
 
     // ограничение амплитуды
@@ -125,6 +127,6 @@ double FIR::proc(double sample) {
     return out;
 }
 
-std::vector<double> FIR::getCoeffs() {
+std::vector<float> FIR::getCoeffs() {
     return m_fir;
 }

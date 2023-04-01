@@ -1,7 +1,7 @@
 #include "PolyPhaseFilter.h"
 #include "FIR.h"
 
-void PolyPhaseFilter::initSubFilters(std::vector<double> coeffs, int coeffsLen, int R) {
+void PolyPhaseFilter::initSubFilters(std::vector<float> coeffs, int coeffsLen, int R) {
 	int M = coeffsLen;
 
 	subFilters.clear();
@@ -11,7 +11,7 @@ void PolyPhaseFilter::initSubFilters(std::vector<double> coeffs, int coeffsLen, 
 
 	for (int j = 0; j < R; j++) {
 		int tabsLen = M / R;
-		std::vector<double> taps(tabsLen);
+		std::vector<float> taps(tabsLen);
 		for (int i = 0; i < tabsLen; i++) {
 			taps[i] = coeffs[P + i * R];
 		}
@@ -21,7 +21,7 @@ void PolyPhaseFilter::initSubFilters(std::vector<double> coeffs, int coeffsLen, 
 	}
 }
 
-void PolyPhaseFilter::initCoeffs(double sampleRate, double freq, int decimationRate, int len) {
+void PolyPhaseFilter::initCoeffs(float sampleRate, float freq, int decimationRate, int len) {
 	coeffs.clear();
 	FIR fir;
 	fir.init(fir.LOWPASS, fir.HAMMING, len, freq, 0, sampleRate);
@@ -34,8 +34,8 @@ void PolyPhaseFilter::initCoeffs(double sampleRate, double freq, int decimationR
 
 PolyPhaseFilter::PolyPhaseFilter() { }
 
-double PolyPhaseFilter::filter(double* in, int inLen) {
-	double sum = 0.0;
+float PolyPhaseFilter::filter(float* in, int inLen) {
+	float sum = 0.0;
 	int j = inLen - 1;
 	for (int i = 0; i < inLen; i++) {
 		sum += subFilters.at(i).filter(in[j--]);

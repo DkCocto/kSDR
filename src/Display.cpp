@@ -107,6 +107,7 @@ int Display::init() {
 
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.AntiAliasedLines = true;
+	style.IndentSpacing = 20;
 	//style.AntiAliasedFill = true;
 
 	initSettings();
@@ -154,7 +155,7 @@ void Display::initImGUI() {
 	//ImFont* fontStandard = io.Fonts->AddFontDefault();
 	//viewModel->fontMyRegular = io.Fonts->AddFontFromFileTTF("DroidSansMono.ttf", 18);
 	viewModel->fontMyRegular = io.Fonts->AddFontFromFileTTF("m-regular.ttf", 18);
-	viewModel->fontBigRegular = io.Fonts->AddFontFromFileTTF("m-regular.ttf", 48);
+	viewModel->fontBigRegular = io.Fonts->AddFontFromFileTTF("m-regular.ttf", 43);
 
 	//ImGui::StyleColorsDark();
 	//ImGui::StyleColorsLight();
@@ -199,7 +200,7 @@ void Display::renderImGUIFirst() {
 	//ImGui::PushID(9);
 	ImGui::Begin(APP_NAME);
 
-		smeter->draw(viewModel->signalMaxdB);
+		//smeter->draw(viewModel->signalMaxdB);
 
 		ImGui::Separator(); ImGui::Spacing(); ImGui::Spacing();
 
@@ -228,274 +229,275 @@ void Display::renderImGUIFirst() {
 
 		ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
 
-		ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
-		if (ImGui::BeginTabBar("MyTabBar", tab_bar_flags)) {
-			if (ImGui::BeginTabItem("Controls")) {
-				ImGui::Spacing();
+		//ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
+		//if (ImGui::BeginTabBar("MyTabBar", tab_bar_flags)) {
+		if (ImGui::TreeNode("Control")) {
+			ImGui::Spacing();
 
-				ImGui::SeparatorText("Receiver");
+			ImGui::SeparatorText("Receiver");
 
-				ImGui::SliderInt("Center freq", &viewModel->centerFrequency, 1000000, 30000000);
+			ImGui::SliderInt("Center freq", &viewModel->centerFrequency, 1000000, 30000000);
 
-				if (ImGui::Button("+")) {
-					env->getFlowingSpectre()->zoomIn();
-					env->getReceiverLogic()->setFrequencyDelta(env->getReceiverLogic()->getFrequencyDelta());
-				} ImGui::SameLine();
-				if (ImGui::Button("-")) {
-					env->getFlowingSpectre()->zoomOut();
-					env->getReceiverLogic()->setFrequencyDelta(env->getReceiverLogic()->getFrequencyDelta());
-				} ImGui::SameLine();
-				if (ImGui::Button("<-")) {
-					env->getFlowingSpectre()->move(-250);
-					env->getReceiverLogic()->setFrequencyDelta(env->getReceiverLogic()->getFrequencyDelta());
-				} ImGui::SameLine();
-				if (ImGui::Button("->")) {
-					env->getFlowingSpectre()->move(250);
-					env->getReceiverLogic()->setFrequencyDelta(env->getReceiverLogic()->getFrequencyDelta());
-				}
-
-				ImGui::Spacing();
-
-				ImGui::SeparatorText("Filter");
-
-				ImGui::SliderInt("Width", &viewModel->filterWidth, 0, 12000); 
-				
-				if (ImGui::Button("100")) {
-					viewModel->filterWidth = 100;
-				}
-				ImGui::SameLine();
-				if (ImGui::Button("500")) {
-					viewModel->filterWidth = 500;
-				}
-				ImGui::SameLine();
-				if (ImGui::Button("1.2k")) {
-					viewModel->filterWidth = 1200;
-				}
-				ImGui::SameLine();
-				if (ImGui::Button("2.7k")) {
-					viewModel->filterWidth = 2700;
-				}
-				ImGui::SameLine();
-				if (ImGui::Button("3.2k")) {
-					viewModel->filterWidth = 3200;
-				}
-				ImGui::SameLine();
-				if (ImGui::Button("6.0k")) {
-					viewModel->filterWidth = 6000;
-				}
-				ImGui::SameLine();
-				if (ImGui::Button("8.0k")) {
-					viewModel->filterWidth = 8000;
-				}
-				ImGui::SameLine();
-				if (ImGui::Button("12.0k")) {
-					viewModel->filterWidth = 12000;
-				}
-				
-				ImGui::Spacing();
-
-				ImGui::SeparatorText("Waterfall");
-
-				ImGui::SliderFloat("Min", &viewModel->waterfallMin, -150, 0);
-
-				ImGui::SliderFloat("Max", &viewModel->waterfallMax, -150, 100); ImGui::Spacing();
-
-				ImGui::SeparatorText("Spectre");
-
-				ImGui::SliderFloat("Ratio", &viewModel->ratio, -200, 100);
-
-				ImGui::SliderFloat("Min val", &viewModel->minDb, -200, 0);
-
-				ImGui::SliderInt("Speed", &env->getConfig()->spectre.spectreSpeed, 1, 50);
-				ImGui::SliderInt("Speed 2", &env->getConfig()->spectre.spectreSpeed2, 1, 50); ImGui::Spacing();
-
-				//ImGui::SliderInt("Test", &viewModel->test, 2300000, 2700000);
-
-				ImGui::EndTabItem();
-			}
-			if (ImGui::BeginTabItem("Memory")) {
-				ImGui::Spacing();
-				memoryRecordUserInterface.drawMemoryBlock(env->getReceiverLogic());
-				ImGui::EndTabItem();
-			}
-			if (ImGui::BeginTabItem("Device Options")) {
-
-				ImGui::Spacing();
-				if (!env->getDeviceController()->isStatusInitOk()) ImGui::BeginDisabled();
-				if (ImGui::Button("Stop")) {
-					errorInitDeviceShowed = true;
-					env->stopProcessing();
-					//env->getDeviceController()->getDevice()->stop();
-				}
-				if (!env->getDeviceController()->isStatusInitOk()) ImGui::EndDisabled();
-				
-				ImGui::SameLine();
-				if (env->getDeviceController()->isStatusInitOk()) ImGui::BeginDisabled();
-				if (ImGui::Button("Start")) {
-					errorInitDeviceShowed = false;
-					env->startProcessing();
-				}
-				if (env->getDeviceController()->isStatusInitOk()) ImGui::EndDisabled();
-
-				ImGui::SameLine();
-				if (env->getDeviceController()->isStatusInitOk()) ImGui::BeginDisabled();
-				if (ImGui::Button("Reinit")) {
-					env->makeReinit();
-				}
-				if (env->getDeviceController()->isStatusInitOk()) ImGui::EndDisabled();
-
-				selectDeviceLS->drawSetting();
-
-				//showSelectDeviceSetting();
-
-				if (env->getConfig()->deviceType == DeviceType::HACKRF) {
-					hackRFsampRateLS->drawSetting();
-
-					HackRfInterface* hackRfInterface = (HackRfInterface*)env->getDeviceController()->getDeviceInterface();
-
-					ImGui::SliderInt("LNA Gain", &viewModel->hackRFModel.lnaGain, 0, 5);
-					ImGui::SliderInt("VGA Gain", &viewModel->hackRFModel.vgaGain, 0, 31);
-					ImGui::SliderInt("AMP Gain", &viewModel->hackRFModel.enableAmp, 0, 1);
-					hackRFbasebandFilterLS->drawSetting();
-
-					if (hackRfInterface != nullptr) {
-						hackRfInterface->setLnaGain((uint32_t)viewModel->hackRFModel.lnaGain);
-						hackRfInterface->setVgaGain(viewModel->hackRFModel.vgaGain);
-						hackRfInterface->enableAmp(viewModel->hackRFModel.enableAmp);
-						hackRfInterface->setBaseband(env->getConfig()->hackrf.basebandFilter);
-
-						if (env->getDeviceController()->isStatusInitOk()) hackRfInterface->sendParamsToDevice();
-					}
-				}
-
-				if (env->getConfig()->deviceType == DeviceType::RSP) {
-					ImGui::Text("\nRSP Settings:");
-
-					RSPInterface* rspInterface = (RSPInterface*)env->getDeviceController()->getDeviceInterface();
-
-					rspSampRateLS->drawSetting();
-
-					rspDecimationFactorLS->drawSetting();
-
-					bool useRspApiv3 = (env->getConfig()->rsp.api == 3) ? true : false;
-					ImGui::Checkbox("Use APIv3 (instead of v2) (*)", &useRspApiv3);
-					env->getConfig()->rsp.api = (useRspApiv3 == true) ? 3 : 2;
-
-					ImGui::SliderInt("Gain", &viewModel->rspModel.gain, 20, 59);
-					ImGui::Checkbox("Disable LNA", &viewModel->rspModel.lna);
-
-					rspbasebandFilterLS->drawSetting();
-
-					if (rspInterface != nullptr) {
-						rspInterface->setGain(viewModel->rspModel.gain, viewModel->rspModel.lna);
-						rspInterface->setBasebandFilter(env->getConfig()->rsp.basebandFilter);
-
-						if (env->getDeviceController()->isStatusInitOk()) rspInterface->sendParamsToDevice();
-					}
-				}
-
-				if (env->getConfig()->deviceType == DeviceType::RTL) {
-					rtlSampRateLS->drawSetting();
-					rtlDeviceGainLS->drawSetting();
-
-					RTLInterface* rtlInterface = (RTLInterface*)env->getDeviceController()->getDeviceInterface();
-
-					if (rtlInterface != nullptr) {
-						rtlInterface->setGain(env->getConfig()->rtl.gain);
-						if (env->getDeviceController()->isStatusInitOk()) rtlInterface->sendParamsToDevice();
-					}
-				}
-
-				ImGui::EndTabItem();
-			}
-			if (ImGui::BeginTabItem("Settings")) {
-				ImGui::Spacing();
-				ImGui::Text("After changing the settings marked with an asterisk\napplication components will be reinitialized.");
-
-				//decimationLS->drawSetting();
-
-				ImGui::Spacing();
-				ImGui::SeparatorText("FFT");
-
-				fftLenLS->drawSetting();
-
-				ImGui::Spacing();
-				ImGui::SeparatorText("Frequency shift");
-
-				ImGui::InputInt("Shift in Hz", &env->getConfig()->receiver.frequencyShift);
-				ImGui::Checkbox("Enable shift", &env->getConfig()->receiver.enableFrequencyShift);
-
-				ImGui::Spacing();
-				ImGui::SeparatorText("AGC settings");
-
-				ImGui::InputDouble("Sound threshold", &env->getConfig()->receiver.agc.threshold, 0.001f, 0.1f, "%.3f");
-				ImGui::InputDouble("Atack time (ms)", &env->getConfig()->receiver.agc.atackSpeedMs, 0.1f, 0.1f, "%.1f");
-				ImGui::InputDouble("Hold time (ms)", &env->getConfig()->receiver.agc.holdingTimeMs, 0.1f, 0.1f, "%.1f");
-				ImGui::InputDouble("Release time", &env->getConfig()->receiver.agc.releaseSpeed, 0.00001f, 0.1f, "%.7f");
-
-				ImGui::Spacing();
-				ImGui::SeparatorText("Color theme");
-
-				showColorPicker(string("Windows Background"), &env->getConfig()->colorTheme.windowsBGColor, false);
-				showColorPicker(string("Main Background"), &env->getConfig()->colorTheme.mainBGColor, false);
-				//showColorPicker(string("Window Title Background"), &env->getConfig()->colorTheme.windowsTitleBGColor);
-				showColorPicker(string("Spectre Fill"), &env->getConfig()->colorTheme.spectreFillColor, false);
-				showColorPicker(string("Spectre Profile"), &env->getConfig()->colorTheme.spectreProfileColor, false);
-				showColorPicker(string("Receive Region"), &env->getConfig()->colorTheme.receiveRegionColor, true);
-
-				ImGui::Spacing();
-				ImGui::SeparatorText("Spectre settings");
-
-				spectreStyleLS->drawSetting();
-				ImGui::Checkbox("Contour shows signal power", &env->getConfig()->spectre.contourShowsPower);
-				ImGui::SliderFloat("Top coeff", &env->getConfig()->spectre.topCoeff, 0.5f, 1.5f);
-				ImGui::SliderFloat("Bottom coeff", &env->getConfig()->spectre.bottomCoeff, 0.5f, 1.5f);
-				smoothingDepthLS->drawSetting();
-				ImGui::Checkbox("Hang&Decay", &env->getConfig()->spectre.hangAndDecay);
-				ImGui::BeginDisabled(!env->getConfig()->spectre.hangAndDecay);
-					ImGui::SliderFloat("Decay speed", &env->getConfig()->spectre.decaySpeed, 0, 1);
-					ImGui::SliderFloat("Decay speed delta", &env->getConfig()->spectre.decaySpeedDelta, 0, 2);
-				ImGui::EndDisabled();
-
-				ImGui::SliderInt("Spectre correction Db", &env->getConfig()->spectre.spectreCorrectionDb, -200, 200);
-
-				ImGui::Spacing();
-				ImGui::SeparatorText("Other");
-
-				ImGui::Checkbox("Remove DC", &viewModel->removeDCBias);
-
-				waterfallSpeedLS->drawSetting();
-
-				ImGui::EndTabItem();
+			if (ImGui::Button("+")) {
+				env->getFlowingSpectre()->zoomIn();
+				env->getReceiverLogic()->setFrequencyDelta(env->getReceiverLogic()->getFrequencyDelta());
+			} ImGui::SameLine();
+			if (ImGui::Button("-")) {
+				env->getFlowingSpectre()->zoomOut();
+				env->getReceiverLogic()->setFrequencyDelta(env->getReceiverLogic()->getFrequencyDelta());
+			} ImGui::SameLine();
+			if (ImGui::Button("<-")) {
+				env->getFlowingSpectre()->move(-250);
+				env->getReceiverLogic()->setFrequencyDelta(env->getReceiverLogic()->getFrequencyDelta());
+			} ImGui::SameLine();
+			if (ImGui::Button("->")) {
+				env->getFlowingSpectre()->move(250);
+				env->getReceiverLogic()->setFrequencyDelta(env->getReceiverLogic()->getFrequencyDelta());
 			}
 
-			if (ImGui::BeginTabItem("Info")) {
-				ImGui::Spacing();
-				ImGui::Text("Sampling rate: %d", env->getConfig()->inputSamplerate);
-				ImGui::Text("FFT length: %d", env->getConfig()->fftLen);
-				ImGui::Text("AMP: %.2f", viewModel->amp);
-				ImGui::Text("CPU usage: %.1f%%", cpu.getCurrentValue());
-				ImGui::Text("Buffer available: %.2f sec", viewModel->bufferAvailable);
-				ImGui::Text("Service field1: %f", viewModel->serviceField1);
-				ImGui::Text("Service field2: %f", viewModel->serviceField2);
-				ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-				ImGui::EndTabItem();
+			ImGui::Spacing();
+
+			ImGui::SeparatorText("Filter");
+
+			ImGui::SliderInt("Width", &viewModel->filterWidth, 0, 12000);
+
+			if (ImGui::Button("100")) {
+				viewModel->filterWidth = 100;
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("500")) {
+				viewModel->filterWidth = 500;
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("1.2k")) {
+				viewModel->filterWidth = 1200;
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("2.7k")) {
+				viewModel->filterWidth = 2700;
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("3.2k")) {
+				viewModel->filterWidth = 3200;
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("6.0k")) {
+				viewModel->filterWidth = 6000;
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("8.0k")) {
+				viewModel->filterWidth = 8000;
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("12.0k")) {
+				viewModel->filterWidth = 12000;
 			}
 
-			if (ImGui::BeginTabItem("About")) {
-				ImGui::Spacing();
-				string msg;
-				msg.append(APP_NAME).append("\n\n");
-				msg.append("For all questions related to our software,\nplease, contact our email box: dkcocto@gmail.com.\n\n");
-				msg.append("We will be glad to hear your wishes and suggestions.");
+			ImGui::Spacing();
 
-				ImGui::Text(msg.c_str());
+			ImGui::SeparatorText("Waterfall");
 
-				ImGui::EndTabItem();
-			}
+			ImGui::SliderFloat("Min", &viewModel->waterfallMin, -150, 0);
 
-			ImGui::EndTabBar();
+			ImGui::SliderFloat("Max", &viewModel->waterfallMax, -150, 100); ImGui::Spacing();
+
+			ImGui::SeparatorText("Spectre");
+
+			ImGui::SliderFloat("Ratio", &viewModel->ratio, -200, 100);
+
+			ImGui::SliderFloat("Min val", &viewModel->minDb, -200, 0);
+
+			ImGui::SliderInt("Speed", &env->getConfig()->spectre.spectreSpeed, 1, 50);
+			ImGui::SliderInt("Speed 2", &env->getConfig()->spectre.spectreSpeed2, 1, 50); ImGui::Spacing();
+
+			//ImGui::SliderInt("Test", &viewModel->test, 2300000, 2700000);
+
+			//ImGui::EndTabItem();
+			ImGui::TreePop();
 		}
+		//if (ImGui::BeginTabItem("Memory")) {
+		if (ImGui::TreeNode("Memory")) {
+			ImGui::Spacing();
+			memoryRecordUserInterface.drawMemoryBlock(env->getReceiverLogic());
+			ImGui::TreePop();
+		}
+		
+		if (ImGui::TreeNode("Device Options")) {
+			ImGui::Spacing();
+			if (!env->getDeviceController()->isStatusInitOk()) ImGui::BeginDisabled();
+			if (ImGui::Button("Stop")) {
+				errorInitDeviceShowed = true;
+				env->stopProcessing();
+				//env->getDeviceController()->getDevice()->stop();
+			}
+			if (!env->getDeviceController()->isStatusInitOk()) ImGui::EndDisabled();
+				
+			ImGui::SameLine();
+			if (env->getDeviceController()->isStatusInitOk()) ImGui::BeginDisabled();
+			if (ImGui::Button("Start")) {
+				errorInitDeviceShowed = false;
+				env->startProcessing();
+			}
+			if (env->getDeviceController()->isStatusInitOk()) ImGui::EndDisabled();
+
+			ImGui::SameLine();
+			if (env->getDeviceController()->isStatusInitOk()) ImGui::BeginDisabled();
+			if (ImGui::Button("Reinit")) {
+				env->makeReinit();
+			}
+			if (env->getDeviceController()->isStatusInitOk()) ImGui::EndDisabled();
+
+			selectDeviceLS->drawSetting();
+
+			//showSelectDeviceSetting();
+
+			if (env->getConfig()->deviceType == DeviceType::HACKRF) {
+				hackRFsampRateLS->drawSetting();
+
+				HackRfInterface* hackRfInterface = (HackRfInterface*)env->getDeviceController()->getDeviceInterface();
+
+				ImGui::SliderInt("LNA Gain", &viewModel->hackRFModel.lnaGain, 0, 5);
+				ImGui::SliderInt("VGA Gain", &viewModel->hackRFModel.vgaGain, 0, 31);
+				ImGui::SliderInt("AMP Gain", &viewModel->hackRFModel.enableAmp, 0, 1);
+				hackRFbasebandFilterLS->drawSetting();
+
+				if (hackRfInterface != nullptr) {
+					hackRfInterface->setLnaGain((uint32_t)viewModel->hackRFModel.lnaGain);
+					hackRfInterface->setVgaGain(viewModel->hackRFModel.vgaGain);
+					hackRfInterface->enableAmp(viewModel->hackRFModel.enableAmp);
+					hackRfInterface->setBaseband(env->getConfig()->hackrf.basebandFilter);
+
+					if (env->getDeviceController()->isStatusInitOk()) hackRfInterface->sendParamsToDevice();
+				}
+			}
+
+			if (env->getConfig()->deviceType == DeviceType::RSP) {
+				ImGui::Text("\nRSP Settings:");
+
+				RSPInterface* rspInterface = (RSPInterface*)env->getDeviceController()->getDeviceInterface();
+
+				rspSampRateLS->drawSetting();
+
+				rspDecimationFactorLS->drawSetting();
+
+				//bool useRspApiv3 = (env->getConfig()->rsp.api == 3) ? true : false;
+				//ImGui::Checkbox("Use APIv3 (instead of v2) (*)", &useRspApiv3);
+				//env->getConfig()->rsp.api = (useRspApiv3 == true) ? 3 : 2;
+
+				ImGui::SliderInt("Gain", &viewModel->rspModel.gain, 20, 59);
+				ImGui::Checkbox("Disable LNA", &viewModel->rspModel.lna);
+
+				rspbasebandFilterLS->drawSetting();
+
+				if (rspInterface != nullptr) {
+					rspInterface->setGain(viewModel->rspModel.gain, viewModel->rspModel.lna);
+					rspInterface->setBasebandFilter(env->getConfig()->rsp.basebandFilter);
+
+					if (env->getDeviceController()->isStatusInitOk()) rspInterface->sendParamsToDevice();
+				}
+			}
+
+			if (env->getConfig()->deviceType == DeviceType::RTL) {
+				rtlSampRateLS->drawSetting();
+				rtlDeviceGainLS->drawSetting();
+
+				RTLInterface* rtlInterface = (RTLInterface*)env->getDeviceController()->getDeviceInterface();
+
+				if (rtlInterface != nullptr) {
+					rtlInterface->setGain(env->getConfig()->rtl.gain);
+					if (env->getDeviceController()->isStatusInitOk()) rtlInterface->sendParamsToDevice();
+				}
+			}
+			ImGui::TreePop();
+		}
+		if (ImGui::TreeNode("Settings")) {
+			ImGui::Spacing();
+			ImGui::Text("After changing the settings marked with an asterisk\napplication components will be reinitialized.");
+
+			//decimationLS->drawSetting();
+
+			ImGui::Spacing();
+			ImGui::SeparatorText("FFT");
+
+			fftLenLS->drawSetting();
+
+			ImGui::Spacing();
+			ImGui::SeparatorText("Frequency shift");
+
+			ImGui::InputInt("Shift in Hz", &env->getConfig()->receiver.frequencyShift);
+			ImGui::Checkbox("Enable shift", &env->getConfig()->receiver.enableFrequencyShift);
+
+			ImGui::Spacing();
+			ImGui::SeparatorText("AGC settings");
+
+			ImGui::InputDouble("Sound threshold", &env->getConfig()->receiver.agc.threshold, 0.001f, 0.1f, "%.3f");
+			ImGui::InputDouble("Atack time (ms)", &env->getConfig()->receiver.agc.atackSpeedMs, 0.01f, 0.01f, "%.2f");
+			ImGui::InputDouble("Hold time (ms)", &env->getConfig()->receiver.agc.holdingTimeMs, 0.1f, 0.1f, "%.1f");
+			ImGui::InputDouble("Release time", &env->getConfig()->receiver.agc.releaseSpeed, 0.00001f, 0.1f, "%.7f");
+
+			ImGui::Spacing();
+			ImGui::SeparatorText("Color theme");
+
+			showColorPicker(string("Windows Background"), &env->getConfig()->colorTheme.windowsBGColor, false);
+			showColorPicker(string("Main Background"), &env->getConfig()->colorTheme.mainBGColor, false);
+			//showColorPicker(string("Window Title Background"), &env->getConfig()->colorTheme.windowsTitleBGColor);
+			showColorPicker(string("Spectre Fill"), &env->getConfig()->colorTheme.spectreFillColor, false);
+			showColorPicker(string("Spectre Profile"), &env->getConfig()->colorTheme.spectreProfileColor, false);
+			showColorPicker(string("Receive Region"), &env->getConfig()->colorTheme.receiveRegionColor, true);
+
+			ImGui::Spacing();
+			ImGui::SeparatorText("Spectre settings");
+
+			spectreStyleLS->drawSetting();
+			ImGui::Checkbox("Contour shows signal power", &env->getConfig()->spectre.contourShowsPower);
+			ImGui::SliderFloat("Top coeff", &env->getConfig()->spectre.topCoeff, 0.5f, 1.5f);
+			ImGui::SliderFloat("Bottom coeff", &env->getConfig()->spectre.bottomCoeff, 0.5f, 1.5f);
+			smoothingDepthLS->drawSetting();
+			ImGui::Checkbox("Hang&Decay", &env->getConfig()->spectre.hangAndDecay);
+			ImGui::BeginDisabled(!env->getConfig()->spectre.hangAndDecay);
+				ImGui::SliderFloat("Decay speed", &env->getConfig()->spectre.decaySpeed, 0, 1);
+				ImGui::SliderFloat("Decay speed delta", &env->getConfig()->spectre.decaySpeedDelta, 0, 2);
+			ImGui::EndDisabled();
+
+			ImGui::SliderInt("Spectre correction Db", &env->getConfig()->spectre.spectreCorrectionDb, -200, 200);
+
+			ImGui::Spacing();
+			ImGui::SeparatorText("Other");
+
+			ImGui::Checkbox("Remove DC", &viewModel->removeDCBias);
+
+			waterfallSpeedLS->drawSetting();
+
+			ImGui::TreePop();
+		}
+
+		if (ImGui::TreeNode("Info")) {
+			ImGui::Spacing();
+			ImGui::Text("Sampling rate: %d", env->getConfig()->inputSamplerate);
+			ImGui::Text("FFT length: %d", env->getConfig()->fftLen);
+			viewModel->amp = env->getConfig()->receiver.agc.lastAmp;
+			ImGui::Text("AMP: %.2f", viewModel->amp);
+			ImGui::Text("CPU usage: %.1f%%", cpu.getCurrentValue());
+			ImGui::Text("Buffer available: %.2f sec", viewModel->bufferAvailable);
+			ImGui::Text("Service field1: %f", viewModel->serviceField1);
+			ImGui::Text("Service field2: %f", viewModel->serviceField2);
+			ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+			ImGui::TreePop();
+		}
+
+		if (ImGui::TreeNode("About")) {
+			ImGui::Spacing();
+			string msg;
+			msg.append(APP_NAME).append("\n\n");
+			msg.append("For all questions related to our software,\nplease, contact our email box: dkcocto@gmail.com.\n\n");
+			msg.append("We will be glad to hear your wishes and suggestions.");
+
+			ImGui::Text(msg.c_str());
+
+			ImGui::TreePop();
+		}
+
+		//ImGui::EndTabBar();
 		
 		//Если вкладка опций устройства не выбрана, то все равно устанавливаем конфигурацию на текущее устройство
 		if (env->getDeviceController()->isStatusInitOk()) {

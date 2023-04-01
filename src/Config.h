@@ -10,13 +10,15 @@ constexpr auto CONFIG_FILENAME = "config.xml";
 #include "vector"
 #include "memory"
 
+#define CIRCLE_BUF_LEN 2 * 1024 * 1024
+
 class Config {
 
 public:
 
 	std::atomic_bool WORKING = true;
 
-	int circleBufferLen;
+	//int circleBufferLen;
 
 	int inputSamplerate;
 

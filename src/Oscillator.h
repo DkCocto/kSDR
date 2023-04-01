@@ -5,7 +5,7 @@
 class Oscillator {
 
 protected:
-	double nextPhase();
+	float nextPhase();
 
 public:
 
@@ -13,9 +13,9 @@ public:
 
 	int freq = 0;
 
-	double phase = 0.0;
+	float phase = 0.0;
 
-	double phaseIncrement = 0.0;
+	float phaseIncrement = 0.0;
 
 	Oscillator();
 
@@ -25,5 +25,5 @@ public:
 
 	void init();
 
-	virtual double nextSample() = 0;
+	virtual float nextSample() = 0;
 };

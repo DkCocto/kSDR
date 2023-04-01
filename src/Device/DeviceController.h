@@ -21,23 +21,17 @@ class DeviceController {
 
 		DeviceInterface* deviceInterface = nullptr;
 
-		//std::vector<DataReceiver*> receivers;
-
-		//void resetReceivers();
 		const bool DEBUG = true;
 
 	public:
 
 		void destroyDevice();
 
-		//std::vector<DataReceiver*>* getReceivers();
-
 		void setResultToCreatedNotInit();
 
 		DeviceController(Config* config);
 		~DeviceController();
 
-		//void addReceiver(DataReceiver* dataRceiver);
 		DeviceType getCurrentDeviceType();
 
 		DeviceN* getDevice();

@@ -17,11 +17,11 @@ inline float fast_cossin_table[MAX_CIRCLE_ANGLE];           // Declare table of 
 
 #define PA_SAMPLE_TYPE				paFloat32
 
-#define APP_NAME					"kSDR v1.0 Beta 6"
+#define APP_NAME					"kSDR v1.0 Beta 7"
 
 struct Signal {
-	double I;
-	double Q;
+	float I;
+	float Q;
 };
 
 #define USB		0
@@ -36,7 +36,7 @@ constexpr auto DISABLE_ON_MEMORY_MARKER = 3;
 
 double inline __declspec (naked) __fastcall fastSqrt(double n) {
 	_asm fld qword ptr[esp + 4]
-		_asm fsqrt
+	_asm fsqrt
 	_asm ret 8
 }
 

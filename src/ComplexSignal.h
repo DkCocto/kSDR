@@ -6,18 +6,18 @@
 
 class ComplexSignal {
 
-	double magnitude();
+	float magnitude();
 
-	void multiply(double val);
+	void multiply(float val);
 
 public: 
 
-	double I = 0.0f;
-	double Q = 0.0f;
+	float I = 0.0f;
+	float Q = 0.0f;
 
 	ComplexSignal();
 
-	ComplexSignal(double I, double Q);
+	ComplexSignal(float I, float Q);
 
 	void normalize();
 };

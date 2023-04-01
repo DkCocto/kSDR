@@ -70,7 +70,6 @@
     <ClCompile Include="src\ReceiverLogic.cpp" />
     <ClCompile Include="src\ReceiverRegionInterface.cpp" />
     <ClCompile Include="src\RSP1.cpp" />
-    <ClCompile Include="src\RSPv2.cpp" />
     <ClCompile Include="src\Semaphore.cpp" />
     <ClCompile Include="src\SinOscillator.cpp" />
     <ClCompile Include="src\SMeter.cpp" />
@@ -148,7 +147,6 @@
     <ClInclude Include="src\ReceiverLogic.h" />
     <ClInclude Include="src\ReceiverRegionInterface.h" />
     <ClInclude Include="src\RSP1.h" />
-    <ClInclude Include="src\RSPv2.h" />
     <ClInclude Include="src\Semaphore.h" />
     <ClInclude Include="src\SinOscillator.h" />
     <ClInclude Include="src\SMeter.h" />

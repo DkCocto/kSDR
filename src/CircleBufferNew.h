@@ -7,7 +7,8 @@ template<typename T>
 class CircleBufferNew : public DataReceiver {
 
 private:
-	T* data = nullptr;
+	T data[CIRCLE_BUF_LEN];
+	T* receiverBuf;
 
 	int size = 0;
 
@@ -18,18 +19,21 @@ private:
 
 	bool DEBUG = false;
 
+	Config* config;
+
 public:
 
-	CircleBufferNew() {};
-
-	CircleBufferNew(int size) {
-		this->size = size;
-		data = new T[size];
+	CircleBufferNew(Config* config) {
+		this->config = config;
+		this->size = CIRCLE_BUF_LEN;
+		//data = new T[size];
 		memset(data, 0, sizeof(T) * size);
+		receiverBuf = new T[config->fftLen];
 	};
 
 	~CircleBufferNew() {
-		delete[] data;
+		//delete[] data;
+		delete[] receiverBuf;
 	}
 
 	/// <summary>
@@ -109,12 +113,11 @@ public:
 	/// <param name="len">ƒлина данных</param>
 	/// <returns></returns>
 	void read(T* arr, int len) {
-		//T* arr = new T[len];
 		int available_ = available();
 		if (len > available_) {
 			printf("Trying to read more than the buffer has!\n");
-			//memset(arr + available_, 0, sizeof(T) * (len - available_));
-			//len = available_;
+			memset(arr + available_, 0, sizeof(T) * (len - available_));
+			len = available_;
 			return;
 		}
 
@@ -136,7 +139,16 @@ public:
 		if (DEBUG) {
 			printf(" readPointer = %d\n", readPointer);
 		}
-		//return arr;
+	}
+
+	/// <summary>
+	/// —читадь данные длиной в fftlen в специально созданный массив и вернуть на него ссылку. ћассив удал€етс€ автоматически.
+	/// </summary>
+	/// <param name="len"></param>
+	/// <returns></returns>
+	T* read() {
+		read(receiverBuf, config->fftLen);
+		return receiverBuf;
 	}
 
 	/// <summary>
@@ -218,9 +230,8 @@ public:
 		return true;
 	}*/
 
-	void write(float value) {
+	void write(float value) { }
 
-	}
 	void reset() {
 		writePointer = 0;
 		readPointer = 0;

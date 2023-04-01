@@ -191,11 +191,6 @@ void RSPDevice::StreamACallback(short* xi, short* xq, sdrplay_api_StreamCbParams
     if (rspDevice->isNeedToSendFreq()) rspDevice->sendFreqToDevice();
     if (rspDevice->isNeedToSendGain()) rspDevice->sendGainToDevice();
     if (rspDevice->isNeedToSendFilter()) rspDevice->sendBasebandFilterToDevice();
-
-    //if (rspv2->isNeedToFreq()) rspv2->updateFreq();
-
-    //if (rspv2->isNeedToGain() || rspv2->isNeedToLna()) rspv2->updateGain();
-    //if (rspv2->isNeedToBasebandFilter()) rspv2->updateBasebandFilter();
 }
 
 void RSPDevice::StreamBCallback(short* xi, short* xq, sdrplay_api_StreamCbParamsT* params, unsigned int numSamples, unsigned int reset, void* cbContext) {
@@ -226,39 +221,21 @@ void RSPDevice::EventCallback(sdrplay_api_EventT eventId, sdrplay_api_TunerSelec
 }
 
 void RSPDevice::sendFreqToDevice() {
-    deviceParams->rxChannelA->tunerParams.rfFreq = sdrplay_api_RfFreqT{ freq, 0 };
+    deviceParams->rxChannelA->tunerParams.rfFreq = sdrplay_api_RfFreqT { freq, 0 };
     sdrplay_api_Update(chosenDevice->dev, chosenDevice->tuner, sdrplay_api_Update_Tuner_Frf, sdrplay_api_Update_Ext1_None);
     printf("Frequency set: %d\r\n", (int)freq);
     needToSendFreq = false;
-    //savedFreq = viewModel->centerFrequency + ((config->receiver.enableFrequencyShift == true) ? config->receiver.frequencyShift : 0);
 }
 
 void RSPDevice::sendGainToDevice() {
-    deviceParams->rxChannelA->tunerParams.gain = sdrplay_api_GainT{ gain, lnaState, 0 };
+    deviceParams->rxChannelA->tunerParams.gain = sdrplay_api_GainT { gain, lnaState, 0 };
     sdrplay_api_Update(chosenDevice->dev, chosenDevice->tuner, sdrplay_api_Update_Tuner_Gr, sdrplay_api_Update_Ext1_None);
     needToSendGain = false;
-    //savedGain = viewModel->rspModel.gain;
-    //savedLna = viewModel->rspModel.lna;
 }
 
 void RSPDevice::sendBasebandFilterToDevice() {
-    /*sdrplay_api_BW_Undefined = 0,
-        sdrplay_api_BW_0_200 = 200,
-        sdrplay_api_BW_0_300 = 300,
-        sdrplay_api_BW_0_600 = 600,
-        sdrplay_api_BW_1_536 = 1536,
-        sdrplay_api_BW_5_000 = 5000,
-        sdrplay_api_BW_6_000 = 6000,
-        sdrplay_api_BW_7_000 = 7000,
-        sdrplay_api_BW_8_000 = 8000*/
-        /*sdrplay_api_Bw_MHzT bwFreq = sdrplay_api_BW_Undefined;
-        switch (config->rsp.basebandFilter) {
-            case 0:
-                bwFreq = sdrplay_api_BW_Undefined;
-        }*/
     deviceParams->rxChannelA->tunerParams.bwType = (sdrplay_api_Bw_MHzT)basebandFilter;
     sdrplay_api_Update(chosenDevice->dev, chosenDevice->tuner, sdrplay_api_Update_Tuner_BwType, sdrplay_api_Update_Ext1_None);
-    //savedBasebandFilter = config->rsp.basebandFilter;
     needToSendBasebandFilter = false;
 }
 

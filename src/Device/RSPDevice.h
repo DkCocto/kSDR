@@ -41,8 +41,8 @@ private:
 public:
 
 	RSPDevice(Config* config) : DeviceN(config) {
-		bufferForSpec = new CircleBufferNew<short>(config->circleBufferLen);
-		bufferForProc = new CircleBufferNew<short>(config->circleBufferLen);
+		bufferForSpec = new CircleBufferNew<short>(config);
+		bufferForProc = new CircleBufferNew<short>(config);
 	}
 
 	~RSPDevice();

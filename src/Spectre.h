@@ -84,7 +84,7 @@ private:
 
 	void drawMemoryMarks(ImDrawList* draw_list, FlowingSpectre* flowingSpec, ReceiverLogic* receiverLogic);
 
-	ReceiverRegionInterface receiverRegionInterface;
+	unique_ptr<ReceiverRegionInterface> receiverRegionInterface;
 
 public:
 

@@ -1,6 +1,6 @@
 #include "CosOscillator.h"
 
-double CosOscillator::nextSample() {
-	double value = fm.myFastCos((float)Oscillator::nextPhase());
+float CosOscillator::nextSample() {
+	float value = fm.myFastCos(Oscillator::nextPhase());
 	return value;
 } 

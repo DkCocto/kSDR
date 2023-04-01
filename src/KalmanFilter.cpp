@@ -1,15 +1,15 @@
 #include "KalmanFilter.h"
 
-KalmanFilter::KalmanFilter(double standardDeviation, double speed) {
+KalmanFilter::KalmanFilter(float standardDeviation, float speed) {
     this->standardDeviation = standardDeviation;
     this->speed = speed;
 }
 
-double KalmanFilter::filter(double value) {
-    if (-1000.0 < value < 1000.0) {
+float KalmanFilter::filter(float value) {
+    if (-1000.0f < value < 1000.0f) {
         pc = p + speed;
         g = pc / (pc + standardDeviation);
-        p = (1.0 - g) * pc;
+        p = (1.0f - g) * pc;
         xp = xe;
         zp = xp;
         xe = g * (value - zp) + xp;

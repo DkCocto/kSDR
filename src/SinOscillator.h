@@ -13,5 +13,5 @@ public:
 	SinOscillator() : Oscillator() {}
 	SinOscillator(int freq, int samplingRate) : Oscillator(freq, samplingRate) {}
 
-	double nextSample();
+	float nextSample();
 };

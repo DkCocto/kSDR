@@ -6,22 +6,22 @@
 class AGC {
 
 private:
-    double threshold = 0.05;
+    float threshold = 0.05;
 
-    double amp = 1;
+    float amp = 1;
 
     int count = 0;
 
-    double signalAbsAverage = 0.0;
+    float signalAbsAverage = 0.0;
 
-    SpectreHandler* specHandler;
+    SpectreHandler* specHandler = nullptr;
 
     float max = 0;
 
-    double savedValue = 0;
-    double delta = 0;
+    float savedValue = 0;
+    float delta = 0;
 
-    Config* config;
+    Config* config = nullptr;
 
 public:
 
@@ -29,12 +29,12 @@ public:
 
     AGC(Config* config, SpectreHandler* specHandler);
 
-    double processNew(double signal);
+    float processNew(float signal);
 
-    void atack(double signal, double speed);
+    void atack(float signal, float speed);
 
-    void releaseAtack(double signal, double speed);
+    void releaseAtack(float signal, float speed);
 
-    double getAmp();
+    float getAmp();
 
 };

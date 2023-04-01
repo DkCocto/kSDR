@@ -16,23 +16,18 @@
 
 class SoundProcessorThread : public MyThread {
 
-	//float* data = nullptr;
-	//int dataLen = 0;
-
 	float* outputData = nullptr;
 
 	Mixer mixer;
 
-	HilbertTransform hilbertTransform;
-	Delay delay;
+	HilbertTransform* hilbertTransform;
+	Delay* delay;
 
 	PolyPhaseFilter firFilterI;
 	PolyPhaseFilter firFilterQ;
 
-	FirFilter audioFilter;
-
-	double* decimateBufferI;
-	double* decimateBufferQ;
+	float* decimateBufferI;
+	float* decimateBufferQ;
 
 	CircleBufferNew<float>* soundWriterCircleBuffer;
 	SpectreHandler* specHandler;
@@ -42,7 +37,6 @@ class SoundProcessorThread : public MyThread {
 	FIR fir;
 	FIR firI;
 	FIR firQ;
-	//FIR audioFilterFM;
 
 	DeviceController* devCnt;
 

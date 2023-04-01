@@ -4,21 +4,26 @@ ReceiverRegionInterface::ReceiverRegionInterface(SpectreWindowData* sWD, Config*
 	this->config = config;
 	this->viewModel = viewModel;
 	this->sWD = sWD;
+	smeter = make_unique<SMeter>(viewModel);
 }
 
 void ReceiverRegionInterface::drawRegion(ImDrawList* draw_list, ReceiverLogic* receiverLogic) {
-	int receiverCenterLineX = sWD->startWindowPoint.x + sWD->rightPadding + receiverLogic->getPositionPX();
+	backgroundX = sWD->startWindowPoint.x + sWD->rightPadding + X;
+	backgroundY = sWD->startWindowPoint.y + Y;
 
-	draw_list->AddLine(
-		ImVec2(receiverCenterLineX, sWD->startWindowPoint.y - 10),
-		ImVec2(receiverCenterLineX, sWD->startWindowPoint.y + sWD->windowLeftBottomCorner.y + 10),
-		GRAY, 2.0f);
+	freqTextX = backgroundX + backgroundPadding + freqTextMarginLeft;
+	freqTextY = backgroundY + backgroundPadding;
+
+	drawReceiveRegion(draw_list, receiverLogic);
+
+	drawBackground(draw_list);
+
+	//S-meter
+	smeter->update(backgroundX + backgroundPadding + smetreMargin, backgroundY + freqTextHeight + 65, backgroundWidth - 2 * (backgroundPadding + smetreMargin), 50);
+	smeter->draw(draw_list, viewModel->signalMaxdB);
+	//-------
 
 	std::string freq = (Utils::getPrittyFreq((int)receiverLogic->getSelectedFreqNew())).append(" Hz");
-
-	//freqTextX = (sWD->windowLeftBottomCorner.x - sWD->leftPadding - receiverPosAbsolute > 280) ? receiverPosAbsolute + 50 : receiverPosAbsolute - 300;
-	freqTextX = sWD->startWindowPoint.x + sWD->rightPadding + 80;
-	freqTextY = sWD->startWindowPoint.y + 50;
 
 	ImGui::PushFont(viewModel->fontBigRegular);
 	draw_list->AddText(
@@ -30,39 +35,6 @@ void ReceiverRegionInterface::drawRegion(ImDrawList* draw_list, ReceiverLogic* r
 		freq.c_str()
 	);
 	ImGui::PopFont();
-
-	float delta = receiverLogic->getFilterWidthAbs(viewModel->filterWidth);
-
-	int receiverPosX = sWD->startWindowPoint.x + sWD->rightPadding + receiverLogic->getPositionPX();
-	int receiverPosYTop = sWD->startWindowPoint.y - 10;
-	int receiverPosYBottom = sWD->startWindowPoint.y + sWD->windowLeftBottomCorner.y + 10;
-
-	switch (viewModel->receiverMode) {
-	case USB:
-		// Y!!!  spectreHeight + waterfallPaddingTop
-		draw_list->AddRectFilled(
-			ImVec2(receiverPosX, receiverPosYTop),
-			ImVec2(receiverPosX + delta, receiverPosYBottom),
-			config->colorTheme.receiveRegionColor, 0);
-
-		break;
-	case LSB:
-
-		draw_list->AddRectFilled(
-			ImVec2(receiverPosX - delta, receiverPosYTop),
-			ImVec2(receiverPosX, receiverPosYBottom),
-			config->colorTheme.receiveRegionColor, 0);
-
-		break;
-	case AM:
-
-		draw_list->AddRectFilled(
-			ImVec2(receiverPosX - delta, receiverPosYTop),
-			ImVec2(receiverPosX + delta, receiverPosYBottom),
-			config->colorTheme.receiveRegionColor, 0);
-
-		break;
-	}
 
 	markDigitByMouse(draw_list, receiverLogic);
 }
@@ -132,4 +104,52 @@ bool ReceiverRegionInterface::markDigitByMouse(ImDrawList* draw_list, ReceiverLo
 
 	}
 	return selectedDigit > 0;
+}
+
+void ReceiverRegionInterface::drawBackground(ImDrawList* draw_list) {
+	ImVec2 pointX1(backgroundX, backgroundY);
+	ImVec2 pointX2(backgroundX + backgroundWidth, backgroundY + backgroundHeight);
+
+	draw_list->AddRectFilled(pointX1, pointX2, BASE_COLOR);
+}
+
+void ReceiverRegionInterface::drawReceiveRegion(ImDrawList* draw_list, ReceiverLogic* receiverLogic) {
+	int receiverCenterLineX = sWD->startWindowPoint.x + sWD->rightPadding + receiverLogic->getPositionPX();
+
+	draw_list->AddLine(
+		ImVec2(receiverCenterLineX, sWD->startWindowPoint.y - 10),
+		ImVec2(receiverCenterLineX, sWD->startWindowPoint.y + sWD->windowLeftBottomCorner.y + 10),
+		GRAY, 2.0f);
+
+	float delta = receiverLogic->getFilterWidthAbs(viewModel->filterWidth);
+
+	int receiverPosX = sWD->startWindowPoint.x + sWD->rightPadding + receiverLogic->getPositionPX();
+	int receiverPosYTop = sWD->startWindowPoint.y - 10;
+	int receiverPosYBottom = sWD->startWindowPoint.y + sWD->windowLeftBottomCorner.y + 10;
+
+	switch (viewModel->receiverMode) {
+	case USB:
+		draw_list->AddRectFilled(
+			ImVec2(receiverPosX, receiverPosYTop),
+			ImVec2(receiverPosX + delta, receiverPosYBottom),
+			config->colorTheme.receiveRegionColor, 0);
+
+		break;
+	case LSB:
+
+		draw_list->AddRectFilled(
+			ImVec2(receiverPosX - delta, receiverPosYTop),
+			ImVec2(receiverPosX, receiverPosYBottom),
+			config->colorTheme.receiveRegionColor, 0);
+
+		break;
+	case AM:
+
+		draw_list->AddRectFilled(
+			ImVec2(receiverPosX - delta, receiverPosYTop),
+			ImVec2(receiverPosX + delta, receiverPosYBottom),
+			config->colorTheme.receiveRegionColor, 0);
+
+		break;
+	}
 }

@@ -25,8 +25,8 @@ public:
     const int GRIDDENSITY = 16;
     const int MAXITERATIONS = 40;
 
-    std::vector<double> m_delay;
-    std::vector<double> m_fir;
+    std::vector<float> m_delay;
+    std::vector<float> m_fir;
 
     int len = 0;
 
@@ -50,7 +50,7 @@ public:
      * @param window - тип окна
      * @return коэффициент
      */
-    double getWindow(int i, int n, unsigned char window);
+    float getWindow(int i, int n, unsigned char window);
 
     /**
      * фильтрация
@@ -59,8 +59,8 @@ public:
      * @return результат фильтрации
      */
 
-    double proc(double sample);
+    float proc(float sample);
 
-    std::vector<double> getCoeffs();
+    std::vector<float> getCoeffs();
 
 };

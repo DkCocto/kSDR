@@ -23,8 +23,8 @@ class RTLDevice : public DeviceN {
 		std::atomic_bool processing = false;
 
 		RTLDevice(Config* config) : DeviceN(config) {
-			bufferForSpec = new CircleBufferNew<unsigned char>(config->circleBufferLen);
-			bufferForProc = new CircleBufferNew<unsigned char>(config->circleBufferLen);
+			bufferForSpec = new CircleBufferNew<unsigned char>(config);
+			bufferForProc = new CircleBufferNew<unsigned char>(config);
 		};
 
 		~RTLDevice();

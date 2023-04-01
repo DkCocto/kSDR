@@ -6,23 +6,23 @@
 
 class HilbertTransform {
 
-    double* xv; // This array holds the delayed values
-    double* coeffs;
+    float* xv = nullptr; // This array holds the delayed values
+    float* coeffs = nullptr;
 
     int samplingRate = 0;
     int len = 0;
 
-    double gain = 1.0;
+    float gain = 1.0f;
 
-    int M = 0;
+    int M = 0.0f;
 
 public:
 
-    HilbertTransform() {};
-
     HilbertTransform(int samplingRate, int len);
+
+    ~HilbertTransform();
 
     void init();
 
-    double filter(double val);
+    float filter(float val);
 };

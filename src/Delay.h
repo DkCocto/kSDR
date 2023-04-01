@@ -2,13 +2,12 @@
 class Delay {
 
     int len = 0;
-    double* xv;
+    float* xv = nullptr;
 
 public:
-
-    Delay() {};
-
     Delay(int len);
 
-    double filter(double value);
+    ~Delay();
+
+    float filter(float value);
 };

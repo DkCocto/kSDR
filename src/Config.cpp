@@ -36,7 +36,7 @@ void Config::initSettings() {
 
     audioWriteFrameLen = (outputSamplerateDivider) / 4;
 
-    circleBufferLen = inputSamplerate / 4;
+    //circleBufferLen = inputSamplerate / 4;
 
     hilbertTransformLen = 255;
     polyphaseFilterLen = 2 * outputSamplerateDivider;

@@ -1,7 +1,5 @@
 #include "CircleBufferWriterThread.h"
 
-float* data;
-
 CircleBufferWriterThread::CircleBufferWriterThread(Config* config, DeviceController* deviceController, CircleBufferNew<float>* cb, SoundCard* sc) {
 	this->config = config;
 	this->deviceController = deviceController;
@@ -17,7 +15,6 @@ CircleBufferWriterThread::~CircleBufferWriterThread() {
 }
 
 void CircleBufferWriterThread::run() {
-
 	float secondsInBuffer = 0.0;
 
 	isWorking_ = true;

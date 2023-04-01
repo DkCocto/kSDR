@@ -18,16 +18,12 @@ SpectreHandler::SpectreHandler(Config* config, FFTData* fftData, ViewModel* view
 	complexLen = config->fftLen / 2 + 1;
 
 	realInput = new float[spectreSize];
-	//memset(realInput, 0, sizeof(float) * config->fftLen / 2);
 
 	imInput = new float[spectreSize];
-	//memset(imInput, 0, sizeof(float) * config->fftLen / 2);
 
 	realOut = new float[complexLen];
-	//memset(realOut, 0, sizeof(float) * complexLen);
 
 	imOut = new float[complexLen];
-	//memset(imOut, 0, sizeof(float) * complexLen);
 
 	superOutput = new float[spectreSize];
 	memset(superOutput, -100, sizeof(float) * spectreSize);
@@ -37,6 +33,7 @@ SpectreHandler::SpectreHandler(Config* config, FFTData* fftData, ViewModel* view
 
 	tmpArray = new float[spectreSize];
 	memset(tmpArray, -100, sizeof(float) * spectreSize);
+
 	tmpArray2 = new float[spectreSize];
 	memset(tmpArray, -100, sizeof(float) * spectreSize);
 
@@ -71,6 +68,10 @@ SpectreHandler::~SpectreHandler() {
 
 void SpectreHandler::run() {
 	isWorking_ = true;
+
+	DeviceN* device = deviceController->getDevice();
+	DeviceType deviceType = deviceController->getCurrentDeviceType();
+
 	while (true) {
 		if (!config->WORKING) {
 			printf("SpectreHandler Stopped\r\n");
@@ -78,10 +79,8 @@ void SpectreHandler::run() {
 			return;
 		}
 
-		DeviceN* device = deviceController->getDevice();
 		if (device != nullptr) {
-
-			switch (deviceController->getCurrentDeviceType()) {
+			switch (deviceType) {
 				case HACKRF:
 					prepareToProcess<HackRFDevice, uint8_t>((HackRFDevice*)device);
 					break;
@@ -93,21 +92,16 @@ void SpectreHandler::run() {
 					break;
 			}
 
-		} else std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		} else std::this_thread::sleep_for(std::chrono::milliseconds(1));
 	}
 }
 
 template<typename DEVICE, typename DATATYPE> void SpectreHandler::prepareToProcess(DEVICE* device) {
 	auto buffer = device->getBufferForSpec();
 	if (buffer->available() >= config->fftLen) {
-
-		DATATYPE* data = buffer->read(config->fftLen);
-		processFFT<DATATYPE, DEVICE>(data, device);
-		delete[] data;
-
-	} else std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		processFFT<DATATYPE, DEVICE>(buffer->read(), device);
+	} else std::this_thread::sleep_for(std::chrono::milliseconds(1));
 }
-
 
 template<typename T, typename D> void SpectreHandler::processFFT(T* data, D* device) {
 	for (int i = 0; i < spectreSize; i++) {

@@ -16,6 +16,8 @@ class CircleBufferWriterThread : public MyThread {
 	Config* config;
 	DeviceController* deviceController;
 
+	float* data;
+
 public:
 
 	CircleBufferWriterThread(Config* config, DeviceController* deviceController, CircleBufferNew<float>* cb, SoundCard* sc);

@@ -31,6 +31,9 @@
     <Filter Include="Файлы заголовков\Spectre">
       <UniqueIdentifier>{5adda9c1-255a-4dd2-8eec-7fc2d81b9b18}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Исходные файлы\Oscillator">
+      <UniqueIdentifier>{9a0a7b43-15f6-4a3d-95ba-be9af1bc151a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Config.cpp">
@@ -87,9 +90,6 @@
     <ClCompile Include="src\CircleBufferReaderThread.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="src\Mixer.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="src\HilbertTransform.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
@@ -99,28 +99,13 @@
     <ClCompile Include="src\KalmanFilter.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="src\ComplexOscillator.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="src\SinOscillator.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="src\FirFilter.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ComplexSignal.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="src\CosOscillator.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="src\PolyPhaseFilter.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="src\Filter.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Oscillator.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="src\SMeter.cpp">
@@ -157,9 +142,6 @@
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="src\Device.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="src\RSPv2.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="src\DCRemove.cpp">
@@ -236,6 +218,24 @@
     </ClCompile>
     <ClCompile Include="src\Device\RSPInterface.cpp">
       <Filter>Исходные файлы\Device</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ComplexOscillator.cpp">
+      <Filter>Исходные файлы\Oscillator</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ComplexSignal.cpp">
+      <Filter>Исходные файлы\Oscillator</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CosOscillator.cpp">
+      <Filter>Исходные файлы\Oscillator</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Oscillator.cpp">
+      <Filter>Исходные файлы\Oscillator</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Mixer.cpp">
+      <Filter>Исходные файлы\Oscillator</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SinOscillator.cpp">
+      <Filter>Исходные файлы\Oscillator</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -381,9 +381,6 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="src\Device.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="src\RSPv2.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="src\DCRemove.h">

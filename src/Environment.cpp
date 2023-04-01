@@ -5,26 +5,13 @@ Environment::Environment() {
 	viewModel = new ViewModel(config);											//is not need to recreate
 	deviceController = new DeviceController(config);							//is not need to recreate
 	
-	//init buffers
-	//IQBufForSoundProc = new CircleBufferNew(config->circleBufferLen);			//is not need to recreate
-	//IQBufForSpectre = new CircleBufferNew<uint8_t>(config->circleBufferLen);
-	
-	//IQSourceBuffer2 = new CircleBuffer(config->circleBufferLen);				//is not need to recreate
-	soundBuffer = new CircleBufferNew<float>(config->circleBufferLen);			//is not need to recreate
+	soundBuffer = new CircleBufferNew<float>(config);							//is not need to recreate
 	
 	fftData = new FFTData(config->fftLen / 2);									//is not need to recreate
 	specHandler = new SpectreHandler(config, fftData, viewModel, deviceController);	//need to recreate
 	flowingSpec = new FlowingSpectre(config, viewModel);						//is not need to recreate
 	receiverLogic = new ReceiverLogic(config, viewModel, flowingSpec);			//need to setup new flowingSpec during its recreating
-
-	//initReceivers();
 }
-
-/*void Environment::initReceivers() {
-	//deviceController->addReceiver(IQSourceBuffer);						//is not need to recreate
-	deviceController->addReceiver(IQBufForSoundProc);							//is not need to recreate
-	deviceController->addReceiver(IQBufForSpectre);						//is not need to recreate
-}*/
 
 Environment::~Environment() {
 	cleanUp();
@@ -39,7 +26,6 @@ void Environment::cleanUp() {
 	delete deviceController;
 	delete soundBuffer;
 	delete receiverLogic;
-	//delete IQBufForSoundProc;
 }
 
 Config* Environment::getConfig() {
@@ -70,9 +56,6 @@ void Environment::reload() {
 	delete specHandler;
 	specHandler = nullptr;
 	specHandler = new SpectreHandler(config, fftData, viewModel, deviceController);
-
-	//deviceController->getReceivers()->clear();
-	//initReceivers();
 
 	flowingSpec->setPos(
 		flowingSpec->getSpectrePosByAbsoluteFreq((double)config->spectre.visibleStartFreq),

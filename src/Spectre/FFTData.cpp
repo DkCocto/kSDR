@@ -144,7 +144,7 @@ FFTData::OUTPUT* FFTData::getDataCopy(OUTPUT* data, int startPos, int len) {
 }
 
 /// <summary>
-/// Полное удаление объекта типа OUTPUT из памяти.
+/// Полное удаление объекта OUTPUT из памяти.
 /// </summary>
 /// <param name="data"></param>
 void FFTData::destroyData(OUTPUT* data) {

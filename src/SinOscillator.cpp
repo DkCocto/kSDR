@@ -1,6 +1,6 @@
 #include "SinOscillator.h"
 
-double SinOscillator::nextSample() {
-	double value = fm.myFastSin((float)Oscillator::nextPhase());
+float SinOscillator::nextSample() {
+	float value = fm.myFastSin(Oscillator::nextPhase());
 	return value;
 }

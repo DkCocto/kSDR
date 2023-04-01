@@ -20,9 +20,9 @@
             	decimation = 2
             	Total sampling rate = (2000000 / 2) / 2 = 500000 
 			-->
-            <deviceSamplingRate>10000000</deviceSamplingRate>
+            <deviceSamplingRate>8000000</deviceSamplingRate>
             <deviceDecimationFactor>1</deviceDecimationFactor>
-            <gain>52</gain>
+            <gain>50</gain>
             <!-- Api can be 2 (v2) and 3 (v3)-->
             <api>3</api>
             <disableLna>1</disableLna>
@@ -31,68 +31,68 @@
         <HackRF>
             <!-- App sampling rate will be: deviceSamplingRate / decimation -->
             <deviceSamplingRate>8000000</deviceSamplingRate>
-            <basebandFilter>2500000</basebandFilter>
+            <basebandFilter>1750000</basebandFilter>
             <rxAmp>0</rxAmp>
             <!-- 0 1 2 3 4-->
-            <lnaGain>3</lnaGain>
+            <lnaGain>4</lnaGain>
             <!-- 0 .. 30 -->
-            <vgaGain>21</vgaGain>
+            <vgaGain>22</vgaGain>
             <!-- 0 .. 40 step 2-->
             <txAmp>20</txAmp>
         </HackRF>
         <RTL>
-            <deviceSamplingRate>3200000</deviceSamplingRate>
-            <gain>290</gain>
+            <deviceSamplingRate>2500000</deviceSamplingRate>
+            <gain>165</gain>
         </RTL>
     </Device>
     <Receiver>
-        <startFreq>3044872</startFreq>
-        <lastSelectedFreq>3152047</lastSelectedFreq>
-        <volume>1.257</volume>
-        <filterWidth>6000</filterWidth>
+        <startFreq>6900000</startFreq>
+        <lastSelectedFreq>7084822.5</lastSelectedFreq>
+        <volume>1.219</volume>
+        <filterWidth>2700</filterWidth>
         <!-- USB:0, LSB:1, AM:2, nFM:3 -->
-        <modulation>2</modulation>
+        <modulation>1</modulation>
         <enableFrequencyShift>0</enableFrequencyShift>
         <frequencyShift>52434810</frequencyShift>
         <Agc>
-            <threshold>0.060000001220032573</threshold>
-            <atackSpeedMs>0.15000000000000002</atackSpeedMs>
+            <threshold>0.065000001457519829</threshold>
+            <atackSpeedMs>0.11000000089406969</atackSpeedMs>
             <holdingTimeMs>999.99999998509884</holdingTimeMs>
-            <releaseSpeed>5.0000003789318735e-05</releaseSpeed>
-            <lastAmp>2.2013787031044796</lastAmp>
+            <releaseSpeed>6.0000003536697487e-05</releaseSpeed>
+            <lastAmp>4.4884800910949707</lastAmp>
         </Agc>
     </Receiver>
     <Waterfall>
-        <min>-108.68704</min>
-        <max>-40.087315</max>
+        <min>-82.734779</min>
+        <max>-14.508816</max>
         <speed>2</speed>
     </Waterfall>
     <Spectre>
-        <ratio>-11.311794</ratio>
-        <min>-120.46256</min>
+        <ratio>13.737278</ratio>
+        <min>-93.980873</min>
         <speed>5</speed>
         <speed2>9</speed2>
         <!-- Must be a power of 2. The total will be fftLen = fftLen * 1024 -->
         <fftLen>262144</fftLen>
-        <visibleStartFreq>3066905</visibleStartFreq>
-        <visibleStopFreq>3241161</visibleStopFreq>
-        <startBin>65897</startBin>
-        <stopBin>68751</stopBin>
+        <visibleStartFreq>7028662</visibleStartFreq>
+        <visibleStopFreq>7171423</visibleStopFreq>
+        <startBin>67644</startBin>
+        <stopBin>69982</stopBin>
         <removeDCBias>1</removeDCBias>
         <style>1</style>
         <contourShowsPower>0</contourShowsPower>
         <bottomCoeff>0.935</bottomCoeff>
         <topCoeff>1.073</topCoeff>
         <hangAndDecay>1</hangAndDecay>
-        <decaySpeed>0.034000002</decaySpeed>
-        <decaySpeedDelta>1.184</decaySpeedDelta>
+        <decaySpeed>0.027000001</decaySpeed>
+        <decaySpeedDelta>0.85100001</decaySpeedDelta>
         <smoothingDepth>2</smoothingDepth>
-        <spectreCorrectionDb>-163</spectreCorrectionDb>
+        <spectreCorrectionDb>-140</spectreCorrectionDb>
     </Spectre>
     <ColorTheme>
-        <spectreFillColor>4281337632</spectreFillColor>
+        <spectreFillColor>4288629887</spectreFillColor>
         <spectreProfileColor>4291151301</spectreProfileColor>
-        <mainBGColor>4282324747</mainBGColor>
+        <mainBGColor>4278190080</mainBGColor>
         <windowsBGColor>4278190080</windowsBGColor>
         <windowsTitleBGColor>4284887578</windowsTitleBGColor>
         <receiveRegionColor>1655028244</receiveRegionColor>

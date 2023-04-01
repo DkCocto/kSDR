@@ -44,7 +44,7 @@ Spectre::Spectre(Environment* env) {
 
 	this->waterfall = make_unique<Waterfall>(config, viewModel);
 
-	receiverRegionInterface = ReceiverRegionInterface(&sWD, config, viewModel);
+	receiverRegionInterface = make_unique<ReceiverRegionInterface>(&sWD, config, viewModel);
 }
 
 int savedStartWindowX = 0;
@@ -175,11 +175,11 @@ void Spectre::draw() {
 			}
 
 			//receive region
-			receiverRegionInterface.drawRegion(draw_list, env->getReceiverLogic());
+			receiverRegionInterface->drawRegion(draw_list, env->getReceiverLogic());
 			//--
 		ImGui::EndChild();
 
-		if (!disableControl_ && !receiverRegionInterface.isDigitSelected()) drawFreqPointerMark(sWD.startWindowPoint, sWD.windowLeftBottomCorner, spectreWidth, draw_list, env->getReceiverLogic());
+		if (!disableControl_ && !receiverRegionInterface->isDigitSelected()) drawFreqPointerMark(sWD.startWindowPoint, sWD.windowLeftBottomCorner, spectreWidth, draw_list, env->getReceiverLogic());
 
 	ImGui::End();
 
@@ -259,7 +259,7 @@ void Spectre::handleEvents(int spectreWidthInPX, ReceiverLogic* receiverLogic, F
 			ImVec2(sWD.startWindowPoint.x + sWD.windowLeftBottomCorner.x - sWD.leftPadding, sWD.startWindowPoint.y + 2 * spectreHeight)
 		});
 
-	bool isMouseOnReceiverFreq = receiverRegionInterface.isDigitSelected();
+	bool isMouseOnReceiverFreq = receiverRegionInterface->isDigitSelected();
 
 	ImGuiIO& io = ImGui::GetIO();
 
@@ -280,7 +280,7 @@ void Spectre::handleEvents(int spectreWidthInPX, ReceiverLogic* receiverLogic, F
 		float mouseWheelVal = io.MouseWheel;
 		if (mouseWheelVal != 0) {
 			if (isMouseOnReceiverFreq) {
-				receiverRegionInterface.setupNewFreq(mouseWheelVal > 0, receiverLogic);
+				receiverRegionInterface->setupNewFreq(mouseWheelVal > 0, receiverLogic);
 			} else {
 				if (!ctrlPressed) {
 					int mouseWheelStep = 100;
@@ -547,14 +547,14 @@ void Spectre::drawSpectreContour(FFTData::OUTPUT* fullSpectreData, ImDrawList* d
 
 			ImVec2 profiledX1(
 				sWD.startWindowPoint.x + round(i * stepX) + sWD.rightPadding,
-				y1 + 1.5
+				y1 + 2
 			);
 			ImVec2 profiledX2(
 				sWD.startWindowPoint.x + round((i + 1.0) * stepX) + sWD.rightPadding,
-				y2 + 1.5
+				y2 + 2
 			);
 
-			draw_list->AddLine(profiledX1, profiledX2, config->colorTheme.spectreProfileColor, 0.5f);
+			draw_list->AddLine(profiledX1, profiledX2, config->colorTheme.spectreProfileColor, 2.0f);
 		}
 
 		if (config->spectre.style == 1) {

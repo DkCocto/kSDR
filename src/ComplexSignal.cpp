@@ -1,24 +1,24 @@
 #include "ComplexSignal.h"
 
-double ComplexSignal::magnitude() {
+float ComplexSignal::magnitude() {
 	return sqrt(I * I + Q * Q);
 }
 
-void ComplexSignal::multiply(double val) {
+void ComplexSignal::multiply(float val) {
 	I = I * val;
 	Q = Q * val;
 }
 
 ComplexSignal::ComplexSignal() { }
 
-ComplexSignal::ComplexSignal(double I, double Q) {
+ComplexSignal::ComplexSignal(float I, float Q) {
 	this->I = I;
 	this->Q = Q;
 }
 
 void ComplexSignal::normalize() {
 	float m = magnitude();
-	if (m != 0.0) {
-		multiply(1.0 / m);
+	if (m != 0.0f) {
+		multiply(1.0f / m);
 	}
 }

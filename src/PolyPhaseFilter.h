@@ -5,13 +5,13 @@
 #include "Filter.h"
 
 class PolyPhaseFilter {
-	std::vector<double> coeffs;
-	double alpha = 0.5f;
+	std::vector<float> coeffs;
+	float alpha = 0.5f;
 	std::vector<FirFilter> subFilters;
 
 private:
 
-	void initSubFilters(std::vector<double> coeffs, int coeffsLen, int R);
+	void initSubFilters(std::vector<float> coeffs, int coeffsLen, int R);
 
 public:
 
@@ -22,7 +22,7 @@ public:
 	* @param decimationRate
 	* @param len
 	*/
-	void initCoeffs(double sampleRate, double freq, int decimationRate, int len);
+	void initCoeffs(float sampleRate, float freq, int decimationRate, int len);
 
 	PolyPhaseFilter();
 
@@ -33,5 +33,5 @@ public:
 		* @param in
 		* @return
 		*/
-	double filter(double* in, int inLen);
+	float filter(float* in, int inLen);
 };

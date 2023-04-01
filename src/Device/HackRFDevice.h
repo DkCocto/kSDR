@@ -25,8 +25,8 @@ class HackRFDevice : public DeviceN {
 		void enableAmp(uint8_t amp);
 
 		HackRFDevice(Config* config) : DeviceN(config) {
-			bufferForSpec = new CircleBufferNew<uint8_t>(config->circleBufferLen);
-			bufferForProc = new CircleBufferNew<uint8_t>(config->circleBufferLen);
+			bufferForSpec = new CircleBufferNew<uint8_t>(config);
+			bufferForProc = new CircleBufferNew<uint8_t>(config);
 		};
 
 		~HackRFDevice();

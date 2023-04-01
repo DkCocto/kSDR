@@ -18,15 +18,15 @@ SoundProcessorThread::SoundProcessorThread(DeviceController* devCnt,
 	this->soundWriterCircleBuffer = soundWriterCircleBuffer;
 	this->specHandler = specHandler;
 
-	hilbertTransform = HilbertTransform(config->inputSamplerate, config->hilbertTransformLen);
-	delay = Delay((config->hilbertTransformLen - 1) / 2);
+	hilbertTransform = new HilbertTransform(config->inputSamplerate, config->hilbertTransformLen);
+	delay = new Delay((config->hilbertTransformLen - 1) / 2);
 	agc = AGC(config, specHandler);
 
-	decimateBufferI = new double[config->outputSamplerateDivider];
-	memset(decimateBufferI, 0, sizeof(double) * config->outputSamplerateDivider);
+	decimateBufferI = new float[config->outputSamplerateDivider];
+	memset(decimateBufferI, 0, sizeof(float) * config->outputSamplerateDivider);
 
-	decimateBufferQ = new double[config->outputSamplerateDivider];
-	memset(decimateBufferQ, 0, sizeof(double) * config->outputSamplerateDivider);
+	decimateBufferQ = new float[config->outputSamplerateDivider];
+	memset(decimateBufferQ, 0, sizeof(float) * config->outputSamplerateDivider);
 
 	outputData = new float[(len / 2) / config->outputSamplerateDivider];
 
@@ -39,6 +39,9 @@ SoundProcessorThread::~SoundProcessorThread() {
 	delete[] decimateBufferI;
 	delete[] decimateBufferQ;
 	delete[] outputData;
+
+	delete delay;
+	delete hilbertTransform;
 }
 
 void SoundProcessorThread::initFilters(int filterWidth) {
@@ -55,6 +58,9 @@ void SoundProcessorThread::run() {
 
 	int storedFilterWidth = config->defaultFilterWidth;
 
+	DeviceN* device = devCnt->getDevice();
+	DeviceType deviceType = devCnt->getCurrentDeviceType();
+
 	while (true) {
 		if (!config->WORKING) {
 			printf("SoundProcess Stopped\r\n");
@@ -69,9 +75,9 @@ void SoundProcessorThread::run() {
 		}
 		//------------------------
 
-		DeviceN* device = devCnt->getDevice();
+		
 		if (device != nullptr) {
-			switch (devCnt->getCurrentDeviceType()) {
+			switch (deviceType) {
 				case HACKRF:
 					initProcess<HackRFDevice, uint8_t>((HackRFDevice*)device);
 					break;
@@ -91,13 +97,8 @@ template<typename DEVICE, typename DATATYPE> void SoundProcessorThread::initProc
 	int available = buffer->available();
 	viewModel->setBufferAvailable(available);
 	if (available >= len) {
-		auto data = buffer->read(len);
-
-		processData<DATATYPE, DEVICE>(data, device);
-
-		delete[] data;
-	}
-	else std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		processData<DATATYPE, DEVICE>(buffer->read(), device);
+	} else std::this_thread::sleep_for(std::chrono::milliseconds(1));
 }
 
 template<typename T, typename D> void SoundProcessorThread::processData(T* data, D* device) {
@@ -122,25 +123,22 @@ template<typename T, typename D> void SoundProcessorThread::processData(T* data,
 
 			decimationCount = 0;
 
-			double audioI = firFilterI.filter(decimateBufferI, config->outputSamplerateDivider);
-			double audioQ = firFilterQ.filter(decimateBufferQ, config->outputSamplerateDivider);
+			float audioI = firFilterI.filter(decimateBufferI, config->outputSamplerateDivider);
+			float audioQ = firFilterQ.filter(decimateBufferQ, config->outputSamplerateDivider);
 
-			int mode = USB;
+			int mode = viewModel->receiverMode;
 
-			mode = viewModel->receiverMode;
-			//mode = FM;
-
-			double audio = 0;
+			float audio = 0;
 
 			switch (mode) {
 				case USB:
-					audioQ = hilbertTransform.filter(audioQ);
-					audioI = delay.filter(audioI);
+					audioQ = hilbertTransform->filter(audioQ);
+					audioI = delay->filter(audioI);
 					audio = audioI - audioQ; // LSB
 					break;
 				case LSB:
-					audioQ = hilbertTransform.filter(audioQ);
-					audioI = delay.filter(audioI);
+					audioQ = hilbertTransform->filter(audioQ);
+					audioI = delay->filter(audioI);
 					audio = audioI + audioQ; // USB
 					break;
 				case AM:
@@ -152,12 +150,10 @@ template<typename T, typename D> void SoundProcessorThread::processData(T* data,
 					audioI = firI.proc(audioI);
 					audioQ = firQ.proc(audioQ);
 					audio = fmDemodulator.demodulate(audioI, audioQ);
-					//audio = audioFilterFM.proc(audio);
 					break;
 			}
-			//-------------------audio = audioFilter->filter(audio);
+			//-------------------
 			audio = fir.proc(audio);
-			//audio = agc->process(audio);
 			audio = agc.processNew(audio);
 			//Если AM, то немного усилим сигнал
 			if (mode == AM) audio *= 3.0f;

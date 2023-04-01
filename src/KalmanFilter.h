@@ -5,17 +5,17 @@
 class KalmanFilter {
 private:
 
-    double standardDeviation, speed;
+    float standardDeviation, speed;
 
-    double pc = 0.0;
-    double g = 0.0;
-    double p = 1.0;
-    double xp = 0.0;
-    double zp = 0.0;
-    double xe = 0.0;
+    float pc = 0.0f;
+    float g = 0.0f;
+    float p = 1.0f;
+    float xp = 0.0f;
+    float zp = 0.0f;
+    float xe = 0.0f;
 
 public:
     KalmanFilter() {};
-    KalmanFilter(double standardDeviation, double speed);
-    double filter(double value);
+    KalmanFilter(float standardDeviation, float speed);
+    float filter(float value);
 };

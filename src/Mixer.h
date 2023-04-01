@@ -16,6 +16,6 @@ public:
 	Mixer(int inputSampleRate);
 
 	void setFreq(int freq);
-	Signal mix(double I, double Q);
+	Signal mix(float I, float Q);
 
 };
