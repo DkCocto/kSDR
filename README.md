@@ -1,6 +1,8 @@
 # kSDR
 Simple Fast SDR receiver app with OpenGL support
 
+Try our app. It's absolutely free. Fast addiction guaranteed!!)
+
 Demo video: <br>
 
 https://youtu.be/b15e3qSgFJQ
