@@ -1,5 +1,4 @@
 #include "SMeter.h"
-#include "Display.h"
 
 #define YELLOW	IM_COL32(255, 233, 0, 255)
 #define GREEN	IM_COL32(0, 204, 0, 255)
@@ -11,26 +10,18 @@
 #define LEVEL_PADDING_BOTTOM 5
 
 void SMeter::drawGrid(ImDrawList* draw_list) {
-	double step = width / 15.0;
-
-	//ImVec2 canvas_p0 = ImGui::GetCursorScreenPos();      // ImDrawList API uses screen coordinates!
-	//ImVec2 canvas_sz = ImGui::GetContentRegionAvail();   // Resize canvas to what's available
-
-	//draw_list->AddRectFilled(canvas_p0, canvas_p1, IM_COL32(50, 50, 50, 255));
-	//draw_list->AddRect(canvas_p0, canvas_p1, IM_COL32(255, 255, 255, 255));
-
-	//width = canvas_sz.x - 2 * x;
+	float step = width / 15.0f;
 
 	//Верхняя линия s метра часть белая
-	draw_list->AddLine(ImVec2(X, Y), ImVec2(X + step * 9.0, Y), IM_COL32_WHITE, 1.0f);
+	draw_list->AddLine(ImVec2(X, Y), ImVec2(X + step * 9.0f, Y), IM_COL32_WHITE, 1.0f);
 	//Верхняя линия s метра часть где сигнал зашкаливает
-	draw_list->AddLine(ImVec2(X + step * 9.0, Y), ImVec2(X + width, Y), RED, 1.0f);
+	draw_list->AddLine(ImVec2(X + step * 9.0f, Y), ImVec2(X + width, Y), RED, 1.0f);
 
 	
 	//Нижняя линия s метра часть белая
-	draw_list->AddLine(ImVec2(X, Y + LEVEL_THICKNESS + LEVEL_PADDING_TOP + LEVEL_PADDING_BOTTOM), ImVec2(X + step * 9.0, Y + LEVEL_THICKNESS + LEVEL_PADDING_BOTTOM + LEVEL_PADDING_TOP), IM_COL32_WHITE, 1.0f);
+	draw_list->AddLine(ImVec2(X, Y + LEVEL_THICKNESS + LEVEL_PADDING_TOP + LEVEL_PADDING_BOTTOM - 1), ImVec2(X + step * 9.0f, Y + LEVEL_THICKNESS + LEVEL_PADDING_BOTTOM + LEVEL_PADDING_TOP - 1), IM_COL32_WHITE, 1.0f);
 	//Нижняя линия s метра часть где сигнал зашкаливает
-	draw_list->AddLine(ImVec2(X + step * 9.0, Y + LEVEL_THICKNESS + LEVEL_PADDING_TOP + LEVEL_PADDING_BOTTOM), ImVec2(X + width, Y + LEVEL_THICKNESS + LEVEL_PADDING_BOTTOM + LEVEL_PADDING_TOP), RED, 1.0f);
+	draw_list->AddLine(ImVec2(X + step * 9.0f, Y + LEVEL_THICKNESS + LEVEL_PADDING_TOP + LEVEL_PADDING_BOTTOM - 1), ImVec2(X + width, Y + LEVEL_THICKNESS + LEVEL_PADDING_BOTTOM + LEVEL_PADDING_TOP - 1), RED, 1.0f);
 
 	for (int i = 0; i <= 15; i++) {
 		if (i == 0 || i % 2 != 0) {
@@ -41,7 +32,7 @@ void SMeter::drawGrid(ImDrawList* draw_list) {
 			if (i > 8) {
 				draw_list->AddLine(lineX1, lineX2, RED, 3.0f);
 			} else {
-				draw_list->AddLine(lineX1, lineX2, IM_COL32_WHITE, 3.0f);
+				draw_list->AddLine(lineX1, lineX2, IM_COL32_WHITE, 4.0f);
 			}
 
 			ImVec2 pos(X + i * step - 5, Y - 35);
@@ -105,14 +96,19 @@ double storedLevel = 0.0;
 
 int count1 = 0;
 
-void SMeter::drawLevel(ImDrawList* draw_list, double dBValue) {
+auto color = WHITE;
+
+void SMeter::drawLevel(ImDrawList* draw_list, FFTData::OUTPUT* spectreData, ReceiverLogic* receiverLogic) {
+
+	float dBValue = getSignaldB(spectreData, receiverLogic);
+
 	if (dBValue <= -126.5) dBValue = -126.5;
 
-	double levelVal = fromdBToLevel(dBValue);
+	float levelVal = fromdBToLevel(dBValue);
 	
-	if (levelVal > 15) levelVal = 15.0;
+	if (levelVal > 15.0f) levelVal = 15.0f;
 
-	double step = width / 15.0;
+	float step = width / 15.0f;
 	//Display::instance->viewModel->serviceField1 = levelVal;
 
 	if (levelVal >= 9) {
@@ -135,7 +131,13 @@ void SMeter::drawLevel(ImDrawList* draw_list, double dBValue) {
 	//watch(dBValue);
 	//watch(storedLevel);
 
-	draw_list->AddLine(ImVec2(X + step * storedLevel, Y + LEVEL_PADDING_TOP - 1), ImVec2(X + step * storedLevel, Y + LEVEL_PADDING_TOP + LEVEL_THICKNESS - 1), WHITE, 3.0f);
+	if (storedLevel <= 9) {
+		color = WHITE;
+	} else {
+		color = RED;
+	}
+
+	draw_list->AddLine(ImVec2(X + step * storedLevel, Y + LEVEL_PADDING_TOP - 1), ImVec2(X + step * storedLevel, Y + LEVEL_PADDING_TOP + LEVEL_THICKNESS - 1), color, 5.0f);
 
 	std::string dBText = std::to_string((int)dBValue);
 
@@ -149,11 +151,11 @@ void SMeter::drawLevel(ImDrawList* draw_list, double dBValue) {
 		Y
 	), WHITE, getLevelDecodedString(dBValue));
 
-	int holdTimeSec = 3;
+	int holdTimeSec = 4;
 	float fps = 1000.0f / ImGui::GetIO().Framerate;
 
 	if (count1 >= fps * holdTimeSec) {
-		storedLevel -= 0.05;
+		storedLevel -= 0.02;
 	}
 	
 	if (storedLevel <= levelVal) {
@@ -164,12 +166,12 @@ void SMeter::drawLevel(ImDrawList* draw_list, double dBValue) {
 	}
 }
 
-double SMeter::fromdBToLevel(double dBValue) {
-	double levelVal = 0.1667 * dBValue + 21.1667;
+float SMeter::fromdBToLevel(float dBValue) {
+	float levelVal = 0.1667f * dBValue + 21.1667f;
 	return levelVal;
 }
 
-const char * SMeter::getLevelDecodedString(double dBValue) {
+const char * SMeter::getLevelDecodedString(float dBValue) {
 	int level = (int)fromdBToLevel(dBValue);
 
 	if (level <= 1) return "S0";
@@ -187,6 +189,7 @@ const char * SMeter::getLevelDecodedString(double dBValue) {
 
 SMeter::SMeter(ViewModel* viewModel) {
 	this->viewModel = viewModel;
+	averageSignalDb = Average(5);
 }
 
 void SMeter::update(int X, int Y, int width, int height) {
@@ -196,9 +199,25 @@ void SMeter::update(int X, int Y, int width, int height) {
 	this->height = height;
 }
 
-void SMeter::draw(ImDrawList* draw_list, double dBValue) {
+void SMeter::draw(ImDrawList* draw_list, FFTData::OUTPUT* spectreData, ReceiverLogic* receiverLogic) {
 	drawGrid(draw_list);
-	drawLevel(draw_list, dBValue);
+	drawLevel(draw_list, spectreData, receiverLogic);
+}
 
-	//ImGui::SetCursorPos(ImVec2(10, 137));
+float SMeter::getSignaldB(FFTData::OUTPUT* spectreData, ReceiverLogic* receiverLogic) {
+	ReceiverLogic::ReceiveBinArea r = receiverLogic->getReceiveBinsArea(viewModel->filterWidth, viewModel->receiverMode);
+	float sum = 0.0;
+	int len = r.B - r.A;
+	if (len > 0) {
+
+		float max = -1000.0;
+
+		for (int i = r.A; i < r.B; i++) {
+			if (spectreData->data[i] > max) {
+				max = spectreData->data[i];
+			}
+		}
+		return averageSignalDb.process(max);
+	}
+	return 0.0f;
 }

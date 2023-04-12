@@ -1,11 +1,6 @@
 #include "DCRemove.h"
 
 void DCRemove::process(float *signalI, float *signalQ) {
-	/*p1 = data[2 * i];
-	data[2 * i] = p1 - xm1 + 0.9995 * ym1;
-	xm1 = p1;
-	ym1 = data[2 * i];*/
-
 	p1 = *signalI;
 	*signalI = p1 - xm1 + FACTOR * ym1;
 	xm1 = p1;

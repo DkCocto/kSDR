@@ -6,6 +6,9 @@
 #include "imgui/imgui_impl_opengl3.h"
 #include "string"
 #include "ViewModel.h"
+#include "Spectre/FFTData.h"
+#include "ReceiverLogic.h"
+#include "Average.h"
 
 class SMeter {
 
@@ -15,17 +18,21 @@ class SMeter {
 	ViewModel* viewModel;
 
 	void drawGrid(ImDrawList* draw_list);
-	void drawLevel(ImDrawList* draw_list, double dBValue);
+	void drawLevel(ImDrawList* draw_list, FFTData::OUTPUT* spectreData, ReceiverLogic* receiverLogic);
 
-	double fromdBToLevel(double dBValue);
+	float fromdBToLevel(float dBValue);
 
-	const char* getLevelDecodedString(double dBValue);
+	const char* getLevelDecodedString(float dBValue);
+
+	Average averageSignalDb;
 
 public:
 	
 	SMeter(ViewModel* viewModel);
 
 	void update(int X, int Y, int width, int height);
-	void draw(ImDrawList* draw_list, double dBValue);
+	void draw(ImDrawList* draw_list, FFTData::OUTPUT* spectreData, ReceiverLogic* receiverLogic);
+
+	float getSignaldB(FFTData::OUTPUT* spectreData, ReceiverLogic* receiverLogic);
 
 };

@@ -2,7 +2,6 @@
 
 #include "../Config.h"
 #include "../CircleBuffer.h"
-#include "vector"
 
 enum Status {
 	NOT_CREATED,

@@ -63,7 +63,7 @@ public:
 
 	ReceiverRegionInterface(SpectreWindowData* sWD, Config* config, ViewModel* viewModel);
 
-	void drawRegion(ImDrawList* draw_list, ReceiverLogic* receiverLogic);
+	void drawRegion(ImDrawList* draw_list, ReceiverLogic* receiverLogic, FFTData::OUTPUT* spectreData);
 
 	int getFreqTextWidth();
 	int getFreqTextHeight();

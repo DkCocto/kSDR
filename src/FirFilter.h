@@ -15,7 +15,7 @@ public:
 
 	/**
 	 * Calculate the result with convolution.  This assumes that the filter kernel coeffs are already reversed as
-	 * new valuea are added to the end of the delay line xv.  Note that a symmetrical filter such as a raised
+	 * new values are added to the end of the delay line xv.  Note that a symmetrical filter such as a raised
 	 * cosine does not need to be reversed.
 	 * @param in
 	 * @return

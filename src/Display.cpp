@@ -200,9 +200,7 @@ void Display::renderImGUIFirst() {
 	//ImGui::PushID(9);
 	ImGui::Begin(APP_NAME);
 
-		//smeter->draw(viewModel->signalMaxdB);
-
-		ImGui::Separator(); ImGui::Spacing(); ImGui::Spacing();
+		ImGui::Spacing(); ImGui::Spacing();
 
 		ImGui::SliderFloat("Volume", &viewModel->volume, 0, 7);
 

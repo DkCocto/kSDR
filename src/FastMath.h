@@ -14,10 +14,6 @@ class FastMath {
 
 public:
 	FastMath();
-	float fastcos(float n);
-	float fastsin(float n);
-	void FloatToInt(int* int_pointer, float f);
-
 
 	void initTable();
 	float myFastSin(float val);

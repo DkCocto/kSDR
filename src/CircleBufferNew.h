@@ -26,7 +26,6 @@ public:
 	CircleBufferNew(Config* config) {
 		this->config = config;
 		this->size = CIRCLE_BUF_LEN;
-		//data = new T[size];
 		memset(data, 0, sizeof(T) * size);
 		receiverBuf = new T[config->fftLen];
 	};
@@ -66,8 +65,6 @@ public:
 			return;
 		}
 
-		if (DEBUG) printData(buf, len);
-
 		if (writePointer + len < size + 1) {
 			std::copy(buf, buf + len, data + writePointer);
 
@@ -76,34 +73,11 @@ public:
 		} else {
 			int remainsDataLen = size - writePointer;
 			int canBeFilledDataLen = len - remainsDataLen;
-			//printf("remainsDataLen = %d; canBeFilledDataLen = %d\r\n", remainsDataLen, canBeFilledDataLen);
 
 			std::copy(buf, buf + remainsDataLen, data + writePointer);
 			std::copy(buf + remainsDataLen, buf + remainsDataLen + canBeFilledDataLen, data);
 
 			writePointer = canBeFilledDataLen;
-		}
-
-		/*if ((writePointer + 1) + (len + 1) < size) {
-			
-			std::copy(buf, buf + len, data + writePointer + 1);
-			writePointer += len;
-
-		} else {
-			int k = (titka + len) - (size - 1);
-			int a = (size - 1) - titka;
-			//printf("%d\r\n", a);
-
-			std::copy(buf, buf + a + 1, data + titka);
-
-			std::copy(buf + a + 1, buf + a + k, data);
-
-			writePointer = k - 2;
-		}*/
-		if (DEBUG) {
-			print();
-			printf(" writePointer = %d, readPointer = %d", writePointer, readPointer);
-			printf("\n");
 		}
 	}
 
@@ -142,7 +116,7 @@ public:
 	}
 
 	/// <summary>
-	/// —читадь данные длиной в fftlen в специально созданный массив и вернуть на него ссылку. ћассив удал€етс€ автоматически.
+	/// —читать данные длиной в fftlen в специально созданный массив и вернуть на него ссылку. ћассив удал€етс€ автоматически.
 	/// </summary>
 	/// <param name="len"></param>
 	/// <returns></returns>
@@ -152,7 +126,7 @@ public:
 	}
 
 	/// <summary>
-	/// —читадь данные длиной в len в массив и вернуть его. Ќе забыть удалить его после использовани€!
+	/// —читать данные длиной в len в массив и вернуть его. Ќе забыть удалить его после использовани€!
 	/// </summary>
 	/// <param name="len"></param>
 	/// <returns></returns>
@@ -162,15 +136,6 @@ public:
 		return arr;
 	}
 
-	void print() {
-		for (int i = 0; i < size; i++) printf("%d ", data[i]);
-	}
-
-	void printData(T* buf, int len) {
-		for (int i = 0; i < len; i++) printf("%d ", buf[i]);
-		printf(" -> ");
-	}
-
 	int getWritePointer() {
 		return writePointer;
 	}
@@ -178,57 +143,6 @@ public:
 	int getReadPointer() {
 		return readPointer;
 	}
-
-	/*static bool test2() {
-		int* pipika = new int[10];
-		for (int i = 0; i < 10; i++) pipika[i] = i + 1;
-
-		CircleBufferNew<int> cbn(10);
-		cbn.write(pipika, 7);
-
-		cbn.read(7);
-		cbn.write(pipika, 6);
-
-		int* data = cbn.read(7);
-		Utils::printArray(data, 7);
-		return true;
-	}*/
-
-	/*static bool test1() {
-		int* pipika = new int[5];
-		for (int i = 0; i < 5; i++) pipika[i] = i + 1;
-
-		CircleBufferNew<int> cbn(5);
-		cbn.write(pipika, 3);
-		//wp = 3, rp = 0
-
-		if (cbn.available() != 3) { printf("LABEL1\n"); return false; };
-
-		int* data = cbn.read(2);
-		if (data[0] != 1 || data[1] != 2) { printf("LABEL2\n"); return false; };
-		//wp = 3, rp = 2
-
-		data = cbn.read(1);
-		if (data[0] != 3) { printf("LABEL3\n"); return false; };
-		//wp = 3, rp = 3
-
-		cbn.write(pipika, 4);
-		//wp = 2, rp = 3
-
-		data = cbn.read(2);
-		if (data[0] != 1 || data[1] != 2) { printf("LABEL4\n"); return false; };
-		//wp = 2, rp = 0
-
-		data = cbn.read(2);
-		if (data[0] != 3 || data[1] != 4) { printf("LABEL5\n"); return false; };
-		//wp = 2, rp = 2
-
-		cbn.print();
-		printf("writePointer = %d, readPointer = %d\n", cbn.getWritePointer(), cbn.getReadPointer());
-		//Utils::printArray(data, 1);
-
-		return true;
-	}*/
 
 	void write(float value) { }
 

@@ -30,15 +30,15 @@ void Spectre::waterfallAutoColorCorrection() {
 void Spectre::spectreRatioAutoCorrection() {
 	viewModel->minDb = minMax.average - 20;
 	viewModel->ratio = minMax.max + 40;
+	//config->spectre.spectreCorrectionDb = viewModel->minDb;
 }
 
 Spectre::Spectre(Environment* env) {
 	this->env = env;
-	//waterfall->start().detach();
+
 	this->config = env->getConfig();
 	this->viewModel = env->getViewModel();
 
-	maxdBKalman = make_unique<KalmanFilter>(1, 0.005);
 	ratioKalman = make_unique<KalmanFilter>(1, 0.01);
 	spectreTranferKalman = make_unique<KalmanFilter>(1, 0.01);
 
@@ -119,8 +119,6 @@ void Spectre::draw() {
 
 			drawMemoryMarks(draw_list, env->getFlowingSpectre(), env->getReceiverLogic());
 
-			storeSignaldB(fullSpectreData, env->getReceiverLogic());
-
 			drawSpectreContour(fullSpectreData, draw_list, env->getFlowingSpectre(), env->getFFTSpectreHandler());
 
 			//dB mark line
@@ -175,7 +173,7 @@ void Spectre::draw() {
 			}
 
 			//receive region
-			receiverRegionInterface->drawRegion(draw_list, env->getReceiverLogic());
+			receiverRegionInterface->drawRegion(draw_list, env->getReceiverLogic(), fullWaterfallData);
 			//--
 		ImGui::EndChild();
 
@@ -190,24 +188,6 @@ void Spectre::draw() {
 	countFrames++;
 	env->getFFTSpectreHandler()->getFFTData()->destroyData(fullSpectreData);
 	env->getFFTSpectreHandler()->getFFTData()->destroyData(fullWaterfallData);
-}
-
-void Spectre::storeSignaldB(FFTData::OUTPUT* spectreData, ReceiverLogic* receiverLogic) {
-	ReceiverLogic::ReceiveBinArea r = receiverLogic->getReceiveBinsArea(viewModel->filterWidth, viewModel->receiverMode);
-
-	float sum = 0.0;
-	int len = r.B - r.A;
-	if (len > 0) {
-
-		float max = -1000.0;
-
-		for (int i = r.A; i < r.B; i++) {
-			if (spectreData->data[i] > max) {
-				max = spectreData->data[i];
-			}
-		}
-		viewModel->signalMaxdB = maxdBKalman->filter(max);
-	}
 }
 
 Spectre::MIN_MAX Spectre::getMinMaxInSpectre() {
@@ -413,6 +393,8 @@ void Spectre::drawSpectreContour(FFTData::OUTPUT* fullSpectreData, ImDrawList* d
 	std::vector<float> reducedSpectreData = flowingSpec->getReducedData(fullSpectreData, config->visibleSpectreBinCount, specHandler);
 
 	minMax = getMinMaxInSpectre(reducedSpectreData, reducedSpectreData.size());
+
+	//printf("%f\r\n", minMax.average);
 
 	if (config->spectre.style == 2) {
 		coloredSpectreBG.generateImage(waterfall.get(), ColoredSpectreBG::params{100, spectreHeight, viewModel->waterfallMin * config->spectre.bottomCoeff, viewModel->waterfallMax * config->spectre.topCoeff, viewModel->waterfallMin, viewModel->waterfallMax});

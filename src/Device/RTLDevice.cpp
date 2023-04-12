@@ -100,8 +100,7 @@ float RTLDevice::prepareData(unsigned char val) {
 }
 
 std::vector<uint32_t>* RTLDevice::listDevices() {
-	int i, device_count, device, offset;
-	char* s2;
+	int i, device_count;
 	char vendor[256], product[256], serial[256];
 	device_count = rtlsdr_get_device_count();
 	if (!device_count) {

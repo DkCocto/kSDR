@@ -304,8 +304,6 @@ void Config::loadMemory() {
     if (NULL != pRootElement) {
         tinyxml2::XMLElement* pMemory = pRootElement->FirstChildElement("Memory");
         if (NULL != pMemory) {
-            //printf("pMemory found\n");
-            //int count = 0;
             auto precord = pMemory->FirstChildElement("record");
             if (precord != NULL) {
                 while (precord != NULL) {
@@ -321,8 +319,6 @@ void Config::loadMemory() {
                             std::stoi(pfilterWidth->GetText())
                         }
                     );
-                    //printf("%s %f %d %d\n", memoryVector[count].desc.c_str(), memoryVector[count].freq, memoryVector[count].modulation, memoryVector[count].filterWidth);
-                    //count++;
                     precord = precord->NextSiblingElement();
                 }
             }
@@ -374,13 +370,16 @@ void Config::save() {
 
     if (NULL != pRootElement) {
 
+
         tinyxml2::XMLElement* pApp = pRootElement->FirstChildElement("App");
         if (NULL != pApp) {
-            tinyxml2::XMLElement* pwindowWidth = pApp->FirstChildElement("windowWidth");
-            pwindowWidth->SetText(app.winWidth);
+            if (app.winWidth != 0 && app.winHeight != 0) {
+                tinyxml2::XMLElement* pwindowWidth = pApp->FirstChildElement("windowWidth");
+                pwindowWidth->SetText(app.winWidth);
 
-            tinyxml2::XMLElement* pwindowHeight = pApp->FirstChildElement("windowHeight");
-            pwindowHeight->SetText(app.winHeight);
+                tinyxml2::XMLElement* pwindowHeight = pApp->FirstChildElement("windowHeight");
+                pwindowHeight->SetText(app.winHeight);
+            }
         }
 
         tinyxml2::XMLElement* pDevice = pRootElement->FirstChildElement("Device");

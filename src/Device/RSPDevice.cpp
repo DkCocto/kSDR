@@ -268,5 +268,5 @@ bool RSPDevice::isNeedToSendFilter() {
 }
 
 float RSPDevice::prepareData(short val) {
-    return (val / 32767.0);
+    return (val / 32767.0f);
 }

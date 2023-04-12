@@ -14,7 +14,7 @@ class HilbertTransform {
 
     float gain = 1.0f;
 
-    int M = 0.0f;
+    int M = 0;
 
 public:
 

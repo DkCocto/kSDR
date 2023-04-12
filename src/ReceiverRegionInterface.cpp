@@ -7,7 +7,7 @@ ReceiverRegionInterface::ReceiverRegionInterface(SpectreWindowData* sWD, Config*
 	smeter = make_unique<SMeter>(viewModel);
 }
 
-void ReceiverRegionInterface::drawRegion(ImDrawList* draw_list, ReceiverLogic* receiverLogic) {
+void ReceiverRegionInterface::drawRegion(ImDrawList* draw_list, ReceiverLogic* receiverLogic, FFTData::OUTPUT* spectreData) {
 	backgroundX = sWD->startWindowPoint.x + sWD->rightPadding + X;
 	backgroundY = sWD->startWindowPoint.y + Y;
 
@@ -20,7 +20,7 @@ void ReceiverRegionInterface::drawRegion(ImDrawList* draw_list, ReceiverLogic* r
 
 	//S-meter
 	smeter->update(backgroundX + backgroundPadding + smetreMargin, backgroundY + freqTextHeight + 65, backgroundWidth - 2 * (backgroundPadding + smetreMargin), 50);
-	smeter->draw(draw_list, viewModel->signalMaxdB);
+	smeter->draw(draw_list, spectreData, receiverLogic);
 	//-------
 
 	std::string freq = (Utils::getPrittyFreq((int)receiverLogic->getSelectedFreqNew())).append(" Hz");

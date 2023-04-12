@@ -61,8 +61,6 @@ class ListSetting {
 					const bool is_selected = (item_current_idx == n);
 					if (ImGui::Selectable(items[n], is_selected)) {
 						item_current_idx = n;
-						//T tmpVar;
-						//Utils::parse_u32((char*)items[n], &tmpVar);
 						auto it = list.begin();
 						std::advance(it, item_current_idx);
 						*var = it->first;

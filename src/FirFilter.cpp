@@ -6,7 +6,6 @@ FirFilter::FirFilter(std::vector<float> taps, int tabsLen) {
 	M = tabsLen - 1;
 	xv = std::vector<float>(M + 1, 0);
 	xv.reserve(M + 1);
-	//memset(xv, 0, sizeof(float) * (M + 1));
 }
 
 float FirFilter::filter(float in) {

@@ -8,34 +8,6 @@ int HackRFDevice::rx_callback(hackrf_transfer* transfer) {
 	hackRFDevice->getBufferForSpec()->write(transfer->buffer, transfer->buffer_length);
 	hackRFDevice->getBufferForProc()->write(transfer->buffer, transfer->buffer_length);
 
-	//std::vector<DataReceiver*>* receivers = hackRFDevice->getReceivers();
-
-	//((CircleBufferNew<uint8_t>*)receivers->at(0))->write(transfer->buffer, transfer->buffer_length);
-
-	/*for (int j = 0; j < receivers->size(); j++) {
-		if (receivers->at(j) != nullptr) {
-			((CircleBufferNew<uint8_t>*)receivers->at(j))->write(transfer->buffer, transfer->buffer_length);
-		}
-	}*/
-
-	/*for (int i = 0; i < (bytes_to_write / 2 - 1); i++) {
-		transfer->buffer[2 * i] ^= (uint8_t)0x80;
-		transfer->buffer[2 * i + 1] ^= (uint8_t)0x80;
-
-		float I = (((float)transfer->buffer[2 * i] / 130.0f) - 1.0f);
-		float Q = (((float)transfer->buffer[2 * i + 1] / 130.0f) - 1.0f);
-
-		if (receivers != nullptr) {
-			for (int j = 0; j < receivers->size(); j++) {
-				if (receivers->at(j) != nullptr) {
-					receivers->at(j)->write(I);
-					receivers->at(j)->write(Q);
-					((CircleBufferNew<uint8_t>*)receivers->at(j))->write(transfer->buffer, transfer->buffer_length);
-				}
-			}
-		}
-	}*/
-
 	return 0;
 }
 

@@ -16,8 +16,6 @@
 #include "SpectreWindowData.h"
 #include "string"
 #include "vector"
-#include <chrono>
-#include "iostream"
 
 using namespace std;
 
@@ -25,7 +23,7 @@ class Spectre {
 
 	ViewModel* viewModel;
 
-	unique_ptr<KalmanFilter> maxdBKalman;
+	//unique_ptr<KalmanFilter> maxdBKalman;
 	unique_ptr<KalmanFilter> ratioKalman;
 	unique_ptr<KalmanFilter> spectreTranferKalman;
 	
@@ -97,8 +95,6 @@ public:
 	MIN_MAX getMinMaxInSpectre();
 	
 	void draw();
-
-	void storeSignaldB(FFTData::OUTPUT* spectreData, ReceiverLogic* receiverLogic);
 
 	WINDOW_FRAME windowFrame { ImVec2(0, 0), ImVec2(0, 0) };
 

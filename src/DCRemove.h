@@ -8,7 +8,7 @@ class DCRemove {
 	float ym1 = 0;
 	float ym2 = 0;
 
-	const float FACTOR = 0.9999;
+	const float FACTOR = 0.9999f;
 
 public:
 
