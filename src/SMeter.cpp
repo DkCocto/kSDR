@@ -93,6 +93,7 @@ void SMeter::drawGrid(ImDrawList* draw_list) {
 }
 
 double storedLevel = 0.0;
+double storedLevelDb = 0.0;
 
 int count1 = 0;
 
@@ -105,7 +106,7 @@ void SMeter::drawLevel(ImDrawList* draw_list, FFTData::OUTPUT* spectreData, Rece
 	if (dBValue <= -126.5) dBValue = -126.5;
 
 	float levelVal = fromdBToLevel(dBValue);
-	
+
 	if (levelVal > 15.0f) levelVal = 15.0f;
 
 	float step = width / 15.0f;
@@ -128,9 +129,6 @@ void SMeter::drawLevel(ImDrawList* draw_list, FFTData::OUTPUT* spectreData, Rece
 		draw_list->AddRectFilled(lineX1, lineX2, YELLOW, 0);
 	}
 
-	//watch(dBValue);
-	//watch(storedLevel);
-
 	if (storedLevel <= 9) {
 		color = WHITE;
 	} else {
@@ -139,7 +137,7 @@ void SMeter::drawLevel(ImDrawList* draw_list, FFTData::OUTPUT* spectreData, Rece
 
 	draw_list->AddLine(ImVec2(X + step * storedLevel, Y + LEVEL_PADDING_TOP - 1), ImVec2(X + step * storedLevel, Y + LEVEL_PADDING_TOP + LEVEL_THICKNESS - 1), color, 5.0f);
 
-	std::string dBText = std::to_string((int)dBValue);
+	std::string dBText = std::to_string((int)fromLevelToDb(storedLevel));
 
 	draw_list->AddText(ImVec2(
 		X - 40,
@@ -149,7 +147,7 @@ void SMeter::drawLevel(ImDrawList* draw_list, FFTData::OUTPUT* spectreData, Rece
 	draw_list->AddText(ImVec2(
 		X + width + 12,
 		Y
-	), WHITE, getLevelDecodedString(dBValue));
+	), WHITE, getLevelDecodedString(fromLevelToDb(storedLevel)));
 
 	int holdTimeSec = 4;
 	float fps = 1000.0f / ImGui::GetIO().Framerate;
@@ -167,8 +165,16 @@ void SMeter::drawLevel(ImDrawList* draw_list, FFTData::OUTPUT* spectreData, Rece
 }
 
 float SMeter::fromdBToLevel(float dBValue) {
-	float levelVal = 0.1667f * dBValue + 21.1667f;
+	//float levelVal = 0.1667f * dBValue + 21.1667f;
+	float levelVal = 0.155f * dBValue + 19.817f;
+	if (levelVal < 0.0f) levelVal = 0.0f;
 	return levelVal;
+}
+
+float SMeter::fromLevelToDb(float level) {
+	//float dBValue = (level - 21.1667f) / 0.1667f;
+	float dBValue = 6.476f * level - 128.381f;
+	return dBValue;
 }
 
 const char * SMeter::getLevelDecodedString(float dBValue) {

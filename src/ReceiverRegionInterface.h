@@ -12,6 +12,7 @@
 #include "SMeter.h"
 
 #define GRAY IM_COL32(95, 95, 95, 255)
+#define RED IM_COL32(255, 0, 0, 255)
 #define BASE_COLOR IM_COL32(10, 10, 10, 100)
 
 using namespace std;

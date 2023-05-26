@@ -131,15 +131,18 @@ template<typename T, typename D> void SoundProcessorThread::processData(T* data,
 			float audio = 0;
 
 			switch (mode) {
+				case DSB:
+					audio = audioI + audioQ;
+					break;
 				case USB:
 					audioQ = hilbertTransform->filter(audioQ);
 					audioI = delay->filter(audioI);
-					audio = audioI - audioQ; // LSB
+					audio = audioI - audioQ; // USB
 					break;
 				case LSB:
 					audioQ = hilbertTransform->filter(audioQ);
 					audioI = delay->filter(audioI);
-					audio = audioI + audioQ; // USB
+					audio = audioI + audioQ; // LSB
 					break;
 				case AM:
 					audioI = firI.proc(audioI);

@@ -28,8 +28,8 @@ void Spectre::waterfallAutoColorCorrection() {
 }
 
 void Spectre::spectreRatioAutoCorrection() {
-	viewModel->minDb = minMax.average - 20;
-	viewModel->ratio = minMax.max + 40;
+	viewModel->minDb = minMax.average - 15;
+	viewModel->ratio = minMax.max + 30;
 	//config->spectre.spectreCorrectionDb = viewModel->minDb;
 }
 

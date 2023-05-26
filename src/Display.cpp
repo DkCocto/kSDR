@@ -10,8 +10,6 @@ void Display::framebufferReSizeCallback(GLFWwindow* window, int width, int heigh
 
 void Display::cursorPositionCallback(GLFWwindow* window, double xpos, double ypos) {
 	if (Display::instance != NULL) {
-		//cout << xpos << " " << ypos << "\r\n";
-		//cout << Display::display->io.WantCaptureMouse;
 		auto& io = ImGui::GetIO();
 		if (!io.WantCaptureMouse) {
 			Display::instance->mouseX = xpos;
@@ -220,6 +218,7 @@ void Display::renderImGUIFirst() {
 		if (ImGui::Button("12m")) { env->getReceiverLogic()->setFreq(24900000); viewModel->receiverMode = USB; } ImGui::SameLine();
 		if (ImGui::Button("10m")) { env->getReceiverLogic()->setFreq(28500000); viewModel->receiverMode = USB; }
 
+		ImGui::RadioButton("DSB", &viewModel->receiverMode, DSB); ImGui::SameLine();
 		ImGui::RadioButton("USB", &viewModel->receiverMode, USB); ImGui::SameLine();
 		ImGui::RadioButton("LSB", &viewModel->receiverMode, LSB); ImGui::SameLine();
 		ImGui::RadioButton("AM", &viewModel->receiverMode, AM); ImGui::SameLine();
@@ -308,12 +307,9 @@ void Display::renderImGUIFirst() {
 			ImGui::SliderInt("Speed", &env->getConfig()->spectre.spectreSpeed, 1, 50);
 			ImGui::SliderInt("Speed 2", &env->getConfig()->spectre.spectreSpeed2, 1, 50); ImGui::Spacing();
 
-			//ImGui::SliderInt("Test", &viewModel->test, 2300000, 2700000);
-
-			//ImGui::EndTabItem();
 			ImGui::TreePop();
 		}
-		//if (ImGui::BeginTabItem("Memory")) {
+		
 		if (ImGui::TreeNode("Memory")) {
 			ImGui::Spacing();
 			memoryRecordUserInterface.drawMemoryBlock(env->getReceiverLogic());
@@ -326,7 +322,6 @@ void Display::renderImGUIFirst() {
 			if (ImGui::Button("Stop")) {
 				errorInitDeviceShowed = true;
 				env->stopProcessing();
-				//env->getDeviceController()->getDevice()->stop();
 			}
 			if (!env->getDeviceController()->isStatusInitOk()) ImGui::EndDisabled();
 				
@@ -346,8 +341,6 @@ void Display::renderImGUIFirst() {
 			if (env->getDeviceController()->isStatusInitOk()) ImGui::EndDisabled();
 
 			selectDeviceLS->drawSetting();
-
-			//showSelectDeviceSetting();
 
 			if (env->getConfig()->deviceType == DeviceType::HACKRF) {
 				hackRFsampRateLS->drawSetting();
@@ -378,10 +371,6 @@ void Display::renderImGUIFirst() {
 
 				rspDecimationFactorLS->drawSetting();
 
-				//bool useRspApiv3 = (env->getConfig()->rsp.api == 3) ? true : false;
-				//ImGui::Checkbox("Use APIv3 (instead of v2) (*)", &useRspApiv3);
-				//env->getConfig()->rsp.api = (useRspApiv3 == true) ? 3 : 2;
-
 				ImGui::SliderInt("Gain", &viewModel->rspModel.gain, 20, 59);
 				ImGui::Checkbox("Disable LNA", &viewModel->rspModel.lna);
 
@@ -411,8 +400,6 @@ void Display::renderImGUIFirst() {
 		if (ImGui::TreeNode("Settings")) {
 			ImGui::Spacing();
 			ImGui::Text("After changing the settings marked with an asterisk\napplication components will be reinitialized.");
-
-			//decimationLS->drawSetting();
 
 			ImGui::Spacing();
 			ImGui::SeparatorText("FFT");
@@ -453,8 +440,8 @@ void Display::renderImGUIFirst() {
 			smoothingDepthLS->drawSetting();
 			ImGui::Checkbox("Hang&Decay", &env->getConfig()->spectre.hangAndDecay);
 			ImGui::BeginDisabled(!env->getConfig()->spectre.hangAndDecay);
-				ImGui::SliderFloat("Decay speed", &env->getConfig()->spectre.decaySpeed, 0, 1);
-				ImGui::SliderFloat("Decay speed delta", &env->getConfig()->spectre.decaySpeedDelta, 0, 2);
+				ImGui::SliderFloat("Decay speed", &env->getConfig()->spectre.decaySpeed, 0, 1, "%.5f");
+				ImGui::SliderFloat("Decay speed delta", &env->getConfig()->spectre.decaySpeedDelta, 0, 4);
 			ImGui::EndDisabled();
 
 			ImGui::SliderInt("Spectre correction Db", &env->getConfig()->spectre.spectreCorrectionDb, -200, 200);
@@ -494,8 +481,6 @@ void Display::renderImGUIFirst() {
 
 			ImGui::TreePop();
 		}
-
-		//ImGui::EndTabBar();
 		
 		//Если вкладка опций устройства не выбрана, то все равно устанавливаем конфигурацию на текущее устройство
 		if (env->getDeviceController()->isStatusInitOk()) {

@@ -8,7 +8,7 @@ class Waterfall {
 
 	int div = 1;
 
-	int size = 400;
+	int size = 1200;
 
 	GLuint* texturesArray = new GLuint[size];
 
@@ -54,6 +54,8 @@ public:
 	GLuint* getTexturesArray();
 
 	float getDiv();
+
+	int oldToNew(int oldVal, int oldMin, int oldMax, int newMin, int newMax);
 
 	void update(FFTData::OUTPUT* spectreData, FlowingSpectre* flowingSpec, SpectreHandler* specHandler);
 

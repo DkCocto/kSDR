@@ -119,7 +119,7 @@ void ReceiverRegionInterface::drawReceiveRegion(ImDrawList* draw_list, ReceiverL
 	draw_list->AddLine(
 		ImVec2(receiverCenterLineX, sWD->startWindowPoint.y - 10),
 		ImVec2(receiverCenterLineX, sWD->startWindowPoint.y + sWD->windowLeftBottomCorner.y + 10),
-		GRAY, 2.0f);
+		RED, 2.0f);
 
 	float delta = receiverLogic->getFilterWidthAbs(viewModel->filterWidth);
 
@@ -128,28 +128,42 @@ void ReceiverRegionInterface::drawReceiveRegion(ImDrawList* draw_list, ReceiverL
 	int receiverPosYBottom = sWD->startWindowPoint.y + sWD->windowLeftBottomCorner.y + 10;
 
 	switch (viewModel->receiverMode) {
-	case USB:
-		draw_list->AddRectFilled(
-			ImVec2(receiverPosX, receiverPosYTop),
-			ImVec2(receiverPosX + delta, receiverPosYBottom),
-			config->colorTheme.receiveRegionColor, 0);
+		case DSB:
+			draw_list->AddRectFilled(
+				ImVec2(receiverPosX - delta, receiverPosYTop),
+				ImVec2(receiverPosX + delta, receiverPosYBottom),
+				config->colorTheme.receiveRegionColor, 0);
+			break;
+		case USB:
+			draw_list->AddRectFilled(
+				ImVec2(receiverPosX, receiverPosYTop),
+				ImVec2(receiverPosX + delta, receiverPosYBottom),
+				config->colorTheme.receiveRegionColor, 0);
 
-		break;
-	case LSB:
+			break;
+		case LSB:
 
-		draw_list->AddRectFilled(
-			ImVec2(receiverPosX - delta, receiverPosYTop),
-			ImVec2(receiverPosX, receiverPosYBottom),
-			config->colorTheme.receiveRegionColor, 0);
+			draw_list->AddRectFilled(
+				ImVec2(receiverPosX - delta, receiverPosYTop),
+				ImVec2(receiverPosX, receiverPosYBottom),
+				config->colorTheme.receiveRegionColor, 0);
 
-		break;
-	case AM:
+			break;
+		case AM:
 
-		draw_list->AddRectFilled(
-			ImVec2(receiverPosX - delta, receiverPosYTop),
-			ImVec2(receiverPosX + delta, receiverPosYBottom),
-			config->colorTheme.receiveRegionColor, 0);
+			draw_list->AddRectFilled(
+				ImVec2(receiverPosX - delta, receiverPosYTop),
+				ImVec2(receiverPosX + delta, receiverPosYBottom),
+				config->colorTheme.receiveRegionColor, 0);
 
-		break;
+			break;
+		case nFM:
+
+			draw_list->AddRectFilled(
+				ImVec2(receiverPosX - delta, receiverPosYTop),
+				ImVec2(receiverPosX + delta, receiverPosYBottom),
+				config->colorTheme.receiveRegionColor, 0);
+
+			break;
 	}
 }

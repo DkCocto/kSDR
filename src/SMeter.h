@@ -22,6 +22,8 @@ class SMeter {
 
 	float fromdBToLevel(float dBValue);
 
+	float fromLevelToDb(float level);
+
 	const char* getLevelDecodedString(float dBValue);
 
 	Average averageSignalDb;

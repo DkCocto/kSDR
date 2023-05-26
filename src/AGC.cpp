@@ -20,7 +20,7 @@ float AGC::processNew(float signal) {
     }
     count++;
 
-    if (amp > 100) amp = 100;
+    if (amp > 150) amp = 150;
 
     //Выводим коэффициант усиления в модель-контейнер отображения и хранения данных
     //Display::instance->viewModel->amp = amp;

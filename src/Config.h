@@ -10,7 +10,7 @@ constexpr auto CONFIG_FILENAME = "config.xml";
 #include "vector"
 #include "memory"
 
-#define CIRCLE_BUF_LEN 2 * 1024 * 1024
+#define CIRCLE_BUF_LEN 1 * 1024 * 1024
 
 class Config {
 
@@ -175,8 +175,6 @@ public:
 	void deleteRecord(int index);
 
 	void prepareConfiguration();
-
-	std::atomic_bool ends5frame = false;
 
 private:
 	void calcOutputSamplerate();

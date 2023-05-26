@@ -107,8 +107,9 @@ Result RSPDevice::start() {
             return initResult;
         }
 
-        deviceParams->devParams->fsFreq.fsHz = config->rsp.deviceSamplingRate;
-        deviceParams->rxChannelA->ctrlParams.decimation = sdrplay_api_DecimationT{ 1, (unsigned char)config->rsp.deviceDecimationFactor, 0 };
+        deviceParams->devParams->fsFreq.fsHz = (double)config->rsp.deviceSamplingRate;
+        unsigned char decimationEnabled = (config->rsp.deviceDecimationFactor > 1) ? (unsigned char)1 : (unsigned char)0;
+        deviceParams->rxChannelA->ctrlParams.decimation = sdrplay_api_DecimationT{ decimationEnabled, (unsigned char)config->rsp.deviceDecimationFactor, 0 };
 
         // Configure tuner parameters (depends on selected Tuner which set of parameters to use)
         chParams = (chosenDevice->tuner == sdrplay_api_Tuner_B) ? deviceParams->rxChannelB : deviceParams->rxChannelA;

@@ -19,6 +19,7 @@ struct Signal {
 #define LSB		1
 #define AM		2
 #define nFM		3
+#define DSB		4
 
 constexpr auto DISABLE_CONTROL_SPECTRE_BUTTONS = 0;
 constexpr auto DISABLE_CONTROL_DIALOG = 1;

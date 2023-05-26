@@ -100,7 +100,7 @@ void DeviceController::resetResult() {
 
 
 void DeviceController::setResultToCreatedNotInit() {
-    result = Result{ CREATED_BUT_NOT_INIT, "" };
+    result = Result { CREATED_BUT_NOT_INIT, "" };
 }
 
 DeviceController::DeviceController(Config* config) {

@@ -1,13 +1,27 @@
 #include "Waterfall.h"
 
+unsigned char newRange[256]{};
+
 Waterfall::Waterfall(Config* config, ViewModel* viewModel) {
 	memset(texturesArray, 0, sizeof(texturesArray) * size);
 	this->viewModel = viewModel;
 	this->config = config;
+
+	for (size_t i{}; i < 256; ++i) {
+		newRange[i] = oldToNew(i, 25, 230, 25, 230);
+	}
 }
 
 float Waterfall::getDiv() {
 	return div;
+}
+
+int Waterfall::oldToNew(int oldVal, int oldMin, int oldMax, int newMin, int newMax) {
+	int retval =
+		((oldVal - oldMin) * (newMax - newMin) / (oldMax - oldMin)) + newMin;
+	retval = retval < 0 ? 0 : retval;
+	retval = retval > 255 ? 255 : retval;
+	return retval;
 }
 
 void Waterfall::update(FFTData::OUTPUT* spectreData, FlowingSpectre* flowingSpec, SpectreHandler* specHandler) {
@@ -44,6 +58,7 @@ void Waterfall::update(FFTData::OUTPUT* spectreData, FlowingSpectre* flowingSpec
 
 	for (int ix = 0; ix < height; ++ix) {
 		for (int iy = 0; iy < width; ++iy) {
+			//6 10
 			Waterfall::RGB rgb = getColorForPowerInSpectre(output[iy], minValue - 6, maxValue + 10);
 
 			checkImage[ix * width * depth + iy * depth + 0] = rgb.r;   //red
@@ -131,6 +146,7 @@ int Waterfall::interpolate(int color1, int color2, float fraction) {
 Waterfall::RGB Waterfall::getColorForPowerInSpectre(float power, float minValue, float maxValue) {
 	float fraction = (1.0 / (maxValue - minValue)) * power - (minValue / (maxValue - minValue));
 
+	//myFastCos
 	float f = (1.0 - fm.myFastCos(fraction * M_PI)) * 0.5;
 	//float f = fraction * fraction;
 	//float f = fraction;
@@ -146,7 +162,10 @@ Waterfall::RGB Waterfall::getColorForPowerInSpectre(float power, float minValue,
 	double g = 0.0; 
 	double b = 0.0;
 	
-	double l = (f - (0)) / (1.0 - 0) * (680. - 400.0) + 400.0;
+	//680
+	//380
+
+	double l = (f - (0)) / (1.0 - 0) * (680.0 - 400) + 400;
 
 	if ((l >= 400.0) && (l < 410.0)) { t = (l - 400.0) / (410.0 - 400.0); r = +(0.33 * t) - (0.20 * t * t); }
 	else if ((l >= 410.0) && (l < 475.0)) { t = (l - 410.0) / (475.0 - 410.0); r = 0.14 - (0.13 * t * t); }
