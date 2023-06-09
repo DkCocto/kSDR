@@ -444,7 +444,7 @@ void Display::renderImGUIFirst() {
 				ImGui::SliderFloat("Decay speed delta", &env->getConfig()->spectre.decaySpeedDelta, 0, 4);
 			ImGui::EndDisabled();
 
-			ImGui::SliderInt("Spectre correction Db", &env->getConfig()->spectre.spectreCorrectionDb, -200, 200);
+			ImGui::SliderInt("Spectre correction Db", &env->getConfig()->spectre.spectreCorrectionDb, -50, 50);
 
 			ImGui::Spacing();
 			ImGui::SeparatorText("Other");
