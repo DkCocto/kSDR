@@ -536,7 +536,7 @@ void Spectre::drawSpectreContour(FFTData::OUTPUT* fullSpectreData, ImDrawList* d
 				y2 + 2
 			);
 
-			draw_list->AddLine(profiledX1, profiledX2, config->colorTheme.spectreProfileColor, 2.0f);
+			draw_list->AddLine(profiledX1, profiledX2, config->colorTheme.spectreProfileColor, 1.8f);
 		}
 
 		if (config->spectre.style == 1) {
