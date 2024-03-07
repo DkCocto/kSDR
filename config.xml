@@ -22,7 +22,7 @@
 			-->
             <deviceSamplingRate>8000000</deviceSamplingRate>
             <deviceDecimationFactor>1</deviceDecimationFactor>
-            <gain>51</gain>
+            <gain>50</gain>
             <!-- Api can be 2 (v2) and 3 (v3)-->
             <api>3</api>
             <disableLna>1</disableLna>
@@ -46,54 +46,54 @@
         </RTL>
     </Device>
     <Receiver>
-        <startFreq>13950000</startFreq>
-        <lastSelectedFreq>14183000</lastSelectedFreq>
-        <volume>2.6129999</volume>
-        <filterWidth>2700</filterWidth>
+        <startFreq>6900000</startFreq>
+        <lastSelectedFreq>7133000</lastSelectedFreq>
+        <volume>2.062</volume>
+        <filterWidth>3200</filterWidth>
         <!-- USB:0, LSB:1, AM:2, nFM:3 -->
-        <modulation>0</modulation>
+        <modulation>1</modulation>
         <enableFrequencyShift>1</enableFrequencyShift>
         <frequencyShift>-14</frequencyShift>
         <Agc>
             <threshold>0.029999999795109034</threshold>
-            <atackSpeedMs>0.14999999999999999</atackSpeedMs>
+            <atackSpeedMs>0.12000000067055225</atackSpeedMs>
             <holdingTimeMs>1000</holdingTimeMs>
-            <releaseSpeed>0.00010000000252621257</releaseSpeed>
-            <lastAmp>21.39546012878418</lastAmp>
+            <releaseSpeed>0.00020000000000000009</releaseSpeed>
+            <lastAmp>21.564235687255859</lastAmp>
         </Agc>
     </Receiver>
     <Waterfall>
-        <min>-127.13674</min>
-        <max>-28.103851</max>
+        <min>-139.8515</min>
+        <max>-31.76445</max>
         <speed>1</speed>
     </Waterfall>
     <Spectre>
-        <ratio>-11.625702</ratio>
-        <min>-131.6149</min>
+        <ratio>-20.48793</ratio>
+        <min>-139.12802</min>
         <speed>2</speed>
         <speed2>10</speed2>
         <!-- Must be a power of 2. The total will be fftLen = fftLen * 1024 -->
         <fftLen>262144</fftLen>
-        <visibleStartFreq>14071948</visibleStartFreq>
-        <visibleStopFreq>14240954</visibleStopFreq>
-        <startBin>67534</startBin>
-        <stopBin>70302</stopBin>
+        <visibleStartFreq>7027380</visibleStartFreq>
+        <visibleStopFreq>7204687</visibleStopFreq>
+        <startBin>67623</startBin>
+        <stopBin>70527</stopBin>
         <removeDCBias>1</removeDCBias>
         <style>1</style>
         <contourShowsPower>0</contourShowsPower>
-        <bottomCoeff>0.90200001</bottomCoeff>
-        <topCoeff>0.92900002</topCoeff>
+        <bottomCoeff>0.86000001</bottomCoeff>
+        <topCoeff>0.79799998</topCoeff>
         <hangAndDecay>1</hangAndDecay>
         <decaySpeed>0.01529</decaySpeed>
         <decaySpeedDelta>1.619</decaySpeedDelta>
         <smoothingDepth>2</smoothingDepth>
-        <spectreCorrectionDb>17</spectreCorrectionDb>
+        <spectreCorrectionDb>16</spectreCorrectionDb>
     </Spectre>
     <ColorTheme>
-        <spectreFillColor>4281339922</spectreFillColor>
+        <spectreFillColor>4280756011</spectreFillColor>
         <spectreProfileColor>4294967295</spectreProfileColor>
-        <mainBGColor>4278190080</mainBGColor>
-        <windowsBGColor>4278190080</windowsBGColor>
+        <mainBGColor>4294967295</mainBGColor>
+        <windowsBGColor>4282203444</windowsBGColor>
         <windowsTitleBGColor>4284887578</windowsTitleBGColor>
         <receiveRegionColor>1646575638</receiveRegionColor>
     </ColorTheme>
