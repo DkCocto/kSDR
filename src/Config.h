@@ -158,6 +158,7 @@ public:
 		unsigned int windowsBGColor = 0xFFFFFFFF;
 		unsigned int windowsTitleBGColor = 0xFFFFFFFF;
 		unsigned int receiveRegionColor = 0xFFFFFFFF;
+		unsigned int memoryItemSelectedColor = 4278420240;
 	} colorTheme;
 
 	//--------------------------------------

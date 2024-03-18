@@ -19,13 +19,13 @@ class MemoryRecordUserInterface {
 
 	int selectedRecordIndex = 0;
 
-	std::string deleteDialogTitle = "Delete record#";
-	std::string deleteButtonTitle = "Del#";
+	std::string deleteDialogTitle = "Delete record";
+	std::string deleteButtonTitle = "Del";
 
-	std::string editDialogTitle = "Edit record#";
-	std::string editButtonTitle = "Edit#";
+	std::string editDialogTitle = "Edit record";
+	std::string editButtonTitle = "Edit";
 
-	std::string storeRecordDialogTitle = "Store record#";
+	std::string storeRecordDialogTitle = "Store record";
 
 	void initEditMemRecDialog(std::string id);
 	void initDeleteMemRecDialog(std::string id);

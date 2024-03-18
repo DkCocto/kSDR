@@ -33,6 +33,10 @@ void Spectre::spectreRatioAutoCorrection() {
 	//config->spectre.spectreCorrectionDb = viewModel->minDb;
 }
 
+vector<int> Spectre::getDisableControlQueue() {
+	return disableControlQueue;
+}
+
 Spectre::Spectre(Environment* env) {
 	this->env = env;
 
@@ -111,8 +115,8 @@ void Spectre::draw() {
 				ImGui::EndTooltip();
 			}
 
-			if (spectreAutoButtonHovered || freqToCenterButtonHovered) disableControl(DISABLE_CONTROL_SPECTRE_BUTTONS); else {
-				enableControl(DISABLE_CONTROL_SPECTRE_BUTTONS);
+			if (spectreAutoButtonHovered || freqToCenterButtonHovered) disableControlForID(DISABLE_CONTROL_SPECTRE_BUTTONS); else {
+				enableControlForID(DISABLE_CONTROL_SPECTRE_BUTTONS);
 			}
 
 			ImGui::SetCursorPos(ImVec2(0, 0));
@@ -177,7 +181,7 @@ void Spectre::draw() {
 			//--
 		ImGui::EndChild();
 
-		if (!disableControl_ && !receiverRegionInterface->isDigitSelected()) drawFreqPointerMark(sWD.startWindowPoint, sWD.windowLeftBottomCorner, spectreWidth, draw_list, env->getReceiverLogic());
+		if (!isControlDisabled() && !receiverRegionInterface->isDigitSelected()) drawFreqPointerMark(sWD.startWindowPoint, sWD.windowLeftBottomCorner, spectreWidth, draw_list, env->getReceiverLogic());
 
 	ImGui::End();
 
@@ -194,22 +198,26 @@ Spectre::MIN_MAX Spectre::getMinMaxInSpectre() {
 	return minMax;
 }
 
-int disabledForId = -1;
-
-void Spectre::releaseControl() {
-	this->disableControl_ = false;
+bool Spectre::isControlDisabled() {
+	return disableControlQueue.size() != 0;
 }
 
-void Spectre::disableControl(int id) {
-	if (disableControl_) return;
-	else {
-		this->disableControl_ = true;
-		disabledForId = id;
+void Spectre::releaseControl() {
+	disableControlQueue.clear();
+}
+
+void Spectre::disableControlForID(int id) {
+	if (std::find(disableControlQueue.begin(), disableControlQueue.end(), id) == disableControlQueue.end()) {
+		disableControlQueue.push_back(id);
 	}
 }
 
-void Spectre::enableControl(int id) {
-	if (disableControl_ && (disabledForId == id)) this->disableControl_ = false;
+void Spectre::enableControlForID(int id) {
+	auto foundID = std::find(disableControlQueue.begin(), disableControlQueue.end(), id);
+	if (foundID != disableControlQueue.end()) {
+		int index = foundID - disableControlQueue.begin();
+		disableControlQueue.erase(disableControlQueue.begin() + index);
+	}
 }
 
 Spectre::MIN_MAX Spectre::getMinMaxInSpectre(std::vector<float> spectreData, int len) {
@@ -225,7 +233,7 @@ Spectre::MIN_MAX Spectre::getMinMaxInSpectre(std::vector<float> spectreData, int
 }
 
 void Spectre::handleEvents(int spectreWidthInPX, ReceiverLogic* receiverLogic, FlowingSpectre* flowingSpec) {
-	if (disableControl_) return;
+	if (isControlDisabled()) return;
 
 	bool isMouseOnSpectre = isMouseOnRegion(
 		Region {
@@ -639,7 +647,7 @@ void Spectre::drawMemoryMarks(ImDrawList* draw_list, FlowingSpectre* flowingSpec
 			ImGui::TextColored(ImGui::ColorConvertU32ToFloat4(GREEN), mark.c_str());
 			if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort)) {
 				string tooltipText("Description: " + config->memoryVector[i].desc + "\nFreq: " + Utils::getPrittyFreq(config->memoryVector[i].freq) + " Hz\nClick to go");
-				disableControl(i);
+				disableControlForID(100 * i);
 				ImGui::BeginTooltip();
 				ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
 				ImGui::TextUnformatted(tooltipText.c_str());
@@ -649,7 +657,7 @@ void Spectre::drawMemoryMarks(ImDrawList* draw_list, FlowingSpectre* flowingSpec
 					waterfall->clear();
 					executeMemoryRecord(config->memoryVector[i], receiverLogic);
 				}
-			} else enableControl(i);
+			} else enableControlForID(100 * i);
 			ImGui::SetCursorPos(ImVec2(0, 0));
 		}
 	}

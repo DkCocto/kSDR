@@ -34,7 +34,7 @@ class Spectre {
 	int spectreWidth = 0;
 	int spectreHeight = 0;
 
-	bool disableControl_ = false;
+	//bool disableControl_ = false;
 	
 	Environment* env;
 
@@ -53,8 +53,8 @@ public:
 
 	void releaseControl();
 
-	void disableControl(int id);
-	void enableControl(int id);
+	void disableControlForID(int id);
+	void enableControlForID(int id);
 
 	bool isMouseOnRegion(Spectre::Region region);
 
@@ -84,6 +84,10 @@ private:
 
 	unique_ptr<ReceiverRegionInterface> receiverRegionInterface;
 
+	vector<int> disableControlQueue;
+
+	bool isControlDisabled();
+
 public:
 
 	Spectre(Environment* env);
@@ -100,4 +104,6 @@ public:
 
 	void waterfallAutoColorCorrection();
 	void spectreRatioAutoCorrection();
+
+	vector<int> getDisableControlQueue();
 };

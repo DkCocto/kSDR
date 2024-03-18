@@ -195,7 +195,7 @@ void Display::renderImGUIFirst() {
 
 	initDynamicSettings();
 
-	//ImGui::PushID(9);
+	//ImGui::PushID(999);
 	ImGui::Begin(APP_NAME);
 
 		ImGui::Spacing(); ImGui::Spacing();
@@ -466,6 +466,12 @@ void Display::renderImGUIFirst() {
 			ImGui::Text("Buffer available: %.2f sec", viewModel->bufferAvailable);
 			ImGui::Text("Service field1: %f", viewModel->serviceField1);
 			ImGui::Text("Service field2: %f", viewModel->serviceField2);
+			
+			ostringstream s;
+			vector<int> q = spectre->getDisableControlQueue();
+			copy(q.begin(), q.end(), ostream_iterator<int>(s, " "));
+			ImGui::Text("Disable cntrl queue: %s", s.str().c_str());
+		
 			ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 			ImGui::TreePop();
 		}
@@ -502,13 +508,14 @@ void Display::renderImGUIFirst() {
 		}
 
 	ImGui::End();
+	//ImGui::PopID();
 
 	spectre->draw();
 
 	if (env->getDeviceController()->isStatusInitFail()) {
 		showAlertOKDialog(std::string("Warning"), std::string("Application couldn't init a selected device.\nPlease, go to settings and select the correct device or plug your device to USB port.\nMake sure you have selected the correct api version in the settings for RSP devices.\n\nReturned answer:\n\n").append(env->getDeviceController()->getResult()->err));
 		if (!errorInitDeviceShowed) {
-			spectre->disableControl(DISABLE_CONTROL_DIALOG);
+			spectre->disableControlForID(DISABLE_CONTROL_DIALOG);
 			ImGui::OpenPopup(std::string("Warning").c_str());
 			errorInitDeviceShowed = true;
 		}
@@ -564,7 +571,7 @@ void Display::showAlertOKDialog(std::string title, std::string msg) {
 		ImGui::Text(msg.c_str());
 		ImGui::Separator();
 
-		if (ImGui::Button("OK", ImVec2(120, 0))) { spectre->enableControl(DISABLE_CONTROL_DIALOG); ImGui::CloseCurrentPopup(); }
+		if (ImGui::Button("OK", ImVec2(120, 0))) { spectre->enableControlForID(DISABLE_CONTROL_DIALOG); ImGui::CloseCurrentPopup(); }
 		ImGui::SetItemDefaultFocus();
 		ImGui::EndPopup();
 	}
@@ -586,18 +593,22 @@ void Display::showColorPicker(string title, unsigned int* configVal, bool withTr
 
 	ImVec4 color = ImGui::ColorConvertU32ToFloat4(*configVal);
 
+	bool isColorPicked = false;
+
 	if (!withTransparency) {
-		ImGui::ColorEdit3(title.c_str(), (float*)&color, misc_flags);
+		isColorPicked = ImGui::ColorEdit3(title.c_str(), (float*)&color, misc_flags);
 	} else {
-		ImGui::ColorEdit4(title.c_str(), (float*)&color, misc_flags);
+		isColorPicked = ImGui::ColorEdit4(title.c_str(), (float*)&color, misc_flags);
 	}
 
-	//unsigned long rgb = (r<<16)|(g<<8)|b; 
+	if (isColorPicked) {
+		spectre->disableControlForID(DISABLE_CONTROL_COLOR_PICKER);
+	}
+	else {
+		spectre->enableControlForID(DISABLE_CONTROL_COLOR_PICKER);
+	}
 
 	*configVal = ImGui::ColorConvertFloat4ToU32(color);
-
-	//std::string s = std::format("{:x}", ccc);
-	//printf("%s\r\n", s.c_str());
 }
 
 
