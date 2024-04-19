@@ -7,7 +7,7 @@ Demo video: <br>
 
 https://youtu.be/b15e3qSgFJQ
 
-![Screen-2024-04-19_10-42-17](https://github.com/DkCocto/kSDR/assets/5113949/ac0394d0-e168-4cd8-97a7-47a53bbc23bb)
+![Screen](https://github.com/DkCocto/kSDR/assets/5113949/2a7d563a-fbae-4bba-81cc-0fbef30cfbe4)
 
 I would like to present to your attention the kSDR application for working with popular SDR devices.
 
