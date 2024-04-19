@@ -10,7 +10,7 @@
 		1: hackrf
 		2: rtlsdr
 		-->
-        <type>1</type>
+        <type>0</type>
         <decimation>1</decimation>
         <RSP>
             <!-- Total sampling rate = (deviceSamplingRate / deviceDecimationFactor) / decimation
@@ -47,8 +47,8 @@
     </Device>
     <Receiver>
         <startFreq>13963000</startFreq>
-        <lastSelectedFreq>14148059</lastSelectedFreq>
-        <volume>2.6719999</volume>
+        <lastSelectedFreq>14136000</lastSelectedFreq>
+        <volume>0.95899999</volume>
         <filterWidth>2700</filterWidth>
         <!-- USB:0, LSB:1, AM:2, nFM:3 -->
         <modulation>0</modulation>
@@ -59,41 +59,44 @@
             <atackSpeedMs>0.12000000067055225</atackSpeedMs>
             <holdingTimeMs>1000</holdingTimeMs>
             <releaseSpeed>0.00020000000000000009</releaseSpeed>
-            <lastAmp>19.805597305297852</lastAmp>
+            <lastAmp>43.671260833740234</lastAmp>
         </Agc>
     </Receiver>
     <Waterfall>
-        <min>-138.66103</min>
-        <max>-70.039726</max>
+        <min>-178.1404</min>
+        <max>-127.31984</max>
         <speed>1</speed>
     </Waterfall>
     <Spectre>
-        <ratio>-50.564751</ratio>
-        <min>-146.136</min>
+        <ratio>-105.96143</ratio>
+        <min>-187.49881</min>
         <speed>2</speed>
-        <speed2>10</speed2>
+        <speed2>25</speed2>
         <!-- Must be a power of 2. The total will be fftLen = fftLen * 1024 -->
         <fftLen>262144</fftLen>
-        <visibleStartFreq>14072985</visibleStartFreq>
-        <visibleStopFreq>14253100</visibleStopFreq>
-        <startBin>67338</startBin>
-        <stopBin>70288</stopBin>
+        <visibleStartFreq>14080798</visibleStartFreq>
+        <visibleStopFreq>14245288</visibleStopFreq>
+        <startBin>67466</startBin>
+        <stopBin>70160</stopBin>
         <removeDCBias>1</removeDCBias>
-        <style>2</style>
+        <style>1</style>
         <contourShowsPower>0</contourShowsPower>
         <bottomCoeff>0.86000001</bottomCoeff>
-        <topCoeff>0.79799998</topCoeff>
+        <topCoeff>0.76599997</topCoeff>
         <hangAndDecay>1</hangAndDecay>
-        <decaySpeed>0.01529</decaySpeed>
-        <decaySpeedDelta>1.619</decaySpeedDelta>
-        <smoothingDepth>2</smoothingDepth>
+        <decaySpeed>0.02373</decaySpeed>
+        <decaySpeedDelta>0.995</decaySpeedDelta>
+        <smoothingDepth>3</smoothingDepth>
         <spectreCorrectionDb>-9</spectreCorrectionDb>
     </Spectre>
     <ColorTheme>
-        <spectreFillColor>4278190080</spectreFillColor>
+        <spectreWindowFillColor1>4278203402</spectreWindowFillColor1>
+        <spectreWindowFillColor2>4278212618</spectreWindowFillColor2>
+        <spectreFillColor>4288069931</spectreFillColor>
+        <spectreGradientEnable>1</spectreGradientEnable>
         <spectreProfileColor>4294967295</spectreProfileColor>
         <mainBGColor>4278190080</mainBGColor>
-        <windowsBGColor>4279640834</windowsBGColor>
+        <windowsBGColor>4278392064</windowsBGColor>
         <windowsTitleBGColor>4284887578</windowsTitleBGColor>
         <receiveRegionColor>1656018811</receiveRegionColor>
     </ColorTheme>

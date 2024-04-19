@@ -426,7 +426,10 @@ void Display::renderImGUIFirst() {
 			showColorPicker(string("Windows Background"), &env->getConfig()->colorTheme.windowsBGColor, false);
 			showColorPicker(string("Main Background"), &env->getConfig()->colorTheme.mainBGColor, false);
 			//showColorPicker(string("Window Title Background"), &env->getConfig()->colorTheme.windowsTitleBGColor);
+			showColorPicker(string("Spectre Window 1"), &env->getConfig()->colorTheme.spectreWindowFillColor1, false);
+			showColorPicker(string("Spectre Window 2"), &env->getConfig()->colorTheme.spectreWindowFillColor2, false);
 			showColorPicker(string("Spectre Fill"), &env->getConfig()->colorTheme.spectreFillColor, false);
+			ImGui::Checkbox("Spectre gradient", &env->getConfig()->colorTheme.spectreGradientEnable);
 			showColorPicker(string("Spectre Profile"), &env->getConfig()->colorTheme.spectreProfileColor, false);
 			showColorPicker(string("Receive Region"), &env->getConfig()->colorTheme.receiveRegionColor, true);
 

@@ -269,9 +269,19 @@ void Config::loadXml() {
 
         tinyxml2::XMLElement* pColorTheme = pRootElement->FirstChildElement("ColorTheme");
         if (NULL != pColorTheme) {
-            tinyxml2::XMLElement* pspectreFillColor = pColorTheme->FirstChildElement("spectreFillColor");
+
+            tinyxml2::XMLElement* pspectreWindowFillColor1 = pColorTheme->FirstChildElement("spectreWindowFillColor1");
             //std::stoll (std::string(pspectreFillColor->GetText()));
+            colorTheme.spectreWindowFillColor1 = std::stoll(std::string(pspectreWindowFillColor1->GetText()));
+
+            tinyxml2::XMLElement* pspectreWindowFillColor2 = pColorTheme->FirstChildElement("spectreWindowFillColor2");
+            colorTheme.spectreWindowFillColor2 = std::stoll(std::string(pspectreWindowFillColor2->GetText()));
+
+            tinyxml2::XMLElement* pspectreFillColor = pColorTheme->FirstChildElement("spectreFillColor");
             colorTheme.spectreFillColor = std::stoll(std::string(pspectreFillColor->GetText()));
+
+            tinyxml2::XMLElement* pspectreGradientEnable = pColorTheme->FirstChildElement("spectreGradientEnable");
+            colorTheme.spectreGradientEnable = (std::stoi(std::string(pspectreGradientEnable->GetText())) == 1) ? true : false;
 
             tinyxml2::XMLElement* pspectreProfileColor = pColorTheme->FirstChildElement("spectreProfileColor");
             colorTheme.spectreProfileColor = std::stoll(std::string(pspectreProfileColor->GetText()));
@@ -561,8 +571,17 @@ void Config::save() {
 
         tinyxml2::XMLElement* pColorTheme = pRootElement->FirstChildElement("ColorTheme");
         if (NULL != pColorTheme) {
+            tinyxml2::XMLElement* pspectreWindowFillColor1 = pColorTheme->FirstChildElement("spectreWindowFillColor1");
+            pspectreWindowFillColor1->SetText(colorTheme.spectreWindowFillColor1);
+
+            tinyxml2::XMLElement* pspectreWindowFillColor2 = pColorTheme->FirstChildElement("spectreWindowFillColor2");
+            pspectreWindowFillColor2->SetText(colorTheme.spectreWindowFillColor2);
+
             tinyxml2::XMLElement* pspectreFillColor = pColorTheme->FirstChildElement("spectreFillColor");
             pspectreFillColor->SetText(colorTheme.spectreFillColor);
+
+            tinyxml2::XMLElement* pspectreGradientEnable = pColorTheme->FirstChildElement("spectreGradientEnable");
+            pspectreGradientEnable->SetText((colorTheme.spectreGradientEnable == true) ? "1" : "0");
 
             tinyxml2::XMLElement* pspectreProfileColor = pColorTheme->FirstChildElement("spectreProfileColor");
             pspectreProfileColor->SetText(colorTheme.spectreProfileColor);

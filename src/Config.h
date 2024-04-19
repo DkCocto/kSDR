@@ -152,7 +152,10 @@ public:
 	} app;
 
 	struct ColorTheme {
+		unsigned int spectreWindowFillColor1 = 0xFFFFFFFF;
+		unsigned int spectreWindowFillColor2 = 0xFFFFFFFF;
 		unsigned int spectreFillColor = 0xFFFFFFFF;
+		bool spectreGradientEnable = true;
 		unsigned int spectreProfileColor = 0xFFFFFFFF;
 		unsigned int mainBGColor = 0xFFFFFFFF;
 		unsigned int windowsBGColor = 0xFFFFFFFF;

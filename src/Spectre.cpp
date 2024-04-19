@@ -442,20 +442,34 @@ void Spectre::drawSpectreContour(FFTData::OUTPUT* fullSpectreData, ImDrawList* d
 		//Waterfall::RGB minRGB = waterfall->getColorForPowerInSpectre(viewModel->waterfallMin);
 		//Waterfall::RGB maxRGB = waterfall->getColorForPowerInSpectre(-30);	
 
-		draw_list->AddRectFilledMultiColor(
-			ImVec2(
-				sWD.startWindowPoint.x + sWD.rightPadding,
-				sWD.startWindowPoint.y - 8
-			),
-			ImVec2(
-				sWD.startWindowPoint.x + spectreWidth + sWD.leftPadding,
-				sWD.startWindowPoint.y + spectreHeight
-			),
-			config->colorTheme.spectreFillColor,
-			config->colorTheme.spectreFillColor,
-			IM_COL32_BLACK,
-			IM_COL32_BLACK
-		);
+		if (config->colorTheme.spectreGradientEnable) {
+			draw_list->AddRectFilledMultiColor(
+				ImVec2(
+					sWD.startWindowPoint.x + sWD.rightPadding,
+					sWD.startWindowPoint.y - 8
+				),
+				ImVec2(
+					sWD.startWindowPoint.x + spectreWidth + sWD.leftPadding,
+					sWD.startWindowPoint.y + spectreHeight
+				),
+				config->colorTheme.spectreWindowFillColor1,
+				config->colorTheme.spectreWindowFillColor1,
+				config->colorTheme.spectreWindowFillColor2,
+				config->colorTheme.spectreWindowFillColor2
+			);
+		} else {
+			draw_list->AddRectFilled(
+				ImVec2(
+					sWD.startWindowPoint.x + sWD.rightPadding,
+					sWD.startWindowPoint.y - 8
+				),
+				ImVec2(
+					sWD.startWindowPoint.x + spectreWidth + sWD.leftPadding,
+					sWD.startWindowPoint.y + spectreHeight
+				),
+				config->colorTheme.spectreWindowFillColor1
+			);
+		}
 	}
 
 	//auto begin = std::chrono::steady_clock::now();
@@ -467,6 +481,8 @@ void Spectre::drawSpectreContour(FFTData::OUTPUT* fullSpectreData, ImDrawList* d
 
 		float y2 = round(sWD.startWindowPoint.y - reducedSpectreData[i + 1] * ratio + koeff);
 		if (y2 >= sWD.startWindowPoint.y + spectreHeight) y2 = sWD.startWindowPoint.y + spectreHeight;
+
+		double thickness = (double)(((config->visibleSpectreBinCount - reducedSpectreData.size() + 1)) - 0) / (double)(config->visibleSpectreBinCount - 0) * (MAX_THICKNESS - 1.0f) + 1.0f;
 
 		if (config->spectre.style == 0) {
 
@@ -495,18 +511,18 @@ void Spectre::drawSpectreContour(FFTData::OUTPUT* fullSpectreData, ImDrawList* d
 
 			lineX1 = ImVec2 (
 				sWD.startWindowPoint.x + round(i * stepX) + sWD.rightPadding,
-				y1 - 1.5f
+				y1 - thickness
 			);
 			lineX2 = ImVec2 (
 				sWD.startWindowPoint.x + round((i + 1) * stepX) + sWD.rightPadding,
-				y2 - 1.5f
+				y2 - thickness
 			);
 
 			if (config->spectre.contourShowsPower) {
 				Waterfall::RGB powerRGB = waterfall->getColorForPowerInSpectre(reducedSpectreData[i], viewModel->waterfallMin * config->spectre.topCoeff, viewModel->waterfallMax * config->spectre.bottomCoeff);
-				draw_list->AddLine(lineX1, lineX2, IM_COL32(powerRGB.r, powerRGB.g, powerRGB.b, 255), 1.5f);
+				draw_list->AddLine(lineX1, lineX2, IM_COL32(powerRGB.r, powerRGB.g, powerRGB.b, 255), thickness);
 			} else {
-				draw_list->AddLine(lineX1, lineX2, config->colorTheme.spectreProfileColor, 1.5f);
+				draw_list->AddLine(lineX1, lineX2, config->colorTheme.spectreProfileColor, thickness);
 			}
 
 		}
@@ -517,12 +533,12 @@ void Spectre::drawSpectreContour(FFTData::OUTPUT* fullSpectreData, ImDrawList* d
 				y1
 			);
 			ImVec2 lineX2(
-				sWD.startWindowPoint.x + round((i + 1.0) * stepX) + sWD.rightPadding,
+				sWD.startWindowPoint.x + round((i + 1) * stepX) + sWD.rightPadding,
 				y2
 			);
 
 			ImVec2 lineX3(
-				sWD.startWindowPoint.x + round((i + 1.0) * stepX) + sWD.rightPadding,
+				sWD.startWindowPoint.x + round((i + 1) * stepX) + sWD.rightPadding,
 				sWD.startWindowPoint.y - 8
 			);
 
@@ -532,19 +548,19 @@ void Spectre::drawSpectreContour(FFTData::OUTPUT* fullSpectreData, ImDrawList* d
 			);
 
 			ImVec2* polygon = new ImVec2[]{ lineX3 , lineX4 , lineX1 , lineX2 };
-			draw_list->AddConvexPolyFilled(polygon, 4, config->colorTheme.windowsBGColor);
+			draw_list->AddConvexPolyFilled(polygon, 4, config->colorTheme.spectreWindowFillColor1);
 			delete[] polygon;
 
 			ImVec2 profiledX1(
 				sWD.startWindowPoint.x + round(i * stepX) + sWD.rightPadding,
-				y1 + 2
+				y1
 			);
 			ImVec2 profiledX2(
-				sWD.startWindowPoint.x + round((i + 1.0) * stepX) + sWD.rightPadding,
-				y2 + 2
+				sWD.startWindowPoint.x + round((i + 1) * stepX) + sWD.rightPadding,
+				y2
 			);
 
-			draw_list->AddLine(profiledX1, profiledX2, config->colorTheme.spectreProfileColor, 1.8f);
+			draw_list->AddLine(profiledX1, profiledX2, config->colorTheme.spectreProfileColor, thickness);
 		}
 
 		if (config->spectre.style == 1) {
@@ -564,8 +580,6 @@ void Spectre::drawSpectreContour(FFTData::OUTPUT* fullSpectreData, ImDrawList* d
 			// from1 .. from2 = [0, config->visibleSpectreBinCount]
 			// to1 .. to2 = [1.0f, 3.0f]
 			// value => [0, reducedSpectreData.size()]
-
-			double thickness = (double)(((config->visibleSpectreBinCount - reducedSpectreData.size() + 1)) - 0) / (double)(config->visibleSpectreBinCount - 0) * (MAX_THICKNESS - 1.0f) + 1.0f;
 
 			if (config->spectre.contourShowsPower) {
 				Waterfall::RGB powerRGB = waterfall->getColorForPowerInSpectre(reducedSpectreData[i], viewModel->waterfallMin * config->spectre.topCoeff, viewModel->waterfallMax * config->spectre.bottomCoeff);

@@ -8,7 +8,7 @@
 
 #define PA_SAMPLE_TYPE				paFloat32
 
-#define APP_NAME					"kSDR v1.0 Beta 8"
+#define APP_NAME					"kSDR v1.0 Beta 9"
 
 struct Signal {
 	float I;
