@@ -1,4 +1,9 @@
 #include "SoundProcessorThread.h"
+#include "CircleBufferNew.h"
+
+#include "device/HackRFDevice.h"
+#include "device/RTLDevice.h"
+#include "device/RSPDevice.h"
 
 SoundProcessorThread::SoundProcessorThread(DeviceController* devCnt, 
 											ViewModel* viewModel, 
@@ -30,7 +35,7 @@ SoundProcessorThread::SoundProcessorThread(DeviceController* devCnt,
 
 	outputData = new float[(len / 2) / config->outputSamplerateDivider];
 
-	//Инициализация полифазных фильтров
+	//пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	initFilters(config->defaultFilterWidth);
 }
 
@@ -68,7 +73,7 @@ void SoundProcessorThread::run() {
 			return;
 		}
 
-		//Обработка ширины фильтра
+		//пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 		if (storedFilterWidth != viewModel->filterWidth) {
 			storedFilterWidth = viewModel->filterWidth;
 			initFilters(storedFilterWidth);
@@ -158,7 +163,7 @@ template<typename T, typename D> void SoundProcessorThread::processData(T* data,
 			//-------------------
 			audio = fir.proc(audio);
 			audio = agc.processNew(audio);
-			//Если AM, то немного усилим сигнал
+			//пїЅпїЅпїЅпїЅ AM, пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 			if (mode == AM) audio *= 3.0f;
 			if (mode == nFM) audio *= 2.0f;
 			outputData[count] = audio * viewModel->volume;

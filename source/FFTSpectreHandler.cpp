@@ -1,6 +1,10 @@
 #include "FFTSpectreHandler.h"
 #include <cmath>
 
+#include "device/HackRFDevice.h"
+#include "device/RTLDevice.h"
+#include "device/RSPDevice.h"
+
 SpectreHandler::SpectreHandler(Config* config, FFTData* fftData, ViewModel* viewModel, DeviceController* deviceController) {
 	this->config = config;
 	this->viewModel = viewModel;

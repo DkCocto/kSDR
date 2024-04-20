@@ -1,4 +1,5 @@
 #include "Config.h"
+#include <tinyxml2.h>
 
 Config::Config() {
     prepareConfiguration();

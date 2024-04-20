@@ -1,3 +1,4 @@
+#include <imgui.h>
 #include "MemoryRecordUserInterface.h"
 
 MemoryRecordUserInterface::MemoryRecordUserInterface(Config* config, ViewModel* viewModel, Spectre* spectre) {
@@ -29,7 +30,7 @@ void MemoryRecordUserInterface::drawMemoryBlock(ReceiverLogic* receiverLogic) {
 
 	ImGui::Spacing();
 
-	if (ImGui::BeginTable("Memory Records Table", 2, NULL)) {
+	if (ImGui::BeginTable("Memory Records Table", 2, 0)) {
 		// The first column will use the default _WidthStretch when ScrollX is Off and _WidthFixed when ScrollX is On
 		//ImGui::TableSetupColumn("Name");
 		//ImGui::TableSetupColumn("Controls");
@@ -150,8 +151,8 @@ void MemoryRecordUserInterface::initDeleteMemRecDialog(std::string id) {
 		
 		auto& record = config->memoryVector[selectedRecordIndex];
 
-		ImGui::Text(string("Description: ").append(record.desc).append("\n").c_str());
-		ImGui::Text(string("Frequency: ").append(Utils::getPrittyFreq((int)record.freq)).append("\n\n").c_str());
+		ImGui::Text("%s", string("Description: ").append(record.desc).append("\n").c_str());
+		ImGui::Text("%s", string("Frequency: ").append(Utils::getPrittyFreq((int)record.freq)).append("\n\n").c_str());
 
 		if (ImGui::Button("Cancel", ImVec2(120, 0))) {
 			spectre->enableControlForID(DISABLE_CONTROL_DEL_FREQ);

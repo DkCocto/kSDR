@@ -1,1 +1,2 @@
 include_directories(comport)
+include_directories(Spectre)

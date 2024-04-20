@@ -2,6 +2,14 @@
 #include <iterator>
 #include <sstream>
 
+#include "device/HackRFInterface.h"
+#include "device/RSPInterface.h"
+#include "device/RTLInterface.h"
+
+#include <imgui.h>
+#include "imgui_impl_opengl3.h"
+#include "imgui_impl_glfw.h"
+
 void Display::framebufferReSizeCallback(GLFWwindow* window, int width, int height) {
 	glViewport(0, 0, width, height);
 	if (Display::instance != NULL) {
@@ -111,6 +119,8 @@ int Display::init() {
 	//style.AntiAliasedFill = true;
 
 	initSettings();
+
+	return 0;
 }
 
 void Display::mainLoop() {

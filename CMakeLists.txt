@@ -21,15 +21,15 @@ add_executable(ksdr
   source/DCRemove.cpp
   source/Delay.cpp
   source/Device.cpp
-  source/Device/DeviceController.cpp
-  source/Device/DeviceInterface.cpp
-  source/Device/DeviceN.cpp
-  source/Device/HackRFDevice.cpp
-  source/Device/HackRFInterface.cpp
-  source/Device/RSPDevice.cpp
-  source/Device/RSPInterface.cpp
-  source/Device/RTLDevice.cpp
-  source/Device/RTLInterface.cpp
+  source/device/DeviceController.cpp
+  source/device/DeviceInterface.cpp
+  source/device/DeviceN.cpp
+  source/device/HackRFDevice.cpp
+  source/device/HackRFInterface.cpp
+  source/device/RSPDevice.cpp
+  source/device/RSPInterface.cpp
+  source/device/RTLDevice.cpp
+  source/device/RTLInterface.cpp
   source/Display.cpp
   source/Environment.cpp
   source/FastMath.cpp
@@ -40,14 +40,6 @@ add_executable(ksdr
   source/FlowingFFTSpectre.cpp
   source/FMDemodulator.cpp
   source/HilbertTransform.cpp
-  source/imgui/imgui.cpp
-  source/imgui/imgui_demo.cpp
-  source/imgui/imgui_draw.cpp
-  source/imgui/imgui_impl_glfw.cpp
-  source/imgui/imgui_impl_opengl3.cpp
-  source/imgui/imgui_stdlib.cpp
-  source/imgui/imgui_tables.cpp
-  source/imgui/imgui_widgets.cpp
   source/KalmanFilter.cpp
   source/kSDR.cpp
   source/ListSetting.cpp
@@ -65,16 +57,17 @@ add_executable(ksdr
   source/SoundProcessorThread.cpp
   source/SoundReaderThread.cpp
   source/Spectre.cpp
-  source/Spectre/FFTData.cpp
+  source/FFTData.cpp
   source/SpeedCount.cpp
-  source/Thread/MyThread.cpp
-  source/tinyxml2/tinyxml2.cpp
+  source/MyThread.cpp
   source/Utils.cpp
   source/ViewModel.cpp
   source/Waterfall.cpp
   source/WindowBlackman.cpp
   source/WindowBlackmanHarris.cpp
 )
+
+target_include_directories(ksdr PRIVATE source/include)
 
 find_package(glfw3 3.4 REQUIRED)
 find_package(OpenGL REQUIRED)
