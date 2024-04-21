@@ -1,4 +1,6 @@
 #include "Display.h"
+
+#include <GLFW/glfw3.h>
 #include <iterator>
 #include <sstream>
 
@@ -6,7 +8,7 @@
 #include "device/RSPInterface.h"
 #include "device/RTLInterface.h"
 
-#include <imgui.h>
+#include "imgui.h"
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_glfw.h"
 
@@ -51,9 +53,15 @@ Display::Display(Environment* env) {
 
 bool errorInitDeviceShowed = false;
 
+void errorCallback(int error_code, const char* description) {
+	printf("GLFW ERROR: %s\n", description);
+}
+
 int Display::init() {
 
-	glfwInit();
+	if(!glfwInit()) {
+		return -1;
+	}
 
 	glfwSetTime(0);
 
@@ -67,10 +75,12 @@ int Display::init() {
 	glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
 	glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);*/
 
-	// Create a GLFWwindow object
+	glfwSetErrorCallback(&errorCallback);
+
+	// Create a GLFWwindow object	
 	window = glfwCreateWindow(env->getConfig()->app.winWidth, env->getConfig()->app.winHeight, "kSDR", nullptr, nullptr);
 	if (window == nullptr) {
-		printf("Failed to create GLFW window\r\n");
+		printf("Failed to create GLFW window\n");
 		glfwTerminate();
 		return -1;
 	}

@@ -61,7 +61,7 @@ cmake_policy(SET CMP0077 NEW)
 option(IMGUI_EXAMPLES "Build ImGui examples" OFF)
 option(IMGUI_DEMO "Include the ImGui demo window implementation in library" OFF)
 
-option(IMGUI_DISABLE_OBSOLETE_FUNCTIONS "Disable deprecated functions" OFF)
+option(IMGUI_DISABLE_OBSOLETE_FUNCTIONS "Disable deprecated functions" ON)
 option(IMGUI_DISABLE_OBSOLETE_KEYIO "Disable legacy input handling" OFF)
 option(IMGUI_DISABLE_FILE_FUNCTIONS "Disable use of file functions" OFF)
 option(IMGUI_ENABLE_STDLIB_SUPPORT "Enable extra functions taking stdlib types" ON)

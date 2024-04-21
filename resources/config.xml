@@ -1,7 +1,7 @@
 ﻿<Config>
     <App>
-        <windowWidth>2560</windowWidth>
-        <windowHeight>1351</windowHeight>
+        <windowWidth>1920</windowWidth>
+        <windowHeight>1052</windowHeight>
     </App>
     <Device>
         <!-- 
