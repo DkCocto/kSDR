@@ -2,7 +2,7 @@
 
 #include "DeviceN.h"
 #include "CircleBufferNew.h"
-#include <sdrplay/sdrplay_api.h>
+#include <sdrplay_api.h>
 
 class RSPDevice : public DeviceN {
 

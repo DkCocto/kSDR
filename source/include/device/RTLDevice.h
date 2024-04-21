@@ -2,8 +2,8 @@
 
 #include "DeviceN.h"
 #include "CircleBufferNew.h"
-#include "vector"
-#include "rtlsdr/rtl-sdr.h"
+#include <vector>
+#include "rtl-sdr.h"
 
 //#define FREQ_POPRAVKA			52434810
 

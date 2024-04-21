@@ -29,7 +29,8 @@ void CPU::init() {
 static float CalculateCPULoad(unsigned long long idleTicks, unsigned long long totalTicks)
 {
 #if defined(__linux__)
-#else /* Windows*/
+    return .0f;
+#elif /* Windows */
     static unsigned long long _previousTotalTicks = 0;
     static unsigned long long _previousIdleTicks = 0;
 
@@ -41,10 +42,12 @@ static float CalculateCPULoad(unsigned long long idleTicks, unsigned long long t
     _previousTotalTicks = totalTicks;
     _previousIdleTicks = idleTicks;
     return ret;
-#endif /* Windows*/
+#endif /* Windows */
 }
 
-static unsigned long long FileTimeToInt64(const FILETIME& ft) { return (((unsigned long long)(ft.dwHighDateTime)) << 32) | ((unsigned long long)ft.dwLowDateTime); }
+#if defined(_WIN32)
+    static unsigned long long FileTimeToInt64(const FILETIME& ft) { return (((unsigned long long)(ft.dwHighDateTime)) << 32) | ((unsigned long long)ft.dwLowDateTime); }
+#endif
 
 // Returns 1.0f for "CPU fully pinned", 0.0f for "CPU idle", or somewhere in between
 // You'll need to call this at regular intervals, since it measures the load between
@@ -52,6 +55,7 @@ static unsigned long long FileTimeToInt64(const FILETIME& ft) { return (((unsign
 float GetCPULoad()
 {
 #if defined(__linux__)
+    return .0f;
 #else /* Windows*/
     FILETIME idleTime, kernelTime, userTime;
     return GetSystemTimes(&idleTime, &kernelTime, &userTime) ? CalculateCPULoad(FileTimeToInt64(idleTime), FileTimeToInt64(kernelTime) + FileTimeToInt64(userTime)) : -1.0f;

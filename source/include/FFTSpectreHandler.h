@@ -11,7 +11,7 @@
 #include "ViewModel.h"
 #include "WindowBlackman.h"
 #include "WindowBlackmanHarris.h"
-#include <fftw/fftw3.h>
+#include <fftw3.h>
 #include "mutex"
 
 #include "FFTData.h"

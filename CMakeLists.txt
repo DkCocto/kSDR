@@ -78,10 +78,12 @@ add_executable(ksdr
   source/WindowBlackmanHarris.cpp
 )
 
+target_include_directories(ksdr PRIVATE source/include)
+
 IF (WIN32)
   target_link_libraries(ksdr PRIVATE fftw hackrf rtlsdr sdrplay stb PortAudio glfw OpenGL::GL tinyxml2 imgui imgui-stdlib imgui-opengl3 imgui-glfw)
   target_include_directories(ksdr PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/libraries/portaudio/include")
-  target_include_directories(ksdr PRIVATE source/include)
+
 ELSE()
-  target_link_libraries(ksdr PRIVATE fftw hackrf rtlsdr sdrplay stb PortAudio glfw OpenGL::GL tinyxml2 imgui imgui-stdlib imgui-opengl3 imgui-glfw)
+  target_link_libraries(ksdr PRIVATE fftw3 hackrf rtlsdr sdrplay_api PortAudio glfw OpenGL::GL tinyxml2 imgui imgui-stdlib imgui-opengl3 imgui-glfw)
 ENDIF()
