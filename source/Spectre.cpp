@@ -256,9 +256,9 @@ void Spectre::handleEvents(int spectreWidthInPX, ReceiverLogic* receiverLogic, F
 
 		bool ctrlPressed = false;
 
-		struct funcs { static bool IsLegacyNativeDupe(ImGuiKey key) { return key < 512 && ImGui::GetIO().KeyMap[key] != -1; } };
+		//struct funcs { static bool IsLegacyNativeDupe(ImGuiKey key) { return key < 512 && ImGui::GetIO().KeyMap[key] != -1; } };
 		for (ImGuiKey key = (ImGuiKey)0; key < ImGuiKey_COUNT; key = (ImGuiKey)(key + 1)) {
-			if (funcs::IsLegacyNativeDupe(key)) continue;
+			//if (funcs::IsLegacyNativeDupe(key)) continue;
 			if (ImGui::IsKeyDown(key)) {
 				if (key == 527) {
 					ctrlPressed = true;
