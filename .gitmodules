@@ -1,0 +1,12 @@
+[submodule "libraries/tinyxml2"]
+	path = libraries/tinyxml2
+	url = https://github.com/leethomason/tinyxml2.git
+[submodule "libraries/portaudio"]
+	path = libraries/portaudio
+	url = https://github.com/PortAudio/portaudio.git
+[submodule "libraries/stb"]
+	path = libraries/stb
+	url = https://github.com/nothings/stb.git
+[submodule "libraries/windows/include/stb"]
+	path = libraries/windows/include/stb
+	url = https://github.com/nothings/stb.git

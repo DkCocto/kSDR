@@ -1,5 +1,5 @@
 #include "Oscillator.h"
-#include <cmath>
+#include "FastMath.h"
 
 float Oscillator::nextPhase() {
 	phase += phaseIncrement;

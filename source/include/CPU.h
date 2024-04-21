@@ -13,8 +13,12 @@ class CPU {
 
     unsigned long long lastCPU, lastSysCPU, lastUserCPU;
     int numProcessors;
-    int self;
 
+#if defined(__linux__)
+#else /* Windows*/
+    HANDLE self;
+#endif
+    
     std::unique_ptr<Average> average;
 
 public:

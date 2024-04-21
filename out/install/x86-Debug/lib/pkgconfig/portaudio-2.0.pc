@@ -1,0 +1,13 @@
+prefix=C:/Users/martin/workspace/kSDR/out/install/x86-Debug
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+Name: PortAudio
+Description: Portable audio I/O
+Version: 
+
+Libs: -L${libdir} -lportaudio
+Libs.private: 
+Cflags: -I${includedir}  -DPA_USE_DS=1 -DPA_USE_WMME=1 -DPA_USE_WASAPI=1 -DPA_USE_WDMKS=1
+Requires.private: 

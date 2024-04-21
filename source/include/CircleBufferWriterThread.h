@@ -2,7 +2,7 @@
 
 #if defined(__linux__)
 #else /* Windows*/
-#include <windows.h">
+#include <windows.h>
 #endif
 
 #include <thread>

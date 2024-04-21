@@ -1,6 +1,6 @@
 #include "Filter.h"
 #include "vector"
-
+#include "FastMath.h"
 
 std::vector<double> Filter::makeRaiseCosine(double sampleRate, double freq, double alpha, int len) {
     int M = len - 1;

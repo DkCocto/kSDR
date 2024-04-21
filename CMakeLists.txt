@@ -4,9 +4,20 @@ project(ksdr)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 17)
 
+set(IMGUI_EXAMPLES OFF)
+set(IMGUI_DEMO OFF)
+
+set(IMGUI_DISABLE_OBSOLETE_KEYIO OFF)
+set(IMGUI_ENABLE_FREETYPE OFF)
+set(IMGUI_DISABLE_OBSOLETE_KEYIO OFF)
+
+set(IMGUI_ENABLE_STDLIB_SUPPORT ON)
+
+find_package(OpenGL)
+
 add_subdirectory(libraries)
 
-add_executable(ksdr 
+add_executable(ksdr
   source/AGC.cpp
   source/CircleBuffer.cpp
   source/CircleBufferReaderThread.cpp
@@ -67,9 +78,10 @@ add_executable(ksdr
   source/WindowBlackmanHarris.cpp
 )
 
-target_include_directories(ksdr PRIVATE source/include)
-
-find_package(glfw3 3.4 REQUIRED)
-find_package(OpenGL REQUIRED)
-
-target_link_libraries(ksdr fftw3 rtlsdr hackrf sdrplay_api portaudio glfw OpenGL::GL tinyxml2 imgui imgui-stdlib imgui-opengl3 imgui-glfw)
+IF (WIN32)
+  target_link_libraries(ksdr PRIVATE fftw hackrf rtlsdr sdrplay stb PortAudio glfw OpenGL::GL tinyxml2 imgui imgui-stdlib imgui-opengl3 imgui-glfw)
+  target_include_directories(ksdr PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/libraries/portaudio/include")
+  target_include_directories(ksdr PRIVATE source/include)
+ELSE()
+  target_link_libraries(ksdr PRIVATE fftw hackrf rtlsdr sdrplay stb PortAudio glfw OpenGL::GL tinyxml2 imgui imgui-stdlib imgui-opengl3 imgui-glfw)
+ENDIF()

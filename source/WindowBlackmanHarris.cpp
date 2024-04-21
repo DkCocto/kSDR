@@ -1,5 +1,5 @@
 #include "WindowBlackmanHarris.h"
-#include <cmath>
+#include "FastMath.h"
 
 WindowBlackmanHarris::WindowBlackmanHarris(int fftLen) {
 	this->len = fftLen / 2;

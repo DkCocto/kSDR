@@ -1,29 +1,35 @@
 #include "CPU.h"
 
 CPU::CPU() {
-    init();
+   init();
 }
 
+
 void CPU::init() {
-    //SYSTEM_INFO sysInfo;
-    //FILETIME ftime, fsys, fuser;
-//
-    //GetSystemInfo(&sysInfo);
-    //numProcessors = sysInfo.dwNumberOfProcessors;
-//
-    //GetSystemTimeAsFileTime(&ftime);
-    //memcpy(&lastCPU, &ftime, sizeof(FILETIME));
-//
-    //self = GetCurrentProcess();
-    //GetProcessTimes(self, &ftime, &ftime, &fsys, &fuser);
-    //memcpy(&lastSysCPU, &fsys, sizeof(FILETIME));
-    //memcpy(&lastUserCPU, &fuser, sizeof(FILETIME));
-//
-    //average = std::make_unique<Average>(70);
+#if defined(__linux__)
+#else /* Windows*/
+    SYSTEM_INFO sysInfo;
+    FILETIME ftime, fsys, fuser;
+
+    GetSystemInfo(&sysInfo);
+    numProcessors = sysInfo.dwNumberOfProcessors;
+
+    GetSystemTimeAsFileTime(&ftime);
+    memcpy(&lastCPU, &ftime, sizeof(FILETIME));
+
+    self = GetCurrentProcess();
+    GetProcessTimes(self, &ftime, &ftime, &fsys, &fuser);
+    memcpy(&lastSysCPU, &fsys, sizeof(FILETIME));
+    memcpy(&lastUserCPU, &fuser, sizeof(FILETIME));
+
+    average = std::make_unique<Average>(70);
+#endif /* Windows*/
 }
 
 static float CalculateCPULoad(unsigned long long idleTicks, unsigned long long totalTicks)
 {
+#if defined(__linux__)
+#else /* Windows*/
     static unsigned long long _previousTotalTicks = 0;
     static unsigned long long _previousIdleTicks = 0;
 
@@ -35,17 +41,22 @@ static float CalculateCPULoad(unsigned long long idleTicks, unsigned long long t
     _previousTotalTicks = totalTicks;
     _previousIdleTicks = idleTicks;
     return ret;
+#endif /* Windows*/
 }
 
-//static unsigned long long FileTimeToInt64(const FILETIME& ft) { return (((unsigned long long)(ft.dwHighDateTime)) << 32) | ((unsigned long long)ft.dwLowDateTime); }
+static unsigned long long FileTimeToInt64(const FILETIME& ft) { return (((unsigned long long)(ft.dwHighDateTime)) << 32) | ((unsigned long long)ft.dwLowDateTime); }
 
 // Returns 1.0f for "CPU fully pinned", 0.0f for "CPU idle", or somewhere in between
 // You'll need to call this at regular intervals, since it measures the load between
 // the previous call and the current one.  Returns -1.0 on error.
 float GetCPULoad()
 {
-    //FILETIME idleTime, kernelTime, userTime;
-    //return GetSystemTimes(&idleTime, &kernelTime, &userTime) ? CalculateCPULoad(FileTimeToInt64(idleTime), FileTimeToInt64(kernelTime) + FileTimeToInt64(userTime)) : -1.0f;
+#if defined(__linux__)
+#else /* Windows*/
+    FILETIME idleTime, kernelTime, userTime;
+    return GetSystemTimes(&idleTime, &kernelTime, &userTime) ? CalculateCPULoad(FileTimeToInt64(idleTime), FileTimeToInt64(kernelTime) + FileTimeToInt64(userTime)) : -1.0f;
+    return 0.0f;
+#endif /* Windows*/
 }
 
 double CPU::getCurrentValue() {

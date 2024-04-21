@@ -1,2 +1,13 @@
+add_subdirectory(glfw)
+add_subdirectory(portaudio)
+add_subdirectory(tinyxml2)
 add_subdirectory(comport)
 add_subdirectory(imgui)
+
+IF (WIN32)
+	add_subdirectory(fftw)
+	add_subdirectory(hackrf)
+	add_subdirectory(rtlsdr)
+	add_subdirectory(sdrplay)
+	add_subdirectory(stb)
+ENDIF()

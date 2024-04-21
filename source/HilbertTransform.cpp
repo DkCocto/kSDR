@@ -1,4 +1,5 @@
 #include "HilbertTransform.h"
+#include "FastMath.h"
 
 HilbertTransform::HilbertTransform(int samplingRate, int len) {
     this->samplingRate = samplingRate;

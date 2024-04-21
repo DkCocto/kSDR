@@ -1,4 +1,4 @@
-# VIA https://gist.githubusercontent.com/rokups/f771217b2d530d170db5cb1e08e9a8f4/raw/4c2c14374ab878ca2f45daabfed4c156468e4e27/CMakeLists.txt
+#
 # CMake build system for Dear ImGui
 # =================================
 #
@@ -58,17 +58,17 @@ cmake_policy(SET CMP0077 NEW)
 ###############################################################################
 # Supported build parameters
 ###############################################################################
-option(IMGUI_EXAMPLES "Build ImGui examples" OFF)
-option(IMGUI_DEMO "Include the ImGui demo window implementation in library" OFF)
+option(IMGUI_EXAMPLES "Build ImGui examples" ON)
+option(IMGUI_DEMO "Include the ImGui demo window implementation in library" ON)
 
 option(IMGUI_DISABLE_OBSOLETE_FUNCTIONS "Disable deprecated functions" ON)
-option(IMGUI_DISABLE_OBSOLETE_KEYIO "Disable legacy input handling" OFF)
+option(IMGUI_DISABLE_OBSOLETE_KEYIO "Disable legacy input handling" ON)
 option(IMGUI_DISABLE_FILE_FUNCTIONS "Disable use of file functions" OFF)
-option(IMGUI_ENABLE_STDLIB_SUPPORT "Enable extra functions taking stdlib types" ON)
+option(IMGUI_ENABLE_STDLIB_SUPPORT "Enable extra functions taking stdlib types" OFF)
 option(IMGUI_ENABLE_COVERAGE "Enable coverage testing for supported compilers" OFF)
 option(IMGUI_ENABLE_ASAN "Enable compiler-based sanitizers" OFF)
 option(IMGUI_ENABLE_TRACY "Enable tracy profiling" OFF)
-option(IMGUI_ENABLE_FREETYPE "Enable FreeType font rasterizer" ON)
+option(IMGUI_ENABLE_FREETYPE "Enable FreeType font rasterizer" OFF)
 option(IMGUI_IMPL_SDL "Build the SDL implementation (only if supported)" ON)
 option(IMGUI_IMPL_METAL "Build the Metal implementation (only if supported)" ${APPLE})
 option(IMGUI_IMPL_OSX "Build the OSX implementation (only if supported)" ${APPLE})
@@ -203,6 +203,7 @@ endif ()
 ###############################################################################
 # Freetype
 ###############################################################################
+
 if (IMGUI_ENABLE_FREETYPE)
     add_library(imgui-freetype INTERFACE)
     target_sources(imgui-freetype INTERFACE

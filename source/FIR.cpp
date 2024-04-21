@@ -1,5 +1,5 @@
 #include "FIR.h"
-#include <cmath>
+#include "FastMath.h"
 
 void FIR::init(unsigned char type, unsigned char window, short order, int f1, int f2, int sampleRate) {
     len = order;

@@ -2,6 +2,7 @@
 
 #include "vector"
 #include "Env.h"
+#include "FastMath.h"
 
 using namespace std;
 

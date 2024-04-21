@@ -1,9 +1,9 @@
 #pragma once
 
 #include "DeviceN.h"
-#include "../CircleBufferNew.h"
+#include "CircleBufferNew.h"
 #include "vector"
-#include "rtl-sdr.h"
+#include "rtlsdr/rtl-sdr.h"
 
 //#define FREQ_POPRAVKA			52434810
 
