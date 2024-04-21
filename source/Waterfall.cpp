@@ -3,7 +3,6 @@
 unsigned char newRange[256]{};
 
 Waterfall::Waterfall(Config* config, ViewModel* viewModel) {
-	memset(texturesArray, 0, sizeof(texturesArray) * size);
 	this->viewModel = viewModel;
 	this->config = config;
 
@@ -190,7 +189,7 @@ void Waterfall::setMinMaxValue(float min, float max) {
 }
 
 void Waterfall::clear() {
-	memset(texturesArray, 0, sizeof(texturesArray) * size);
+	memset(texturesArray, 0, getSize() * sizeof(GLuint));
 }
 
 GLuint* Waterfall::getTexturesArray() {

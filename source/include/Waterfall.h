@@ -11,7 +11,7 @@ class Waterfall {
 
   int size = 1200;
 
-  GLuint *texturesArray = new GLuint[size];
+  GLuint *texturesArray = new GLuint[size] { 0 };
 
   // int minColor = 0x1B1BB3; //blue
   // int minColor = 0x020C22;
