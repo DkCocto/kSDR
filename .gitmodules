@@ -10,3 +10,6 @@
 [submodule "libraries/windows/include/stb"]
 	path = libraries/windows/include/stb
 	url = https://github.com/nothings/stb.git
+[submodule "libraries/stb/include/stb"]
+	path = libraries/stb/include/stb
+	url = https://github.com/nothings/stb.git
