@@ -1,5 +1,5 @@
 #include "ReceiverRegionInterface.h"
-
+#include "Utils.h"
 ReceiverRegionInterface::ReceiverRegionInterface(SpectreWindowData* sWD, Config* config, ViewModel* viewModel) {
 	this->config = config;
 	this->viewModel = viewModel;

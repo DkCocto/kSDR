@@ -4,7 +4,7 @@ project(ksdr)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 17)
 
-include_directories(libraries)
+add_subdirectory(libraries)
 
 add_executable(ksdr 
   source/AGC.cpp
@@ -72,4 +72,4 @@ target_include_directories(ksdr PRIVATE source/include)
 find_package(glfw3 3.4 REQUIRED)
 find_package(OpenGL REQUIRED)
 
-target_link_libraries(ksdr fftw3 rtlsdr hackrf sdrplay_api portaudio glfw OpenGL::GL)
+target_link_libraries(ksdr fftw3 rtlsdr hackrf sdrplay_api portaudio glfw OpenGL::GL tinyxml2 imgui imgui-stdlib imgui-opengl3 imgui-glfw)

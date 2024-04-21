@@ -1,2 +1,2 @@
-include_directories(comport)
-include_directories(Spectre)
+add_subdirectory(comport)
+add_subdirectory(imgui)

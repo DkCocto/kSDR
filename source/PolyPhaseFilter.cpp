@@ -1,5 +1,6 @@
 #include "PolyPhaseFilter.h"
 #include "FIR.h"
+#include <cstdio>
 
 void PolyPhaseFilter::initSubFilters(std::vector<float> coeffs, int coeffsLen, int R) {
 	int M = coeffsLen;

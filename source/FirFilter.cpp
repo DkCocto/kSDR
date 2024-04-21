@@ -1,5 +1,4 @@
 #include "FirFilter.h"
-#include "Filter.h"
 
 FirFilter::FirFilter(std::vector<float> taps, int tabsLen) {
 	coeffs = taps;

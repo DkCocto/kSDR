@@ -1,4 +1,6 @@
-#include <imgui.h>
+#include "imgui.h"
+#include "imgui_stdlib.h"
+
 #include "MemoryRecordUserInterface.h"
 
 MemoryRecordUserInterface::MemoryRecordUserInterface(Config* config, ViewModel* viewModel, Spectre* spectre) {
