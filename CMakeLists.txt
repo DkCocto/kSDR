@@ -7,9 +7,9 @@ set(CMAKE_CXX_STANDARD 17)
 set(IMGUI_EXAMPLES OFF)
 set(IMGUI_DEMO OFF)
 
+set(IMGUI_DISABLE_OBSOLETE_FUNCTIONS OFF)
 set(IMGUI_DISABLE_OBSOLETE_KEYIO OFF)
 set(IMGUI_ENABLE_FREETYPE OFF)
-set(IMGUI_DISABLE_OBSOLETE_KEYIO OFF)
 
 set(IMGUI_ENABLE_STDLIB_SUPPORT ON)
 
@@ -81,9 +81,8 @@ add_executable(ksdr
 target_include_directories(ksdr PRIVATE source/include)
 
 IF (WIN32)
-  target_link_libraries(ksdr PRIVATE fftw hackrf rtlsdr sdrplay stb PortAudio glfw OpenGL::GL tinyxml2 imgui imgui-stdlib imgui-opengl3 imgui-glfw)
+  target_link_libraries(ksdr PRIVATE fftw3 hackrf rtlsdr sdrplay stb PortAudio glfw OpenGL::GL tinyxml2 imgui imgui-stdlib imgui-opengl3 imgui-glfw)
   target_include_directories(ksdr PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/libraries/portaudio/include")
-
 ELSE()
   target_link_libraries(ksdr PRIVATE fftw3 hackrf rtlsdr sdrplay_api PortAudio glfw OpenGL::GL tinyxml2 imgui imgui-stdlib imgui-opengl3 imgui-glfw)
 ENDIF()

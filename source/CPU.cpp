@@ -30,7 +30,7 @@ static float CalculateCPULoad(unsigned long long idleTicks, unsigned long long t
 {
 #if defined(__linux__)
     return .0f;
-#elif /* Windows */
+#else /* Windows */
     static unsigned long long _previousTotalTicks = 0;
     static unsigned long long _previousIdleTicks = 0;
 
