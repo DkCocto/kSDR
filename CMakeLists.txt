@@ -1,21 +1,29 @@
 cmake_minimum_required(VERSION 3.18)
-project(ksdr)
+
+project(ksdr
+  LANGUAGES CXX C
+  DESCRIPTION "Simple Fast SDR receiver app with OpenGL "
+  VERSION 1.0.9
+)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 17)
 
 set(IMGUI_EXAMPLES OFF)
 set(IMGUI_DEMO OFF)
-
 set(IMGUI_DISABLE_OBSOLETE_FUNCTIONS OFF)
 set(IMGUI_DISABLE_OBSOLETE_KEYIO OFF)
 set(IMGUI_ENABLE_FREETYPE OFF)
-
 set(IMGUI_ENABLE_STDLIB_SUPPORT ON)
 
-find_package(OpenGL)
-
-add_subdirectory(libraries)
+if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    add_compile_options(-Wall -Wextra -Wunused-parameter -Wformat -Wnarrowing -Wno-sign-conversion -Wno-error=declaration-after-statement)
+    if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        add_compile_options(-Wnontrivial-memaccess)
+    endif ()
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+    add_compile_options(/W4 /WX)
+endif()
 
 add_executable(ksdr
   source/AGC.cpp
@@ -78,11 +86,44 @@ add_executable(ksdr
   source/WindowBlackmanHarris.cpp
 )
 
+add_subdirectory(libraries)
+
 target_include_directories(ksdr PRIVATE source/include)
 
-IF (WIN32)
-  target_link_libraries(ksdr PRIVATE libusb-1.0 pthreadVC2 fftw3 hackrf rtlsdr sdrplay stb PortAudio glfw OpenGL::GL tinyxml2 imgui imgui-stdlib imgui-opengl3 imgui-glfw)
+find_package(OpenGL)
+
+if (WIN32)
+  target_link_libraries(ksdr PRIVATE 
+    libusb-1.0 # HackRF dependency
+    pthreadVC2 # HackRF dependency
+    fftw3 
+    hackrf 
+    rtlsdr 
+    sdrplay 
+    stb 
+    PortAudio 
+    glfw 
+    OpenGL::GL 
+    tinyxml2 
+    imgui 
+    imgui-stdlib 
+    imgui-opengl3 
+    imgui-glfw
+  )
   target_include_directories(ksdr PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/libraries/portaudio/include")
-ELSE()
-  target_link_libraries(ksdr PRIVATE fftw3 hackrf rtlsdr sdrplay_api PortAudio glfw OpenGL::GL tinyxml2 imgui imgui-stdlib imgui-opengl3 imgui-glfw)
-ENDIF()
+else()
+  target_link_libraries(ksdr PRIVATE 
+    fftw3 
+    hackrf 
+    rtlsdr 
+    sdrplay_api 
+    PortAudio 
+    glfw 
+    OpenGL::GL 
+    tinyxml2 
+    imgui 
+    imgui-stdlib 
+    imgui-opengl3 
+    imgui-glfw
+  )
+endif()
