@@ -1,14 +1,86 @@
 #include "HackRFDevice.h"
 
-int HackRFDevice::rx_callback(hackrf_transfer* transfer) {
-	int bytes_to_write = transfer->buffer_length;
 
+
+int HackRFDevice::rx_callback(hackrf_transfer* transfer) {
 	HackRFDevice* hackRFDevice = (HackRFDevice*)transfer->rx_ctx;
 
 	hackRFDevice->getBufferForSpec()->write(transfer->buffer, transfer->buffer_length);
 	hackRFDevice->getBufferForProc()->write(transfer->buffer, transfer->buffer_length);
 
 	return 0;
+}
+
+int HackRFDevice::tx_callback(hackrf_transfer* transfer) {
+	HackRFDevice* hackRFDevice = (HackRFDevice*)transfer->rx_ctx;
+
+	TransmittingData* transmittingData = hackRFDevice->transmittingData;
+
+	/*for (int i = 0; i < 255; i++) {
+
+		printf("nogka: %d %d\r\n", i, i ^ (uint8_t)0x80);
+	}
+
+	exit(0);*/
+
+	if (transmittingData != nullptr) {
+		//for (int i = 0; i < transfer->buffer_length / 2; i++) {
+			//(value-From1)/(From2-From1)*(To2-To1)+To1;
+			//[-1, 1] -> [0, 255]
+			//[-1, 1] -> [128, 255]
+			//[-1, 1] ->[-127, 127]
+
+			// 0 -> 128, 127 -> 255
+			// 128 -> 0, 255 -> 127
+
+			//Signal* signal = transmittingData->nextBuffer();
+
+			//transfer->buffer[2 * i] = hackRFDevice->chuchka((uint8_t)(((signal.I + 1.0) / 2.0) * 255.0));
+			//transfer->buffer[2 * i + 1] = hackRFDevice->chuchka((uint8_t)(((signal.Q + 1.0) / 2.0) * 255.0));
+
+
+			//printf("nogka: %d\r\n", (int)round((hackRFDevice->so->nextSample() - (-1.0)) / (1.0 - (-1.0)) * (255.0 - 0) + 0));
+		//}
+
+		//hackRFDevice->getBufferForSpec()->write(transfer->buffer, transfer->buffer_length);
+		//hackRFDevice->getBufferForProc()->write(transfer->buffer, transfer->buffer_length);
+
+		Signal* signal = transmittingData->nextBuffer();
+
+		for (int i = 0; i < 131072; i++) {
+			transfer->buffer[2 * i] = hackRFDevice->chuchka((uint8_t)(((signal[i].I + 1.0) / 2.0) * 255.0));
+			transfer->buffer[2 * i + 1] = hackRFDevice->chuchka((uint8_t)(((signal[i].Q + 1.0) / 2.0) * 255.0));
+
+			//std::cout << signal[i].I << "     " << signal[i].Q << std::endl;
+		}
+
+		//exit(0);
+
+		hackRFDevice->getBufferForSpec()->write(transfer->buffer, transfer->buffer_length);
+
+		delete[] signal;
+
+	}
+
+	/*uint8_t* titka = new uint8_t[262144];
+
+
+	for (int i = 0; i < 131072; i++) {
+		ComplexSignal p = hackRFDevice->co->next();
+		titka[2 * i] = hackRFDevice->chuchka((uint8_t)(((p.I + 1.0) / 2.0) * 255.0));
+		titka[2 * i + 1] = hackRFDevice->chuchka((uint8_t)(((p.Q + 1.0) / 2.0) * 255.0));
+	}
+
+	hackRFDevice->getBufferForSpec()->write(titka, 262144);
+		delete[] titka;*/
+
+
+	return 0;
+}
+
+uint8_t HackRFDevice::chuchka(uint8_t val) {
+	if (val >= 128 && val <= 255) return val - 128;
+	if (val >= 0 && val <= 127) return val + 128;
 }
 
 void HackRFDevice::setFreq(uint64_t frequency) {
@@ -49,6 +121,17 @@ void HackRFDevice::setVgaGain(uint32_t gain) {
 	printf("Gain VGA set: %d\r\n", (int)gain);
 }
 
+void HackRFDevice::setTxVgaGain(uint32_t gain) {
+	hackrf_error result = (hackrf_error)hackrf_set_txvga_gain(device, gain);
+	if (result != HACKRF_SUCCESS) {
+		fprintf(stderr,
+			"hackrf_set_txvga_gain() failed: %s (%d)\n",
+			hackrf_error_name(result),
+			result);
+	}
+	printf("Gain tx VGA set: %d\r\n", (int)gain);
+}
+
 void HackRFDevice::setBaseband(int baseband) {
 	hackrf_error result = (hackrf_error)hackrf_set_baseband_filter_bandwidth(device, hackrf_compute_baseband_filter_bw(baseband));
 	if (result != HACKRF_SUCCESS) {
@@ -70,6 +153,14 @@ void HackRFDevice::enableAmp(uint8_t amp) {
 	printf("AMP enabled set: %d\r\n", (int)amp);
 }
 
+void HackRFDevice::setDataForTransmitting(TransmittingData* transmittingData) {
+	this->transmittingData = transmittingData;
+}
+
+bool HackRFDevice::isDeviceTransmitting() {
+	return isTxOn;
+}
+
 HackRFDevice::~HackRFDevice() {
 	printf("~HackRFDevice()\r\n");
 	stop();
@@ -78,6 +169,7 @@ HackRFDevice::~HackRFDevice() {
 }
 
 Result HackRFDevice::start() {
+	isTxOn = false;
 	uint8_t amp = config->hackrf.rxAmp;
 	uint8_t antenna = 0;
 	uint32_t baseband = config->hackrf.basebandFilter;
@@ -87,6 +179,9 @@ Result HackRFDevice::start() {
 
 	//0 .. 62 step 2
 	uint32_t vga_gain = config->hackrf.vgaGain * 2;
+
+	//0 .. 47 step 1
+	uint32_t txVgaGain = config->hackrf.txVgaGain;
 
 	hackrf_error result;
 
@@ -175,6 +270,14 @@ Result HackRFDevice::start() {
 		return initResult;
 	}
 
+	result = (hackrf_error)hackrf_set_txvga_gain(device, txVgaGain);
+	if (result != HACKRF_SUCCESS) {
+		initResult.err.append("hackrf_set_txvga_gain() failed: ");
+		initResult.err.append(hackrf_error_name(result));
+		initResult.status = INIT_FAULT;
+		return initResult;
+	}
+
 	result = (hackrf_error)hackrf_start_rx(device, rx_callback, this);
 	if (result != HACKRF_SUCCESS) {
 		initResult.status = INIT_FAULT;
@@ -192,6 +295,59 @@ Result HackRFDevice::start() {
 	if (DEBUG) printf("HackRFDevice::init()\r\n");
 }
 
+bool HackRFDevice::startTX() {
+	if (device != NULL) {
+		//if (!hackrf_is_streaming(device)) {
+			hackrf_error result = (hackrf_error)hackrf_start_tx(device, tx_callback, this);
+			if (result != HACKRF_SUCCESS) {
+				if (DEBUG) printf("Error hackrf_start_tx!\r\n");
+			}
+			else {
+				isTxOn = true;
+				return true;
+			}
+		//}
+	}
+	return false;
+}
+
+bool HackRFDevice::stopTX() {
+	if (device != NULL) {
+		if (hackrf_is_streaming(device)) {
+			hackrf_error result = (hackrf_error)hackrf_stop_tx(device);
+			if (result != HACKRF_SUCCESS) {
+				if (DEBUG) printf("Error hackrf_stop_tx!\r\n");
+			}
+			else {
+				isTxOn = false;
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+bool HackRFDevice::pauseRX() {
+	if (device != NULL) {
+		if (hackrf_is_streaming(device)) {
+			hackrf_error result = (hackrf_error)hackrf_stop_rx(device);
+			if (result != HACKRF_SUCCESS) {
+				if (DEBUG) printf("Error hackrf_stop_rx!\r\n");
+			}
+			else return true;
+		}
+	}
+	return false;
+}
+
+bool HackRFDevice::releasePauseRX() {
+	hackrf_error result = (hackrf_error)hackrf_start_rx(device, rx_callback, this);
+	if (result != HACKRF_SUCCESS) {
+		if (DEBUG) printf("Error hackrf_start_rx!\r\n");
+	} else return true;
+	return false;
+}
+
 void HackRFDevice::stop() {
 	hackrf_error result = HACKRF_ERROR_OTHER;
 	if (device != NULL) {
@@ -205,6 +361,7 @@ void HackRFDevice::stop() {
 		}
 		hackrf_exit();
 		if (DEBUG) printf("Device stopped!\r\n");
+		isTxOn = false;
 	}
 }
 

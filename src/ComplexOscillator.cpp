@@ -15,6 +15,10 @@ void ComplexOscillator::setFreq(int freq) {
 	sinOscillator.setFreq(freq);
 }
 
+float ComplexOscillator::getFreq() {
+	return (float)freq;
+}
+
 ComplexSignal ComplexOscillator::next() {
 	return ComplexSignal(cosOscillator.nextSample(), sinOscillator.nextSample());
 }

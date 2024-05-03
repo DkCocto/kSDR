@@ -19,6 +19,7 @@ public:
 	ComplexOscillator(int freq, int samplingRate);
 
 	void setFreq(int freq);
+	float getFreq();
 
 	ComplexSignal next();
 

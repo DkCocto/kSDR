@@ -3,6 +3,7 @@
 #include "hackrf\hackrf.h"
 #include "DeviceN.h"
 #include "../CircleBufferNew.h"
+#include "../TransmittingData.h"
 
 class HackRFDevice : public DeviceN {
 	private:
@@ -12,26 +13,44 @@ class HackRFDevice : public DeviceN {
 		hackrf_device* device = NULL;
 
 		static int rx_callback(hackrf_transfer* transfer);
+		static int tx_callback(hackrf_transfer* transfer);
+
+		uint8_t chuchka(uint8_t val);
 
 		CircleBufferNew<uint8_t>* bufferForSpec;
 		CircleBufferNew<uint8_t>* bufferForProc;
 
-	public:
+		TransmittingData* transmittingData = nullptr;
 
+		bool isTxOn = false;
+
+
+
+	public:
+		ComplexOscillator* co;
 		void setFreq(uint64_t frequency);
 		void setLnaGain(uint32_t gain);
 		void setVgaGain(uint32_t gain);
+		void setTxVgaGain(uint32_t gain);
 		void setBaseband(int baseband);
 		void enableAmp(uint8_t amp);
+		void setDataForTransmitting(TransmittingData* transmittingData);
+
+		bool isDeviceTransmitting();
 
 		HackRFDevice(Config* config) : DeviceN(config) {
 			bufferForSpec = new CircleBufferNew<uint8_t>(config);
 			bufferForProc = new CircleBufferNew<uint8_t>(config);
+			co = new ComplexOscillator(1000, 4000000);
 		};
 
 		~HackRFDevice();
 
 		Result start();
+		bool startTX();
+		bool stopTX();
+		bool pauseRX();
+		bool releasePauseRX();
 		void stop();
 
 		CircleBufferNew<uint8_t>* getBufferForSpec();

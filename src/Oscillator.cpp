@@ -11,6 +11,7 @@ float Oscillator::nextPhase() {
 
 Oscillator::Oscillator() { }
 
+
 Oscillator::Oscillator(int freq, int samplingRate) {
 	this->freq = freq;
 	this->samplingRate = samplingRate;

@@ -110,7 +110,7 @@ void Config::loadXml() {
                 hackrf.vgaGain = std::stoi(std::string(pvgaGain->GetText()));
 
                 tinyxml2::XMLElement* ptxAmp = pHackRF->FirstChildElement("txAmp");
-                hackrf.txAmp = std::stoi(std::string(ptxAmp->GetText()));
+                hackrf.txVgaGain = std::stoi(std::string(ptxAmp->GetText()));
             }
 
             tinyxml2::XMLElement* pRSP = pDevice->FirstChildElement("RSP");
@@ -421,7 +421,8 @@ void Config::save() {
                 tinyxml2::XMLElement* pvgaGain = pHackRF->FirstChildElement("vgaGain");
                 pvgaGain->SetText(hackrf.vgaGain);
 
-                //tinyxml2::XMLElement* ptxAmp = pHackRF->FirstChildElement("txAmp");
+                tinyxml2::XMLElement* ptxVgaGain = pHackRF->FirstChildElement("txAmp");
+                ptxVgaGain->SetText(hackrf.txVgaGain);
             }
 
             tinyxml2::XMLElement* pRSP = pDevice->FirstChildElement("RSP");

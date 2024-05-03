@@ -66,6 +66,7 @@ public:
 	struct HackRFModel {
 		int lnaGain = 0;
 		int vgaGain = 8;
+		int txVgaGain = 20;
 		int enableAmp = 0;
 		int basebandFilter = 1750000;
 	} hackRFModel;

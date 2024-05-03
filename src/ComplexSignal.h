@@ -8,8 +8,6 @@ class ComplexSignal {
 
 	float magnitude();
 
-	void multiply(float val);
-
 public: 
 
 	float I = 0.0f;
@@ -20,4 +18,5 @@ public:
 	ComplexSignal(float I, float Q);
 
 	void normalize();
+	void multiply(float val);
 };

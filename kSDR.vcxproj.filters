@@ -243,6 +243,12 @@
     <ClCompile Include="src\imgui\imgui_widgets.cpp">
       <Filter>Исходные файлы\imgui</Filter>
     </ClCompile>
+    <ClCompile Include="src\TransmittingData.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HilbertTransformFFTW.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Config.h">
@@ -469,6 +475,12 @@
     </ClInclude>
     <ClInclude Include="src\imgui\imgui_stdlib.h">
       <Filter>Файлы заголовков\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TransmittingData.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HilbertTransformFFTW.h">
+      <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

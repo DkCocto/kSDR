@@ -68,6 +68,14 @@ void SoundProcessorThread::run() {
 			return;
 		}
 
+		if (device != nullptr) {
+			switch (deviceType) {
+				case HACKRF:
+					if (((HackRFDevice*)device)->isDeviceTransmitting()) continue;
+					break;
+			}
+		}
+
 		//Обработка ширины фильтра
 		if (storedFilterWidth != viewModel->filterWidth) {
 			storedFilterWidth = viewModel->filterWidth;

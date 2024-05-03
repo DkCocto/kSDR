@@ -1,5 +1,9 @@
 #include "HackRFInterface.h"
 
+HackRfInterface::~HackRfInterface() {
+	delete transmittingData;
+}
+
 void HackRfInterface::setFreq(uint64_t freq) {
 	if (savedFreq != freq) {
 		savedFreq = freq;
@@ -21,6 +25,13 @@ void HackRfInterface::setVgaGain(uint32_t gain) {
 	}
 }
 
+void HackRfInterface::setTxVgaGain(uint32_t gain) {
+	if (savedTxVgaGain != gain) {
+		savedTxVgaGain = gain;
+		needToSetTxVgaGain = true;
+	}
+}
+
 void HackRfInterface::setBaseband(int baseband) {
 	if (savedBaseband != baseband) {
 		savedBaseband = baseband;
@@ -33,6 +44,27 @@ void HackRfInterface::enableAmp(uint8_t amp) {
 		savedAmp = amp;
 		needToSetAmp = true;
 	}
+}
+
+bool HackRfInterface::isDeviceTransmitting() {
+	return ((HackRFDevice*)device)->isDeviceTransmitting();
+}
+
+bool HackRfInterface::pauseRX() {
+	return ((HackRFDevice*)device)->pauseRX();
+}
+
+bool HackRfInterface::releasePauseRX() {
+	return ((HackRFDevice*)device)->releasePauseRX();
+}
+
+bool HackRfInterface::startTX(int freq) {
+	transmittingData->setFreq(freq);
+	return ((HackRFDevice*)device)->startTX();
+}
+
+bool HackRfInterface::stopTX() {
+	return ((HackRFDevice*)device)->stopTX();
 }
 
 void HackRfInterface::sendParamsToDevice() {
@@ -52,6 +84,11 @@ void HackRfInterface::sendParamsToDevice() {
 	if (needToSetVgaGain) {
 		hackRFDevice->setVgaGain(savedVgaGain * 2);
 		needToSetVgaGain = false;
+	}
+
+	if (needToSetTxVgaGain) {
+		hackRFDevice->setTxVgaGain(savedTxVgaGain);
+		needToSetTxVgaGain = false;
 	}
 
 	if (needToSetBaseband) {

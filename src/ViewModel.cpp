@@ -16,6 +16,7 @@ void ViewModel::storeToConfig() {
 
 	config->hackrf.lnaGain = hackRFModel.lnaGain;
 	config->hackrf.vgaGain = hackRFModel.vgaGain;
+	config->hackrf.txVgaGain = hackRFModel.txVgaGain;
 	config->hackrf.rxAmp = hackRFModel.enableAmp;
 }
 
@@ -33,6 +34,7 @@ void ViewModel::loadFromConfig() {
 	minDb = config->spectreMin;
 	hackRFModel.lnaGain = config->hackrf.lnaGain;
 	hackRFModel.vgaGain = config->hackrf.vgaGain;
+	hackRFModel.txVgaGain = config->hackrf.txVgaGain;
 	hackRFModel.enableAmp = config->hackrf.rxAmp;
 	filterWidth = config->filterWidth;
 	receiverMode = config->receiver.modulation;

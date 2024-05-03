@@ -223,7 +223,7 @@ void Display::renderImGUIFirst() {
 		ImGui::RadioButton("LSB", &viewModel->receiverMode, LSB); ImGui::SameLine();
 		ImGui::RadioButton("AM", &viewModel->receiverMode, AM); ImGui::SameLine();
 		ImGui::RadioButton("nFM", &viewModel->receiverMode, nFM);
-
+		
 		ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
 
 		//ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
@@ -350,16 +350,34 @@ void Display::renderImGUIFirst() {
 				ImGui::SliderInt("LNA Gain", &viewModel->hackRFModel.lnaGain, 0, 5);
 				ImGui::SliderInt("VGA Gain", &viewModel->hackRFModel.vgaGain, 0, 31);
 				ImGui::SliderInt("AMP Gain", &viewModel->hackRFModel.enableAmp, 0, 1);
+				ImGui::SliderInt("Tx VGA Gain", &viewModel->hackRFModel.txVgaGain, 0, 47);
 				hackRFbasebandFilterLS->drawSetting();
 
 				if (hackRfInterface != nullptr) {
 					hackRfInterface->setLnaGain((uint32_t)viewModel->hackRFModel.lnaGain);
 					hackRfInterface->setVgaGain(viewModel->hackRFModel.vgaGain);
 					hackRfInterface->enableAmp(viewModel->hackRFModel.enableAmp);
+					hackRfInterface->setTxVgaGain(viewModel->hackRFModel.txVgaGain);
 					hackRfInterface->setBaseband(env->getConfig()->hackrf.basebandFilter);
 
 					if (env->getDeviceController()->isStatusInitOk()) hackRfInterface->sendParamsToDevice();
 				}
+
+				if (hackRfInterface->isDeviceTransmitting()) ImGui::BeginDisabled();
+				if (ImGui::Button("Start Transmitting")) {
+					if (hackRfInterface->pauseRX()) {
+						hackRfInterface->startTX((int)env->getReceiverLogic()->getFrequencyDelta());
+					}
+				}
+				if (hackRfInterface->isDeviceTransmitting()) ImGui::EndDisabled();
+
+				if (!hackRfInterface->isDeviceTransmitting()) ImGui::BeginDisabled();
+				if (ImGui::Button("Stop Transmitting")) { 
+					if (hackRfInterface->stopTX()) {
+						hackRfInterface->releasePauseRX();
+					}
+				};
+				if (!hackRfInterface->isDeviceTransmitting()) ImGui::EndDisabled();
 			}
 
 			if (env->getConfig()->deviceType == DeviceType::RSP) {
@@ -509,6 +527,9 @@ void Display::renderImGUIFirst() {
 				}
 			}
 		}
+
+		//Danger нужно проверить этот момент
+		viewModel->storeToConfig();
 
 	ImGui::End();
 	//ImGui::PopID();

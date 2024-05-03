@@ -129,7 +129,7 @@ public:
 		char rxAmp = 0;
 		char lnaGain = 16;
 		char vgaGain = 20;
-		char txAmp = 20;
+		char txVgaGain = 47;
 	} hackrf;
 
 	struct RSP {
