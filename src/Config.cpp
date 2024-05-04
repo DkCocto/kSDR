@@ -16,18 +16,19 @@ void Config::initSettings() {
 
     switch (deviceType) {
     case DeviceType::RSP:
-        inputSamplerate = (rsp.deviceSamplingRate / rsp.deviceDecimationFactor) / inputSamplerateDivider;
+        currentWorkingInputSamplerate = (rsp.deviceSamplingRate / rsp.deviceDecimationFactor) / inputSamplerateDivider;
         break;
     case DeviceType::HACKRF:
-        inputSamplerate = hackrf.deviceSamplingRate / inputSamplerateDivider;
+        currentWorkingInputSamplerate = hackrf.deviceSamplingRate / inputSamplerateDivider;
         break;
     case DeviceType::RTL:
-        inputSamplerate = rtl.deviceSamplingRate / inputSamplerateDivider;
+        currentWorkingInputSamplerate = rtl.deviceSamplingRate / inputSamplerateDivider;
         break;
     default:
-        inputSamplerate = 4000000;
+        currentWorkingInputSamplerate = 4000000;
     }
 
+    calcInputSamplerate();
     calcOutputSamplerate();
 
     bufferWriteAudioLen = (outputSamplerateDivider) / 4;
@@ -36,12 +37,14 @@ void Config::initSettings() {
 
     audioWriteFrameLen = (outputSamplerateDivider) / 4;
 
-    //circleBufferLen = inputSamplerate / 4;
+    audioReadFrameLen = 16;
 
-    hilbertTransformLen = 255;
+    //circleBufferLen = currentWorkingInputSamplerate / 4;
+
+    HILBERT_TRANSFORM_LEN = 255;
     polyphaseFilterLen = 2 * outputSamplerateDivider;
 
-    fftBandwidth = (float)inputSamplerate / (float)fftLen;
+    fftBandwidth = (float)currentWorkingInputSamplerate / (float)fftLen;
 }
 
 Config::~Config() {
@@ -643,7 +646,7 @@ void Config::deleteRecord(int index) {
 }
 
 void Config::calcOutputSamplerate() {
-	int sampleRate = inputSamplerate;
+	int sampleRate = currentWorkingInputSamplerate;
 	int div = 1;
 
 	while (true) {
@@ -655,5 +658,10 @@ void Config::calcOutputSamplerate() {
 	}
 	outputSamplerateDivider = div;
 	outputSamplerate = sampleRate / div;
-	printf("Audio samplerate: %d, div: %d\r\n", outputSamplerate, outputSamplerateDivider);
+	printf("Audio output samplerate: %d, div: %d\r\n", outputSamplerate, outputSamplerateDivider);
+}
+
+void Config::calcInputSamplerate() {
+    inputSamplerateSound = 40000;
+    printf("Audio input samplerate: %d\r\n", inputSamplerateSound);
 }

@@ -5,6 +5,9 @@
 #include "../CircleBufferNew.h"
 #include "../TransmittingData.h"
 
+#define HACKRF_TX_BUFFER_LEN 262144
+#define HACKRF_TX_BUFFER_HALF_LEN 131072
+
 class HackRFDevice : public DeviceN {
 	private:
 
@@ -24,10 +27,7 @@ class HackRFDevice : public DeviceN {
 
 		bool isTxOn = false;
 
-
-
 	public:
-		ComplexOscillator* co;
 		void setFreq(uint64_t frequency);
 		void setLnaGain(uint32_t gain);
 		void setVgaGain(uint32_t gain);
@@ -41,7 +41,6 @@ class HackRFDevice : public DeviceN {
 		HackRFDevice(Config* config) : DeviceN(config) {
 			bufferForSpec = new CircleBufferNew<uint8_t>(config);
 			bufferForProc = new CircleBufferNew<uint8_t>(config);
-			co = new ComplexOscillator(1000, 4000000);
 		};
 
 		~HackRFDevice();

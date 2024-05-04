@@ -54,7 +54,7 @@ bool RSP1::init() {
     mir_sdr_SetGrModeT grMode = mir_sdr_USE_SET_GR_ALT_MODE;
     mir_sdr_ErrT r;
     int gainR = viewModel->rspModel.gain;
-    //uint32_t samp_rate = config->inputSamplerate * config->inputSamplerateDivider;
+    //uint32_t samp_rate = config->currentWorkingInputSamplerate * config->inputSamplerateDivider;
     uint32_t frequency = config->startFrequency + ((config->receiver.enableFrequencyShift == true) ? config->receiver.frequencyShift : 0);
     savedFreq = frequency;
     int bwkHz = mir_sdr_BW_0_600;

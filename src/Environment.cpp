@@ -6,7 +6,10 @@ Environment::Environment() {
 	deviceController = new DeviceController(config);							//is not need to recreate
 	
 	soundBuffer = new CircleBufferNew<float>(config);							//is not need to recreate
-	
+
+	soundInputBuffer = new CircleBufferNew<float>(config);						//is not need to recreate
+	deviceController->setTXBuffer(soundInputBuffer);
+
 	fftData = new FFTData(config->fftLen / 2);									//is not need to recreate
 	specHandler = new SpectreHandler(config, fftData, viewModel, deviceController);	//need to recreate
 	flowingSpec = new FlowingSpectre(config, viewModel);						//is not need to recreate
@@ -25,6 +28,7 @@ void Environment::cleanUp() {
 	delete specHandler;
 	delete deviceController;
 	delete soundBuffer;
+	delete soundInputBuffer;
 	delete receiverLogic;
 }
 
@@ -88,17 +92,21 @@ void Environment::startProcessing() {
 		//Инициализируем звуковую карту
 		soundCard->open();
 
-		circleBufferWriterThread->start().detach();
+		soundCardWriterThread->start().detach();
+
+		soundCardInputReaderThread->start().detach();
+
 		soundProcessor->start().detach();
 
-		//while (!soundProcessor->isWorking() || !circleBufferWriterThread->isWorking() || !specHandler->isWorking());
+		//while (!soundProcessor->isWorking() || !soundCardWriterThread->isWorking() || !specHandler->isWorking());
 	}
 }
 
 void Environment::init() {
 	soundCard = new SoundCard(config);
 	soundProcessor = new SoundProcessorThread(deviceController, viewModel, receiverLogic, config, soundBuffer, specHandler);
-	circleBufferWriterThread = new CircleBufferWriterThread(config, deviceController, soundBuffer, soundCard);
+	soundCardWriterThread = new SoundCardWriterThread(config, deviceController, soundBuffer, soundCard);
+	soundCardInputReaderThread = new SoundCardInputReaderThread(config, soundInputBuffer, soundCard);
 }
 
 void Environment::stopProcessing() {
@@ -111,10 +119,10 @@ void Environment::stopProcessing() {
 		soundProcessor = nullptr;
 	}
 
-	if (circleBufferWriterThread != nullptr) {
-		while (circleBufferWriterThread->isWorking());
-		delete circleBufferWriterThread;
-		circleBufferWriterThread = nullptr;
+	if (soundCardWriterThread != nullptr) {
+		while (soundCardWriterThread->isWorking());
+		delete soundCardWriterThread;
+		soundCardWriterThread = nullptr;
 	}
 
 	if (specHandler != nullptr) {

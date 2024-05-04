@@ -79,9 +79,14 @@ bool DeviceController::isStatusInitFail() {
     return result.status == INIT_FAULT;
 }
 
+void DeviceController::setTXBuffer(CircleBufferNew<float>* txBuffer) {
+    this->txBuffer = txBuffer;
+}
+
 template<typename DEVICE, typename INTERFACE> void DeviceController::createDevice(DeviceType type) {
     device = new DEVICE(config);
     deviceInterface = new INTERFACE((DEVICE*)device);
+    if (type == HACKRF) ((HackRfInterface*)deviceInterface)->setTXBuffer(txBuffer);
     config->deviceType = type;
     result = Result { CREATED_BUT_NOT_INIT };
     result = device->start();

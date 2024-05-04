@@ -11,15 +11,15 @@ SoundProcessorThread::SoundProcessorThread(DeviceController* devCnt,
 	this->viewModel = viewModel;
 	this->receiverLogic = receiverLogic;
 
-	mixer = Mixer(config->inputSamplerate);
+	mixer = Mixer(config->currentWorkingInputSamplerate);
 
 	len = config->readSoundProcessorBufferLen;
 
 	this->soundWriterCircleBuffer = soundWriterCircleBuffer;
 	this->specHandler = specHandler;
 
-	hilbertTransform = new HilbertTransform(config->inputSamplerate, config->hilbertTransformLen);
-	delay = new Delay((config->hilbertTransformLen - 1) / 2);
+	hilbertTransform = new HilbertTransform(config->currentWorkingInputSamplerate, config->HILBERT_TRANSFORM_LEN);
+	delay = new Delay((config->HILBERT_TRANSFORM_LEN - 1) / 2);
 	agc = AGC(config, specHandler);
 
 	decimateBufferI = new float[config->outputSamplerateDivider];
@@ -45,8 +45,8 @@ SoundProcessorThread::~SoundProcessorThread() {
 }
 
 void SoundProcessorThread::initFilters(int filterWidth) {
-	firFilterI.initCoeffs(config->inputSamplerate, filterWidth, config->outputSamplerateDivider, config->polyphaseFilterLen);
-	firFilterQ.initCoeffs(config->inputSamplerate, filterWidth, config->outputSamplerateDivider, config->polyphaseFilterLen);
+	firFilterI.initCoeffs(config->currentWorkingInputSamplerate, filterWidth, config->outputSamplerateDivider, config->polyphaseFilterLen);
+	firFilterQ.initCoeffs(config->currentWorkingInputSamplerate, filterWidth, config->outputSamplerateDivider, config->polyphaseFilterLen);
 	fir.init(fir.LOWPASS, fir.BLACKMAN_HARRIS, 512, filterWidth, 0, config->outputSamplerate);
 
 	firI.init(fir.LOWPASS, fir.BARTLETT, 256, filterWidth, 0, config->outputSamplerate);

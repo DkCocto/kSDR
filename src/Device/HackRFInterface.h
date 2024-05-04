@@ -30,11 +30,14 @@ class HackRfInterface : public DeviceInterface {
 public:
 
 	HackRfInterface(HackRFDevice* hackRFDevice) : DeviceInterface(hackRFDevice) {
-		transmittingData = new TransmittingData(hackRFDevice->config, 0, hackRFDevice->config->hackrf.deviceSamplingRate);
+		transmittingData = new TransmittingData(hackRFDevice->config, 0, hackRFDevice->config->hackrf.deviceSamplingRate, HACKRF_TX_BUFFER_LEN);
 		((HackRFDevice*)device)->setDataForTransmitting(transmittingData);
 	};
 
 	~HackRfInterface();
+
+	void setTXBuffer(CircleBufferNew<float>* txBuffer);
+	CircleBufferNew<float>* getTXBuffer();
 
 	void setFreq(uint64_t freq);
 	void setLnaGain(uint32_t gain);

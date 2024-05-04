@@ -20,13 +20,14 @@ public:
 
 	//int circleBufferLen;
 
-	int inputSamplerate;
+	int currentWorkingInputSamplerate;
 
 	int inputSamplerateDivider = 1;
 	int delayedInputSamplerateDivider = inputSamplerateDivider;
 
-	int outputSamplerate;
+	int inputSamplerateSound;
 
+	int outputSamplerate;
 	int outputSamplerateDivider;
 
 	int inputChannelNumber;
@@ -45,7 +46,7 @@ public:
 
 	int readSize;
 
-	int hilbertTransformLen;
+	int HILBERT_TRANSFORM_LEN;
 	int polyphaseFilterLen;
 
 	int fftLen = 64 * 1024;
@@ -182,4 +183,5 @@ public:
 
 private:
 	void calcOutputSamplerate();
+	void calcInputSamplerate();
 };

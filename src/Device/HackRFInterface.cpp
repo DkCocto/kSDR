@@ -4,6 +4,14 @@ HackRfInterface::~HackRfInterface() {
 	delete transmittingData;
 }
 
+void HackRfInterface::setTXBuffer(CircleBufferNew<float>* txBuffer) {
+	if (transmittingData != nullptr) transmittingData->setTXBuffer(txBuffer);
+}
+
+CircleBufferNew<float>* HackRfInterface::getTXBuffer() {
+	return transmittingData->getTXBuffer();
+}
+
 void HackRfInterface::setFreq(uint64_t freq) {
 	if (savedFreq != freq) {
 		savedFreq = freq;

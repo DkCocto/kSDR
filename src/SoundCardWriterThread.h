@@ -6,7 +6,7 @@
 #include "windows.h"
 #include "Thread/MyThread.h"
 
-class CircleBufferWriterThread : public MyThread {
+class SoundCardWriterThread : public MyThread {
 
 	CircleBufferNew<float>* soundWriterCircleBuffer;
 	SoundCard* soundCard;
@@ -20,9 +20,8 @@ class CircleBufferWriterThread : public MyThread {
 
 public:
 
-	CircleBufferWriterThread(Config* config, DeviceController* deviceController, CircleBufferNew<float>* cb, SoundCard* sc);
-	~CircleBufferWriterThread();
+	SoundCardWriterThread(Config* config, DeviceController* deviceController, CircleBufferNew<float>* cb, SoundCard* sc);
+	~SoundCardWriterThread();
 	void run();
 	std::thread start();
 };
-

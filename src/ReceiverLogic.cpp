@@ -15,7 +15,7 @@ double ReceiverLogic::getCenterFrequency() {
 void ReceiverLogic::setFrequencyDelta(double frequencyDelta) {
 	this->frequencyDelta = frequencyDelta;
 
-	double freqFromZero = config->inputSamplerate / 2.0 + frequencyDelta;
+	double freqFromZero = config->currentWorkingInputSamplerate / 2.0 + frequencyDelta;
 
 	FlowingSpectre::FREQ_RANGE range = flowingSpec->getVisibleFreqRangeFromSamplerate();
 
@@ -29,8 +29,8 @@ void ReceiverLogic::setFrequencyDeltaBySpectrePosPx(double positionInSpectrePx) 
 	receiverPosOnBin = round((double)flowingSpec->getA() + (double)receiverPosOnPx / ((double)spectreWidthPx / (double)flowingSpec->getLen()));
 	
 	double pos = receiverPosOnBin * flowingSpec->getFreqOfOneSpectreBin();
-	if (pos > (double)config->inputSamplerate / 2.0) frequencyDelta = pos - (double)config->inputSamplerate / 2.0;
-	else if (pos < (double)config->inputSamplerate / 2.0) frequencyDelta = (-1.0) * ((double)config->inputSamplerate / 2.0 - pos);
+	if (pos > (double)config->currentWorkingInputSamplerate / 2.0) frequencyDelta = pos - (double)config->currentWorkingInputSamplerate / 2.0;
+	else if (pos < (double)config->currentWorkingInputSamplerate / 2.0) frequencyDelta = (-1.0) * ((double)config->currentWorkingInputSamplerate / 2.0 - pos);
 	else frequencyDelta = 0.0;
 }
 
@@ -90,9 +90,9 @@ void ReceiverLogic::setFreq(double freq) {
 		//if (freq >= totalFreqsRange.first && freq <= totalFreqsRange.second) {
 			//empty
 		//} else {
-			if (SHIFT < config->inputSamplerate / 2.0f) {
+			if (SHIFT < config->currentWorkingInputSamplerate / 2.0f) {
 				viewModel->centerFrequency = freq - SHIFT;
-			} else viewModel->centerFrequency = freq - config->inputSamplerate / 4.0f;
+			} else viewModel->centerFrequency = freq - config->currentWorkingInputSamplerate / 4.0f;
 		//}
 
 		double delta = freq - viewModel->centerFrequency;

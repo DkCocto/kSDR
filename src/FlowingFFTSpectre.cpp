@@ -107,15 +107,15 @@ void FlowingSpectre::printCurrentPos() {
 }
 
 int FlowingSpectre::getSpectrePosByAbsoluteFreq(double freq) {
-	return round(((float)(config->fftLen / 2.0) / (float)config->inputSamplerate) * (freq - (float)viewModel->centerFrequency + ((float)config->inputSamplerate / 2.0)));
+	return round(((float)(config->fftLen / 2.0) / (float)config->currentWorkingInputSamplerate) * (freq - (float)viewModel->centerFrequency + ((float)config->currentWorkingInputSamplerate / 2.0)));
 }
 
 float FlowingSpectre::getAbsoluteFreqBySpectrePos(int pos) {
-	return (float)viewModel->centerFrequency - ((float)config->inputSamplerate / 2.0) + getFreqByPosFromSamplerate(pos);
+	return (float)viewModel->centerFrequency - ((float)config->currentWorkingInputSamplerate / 2.0) + getFreqByPosFromSamplerate(pos);
 }
 
 float FlowingSpectre::getFreqByPosFromSamplerate(int pos) {
-	return (float)pos * ((float)config->inputSamplerate / (float)(config->fftLen / 2.0));
+	return (float)pos * ((float)config->currentWorkingInputSamplerate / (float)(config->fftLen / 2.0));
 }
 
 FlowingSpectre::FREQ_RANGE FlowingSpectre::getVisibleFreqRangeFromSamplerate() {
@@ -138,8 +138,8 @@ FlowingSpectre::FREQ_RANGE FlowingSpectre::getVisibleFreqsRangeAbsolute() {
 /// <returns></returns>
 FlowingSpectre::FREQ_RANGE FlowingSpectre::getTotalFreqsRange() {
 	FREQ_RANGE freqRange {};
-	freqRange.first = (float)(viewModel->centerFrequency - (config->inputSamplerate / 2));
-	freqRange.second = (float)(viewModel->centerFrequency + (config->inputSamplerate / 2));
+	freqRange.first = (float)(viewModel->centerFrequency - (config->currentWorkingInputSamplerate / 2));
+	freqRange.second = (float)(viewModel->centerFrequency + (config->currentWorkingInputSamplerate / 2));
 	return freqRange;
 }
 

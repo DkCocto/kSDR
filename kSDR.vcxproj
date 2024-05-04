@@ -22,7 +22,8 @@
     <ClCompile Include="src\AGC.cpp" />
     <ClCompile Include="src\CircleBuffer.cpp" />
     <ClCompile Include="src\CircleBufferReaderThread.cpp" />
-    <ClCompile Include="src\CircleBufferWriterThread.cpp" />
+    <ClCompile Include="src\SoundCardInputReaderThread.cpp" />
+    <ClCompile Include="src\SoundCardWriterThread.cpp" />
     <ClCompile Include="src\ColoredSpectreBG.cpp" />
     <ClCompile Include="src\ComplexOscillator.cpp" />
     <ClCompile Include="src\ComplexSignal.cpp" />
@@ -97,7 +98,8 @@
     <ClInclude Include="src\CircleBuffer.h" />
     <ClInclude Include="src\CircleBufferNew.h" />
     <ClInclude Include="src\CircleBufferReaderThread.h" />
-    <ClInclude Include="src\CircleBufferWriterThread.h" />
+    <ClInclude Include="src\SoundCardInputReaderThread.h" />
+    <ClInclude Include="src\SoundCardWriterThread.h" />
     <ClInclude Include="src\ColoredSpectreBG.h" />
     <ClInclude Include="src\ComplexOscillator.h" />
     <ClInclude Include="src\ComplexSignal.h" />

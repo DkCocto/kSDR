@@ -54,5 +54,5 @@ ViewModel::~ViewModel() {
 }
 
 void ViewModel::setBufferAvailable(int readAvailableBufferCount) {
-	bufferAvailable = (float)readAvailableBufferCount / (config->inputSamplerate / config->inputSamplerateDivider);
+	bufferAvailable = (float)readAvailableBufferCount / (config->currentWorkingInputSamplerate / config->inputSamplerateDivider);
 }

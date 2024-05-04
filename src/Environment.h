@@ -3,7 +3,8 @@
 #include "Config.h"
 #include "Device/DeviceController.h"
 #include "FlowingFFTSpectre.h"
-#include "CircleBufferWriterThread.h"
+#include "SoundCardWriterThread.h"
+#include "SoundCardInputReaderThread.h"
 #include "SoundCard.h"
 #include "SoundProcessorThread.h"
 #include "ViewModel.h"
@@ -24,12 +25,15 @@ class Environment {
 
 		//CircleBuffer* IQSourceBuffer2 = nullptr;
 		CircleBufferNew<float>* soundBuffer = nullptr;
+		CircleBufferNew<float>* soundInputBuffer = nullptr;
 
 		SpectreHandler* specHandler = nullptr;
 
 		SoundProcessorThread* soundProcessor = nullptr;
 
-		CircleBufferWriterThread* circleBufferWriterThread = nullptr;
+		SoundCardWriterThread* soundCardWriterThread = nullptr;
+
+		SoundCardInputReaderThread* soundCardInputReaderThread = nullptr;
 
 		SoundCard* soundCard = nullptr;
 

@@ -177,7 +177,7 @@
     <ClCompile Include="src\SoundProcessorThread.cpp">
       <Filter>Исходные файлы\Thread</Filter>
     </ClCompile>
-    <ClCompile Include="src\CircleBufferWriterThread.cpp">
+    <ClCompile Include="src\SoundCardWriterThread.cpp">
       <Filter>Исходные файлы\Thread</Filter>
     </ClCompile>
     <ClCompile Include="src\FFTSpectreHandler.cpp">
@@ -248,6 +248,9 @@
     </ClCompile>
     <ClCompile Include="src\HilbertTransformFFTW.cpp">
       <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SoundCardInputReaderThread.cpp">
+      <Filter>Исходные файлы\Thread</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -425,7 +428,7 @@
     <ClInclude Include="src\Thread\MyThread.h">
       <Filter>Файлы заголовков\Thread</Filter>
     </ClInclude>
-    <ClInclude Include="src\CircleBufferWriterThread.h">
+    <ClInclude Include="src\SoundCardWriterThread.h">
       <Filter>Файлы заголовков\Thread</Filter>
     </ClInclude>
     <ClInclude Include="src\FFTSpectreHandler.h">
@@ -481,6 +484,9 @@
     </ClInclude>
     <ClInclude Include="src\HilbertTransformFFTW.h">
       <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SoundCardInputReaderThread.h">
+      <Filter>Файлы заголовков\Thread</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

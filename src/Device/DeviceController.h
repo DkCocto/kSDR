@@ -23,6 +23,8 @@ class DeviceController {
 
 		const bool DEBUG = true;
 
+		CircleBufferNew<float>* txBuffer;
+
 	public:
 
 		void destroyDevice();
@@ -46,4 +48,6 @@ class DeviceController {
 
 		bool isStatusInitOk();
 		bool isStatusInitFail();
+
+		void setTXBuffer(CircleBufferNew<float>* txBuffer);
 };

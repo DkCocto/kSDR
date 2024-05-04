@@ -1,6 +1,6 @@
-#include "CircleBufferWriterThread.h"
+#include "SoundCardWriterThread.h"
 
-CircleBufferWriterThread::CircleBufferWriterThread(Config* config, DeviceController* deviceController, CircleBufferNew<float>* cb, SoundCard* sc) {
+SoundCardWriterThread::SoundCardWriterThread(Config* config, DeviceController* deviceController, CircleBufferNew<float>* cb, SoundCard* sc) {
 	this->config = config;
 	this->deviceController = deviceController;
 	this->soundWriterCircleBuffer = cb;
@@ -10,18 +10,18 @@ CircleBufferWriterThread::CircleBufferWriterThread(Config* config, DeviceControl
 	data = new float[len];
 }
 
-CircleBufferWriterThread::~CircleBufferWriterThread() {
+SoundCardWriterThread::~SoundCardWriterThread() {
 	delete[] data;
 }
 
-void CircleBufferWriterThread::run() {
+void SoundCardWriterThread::run() {
 	float secondsInBuffer = 0.0;
 
 	isWorking_ = true;
 
 	while (true) {
 		if (!config->WORKING) {
-			printf("CircleBufferWriterThread Stopped\r\n");
+			printf("SoundCardWriterThread Stopped\r\n");
 			isWorking_ = false;
 			return;
 		}
@@ -44,8 +44,8 @@ void CircleBufferWriterThread::run() {
 	}
 }
 
-std::thread CircleBufferWriterThread::start() {
-	std::thread p(&CircleBufferWriterThread::run, this);
+std::thread SoundCardWriterThread::start() {
+	std::thread p(&SoundCardWriterThread::run, this);
 	//DWORD result = ::SetThreadIdealProcessor(p.native_handle(), 3);
 	//SetThreadPriority(p.native_handle(), THREAD_PRIORITY_HIGHEST);
 	return p;

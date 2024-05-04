@@ -479,7 +479,7 @@ void Display::renderImGUIFirst() {
 
 		if (ImGui::TreeNode("Info")) {
 			ImGui::Spacing();
-			ImGui::Text("Sampling rate: %d", env->getConfig()->inputSamplerate);
+			ImGui::Text("Sampling rate: %d", env->getConfig()->currentWorkingInputSamplerate);
 			ImGui::Text("FFT length: %d", env->getConfig()->fftLen);
 			viewModel->amp = env->getConfig()->receiver.agc.lastAmp;
 			ImGui::Text("AMP: %.2f", viewModel->amp);

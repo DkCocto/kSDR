@@ -2,6 +2,7 @@
 
 #include "array"
 #include "DataReceiver.h"
+#include "Config.h"
 
 template<typename T>
 class CircleBufferNew : public DataReceiver {
