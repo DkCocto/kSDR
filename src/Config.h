@@ -16,7 +16,10 @@ class Config {
 
 public:
 
+	//global flags
 	std::atomic_bool WORKING = true;
+	bool TRANSMITTING = false;
+	//------------
 
 	//int circleBufferLen;
 

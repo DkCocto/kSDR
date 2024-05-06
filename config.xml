@@ -20,9 +20,9 @@
             	decimation = 2
             	Total sampling rate = (2000000 / 2) / 2 = 500000 
 			-->
-            <deviceSamplingRate>8000000</deviceSamplingRate>
+            <deviceSamplingRate>4000000</deviceSamplingRate>
             <deviceDecimationFactor>1</deviceDecimationFactor>
-            <gain>59</gain>
+            <gain>50</gain>
             <!-- Api can be 2 (v2) and 3 (v3)-->
             <api>3</api>
             <disableLna>1</disableLna>
@@ -46,12 +46,12 @@
         </RTL>
     </Device>
     <Receiver>
-        <startFreq>13800000</startFreq>
-        <lastSelectedFreq>14108044</lastSelectedFreq>
-        <volume>0</volume>
+        <startFreq>4906400</startFreq>
+        <lastSelectedFreq>5100000</lastSelectedFreq>
+        <volume>3.974</volume>
         <filterWidth>2700</filterWidth>
         <!-- USB:0, LSB:1, AM:2, nFM:3 -->
-        <modulation>0</modulation>
+        <modulation>1</modulation>
         <enableFrequencyShift>1</enableFrequencyShift>
         <frequencyShift>-14</frequencyShift>
         <Agc>
@@ -59,25 +59,25 @@
             <atackSpeedMs>0.12000000067055225</atackSpeedMs>
             <holdingTimeMs>1000</holdingTimeMs>
             <releaseSpeed>0.00020000000000000009</releaseSpeed>
-            <lastAmp>32.249076843261719</lastAmp>
+            <lastAmp>7.8574709892272949</lastAmp>
         </Agc>
     </Receiver>
     <Waterfall>
-        <min>-77.1847</min>
-        <max>-46.413185</max>
+        <min>-129.01631</min>
+        <max>-38.130432</max>
         <speed>1</speed>
     </Waterfall>
     <Spectre>
-        <ratio>-22.283714</ratio>
-        <min>-89.314171</min>
+        <ratio>-20.916954</ratio>
+        <min>-134.2298</min>
         <speed>2</speed>
         <speed2>25</speed2>
         <!-- Must be a power of 2. The total will be fftLen = fftLen * 1024 -->
         <fftLen>131072</fftLen>
-        <visibleStartFreq>14019299</visibleStartFreq>
-        <visibleStopFreq>14318188</visibleStopFreq>
-        <startBin>36361</startBin>
-        <stopBin>41257</stopBin>
+        <visibleStartFreq>5020597</visibleStartFreq>
+        <visibleStopFreq>5192289</visibleStopFreq>
+        <startBin>34639</startBin>
+        <stopBin>37451</stopBin>
         <removeDCBias>1</removeDCBias>
         <style>1</style>
         <contourShowsPower>0</contourShowsPower>

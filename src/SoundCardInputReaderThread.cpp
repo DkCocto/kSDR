@@ -1,26 +1,27 @@
 #include "SoundCardInputReaderThread.h"
-#include "Filter.h"
-#include "FirFilter.h"
-#include "CosOscillator.h"
-
-//CosOscillator* cosOscil;
 
 SoundCardInputReaderThread::SoundCardInputReaderThread(Config* config, CircleBufferNew<float>* soundInputBuffer, SoundCard* soundCard) {
 	this->config = config;
 	this->soundInputBuffer = soundInputBuffer;
 	this->soundCard = soundCard;
-	firFilter.init(firFilter.LOWPASS, firFilter.BARTLETT, 128, 3200, 0, config->inputSamplerateSound);
-	firFilter2.init(firFilter.LOWPASS, firFilter.BARTLETT, 200, 8000, 0, config->currentWorkingInputSamplerate);
-	//cosOscil = new CosOscillator(500000, config->currentWorkingInputSamplerate);
+
+	audioFilter.init(audioFilter.LOWPASS, audioFilter.BARTLETT, 63, 3200, 0, config->inputSamplerateSound);
+	resamplingFilter.init(resamplingFilter.LOWPASS, resamplingFilter.BARTLETT, 199, 8000, 0, config->currentWorkingInputSamplerate);
 }
 
-SoundCardInputReaderThread::~SoundCardInputReaderThread() {
-
-}
+SoundCardInputReaderThread::~SoundCardInputReaderThread() { }
 
 std::thread SoundCardInputReaderThread::start() {
 	std::thread p(&SoundCardInputReaderThread::run, this);
 	return p;
+}
+
+void SoundCardInputReaderThread::pause() {
+	CurrentStatus = PAUSE;
+}
+
+void SoundCardInputReaderThread::continueRead() {
+	CurrentStatus = START_READING;
 }
 
 void SoundCardInputReaderThread::run() {
@@ -28,14 +29,15 @@ void SoundCardInputReaderThread::run() {
 
 	isWorking_ = true;
 
-	float* readBuffer = new float[config->audioReadFrameLen];
+	const int BUFFER_READ_LEN = config->audioReadFrameLen;
 
-	long count = 0;
-	int relation = config->currentWorkingInputSamplerate / config->inputSamplerateSound; // 4 000 000 / 20 000 = 200
-	int upsamplingDataLen = config->audioReadFrameLen * relation; // 8 * 200 = 1600
+	int relation = config->currentWorkingInputSamplerate / config->inputSamplerateSound; // 4 000 000 / 40 000 = 100
+	int upsamplingDataLen = BUFFER_READ_LEN * relation; // 8 * 100 = 800
+
+	float* readBuffer = new float[BUFFER_READ_LEN];
 
 	float* upsamplingData = new float[upsamplingDataLen];
-	memset(upsamplingData, 0, sizeof(float) * upsamplingDataLen);
+	//memset(upsamplingData, 0, sizeof(float) * upsamplingDataLen);
 
 	while (true) {
 		if (!config->WORKING) {
@@ -44,32 +46,37 @@ void SoundCardInputReaderThread::run() {
 			return;
 		}
 
-		if (soundCard->availableToRead() >= config->audioReadFrameLen) {
-			soundCard->read(readBuffer, config->audioReadFrameLen);
+		if (CurrentStatus == START_READING) {
+			soundCard->startInput();
+			CurrentStatus = READING;
+		}
 
-			//Фильтруем звук и сужаем полосу до 3кгц
-			for (int i = 0; i < config->audioReadFrameLen; i++) {
-				readBuffer[i] = firFilter.proc(readBuffer[i]);
+		if (CurrentStatus == PAUSE) {
+			soundCard->stopInput();
+			CurrentStatus = REST;
+			continue;
+		}
+
+		if (CurrentStatus == REST) {
+			std::this_thread::sleep_for(std::chrono::milliseconds(50));
+			continue;
+		}
+
+		if (soundCard->availableToRead() >= BUFFER_READ_LEN) {
+			soundCard->read(readBuffer, BUFFER_READ_LEN);
+
+			for (int i = 0; i < BUFFER_READ_LEN; i++) {
+				float audio = audioFilter.proc(readBuffer[i]) * 6.0f;
+				upsamplingData[i * relation] = audio;
 			}
 
-			//делаем ресемплинг до основной частоты дескретизации
-			for (int i = 0; i < config->audioReadFrameLen; i++) {
-				//i = 0 -> 0
-				//i = 1 -> 200
-				//i = 7 -> 1400
-				upsamplingData[i * relation] = readBuffer[i];
-			}
-
-
-			//фильтруем получившейся сигнал
 			for (int i = 0; i < upsamplingDataLen; i++) {
 				if (i % relation != 0) {
-					float dither = ((float)rand() / (float)(RAND_MAX)) / 100000.0f;
+					float dither = ((float)rand() / (float)(RAND_MAX)) / 500000.0f;
 					upsamplingData[i] = dither;
 				}
-				upsamplingData[i] = firFilter2.proc(upsamplingData[i]);
+				upsamplingData[i] = resamplingFilter.proc(upsamplingData[i]) * 5.0f;
 			}
-
 
 			soundInputBuffer->write(upsamplingData, upsamplingDataLen);
 
@@ -94,8 +101,6 @@ void SoundCardInputReaderThread::run() {
 			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		}*/
 	}
-
-	delete[] upsamplingData;
 	delete[] readBuffer;
-
+	delete[] upsamplingData;
 }

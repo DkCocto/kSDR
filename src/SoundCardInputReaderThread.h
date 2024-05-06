@@ -6,17 +6,27 @@
 #include "windows.h"
 #include "FIR.h"
 
+//Class reads data from sound input, filter it and resample. After that stores it to the buffer.
 class SoundCardInputReaderThread : public MyThread {
 
 private:
 
-	CircleBufferNew<float>* soundInputBuffer;
+	bool reading = false;
+
+	CircleBufferNew<float>* soundInputBuffer; //stores data here
 	SoundCard* soundCard;
 	Config* config;
 
+	FIR audioFilter, resamplingFilter;
+
 	void run();
 
-	FIR firFilter, firFilter2;
+	enum Status {
+		START_READING,
+		PAUSE,
+		REST,
+		READING
+	} CurrentStatus = REST;
 
 public:
 
@@ -24,4 +34,6 @@ public:
 	~SoundCardInputReaderThread();
 
 	std::thread start();
+	void pause();
+	void continueRead();
 };

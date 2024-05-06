@@ -40,6 +40,12 @@
     <Filter Include="Файлы заголовков\imgui">
       <UniqueIdentifier>{b62af280-bc5c-4410-aba4-4d431157f828}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Исходные файлы\Modulation">
+      <UniqueIdentifier>{520e6928-e31d-447c-8e27-52d9af533dda}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\Modulation">
+      <UniqueIdentifier>{eaada6a3-b065-4b92-9b45-90b7ace86cf7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Config.cpp">
@@ -251,6 +257,15 @@
     </ClCompile>
     <ClCompile Include="src\SoundCardInputReaderThread.cpp">
       <Filter>Исходные файлы\Thread</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TXDataHandler.cpp">
+      <Filter>Исходные файлы\Thread</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SSB.cpp">
+      <Filter>Исходные файлы\Modulation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Modulation.cpp">
+      <Filter>Исходные файлы\Modulation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -487,6 +502,15 @@
     </ClInclude>
     <ClInclude Include="src\SoundCardInputReaderThread.h">
       <Filter>Файлы заголовков\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TXDataHandler.h">
+      <Filter>Файлы заголовков\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SSB.h">
+      <Filter>Файлы заголовков\Modulation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Modulation.h">
+      <Filter>Файлы заголовков\Modulation</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

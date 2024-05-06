@@ -117,7 +117,7 @@ float FIR::proc(float sample) {
     for (int i = 0; i < len; i++) out += m_delay[i] * m_fir[i];
 
     // ограничение амплитуды
-    /*if (out > 0) {
+    /*/if (out > 0) {
         out += 0.0005;
         if (out > 32767) out = 32767;
     } else {

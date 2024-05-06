@@ -46,8 +46,8 @@ void SoundCard::open() {
 		NULL);
 	if (err != paNoError) throw [&]() { showError(err); };
 
-	err = Pa_StartStream(inputStream);
-	if (err != paNoError) throw [&]() { showError(err); };
+	//err = Pa_StartStream(inputStream);
+	//if (err != paNoError) throw [&]() { showError(err); };
 	//------------------
 
 
@@ -100,8 +100,23 @@ void SoundCard::write(float* buffer, int len) {
 	else throw printf("Stream is empty!");
 }
 
+void SoundCard::stopInput() {
+	if (inputStream) {
+		Pa_AbortStream(inputStream);
+	}
+}
+
+void SoundCard::startInput() {
+	if (inputStream) {
+		err = Pa_StartStream(inputStream);
+		if (err != paNoError) throw [&]() { showError(err); };
+	}
+}
+
 int SoundCard::availableToRead() {
 	if (inputStream) return Pa_GetStreamReadAvailable(inputStream);
-	else throw printf("Stream is empty!");
-	return 0;
+	else {
+		throw printf("Stream is empty!");
+		return -1;
+	}
 }

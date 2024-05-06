@@ -1,65 +1,49 @@
 #include "TransmittingData.h"
-#include "random"
-#include "iostream"
-
-//std::random_device rd; // obtain a random number from hardware
-//std::mt19937 gen(rd()); // seed the generator
-//std::uniform_int_distribution<> distr(0, 100); // define the range
-
-#define HILBERT_TRANSFORM_LEN 8192
 
 TransmittingData::TransmittingData(Config* config, int freq, int samplingRate, int outputBufLen) {
     this->config = config;
     this->outputBufLen = outputBufLen;
-    carierSignal = new ComplexOscillator(1000000, samplingRate);
-    //complexOscilator = new ComplexOscillator(freq, samplingRate);
 
-    sourceSignal = new CosOscillator(2000, samplingRate);
+    ssb.setConfig(config);
+    ssb.setFreq(freq);
 
-    mixer1 = new Mixer(samplingRate);
-    mixer1->setFreq(-freq - 1000000);
-
-    //xuixer = new ComplexOscillator(freq, samplingRate);
-
-    /*mixer2 = new Mixer(samplingRate);
-    mixer2->setFreq(freq);*/
-    
-    hilbertTransformFFTW = new HilbertTransformFFTW(HILBERT_TRANSFORM_LEN);
-    hilbertTransformFFTW1 = new HilbertTransformFFTW(HILBERT_TRANSFORM_LEN);
-    
-    /*hilbertTransform = new HilbertTransform(samplingRate, 127);
-    delay = new Delay((127 - 1) / 2);
-    
-    hilbertTransform2 = new HilbertTransform(samplingRate, HILBERT_TRANSFORM_LEN);
-    delay2 = new Delay((HILBERT_TRANSFORM_LEN - 1) / 2);*/
-
-    windowBlackman = new WindowBlackman(HILBERT_TRANSFORM_LEN * 2);
-    windowBlackmanHarris = new WindowBlackmanHarris(HILBERT_TRANSFORM_LEN * 2);
-    //firI.init(firI.LOWPASS, firI.BARTLETT, 65, 10000, 0, samplingRate);
-    //firQ.init(firQ.LOWPASS, firQ.BARTLETT, 65, 10000, 0, samplingRate);
+    emptySignals = new Signal[ssb.getOutputBufferLen() >> 1];
+    for (int i = 0; i < ssb.getOutputBufferLen() >> 1; i++) {
+        float dither = ((float)rand() / (float)(RAND_MAX)) / 100.0f;
+        emptySignals[i].I = dither;
+        emptySignals[i].Q = dither;
+    }
 }
 
-TransmittingData::~TransmittingData() {
-    delete carierSignal;
-    //delete sourceSignal;
-    delete mixer1;
-    //delete mixer2;
-    //delete hilbertTransform;
-    delete hilbertTransformFFTW;
-    delete hilbertTransformFFTW1;
-    delete windowBlackman;
+TransmittingData::~TransmittingData() { 
+    delete[] emptySignals;
 }
-
-long count = 0;
-//long count2 = 0;
-
 
 Signal* TransmittingData::nextBuffer() {
+    if (txBuffer->available() < ssb.getOutputBufferLen() >> 1) {
+        return emptySignals;
+    } else {
+        return ssb.processData(txBuffer);
+    }
+}
+
+void TransmittingData::setFreq(int freq) {
+    ssb.setFreq(freq);
+}
+
+void TransmittingData::setTXBuffer(CircleBufferNew<float>* txBuffer) {
+    this->txBuffer = txBuffer;
+}
+
+CircleBufferNew<float>* TransmittingData::getTXBuffer() {
+    return this->txBuffer;
+}
+
+/*Signal* TransmittingData::nextBuffer() {
     Signal* out = new Signal[outputBufLen >> 1];
 
     double* arr1 = new double[HILBERT_TRANSFORM_LEN];
     float* pipika = new float[HILBERT_TRANSFORM_LEN];
-
 
     double* arr2 = new double[HILBERT_TRANSFORM_LEN];
 
@@ -102,7 +86,7 @@ Signal* TransmittingData::nextBuffer() {
                 if (sourceSignal->freq > 3000.0f) sourceSignal->setFreq(0.0f);
                 else sourceSignal->setFreq(sourceSignal->freq + 100.0f);
             }*/
-        }
+        /*}
 
 
 
@@ -112,7 +96,7 @@ Signal* TransmittingData::nextBuffer() {
     delete[] arr2;
 
     return out;
-}
+}*/
 
 /*Signal* TransmittingData::nextBuffer() {
     double* arr1 = new double[HILBERT_TRANSFORM_LEN];
@@ -235,17 +219,3 @@ Signal* TransmittingData::nextBuffer() {
     //printf("%f %f\r\n", signal.I, signal.Q);
 
 //}
-
-void TransmittingData::setFreq(int freq) {
-    //carierSignal->setFreq(freq);
-    //complexOscilator->setFreq(freq);
-    mixer1->setFreq( - freq - 1000000);
-}
-
-void TransmittingData::setTXBuffer(CircleBufferNew<float>* txBuffer) {
-    this->txBuffer = txBuffer;
-}
-
-CircleBufferNew<float>* TransmittingData::getTXBuffer() {
-    return this->txBuffer;
-}

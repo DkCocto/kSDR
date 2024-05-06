@@ -2,18 +2,19 @@
 
 Environment::Environment() {
 	config = new Config();
-	viewModel = new ViewModel(config);											//is not need to recreate
-	deviceController = new DeviceController(config);							//is not need to recreate
+	viewModel = new ViewModel(config);											
+	deviceController = new DeviceController(config);							
 	
-	soundBuffer = new CircleBufferNew<float>(config);							//is not need to recreate
+	soundBuffer = new CircleBufferNew<float>(config);							
 
-	soundInputBuffer = new CircleBufferNew<float>(config);						//is not need to recreate
+	soundInputBuffer = new CircleBufferNew<float>(config);							
+	
 	deviceController->setTXBuffer(soundInputBuffer);
 
-	fftData = new FFTData(config->fftLen / 2);									//is not need to recreate
+	fftData = new FFTData(config->fftLen / 2);									
 	specHandler = new SpectreHandler(config, fftData, viewModel, deviceController);	//need to recreate
-	flowingSpec = new FlowingSpectre(config, viewModel);						//is not need to recreate
-	receiverLogic = new ReceiverLogic(config, viewModel, flowingSpec);			//need to setup new flowingSpec during its recreating
+	flowingSpec = new FlowingSpectre(config, viewModel);						
+	receiverLogic = new ReceiverLogic(config, viewModel, flowingSpec);				//need to setup new flowingSpec during its recreating
 }
 
 Environment::~Environment() {
@@ -96,6 +97,8 @@ void Environment::startProcessing() {
 
 		soundCardInputReaderThread->start().detach();
 
+		//txDataHandler->start().detach();
+
 		soundProcessor->start().detach();
 
 		//while (!soundProcessor->isWorking() || !soundCardWriterThread->isWorking() || !specHandler->isWorking());
@@ -157,4 +160,8 @@ ReceiverLogic* Environment::getReceiverLogic() {
 
 FlowingSpectre* Environment::getFlowingSpectre() {
 	return flowingSpec;
+}
+
+SoundCardInputReaderThread* Environment::getSoundCardInputReader() {
+	return soundCardInputReaderThread;
 }

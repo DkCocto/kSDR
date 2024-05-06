@@ -22,6 +22,7 @@
     <ClCompile Include="src\AGC.cpp" />
     <ClCompile Include="src\CircleBuffer.cpp" />
     <ClCompile Include="src\CircleBufferReaderThread.cpp" />
+    <ClCompile Include="src\Modulation.cpp" />
     <ClCompile Include="src\SoundCardInputReaderThread.cpp" />
     <ClCompile Include="src\SoundCardWriterThread.cpp" />
     <ClCompile Include="src\ColoredSpectreBG.cpp" />
@@ -81,9 +82,11 @@
     <ClCompile Include="src\Spectre.cpp" />
     <ClCompile Include="src\Spectre\FFTData.cpp" />
     <ClCompile Include="src\SpeedCount.cpp" />
+    <ClCompile Include="src\SSB.cpp" />
     <ClCompile Include="src\Thread\MyThread.cpp" />
     <ClCompile Include="src\tinyxml2\tinyxml2.cpp" />
     <ClCompile Include="src\TransmittingData.cpp" />
+    <ClCompile Include="src\TXDataHandler.cpp" />
     <ClCompile Include="src\Utils.cpp" />
     <ClCompile Include="src\ViewModel.cpp" />
     <ClCompile Include="src\Waterfall.cpp" />
@@ -98,6 +101,7 @@
     <ClInclude Include="src\CircleBuffer.h" />
     <ClInclude Include="src\CircleBufferNew.h" />
     <ClInclude Include="src\CircleBufferReaderThread.h" />
+    <ClInclude Include="src\Modulation.h" />
     <ClInclude Include="src\SoundCardInputReaderThread.h" />
     <ClInclude Include="src\SoundCardWriterThread.h" />
     <ClInclude Include="src\ColoredSpectreBG.h" />
@@ -161,9 +165,11 @@
     <ClInclude Include="src\Spectre.h" />
     <ClInclude Include="src\SpectreWindowData.h" />
     <ClInclude Include="src\Spectre\FFTData.h" />
+    <ClInclude Include="src\SSB.h" />
     <ClInclude Include="src\Thread\MyThread.h" />
     <ClInclude Include="src\tinyxml2\tinyxml2.h" />
     <ClInclude Include="src\TransmittingData.h" />
+    <ClInclude Include="src\TXDataHandler.h" />
     <ClInclude Include="src\Utils.h" />
     <ClInclude Include="src\ViewModel.h" />
     <ClInclude Include="src\Waterfall.h" />

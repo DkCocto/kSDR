@@ -10,6 +10,7 @@
 #include "ViewModel.h"
 #include "CircleBufferNew.h"
 #include "Buffer.h"
+#include "TXDataHandler.h"
 
 class Environment {
 	private:
@@ -26,6 +27,7 @@ class Environment {
 		//CircleBuffer* IQSourceBuffer2 = nullptr;
 		CircleBufferNew<float>* soundBuffer = nullptr;
 		CircleBufferNew<float>* soundInputBuffer = nullptr;
+		CircleBufferNew<float>* txBuffer = nullptr;
 
 		SpectreHandler* specHandler = nullptr;
 
@@ -64,4 +66,5 @@ class Environment {
 		ViewModel* getViewModel();
 		ReceiverLogic* getReceiverLogic();
 		FlowingSpectre* getFlowingSpectre();
+		SoundCardInputReaderThread* getSoundCardInputReader();
 };

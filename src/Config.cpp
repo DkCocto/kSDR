@@ -662,6 +662,6 @@ void Config::calcOutputSamplerate() {
 }
 
 void Config::calcInputSamplerate() {
-    inputSamplerateSound = 40000;
+    inputSamplerateSound = 48000;
     printf("Audio input samplerate: %d\r\n", inputSamplerateSound);
 }

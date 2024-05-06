@@ -175,7 +175,7 @@ template<typename T, typename D> void SoundProcessorThread::processData(T* data,
 
 	}
 
-	soundWriterCircleBuffer->write(outputData, (len / 2) / config->outputSamplerateDivider);
+	soundWriterCircleBuffer->write(outputData, (len >> 1) / config->outputSamplerateDivider);
 }
 
 std::thread SoundProcessorThread::start() {

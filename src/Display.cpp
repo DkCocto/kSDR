@@ -361,23 +361,25 @@ void Display::renderImGUIFirst() {
 					hackRfInterface->setBaseband(env->getConfig()->hackrf.basebandFilter);
 
 					if (env->getDeviceController()->isStatusInitOk()) hackRfInterface->sendParamsToDevice();
-				}
 
-				if (hackRfInterface->isDeviceTransmitting()) ImGui::BeginDisabled();
-				if (ImGui::Button("Start Transmitting")) {
-					if (hackRfInterface->pauseRX()) {
-						hackRfInterface->startTX((int)env->getReceiverLogic()->getFrequencyDelta());
+					if (hackRfInterface->isDeviceTransmitting()) ImGui::BeginDisabled();
+					if (ImGui::Button("Start Transmitting")) {
+						if (hackRfInterface->pauseRX()) {
+							env->getSoundCardInputReader()->continueRead();
+							hackRfInterface->startTX((int)env->getReceiverLogic()->getFrequencyDelta());
+						}
 					}
-				}
-				if (hackRfInterface->isDeviceTransmitting()) ImGui::EndDisabled();
+					if (hackRfInterface->isDeviceTransmitting()) ImGui::EndDisabled();
 
-				if (!hackRfInterface->isDeviceTransmitting()) ImGui::BeginDisabled();
-				if (ImGui::Button("Stop Transmitting")) { 
-					if (hackRfInterface->stopTX()) {
-						hackRfInterface->releasePauseRX();
-					}
-				};
-				if (!hackRfInterface->isDeviceTransmitting()) ImGui::EndDisabled();
+					if (!hackRfInterface->isDeviceTransmitting()) ImGui::BeginDisabled();
+					if (ImGui::Button("Stop Transmitting")) {
+						if (hackRfInterface->stopTX()) {
+							env->getSoundCardInputReader()->pause();
+							hackRfInterface->releasePauseRX();
+						}
+					};
+					if (!hackRfInterface->isDeviceTransmitting()) ImGui::EndDisabled();
+				}
 			}
 
 			if (env->getConfig()->deviceType == DeviceType::RSP) {

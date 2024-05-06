@@ -32,6 +32,9 @@ public:
 
 	void write(float* buffer, int len);
 
+	void stopInput();
+	void startInput();
+
 	int availableToRead();
 
 };

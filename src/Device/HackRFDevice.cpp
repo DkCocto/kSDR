@@ -46,6 +46,7 @@ int HackRFDevice::tx_callback(hackrf_transfer* transfer) {
 		Signal* signal = transmittingData->nextBuffer();
 
 		for (int i = 0; i < HACKRF_TX_BUFFER_HALF_LEN; i++) {
+
 			transfer->buffer[2 * i] = hackRFDevice->chuchka((uint8_t)(((signal[i].I + 1.0) / 2.0) * 255.0));
 			transfer->buffer[2 * i + 1] = hackRFDevice->chuchka((uint8_t)(((signal[i].Q + 1.0) / 2.0) * 255.0));
 
@@ -55,8 +56,6 @@ int HackRFDevice::tx_callback(hackrf_transfer* transfer) {
 		//exit(0);
 
 		hackRFDevice->getBufferForSpec()->write(transfer->buffer, transfer->buffer_length);
-
-		delete[] signal;
 
 	}
 
@@ -295,16 +294,14 @@ Result HackRFDevice::start() {
 
 bool HackRFDevice::startTX() {
 	if (device != NULL) {
-		//if (!hackrf_is_streaming(device)) {
-			hackrf_error result = (hackrf_error)hackrf_start_tx(device, tx_callback, this);
-			if (result != HACKRF_SUCCESS) {
-				if (DEBUG) printf("Error hackrf_start_tx!\r\n");
-			}
-			else {
-				isTxOn = true;
-				return true;
-			}
-		//}
+		hackrf_error result = (hackrf_error)hackrf_start_tx(device, tx_callback, this);
+		if (result != HACKRF_SUCCESS) {
+			if (DEBUG) printf("Error hackrf_start_tx!\r\n");
+		} else {
+			isTxOn = true;
+			config->TRANSMITTING = true;
+			return true;
+		}
 	}
 	return false;
 }
@@ -318,6 +315,7 @@ bool HackRFDevice::stopTX() {
 			}
 			else {
 				isTxOn = false;
+				config->TRANSMITTING = false;
 				return true;
 			}
 		}
@@ -349,10 +347,18 @@ bool HackRFDevice::releasePauseRX() {
 void HackRFDevice::stop() {
 	hackrf_error result = HACKRF_ERROR_OTHER;
 	if (device != NULL) {
+		if (isDeviceTransmitting()) {
+			hackrf_error result = (hackrf_error)hackrf_stop_tx(device);
+			if (result != HACKRF_SUCCESS) {
+				if (DEBUG) printf("Error hackrf_stop_tx!\r\n");
+			}
+		}
+		
 		hackrf_error result = (hackrf_error)hackrf_stop_rx(device);
 		if (result != HACKRF_SUCCESS) {
 			if (DEBUG) printf("Error hackrf_stop_rx!\r\n");
 		}
+		
 		result = (hackrf_error)hackrf_close(device);
 		if (result != HACKRF_SUCCESS) {
 			if (DEBUG) printf("Error hackrf_close!\r\n");
