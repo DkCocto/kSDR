@@ -43,7 +43,11 @@ Thank you!
 Licensing
 ---
 
-Copyright KSLABS 2024<br>
+This program is distributed under The 2-Clause BSD License.
+
+Copyright KSLABS<br>
+2024<br>
+
 https://www.kslabs.ru
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
