@@ -1,6 +1,6 @@
 #include "SSB.h"
 
-SSB::SSB() {
+SSBModulation::SSBModulation() {
 	this->inputDataLen = SSB_HILBERT_TRANSFORM_LEN;
 	inputData = new float[inputDataLen];
 	inputDataCopyDouble = new double[inputDataLen];
@@ -9,12 +9,11 @@ SSB::SSB() {
 	outputData = new float[outputBufferLen];
 
 	hilbertTransformFFTW = new HilbertTransformFFTW(SSB_HILBERT_TRANSFORM_LEN);
-	hilbertTransformFFTW1 = new HilbertTransformFFTW(SSB_HILBERT_TRANSFORM_LEN);
 
 	windowBlackmanHarris = new WindowBlackmanHarris(inputDataLen * 2);
 }
 
-SSB::~SSB() {
+SSBModulation::~SSBModulation() {
 	delete[] inputDataCopyDouble;
 	delete[] ssbData;
 	delete[] outputDataSignal;
@@ -22,31 +21,34 @@ SSB::~SSB() {
 	delete[] inputData;
 
 	delete hilbertTransformFFTW;
-	delete hilbertTransformFFTW1;
 
 	if (carierSignal != nullptr) delete carierSignal;
 }
 
-void SSB::init() {
+void SSBModulation::init() {
 	carierSignal = new ComplexOscillator(carierFreq, config->currentWorkingInputSamplerate);
 	mixer = new Mixer(config->currentWorkingInputSamplerate);
 }
 
-void SSB::setFreq(int freq) {
+void SSBModulation::setFreq(int freq) {
 	this->freq = freq;
 	mixer->setFreq(-freq - carierFreq);
 }
 
-int SSB::getOutputBufferLen() {
+int SSBModulation::getOutputBufferLen() {
 	return outputBufferLen;
 }
 
-void SSB::setConfig(Config* config) {
+int SSBModulation::getOutputBufferHalfLen() {
+	return halfOutputBufferLen;
+}
+
+void SSBModulation::setConfig(Config* config) {
 	this->config = config;
 	init();
 }
 
-Signal* SSB::processData(CircleBufferNew<float>* buffer) {
+Signal* SSBModulation::processData(CircleBufferNew<float>* buffer) {
 	//                    131072               / 8192  = 16
 	for (int j = 0; j < halfOutputBufferLen / inputDataLen; j++) {
 
@@ -86,7 +88,7 @@ Signal* SSB::processData(CircleBufferNew<float>* buffer) {
 
 }
 
-int SSB::getInputBufferLen() {
+int SSBModulation::getInputBufferLen() {
 	return inputDataLen;
 }
 

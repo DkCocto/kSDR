@@ -37,7 +37,7 @@ void Config::initSettings() {
 
     audioWriteFrameLen = (outputSamplerateDivider) / 4;
 
-    audioReadFrameLen = 16;
+    audioReadFrameLen = 32;
 
     //circleBufferLen = currentWorkingInputSamplerate / 4;
 
@@ -662,6 +662,6 @@ void Config::calcOutputSamplerate() {
 }
 
 void Config::calcInputSamplerate() {
-    inputSamplerateSound = 48000;
+    inputSamplerateSound = 40000;
     printf("Audio input samplerate: %d\r\n", inputSamplerateSound);
 }

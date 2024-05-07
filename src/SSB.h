@@ -6,18 +6,15 @@
 #include "ComplexSignal.h"
 #include "ComplexOscillator.h"
 #include "Mixer.h"
-#include "CircleBufferNew.h"
 #include "WindowBlackmanHarris.h"
 
-#define SSB_HILBERT_TRANSFORM_LEN 32768
+#define SSB_HILBERT_TRANSFORM_LEN 65536
 
-class SSB : Modulation {
+class SSBModulation : Modulation {
 
 private:
 
-	int inputDataLen = 1024;
-	const int outputBufferLen = 262144;
-	const int halfOutputBufferLen = 262144 >> 1;
+	int inputDataLen = 512;
 
 	const int carierFreq = 1000000;
 
@@ -30,7 +27,6 @@ private:
 	float* inputData;
 
 	HilbertTransformFFTW* hilbertTransformFFTW = nullptr;
-	HilbertTransformFFTW* hilbertTransformFFTW1 = nullptr;
 
 	ComplexOscillator* carierSignal = nullptr;
 
@@ -42,13 +38,14 @@ private:
 
 public:
 
-	SSB();
-	~SSB();
+	SSBModulation();
+	~SSBModulation();
 
 	void setConfig(Config* config);
 	Signal* processData(CircleBufferNew<float>* buffer);
 	int getInputBufferLen();
 	int getOutputBufferLen();
+	int getOutputBufferHalfLen();
 	//int setOutputBufferLen(int outputBufferLen);
 	void setFreq(int freq);
 

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Env.h"
-#include "vector"
 
 class FIR {
 
@@ -22,13 +21,12 @@ public:
     const unsigned char BANDSTOP = 3;// NOTCH
     const unsigned char BANDPASS = 4;
 
-    const int GRIDDENSITY = 16;
-    const int MAXITERATIONS = 40;
-
-    std::vector<float> m_delay;
-    std::vector<float> m_fir;
+    float* m_delay = nullptr;
+    float* m_fir = nullptr;
 
     int len = 0;
+
+    ~FIR();
 
     /**
      * инициализация параметров
@@ -61,6 +59,8 @@ public:
 
     float proc(float sample);
 
-    std::vector<float> getCoeffs();
+    float* getCoeffs();
+
+    int getLen();
 
 };

@@ -106,7 +106,7 @@ template<typename DEVICE, typename DATATYPE> void SoundProcessorThread::initProc
 	viewModel->setBufferAvailable(available);
 	if (available >= len) {
 		processData<DATATYPE, DEVICE>(buffer->read(), device);
-	} else std::this_thread::sleep_for(std::chrono::milliseconds(1));
+	} else std::this_thread::sleep_for(std::chrono::milliseconds(10));
 }
 
 template<typename T, typename D> void SoundProcessorThread::processData(T* data, D* device) {

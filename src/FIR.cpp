@@ -1,12 +1,26 @@
 #include "FIR.h"
 
+FIR::~FIR() {
+    if (m_fir != nullptr) delete[] m_fir;
+    if (m_delay != nullptr) delete[] m_delay;
+}
+
 void FIR::init(unsigned char type, unsigned char window, short order, int f1, int f2, int sampleRate) {
     len = order;
     
-    m_fir.clear();
+    if (m_fir != nullptr) delete[] m_fir;
+    m_fir = new float[order];
+    memset(m_fir, 0, sizeof(float) * order);
+
+    if (m_delay != nullptr) delete[] m_delay;
+    m_delay = new float[order];
+    memset(m_delay, 0, sizeof(float) * order);
+
+
+    /*m_fir.clear();
     m_delay.clear();
     m_fir = std::vector<float>(order);
-    m_delay = std::vector<float>(order);
+    m_delay = std::vector<float>(order);*/
 
     if (order == 1) {
         m_fir[0] = 1.0f;
@@ -127,6 +141,10 @@ float FIR::proc(float sample) {
     return out;
 }
 
-std::vector<float> FIR::getCoeffs() {
+float* FIR::getCoeffs() {
     return m_fir;
+}
+
+int FIR::getLen() {
+    return len;
 }

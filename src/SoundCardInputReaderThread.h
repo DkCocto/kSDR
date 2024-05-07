@@ -5,11 +5,15 @@
 #include "SoundCard.h"
 #include "windows.h"
 #include "FIR.h"
+#include "FastFir/jfastfir.h"
 
 //Class reads data from sound input, filter it and resample. After that stores it to the buffer.
 class SoundCardInputReaderThread : public MyThread {
 
 private:
+
+	//create pointer
+	JFastFIRFilter* fastfir = nullptr;
 
 	bool reading = false;
 
@@ -17,7 +21,10 @@ private:
 	SoundCard* soundCard;
 	Config* config;
 
-	FIR audioFilter, resamplingFilter;
+	int audioFilterWidth = 0;
+	int resamplingFilterWidth = 0;
+
+	FIR audioFilter;
 
 	void run();
 
@@ -27,6 +34,8 @@ private:
 		REST,
 		READING
 	} CurrentStatus = REST;
+
+	void initFilters(int audioFilterWidth);
 
 public:
 

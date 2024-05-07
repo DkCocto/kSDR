@@ -12,9 +12,6 @@ SpectreHandler::SpectreHandler(Config* config, FFTData* fftData, ViewModel* view
 	wb = new WindowBlackman(config->fftLen);
 	wbh = new WindowBlackmanHarris(config->fftLen);
 
-	//dataBuffer = new uint8_t[config->fftLen];
-	//memset(dataBuffer, 0, sizeof(dataBuffer) * config->fftLen);
-
 	complexLen = config->fftLen / 2 + 1;
 
 	realInput = new float[spectreSize];
@@ -110,8 +107,8 @@ template<typename T, typename D> void SpectreHandler::processFFT(T* data, D* dev
 
 		if (viewModel->removeDCBias) dcRemove.process(&I, &Q);
 
-		inData[i][0] = I * wbh->getWeights()[i];
-		inData[i][1] = Q * wbh->getWeights()[i];
+		inData[i][0] = I * wb->getWeights()[i];
+		inData[i][1] = Q * wb->getWeights()[i];
 	}
 
 	fftw_execute(fftwPlan);

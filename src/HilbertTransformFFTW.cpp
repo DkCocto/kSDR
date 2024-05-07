@@ -12,7 +12,6 @@ HilbertTransformFFTW::HilbertTransformFFTW(int len) {
 
 HilbertTransformFFTW::~HilbertTransformFFTW() {
     fftw_destroy_plan(planForward);
-
     fftw_destroy_plan(planBackward);
     fftw_cleanup();
 

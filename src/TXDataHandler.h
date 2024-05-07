@@ -19,7 +19,7 @@ private:
 	CircleBufferNew<float>* inputBuffer = nullptr;
 	CircleBufferNew<float>* outputBuffer = nullptr;
 
-	SSB ssb;
+	SSBModulation ssb;
 
 	void run();
 

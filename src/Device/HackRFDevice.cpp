@@ -14,13 +14,6 @@ int HackRFDevice::tx_callback(hackrf_transfer* transfer) {
 
 	TransmittingData* transmittingData = hackRFDevice->transmittingData;
 
-	/*for (int i = 0; i < 255; i++) {
-
-		printf("nogka: %d %d\r\n", i, i ^ (uint8_t)0x80);
-	}
-
-	exit(0);*/
-
 	if (transmittingData != nullptr) {
 		//for (int i = 0; i < transfer->buffer_length / 2; i++) {
 			//(value-From1)/(From2-From1)*(To2-To1)+To1;
@@ -40,9 +33,6 @@ int HackRFDevice::tx_callback(hackrf_transfer* transfer) {
 			//printf("nogka: %d\r\n", (int)round((hackRFDevice->so->nextSample() - (-1.0)) / (1.0 - (-1.0)) * (255.0 - 0) + 0));
 		//}
 
-		//hackRFDevice->getBufferForSpec()->write(transfer->buffer, transfer->buffer_length);
-		//hackRFDevice->getBufferForProc()->write(transfer->buffer, transfer->buffer_length);
-
 		Signal* signal = transmittingData->nextBuffer();
 
 		for (int i = 0; i < HACKRF_TX_BUFFER_HALF_LEN; i++) {
@@ -50,28 +40,11 @@ int HackRFDevice::tx_callback(hackrf_transfer* transfer) {
 			transfer->buffer[2 * i] = hackRFDevice->chuchka((uint8_t)(((signal[i].I + 1.0) / 2.0) * 255.0));
 			transfer->buffer[2 * i + 1] = hackRFDevice->chuchka((uint8_t)(((signal[i].Q + 1.0) / 2.0) * 255.0));
 
-			//std::cout << signal[i].I << "     " << signal[i].Q << std::endl;
 		}
-
-		//exit(0);
 
 		hackRFDevice->getBufferForSpec()->write(transfer->buffer, transfer->buffer_length);
 
 	}
-
-	/*uint8_t* titka = new uint8_t[262144];
-
-
-	for (int i = 0; i < 131072; i++) {
-		ComplexSignal p = hackRFDevice->co->next();
-		titka[2 * i] = hackRFDevice->chuchka((uint8_t)(((p.I + 1.0) / 2.0) * 255.0));
-		titka[2 * i + 1] = hackRFDevice->chuchka((uint8_t)(((p.Q + 1.0) / 2.0) * 255.0));
-	}
-
-	hackRFDevice->getBufferForSpec()->write(titka, 262144);
-		delete[] titka;*/
-
-
 	return 0;
 }
 

@@ -20,8 +20,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\AGC.cpp" />
+    <ClCompile Include="src\AM.cpp" />
     <ClCompile Include="src\CircleBuffer.cpp" />
     <ClCompile Include="src\CircleBufferReaderThread.cpp" />
+    <ClCompile Include="src\FastFir\jfastfir.cpp" />
     <ClCompile Include="src\Modulation.cpp" />
     <ClCompile Include="src\SoundCardInputReaderThread.cpp" />
     <ClCompile Include="src\SoundCardWriterThread.cpp" />
@@ -96,11 +98,13 @@
   <ItemGroup>
     <ClInclude Include="resource.h" />
     <ClInclude Include="src\AGC.h" />
+    <ClInclude Include="src\AM.h" />
     <ClInclude Include="src\Average.h" />
     <ClInclude Include="src\Buffer.h" />
     <ClInclude Include="src\CircleBuffer.h" />
     <ClInclude Include="src\CircleBufferNew.h" />
     <ClInclude Include="src\CircleBufferReaderThread.h" />
+    <ClInclude Include="src\FastFir\jfastfir.h" />
     <ClInclude Include="src\Modulation.h" />
     <ClInclude Include="src\SoundCardInputReaderThread.h" />
     <ClInclude Include="src\SoundCardWriterThread.h" />

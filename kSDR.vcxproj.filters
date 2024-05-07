@@ -267,6 +267,12 @@
     <ClCompile Include="src\Modulation.cpp">
       <Filter>Исходные файлы\Modulation</Filter>
     </ClCompile>
+    <ClCompile Include="src\AM.cpp">
+      <Filter>Исходные файлы\Modulation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FastFir\jfastfir.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Config.h">
@@ -511,6 +517,12 @@
     </ClInclude>
     <ClInclude Include="src\Modulation.h">
       <Filter>Файлы заголовков\Modulation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AM.h">
+      <Filter>Файлы заголовков\Modulation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FastFir\jfastfir.h">
+      <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

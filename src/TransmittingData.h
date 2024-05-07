@@ -4,6 +4,7 @@
 #include "Config.h"
 #include "CircleBufferNew.h"
 #include "SSB.h"
+#include "AM.h"
 
 class TransmittingData {
 
@@ -15,7 +16,8 @@ private:
 
 	int outputBufLen = 262144;
 
-	SSB ssb;
+	SSBModulation ssb;
+	AMModulation am;
 
 	Signal* emptySignals;
 
