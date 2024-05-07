@@ -43,7 +43,7 @@ Thank you!
 Licensing
 ---
 
-This program is distributed under The 2-Clause BSD License.
+This program is distributed under The 2-Clause BSD License (https://opensource.org/license/BSD-2-Clause).
 
 Copyright KSLABS<br>
 2024<br>
