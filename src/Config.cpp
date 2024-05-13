@@ -112,8 +112,11 @@ void Config::loadXml() {
                 tinyxml2::XMLElement* pvgaGain = pHackRF->FirstChildElement("vgaGain");
                 hackrf.vgaGain = std::stoi(std::string(pvgaGain->GetText()));
 
+                tinyxml2::XMLElement* ptxVgaGain = pHackRF->FirstChildElement("txVgaGain");
+                hackrf.txVgaGain = std::stoi(std::string(ptxVgaGain->GetText()));
+
                 tinyxml2::XMLElement* ptxAmp = pHackRF->FirstChildElement("txAmp");
-                hackrf.txVgaGain = std::stoi(std::string(ptxAmp->GetText()));
+                hackrf.txAmp = std::stoi(std::string(ptxAmp->GetText()));
             }
 
             tinyxml2::XMLElement* pRSP = pDevice->FirstChildElement("RSP");
@@ -145,6 +148,18 @@ void Config::loadXml() {
                 tinyxml2::XMLElement* pgain = pRTL->FirstChildElement("gain");
                 rtl.gain = std::stoi(std::string(pgain->GetText()));
             }
+        }
+
+        tinyxml2::XMLElement* pTransmit = pRootElement->FirstChildElement("Transmit");
+        if (NULL != pTransmit) {
+            tinyxml2::XMLElement* ptxBySpaceBtn = pTransmit->FirstChildElement("txBySpaceBtn");
+            transmit.txBySpaceBtn = (std::stoi(std::string(ptxBySpaceBtn->GetText())) == 1) ? true : false;
+
+            tinyxml2::XMLElement* pinputLevel = pTransmit->FirstChildElement("inputLevel");
+            transmit.inputLevel = std::stof(std::string(pinputLevel->GetText()));
+
+            tinyxml2::XMLElement* pamModulationDepth = pTransmit->FirstChildElement("amModulationDepth");
+            transmit.amModulationDepth = std::stof(std::string(pamModulationDepth->GetText()));
         }
 
         tinyxml2::XMLElement* pReceiver = pRootElement->FirstChildElement("Receiver");
@@ -424,8 +439,11 @@ void Config::save() {
                 tinyxml2::XMLElement* pvgaGain = pHackRF->FirstChildElement("vgaGain");
                 pvgaGain->SetText(hackrf.vgaGain);
 
-                tinyxml2::XMLElement* ptxVgaGain = pHackRF->FirstChildElement("txAmp");
+                tinyxml2::XMLElement* ptxVgaGain = pHackRF->FirstChildElement("txVgaGain");
                 ptxVgaGain->SetText(hackrf.txVgaGain);
+
+                tinyxml2::XMLElement* ptxAmp = pHackRF->FirstChildElement("txAmp");
+                ptxAmp->SetText(hackrf.txAmp);
             }
 
             tinyxml2::XMLElement* pRSP = pDevice->FirstChildElement("RSP");
@@ -457,6 +475,18 @@ void Config::save() {
                 tinyxml2::XMLElement* pgain = pRTL->FirstChildElement("gain");
                 pgain->SetText(rtl.gain);
             }
+        }
+
+        tinyxml2::XMLElement* pTransmit = pRootElement->FirstChildElement("Transmit");
+        if (NULL != pTransmit) {
+            tinyxml2::XMLElement* ptxBySpaceBtn = pTransmit->FirstChildElement("txBySpaceBtn");
+            ptxBySpaceBtn->SetText((transmit.txBySpaceBtn == true) ? "1" : "0");
+
+            tinyxml2::XMLElement* pinputLevel = pTransmit->FirstChildElement("inputLevel");
+            pinputLevel->SetText(transmit.inputLevel);
+
+            tinyxml2::XMLElement* pamModulationDepth = pTransmit->FirstChildElement("amModulationDepth");
+            pamModulationDepth->SetText(transmit.amModulationDepth);
         }
 
         tinyxml2::XMLElement* pReceiver = pRootElement->FirstChildElement("Receiver");
@@ -662,6 +692,13 @@ void Config::calcOutputSamplerate() {
 }
 
 void Config::calcInputSamplerate() {
-    inputSamplerateSound = 40000;
+    int i = 48000;
+
+    while (currentWorkingInputSamplerate % i != 0) {
+        i--;
+    }
+
+    inputSamplerateSound = i;
+
     printf("Audio input samplerate: %d\r\n", inputSamplerateSound);
 }

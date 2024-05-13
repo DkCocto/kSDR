@@ -41,7 +41,7 @@ Signal* AMModulation::processData(CircleBufferNew<float>* buffer) {
 
 		for (int i = 0; i < inputDataLen; i++) {
 			float oscillatorSignal = cosOscillator->nextSample();
-			float amSignal = (1.0 + 4.0 * inputData[i]) * oscillatorSignal;
+			float amSignal = (1.0 + config->transmit.amModulationDepth * inputData[i]) * oscillatorSignal;
 			amData[i] = amSignal;
 			if (max < abs(amSignal)) max = abs(amSignal);
 		}

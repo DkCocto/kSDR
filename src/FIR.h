@@ -21,8 +21,8 @@ public:
     const unsigned char BANDSTOP = 3;// NOTCH
     const unsigned char BANDPASS = 4;
 
-    float* m_delay = nullptr;
-    float* m_fir = nullptr;
+    std::vector<float> m_delay;
+    std::vector<float> m_fir;
 
     int len = 0;
 
@@ -59,7 +59,7 @@ public:
 
     float proc(float sample);
 
-    float* getCoeffs();
+    std::vector<float> getCoeffs();
 
     int getLen();
 

@@ -54,7 +54,7 @@ Signal* SSBModulation::processData(CircleBufferNew<float>* buffer) {
 
 		buffer->read(inputData, inputDataLen);
 
-		std::copy(inputData, inputData + inputDataLen, inputDataCopyDouble); //слабое звено, проверить
+		std::copy(inputData, inputData + inputDataLen, inputDataCopyDouble);
 
 		fftw_complex* complex = hilbertTransformFFTW->process(inputDataCopyDouble);
 		
@@ -76,8 +76,8 @@ Signal* SSBModulation::processData(CircleBufferNew<float>* buffer) {
 		for (int i = 0; i < inputDataLen; i++) {
 			float I = (float)complex2[i][IMAG];
 			float Q = (float)complex2[i][REAL];
-			float dither = ((float)rand() / (float)(RAND_MAX)) / 50.0f;
-			float dither2 = ((float)rand() / (float)(RAND_MAX)) / 50.0f;
+			float dither = ((float)rand() / (float)(RAND_MAX)) / 200.0f;
+			float dither2 = ((float)rand() / (float)(RAND_MAX)) / 200.0f;
 			auto mixedSignal = mixer->mix(I, Q);
 			outputDataSignal[j * inputDataLen + i] = Signal{ mixedSignal.I + dither, mixedSignal.Q + dither2 };
 		}

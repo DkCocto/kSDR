@@ -22,8 +22,11 @@ class HackRfInterface : public DeviceInterface {
 	uint32_t savedTxVgaGain = -1;
 	bool needToSetTxVgaGain = false;
 
-	uint8_t savedAmp = 0;
-	bool needToSetAmp = false;
+	uint8_t savedRxAmp = 0;
+	bool needToSetRxAmp = false;
+
+	uint8_t savedTxAmp = 0;
+	bool needToSetTxAmp = false;
 
 	TransmittingData* transmittingData;
 
@@ -44,12 +47,14 @@ public:
 	void setVgaGain(uint32_t gain);
 	void setTxVgaGain(uint32_t gain);
 	void setBaseband(int baseband);
-	void enableAmp(uint8_t amp);
+	void enableRxAmp(uint8_t amp);
+	void enableTxAmp(uint8_t amp);
 
 	bool isDeviceTransmitting();
 
 	bool pauseRX();
 	bool releasePauseRX();
+
 	bool startTX(int freq);
 	bool stopTX();
 

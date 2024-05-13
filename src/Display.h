@@ -63,6 +63,8 @@ private:
 
 	ViewModel* viewModel;
 
+	bool txSwitcherFlag = false; 
+
 public:
 
 	static Display* instance;

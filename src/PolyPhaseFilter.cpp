@@ -26,8 +26,11 @@ void PolyPhaseFilter::initCoeffs(float sampleRate, float freq, int decimationRat
 	FIR fir;
 	fir.init(fir.LOWPASS, fir.HAMMING, len, freq, 0, sampleRate);
 	
-	float* c = fir.getCoeffs();
+	coeffs = fir.getCoeffs();
+
+	/*float* c = fir.getCoeffs();
 	std::copy(&c[0], &c[fir.getLen()], std::back_inserter(coeffs));
+	delete[] c;*/
 
 	//coeffs = Filter::makeRaiseCosine(sampleRate, freq, alpha, len);
 

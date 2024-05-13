@@ -17,7 +17,14 @@ void ViewModel::storeToConfig() {
 	config->hackrf.lnaGain = hackRFModel.lnaGain;
 	config->hackrf.vgaGain = hackRFModel.vgaGain;
 	config->hackrf.txVgaGain = hackRFModel.txVgaGain;
-	config->hackrf.rxAmp = hackRFModel.enableAmp;
+	config->hackrf.rxAmp = hackRFModel.enableRxAmp;
+	config->hackrf.txAmp = hackRFModel.enableTxAmp;
+
+	config->transmit.txBySpaceBtn = transmit.txBySpaceBtn;
+	config->transmit.amModulationDepth = transmit.amModulationDepth;
+	config->transmit.inputLevel = transmit.inputLevel;
+	
+
 }
 
 void ViewModel::loadFromConfig() {
@@ -35,7 +42,13 @@ void ViewModel::loadFromConfig() {
 	hackRFModel.lnaGain = config->hackrf.lnaGain;
 	hackRFModel.vgaGain = config->hackrf.vgaGain;
 	hackRFModel.txVgaGain = config->hackrf.txVgaGain;
-	hackRFModel.enableAmp = config->hackrf.rxAmp;
+	hackRFModel.enableRxAmp = config->hackrf.rxAmp;
+	hackRFModel.enableTxAmp = config->hackrf.txAmp;
+
+	transmit.txBySpaceBtn = config->transmit.txBySpaceBtn;
+	transmit.amModulationDepth = config->transmit.amModulationDepth;
+	transmit.inputLevel = config->transmit.inputLevel;
+	
 	filterWidth = config->filterWidth;
 	receiverMode = config->receiver.modulation;
 	rspModel.gain = config->rsp.gain;

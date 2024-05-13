@@ -20,6 +20,7 @@ SoundProcessorThread::SoundProcessorThread(DeviceController* devCnt,
 
 	hilbertTransform = new HilbertTransform(config->currentWorkingInputSamplerate, config->HILBERT_TRANSFORM_LEN);
 	delay = new Delay((config->HILBERT_TRANSFORM_LEN - 1) / 2);
+
 	agc = AGC(config, specHandler);
 
 	decimateBufferI = new float[config->outputSamplerateDivider];

@@ -47,10 +47,17 @@ void HackRfInterface::setBaseband(int baseband) {
 	}
 }
 
-void HackRfInterface::enableAmp(uint8_t amp) {
-	if (savedAmp != amp) {
-		savedAmp = amp;
-		needToSetAmp = true;
+void HackRfInterface::enableRxAmp(uint8_t amp) {
+	if (savedRxAmp != amp) {
+		savedRxAmp = amp;
+		needToSetRxAmp = true;
+	}
+}
+
+void HackRfInterface::enableTxAmp(uint8_t amp) {
+	if (savedTxAmp != amp) {
+		savedTxAmp = amp;
+		needToSetTxAmp = true;
 	}
 }
 
@@ -68,11 +75,29 @@ bool HackRfInterface::releasePauseRX() {
 
 bool HackRfInterface::startTX(int freq) {
 	transmittingData->setFreq(freq);
-	return ((HackRFDevice*)device)->startTX();
+
+	HackRFDevice* hackRFDevice = (HackRFDevice*)device;
+
+	bool result = ((HackRFDevice*)device)->startTX();
+
+	if (result) {
+		hackRFDevice->enableAmp(savedTxAmp);
+	}
+
+	return result;
 }
 
 bool HackRfInterface::stopTX() {
-	return ((HackRFDevice*)device)->stopTX();
+
+	HackRFDevice* hackRFDevice = (HackRFDevice*)device;
+
+	bool result = ((HackRFDevice*)device)->stopTX();
+
+	if (result) {
+		hackRFDevice->enableAmp(savedRxAmp);
+	}
+
+	return result;
 }
 
 void HackRfInterface::sendParamsToDevice() {
@@ -104,8 +129,17 @@ void HackRfInterface::sendParamsToDevice() {
 		needToSetBaseband = false;
 	}
 
-	if (needToSetAmp) {
-		hackRFDevice->enableAmp(savedAmp);
-		needToSetAmp = false;
+	if (needToSetRxAmp) {
+		if (!isDeviceTransmitting()) {
+			hackRFDevice->enableAmp(savedRxAmp);
+			needToSetRxAmp = false;
+		}
+	}
+
+	if (needToSetTxAmp) {
+		if (isDeviceTransmitting()) {
+			hackRFDevice->enableAmp(savedTxAmp);
+			needToSetTxAmp = false;
+		}
 	}
 }

@@ -9,6 +9,8 @@ int HackRFDevice::rx_callback(hackrf_transfer* transfer) {
 	return 0;
 }
 
+#include "..\WindowBlackman.h"
+
 int HackRFDevice::tx_callback(hackrf_transfer* transfer) {
 	HackRFDevice* hackRFDevice = (HackRFDevice*)transfer->rx_ctx;
 
@@ -37,8 +39,8 @@ int HackRFDevice::tx_callback(hackrf_transfer* transfer) {
 
 		for (int i = 0; i < HACKRF_TX_BUFFER_HALF_LEN; i++) {
 
-			transfer->buffer[2 * i] = hackRFDevice->chuchka((uint8_t)(((signal[i].I + 1.0) / 2.0) * 255.0));
-			transfer->buffer[2 * i + 1] = hackRFDevice->chuchka((uint8_t)(((signal[i].Q + 1.0) / 2.0) * 255.0));
+			transfer->buffer[2 * i] = hackRFDevice->chuchka((uint8_t)(((signal[i].I + 1.0f) / 2.0f) * 255));
+			transfer->buffer[2 * i + 1] = hackRFDevice->chuchka((uint8_t)(((signal[i].Q + 1.0f) / 2.0f) * 255));
 
 		}
 

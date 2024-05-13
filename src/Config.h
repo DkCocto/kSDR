@@ -125,12 +125,19 @@ public:
 
 	} receiver;
 
+	struct Transmit {
+		bool txBySpaceBtn = false;
+		float inputLevel = 1.0f;
+		float amModulationDepth = 1.0f;
+	} transmit;
+
 	DeviceType deviceType, delayedDeviceType;
 
 	struct HackRF {
 		int deviceSamplingRate = 4000000;
 		int basebandFilter = 1750000;
 		char rxAmp = 0;
+		char txAmp = 0;
 		char lnaGain = 16;
 		char vgaGain = 20;
 		char txVgaGain = 47;

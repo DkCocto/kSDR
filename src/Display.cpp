@@ -273,7 +273,7 @@ void Display::renderImGUIFirst() {
 			if (ImGui::Button("2.7k")) {
 				viewModel->filterWidth = 2700;
 			}
-			ImGui::SameLine();
+
 			if (ImGui::Button("3.2k")) {
 				viewModel->filterWidth = 3200;
 			}
@@ -345,41 +345,21 @@ void Display::renderImGUIFirst() {
 			if (env->getConfig()->deviceType == DeviceType::HACKRF) {
 				hackRFsampRateLS->drawSetting();
 
+				ImGui::Spacing();
+				ImGui::SeparatorText("RX Settings");
+
 				HackRfInterface* hackRfInterface = (HackRfInterface*)env->getDeviceController()->getDeviceInterface();
 
 				ImGui::SliderInt("LNA Gain", &viewModel->hackRFModel.lnaGain, 0, 5);
 				ImGui::SliderInt("VGA Gain", &viewModel->hackRFModel.vgaGain, 0, 31);
-				ImGui::SliderInt("AMP Gain", &viewModel->hackRFModel.enableAmp, 0, 1);
-				ImGui::SliderInt("Tx VGA Gain", &viewModel->hackRFModel.txVgaGain, 0, 47);
-				hackRFbasebandFilterLS->drawSetting();
 
 				if (hackRfInterface != nullptr) {
-					hackRfInterface->setLnaGain((uint32_t)viewModel->hackRFModel.lnaGain);
-					hackRfInterface->setVgaGain(viewModel->hackRFModel.vgaGain);
-					hackRfInterface->enableAmp(viewModel->hackRFModel.enableAmp);
-					hackRfInterface->setTxVgaGain(viewModel->hackRFModel.txVgaGain);
-					hackRfInterface->setBaseband(env->getConfig()->hackrf.basebandFilter);
-
-					if (env->getDeviceController()->isStatusInitOk()) hackRfInterface->sendParamsToDevice();
-
 					if (hackRfInterface->isDeviceTransmitting()) ImGui::BeginDisabled();
-					if (ImGui::Button("Start Transmitting")) {
-						if (hackRfInterface->pauseRX()) {
-							env->getSoundCardInputReader()->continueRead();
-							hackRfInterface->startTX((int)env->getReceiverLogic()->getFrequencyDelta());
-						}
-					}
+						ImGui::SliderInt("RX AMP", &viewModel->hackRFModel.enableRxAmp, 0, 1);
 					if (hackRfInterface->isDeviceTransmitting()) ImGui::EndDisabled();
-
-					if (!hackRfInterface->isDeviceTransmitting()) ImGui::BeginDisabled();
-					if (ImGui::Button("Stop Transmitting")) {
-						if (hackRfInterface->stopTX()) {
-							env->getSoundCardInputReader()->pause();
-							hackRfInterface->releasePauseRX();
-						}
-					};
-					if (!hackRfInterface->isDeviceTransmitting()) ImGui::EndDisabled();
 				}
+
+				hackRFbasebandFilterLS->drawSetting();
 			}
 
 			if (env->getConfig()->deviceType == DeviceType::RSP) {
@@ -417,9 +397,72 @@ void Display::renderImGUIFirst() {
 			}
 			ImGui::TreePop();
 		}
+
+		if (env->getConfig()->deviceType == DeviceType::HACKRF) {
+
+			HackRfInterface* hackRfInterface = (HackRfInterface*)env->getDeviceController()->getDeviceInterface();
+
+			if (ImGui::TreeNode("TX Settings")) {
+				ImGui::Spacing();
+
+				ImGui::Text("Never TX without an antenna connected!"); ImGui::Spacing();
+
+				if (hackRfInterface != nullptr) {
+
+					bool reactionOnSpaceBtn = ImGui::IsKeyDown(ImGui::GetKeyIndex(ImGuiKey_Space)) && env->getConfig()->transmit.txBySpaceBtn;
+
+					if (hackRfInterface->isDeviceTransmitting() || reactionOnSpaceBtn) ImGui::BeginDisabled();
+					if ((ImGui::Button("Start Transmitting") || (reactionOnSpaceBtn && !txSwitcherFlag)) && !hackRfInterface->isDeviceTransmitting()) {
+						if (hackRfInterface->pauseRX()) {
+							env->getSoundCardInputReader()->continueRead();
+							if (hackRfInterface->startTX((int)env->getReceiverLogic()->getFrequencyDelta())) {
+								if (reactionOnSpaceBtn) txSwitcherFlag = true;
+							}
+						}
+					}
+					ImGui::SameLine(); if (hackRfInterface->isDeviceTransmitting() || reactionOnSpaceBtn) ImGui::EndDisabled();
+
+					if (!hackRfInterface->isDeviceTransmitting() || reactionOnSpaceBtn) ImGui::BeginDisabled();
+
+					if (ImGui::Button("Stop Transmitting") || (!reactionOnSpaceBtn && txSwitcherFlag)) {
+						if (hackRfInterface->stopTX()) {
+							env->getSoundCardInputReader()->pause();
+							if (hackRfInterface->releasePauseRX()) {
+								txSwitcherFlag = false;
+							}
+						}
+					};
+					if (!hackRfInterface->isDeviceTransmitting() || reactionOnSpaceBtn) ImGui::EndDisabled();
+				}
+
+				ImGui::Checkbox("TX by Space btn", &viewModel->transmit.txBySpaceBtn);
+
+				ImGui::SliderInt("TX AMP", &viewModel->hackRFModel.enableTxAmp, 0, 1);
+				ImGui::SliderInt("Tx VGA Gain", &viewModel->hackRFModel.txVgaGain, 0, 47);
+
+				ImGui::SliderFloat("Input Level", &viewModel->transmit.inputLevel, 0, 10);
+				ImGui::SliderFloat("AM Modulation Depth", &viewModel->transmit.amModulationDepth, 1, 50);
+				
+				ImGui::Spacing();
+
+				ImGui::TreePop();
+			}
+
+			if (hackRfInterface != nullptr) {
+				hackRfInterface->setLnaGain((uint32_t)viewModel->hackRFModel.lnaGain);
+				hackRfInterface->setVgaGain(viewModel->hackRFModel.vgaGain);
+				hackRfInterface->enableRxAmp(viewModel->hackRFModel.enableRxAmp);
+				hackRfInterface->enableTxAmp(viewModel->hackRFModel.enableTxAmp);
+				hackRfInterface->setTxVgaGain(viewModel->hackRFModel.txVgaGain);
+				hackRfInterface->setBaseband(env->getConfig()->hackrf.basebandFilter);
+
+				if (env->getDeviceController()->isStatusInitOk()) hackRfInterface->sendParamsToDevice();
+			}
+		}
+
 		if (ImGui::TreeNode("Settings")) {
 			ImGui::Spacing();
-			ImGui::Text("After changing the settings marked with an asterisk\napplication components will be reinitialized.");
+			ImGui::Text("After changing the settings\nmarked with an asterisk\napplication components will be reinitialized.");
 
 			ImGui::Spacing();
 			ImGui::SeparatorText("FFT");

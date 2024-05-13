@@ -128,6 +128,12 @@ void Environment::stopProcessing() {
 		soundCardWriterThread = nullptr;
 	}
 
+	if (soundCardInputReaderThread != nullptr) {
+		while (soundCardInputReaderThread->isWorking());
+		delete soundCardInputReaderThread;
+		soundCardInputReaderThread = nullptr;
+	}
+
 	if (specHandler != nullptr) {
 		while (specHandler->isWorking());
 	}

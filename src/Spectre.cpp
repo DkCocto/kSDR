@@ -7,6 +7,7 @@
 
 #define VIOLET						IM_COL32(72, 3, 111, 160)
 #define RED							IM_COL32(166, 0, 0, 80)
+#define LIGHTRED					IM_COL32(255, 0, 0, 255)
 #define YELLOW						IM_COL32(255, 255, 0, 255)
 #define SPECTRE_COLOR				IM_COL32(50, 50, 50, 255)
 #define SPECTRE_CONTUR_COLOR		IM_COL32(255, 255, 255, 255)
@@ -142,6 +143,20 @@ void Spectre::draw() {
 			//---------------
 			
 			drawFreqMarks(draw_list, sWD.startWindowPoint, sWD.windowLeftBottomCorner, spectreWidth, spectreHeight, env->getFlowingSpectre());
+
+			//TX/RX MARK
+			bool tx = false;
+			if (env->getDeviceController()->getDevice() != nullptr && env->getDeviceController()->getDevice()->deviceType == HACKRF) {
+				tx = ((HackRFDevice*)env->getDeviceController()->getDevice())->isDeviceTransmitting();
+			}
+			ImGui::PushFont(viewModel->fontBigRegular);
+			draw_list->AddText(
+				ImVec2(sWD.startWindowPoint[0] + 550, 150),
+				(tx == true) ? LIGHTRED : GREEN,
+				(tx == true) ? "TX" : "RX"
+			);
+			ImGui::PopFont();
+			//----------
 
 		ImGui::EndChild();
 

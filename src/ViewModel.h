@@ -67,9 +67,16 @@ public:
 		int lnaGain = 0;
 		int vgaGain = 8;
 		int txVgaGain = 20;
-		int enableAmp = 0;
+		int enableRxAmp = 0;
+		int enableTxAmp = 0;
 		int basebandFilter = 1750000;
 	} hackRFModel;
+
+	struct Transmit {
+		bool txBySpaceBtn = false;
+		float inputLevel = 1.0f;
+		float amModulationDepth = 1.0f;
+	} transmit;
 
 	float bufferAvailable = 0;
 
