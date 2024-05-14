@@ -254,9 +254,7 @@ void Display::renderImGUIFirst() {
 
 			ImGui::Spacing();
 
-			ImGui::SeparatorText("Filter");
-
-			ImGui::SliderInt("Width", &viewModel->filterWidth, 0, 12000);
+			ImGui::SeparatorText("Audio Filter");
 
 			if (ImGui::Button("100")) {
 				viewModel->filterWidth = 100;
@@ -289,6 +287,17 @@ void Display::renderImGUIFirst() {
 			if (ImGui::Button("12.0k")) {
 				viewModel->filterWidth = 12000;
 			}
+
+			ImGui::SliderInt("Audio Filter (Hz)", &viewModel->filterWidth, 0, 12000);
+
+			ImGui::Spacing();
+
+			ImGui::SeparatorText("Notch Filter");
+
+			ImGui::Checkbox("Enable Notch", &viewModel->enableNotch);
+
+			if (viewModel->notchCenterFreq > viewModel->filterWidth) viewModel->notchCenterFreq = viewModel->filterWidth;
+			ImGui::SliderInt("Notch Center (Hz)", &viewModel->notchCenterFreq, 0, viewModel->filterWidth);
 
 			ImGui::Spacing();
 

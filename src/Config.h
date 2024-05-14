@@ -10,7 +10,7 @@ constexpr auto CONFIG_FILENAME = "config.xml";
 #include "vector"
 #include "memory"
 
-#define CIRCLE_BUF_LEN 1 * 1024 * 1024
+#define CIRCLE_BUF_LEN 2 * 1024 * 1024
 
 class Config {
 
@@ -122,6 +122,10 @@ public:
 			double releaseSpeed = 0.00005;
 			double lastAmp = 1;
 		} agc;
+
+		bool enableNotch = 0;
+		int notchCenterFreq = 0;
+		int notchWidth = 400;
 
 	} receiver;
 

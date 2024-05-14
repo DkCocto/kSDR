@@ -8,7 +8,7 @@
 #include "Mixer.h"
 #include "WindowBlackmanHarris.h"
 
-#define SSB_HILBERT_TRANSFORM_LEN 65536
+#define SSB_HILBERT_TRANSFORM_LEN 128 * 1024
 
 class SSBModulation : Modulation {
 
@@ -16,7 +16,7 @@ private:
 
 	int inputDataLen = 512;
 
-	const int carierFreq = 1000000;
+	const int carierFreq = 500000;
 
 	Config* config = nullptr;
 

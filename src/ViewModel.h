@@ -29,6 +29,9 @@ public:
 
 	int filterWidth;
 
+	bool enableNotch = false;
+	int notchCenterFreq = 0;
+
 	double signalMaxdB = 0.0;
 
 	//41965664 - хулиганы ssb в центре

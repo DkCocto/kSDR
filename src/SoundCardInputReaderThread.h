@@ -3,7 +3,6 @@
 #include "Thread/MyThread.h"
 #include "CircleBufferNew.h"
 #include "SoundCard.h"
-#include "windows.h"
 #include "FIR.h"
 #include "FastFir/jfastfir.h"
 
@@ -28,13 +27,6 @@ private:
 
 	void run();
 
-	enum Status {
-		START_READING,
-		PAUSE,
-		REST,
-		READING
-	} CurrentStatus = REST;
-
 	void initFilters(int audioFilterWidth);
 
 public:
@@ -43,6 +35,4 @@ public:
 	~SoundCardInputReaderThread();
 
 	std::thread start();
-	void pause();
-	void continueRead();
 };

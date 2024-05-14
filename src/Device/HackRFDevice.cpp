@@ -9,44 +9,22 @@ int HackRFDevice::rx_callback(hackrf_transfer* transfer) {
 	return 0;
 }
 
-#include "..\WindowBlackman.h"
-
 int HackRFDevice::tx_callback(hackrf_transfer* transfer) {
 	HackRFDevice* hackRFDevice = (HackRFDevice*)transfer->rx_ctx;
 
 	TransmittingData* transmittingData = hackRFDevice->transmittingData;
 
 	if (transmittingData != nullptr) {
-		//for (int i = 0; i < transfer->buffer_length / 2; i++) {
-			//(value-From1)/(From2-From1)*(To2-To1)+To1;
-			//[-1, 1] -> [0, 255]
-			//[-1, 1] -> [128, 255]
-			//[-1, 1] ->[-127, 127]
-
-			// 0 -> 128, 127 -> 255
-			// 128 -> 0, 255 -> 127
-		 
-			//Signal* signal = transmittingData->nextBuffer();
-
-			//transfer->buffer[2 * i] = hackRFDevice->chuchka((uint8_t)(((signal.I + 1.0) / 2.0) * 255.0));
-			//transfer->buffer[2 * i + 1] = hackRFDevice->chuchka((uint8_t)(((signal.Q + 1.0) / 2.0) * 255.0));
-
-
-			//printf("nogka: %d\r\n", (int)round((hackRFDevice->so->nextSample() - (-1.0)) / (1.0 - (-1.0)) * (255.0 - 0) + 0));
-		//}
-
 		Signal* signal = transmittingData->nextBuffer();
 
 		for (int i = 0; i < HACKRF_TX_BUFFER_HALF_LEN; i++) {
-
-			transfer->buffer[2 * i] = hackRFDevice->chuchka((uint8_t)(((signal[i].I + 1.0f) / 2.0f) * 255));
-			transfer->buffer[2 * i + 1] = hackRFDevice->chuchka((uint8_t)(((signal[i].Q + 1.0f) / 2.0f) * 255));
-
+			transfer->buffer[2 * i] = hackRFDevice->chuchka((uint8_t)(((signal[i].I + 1.0f) / 2.0f) * 255.0f));
+			transfer->buffer[2 * i + 1] = hackRFDevice->chuchka((uint8_t)(((signal[i].Q + 1.0f) / 2.0f) * 255.0f));
 		}
 
 		hackRFDevice->getBufferForSpec()->write(transfer->buffer, transfer->buffer_length);
-
 	}
+
 	return 0;
 }
 
@@ -304,8 +282,10 @@ bool HackRFDevice::pauseRX() {
 			hackrf_error result = (hackrf_error)hackrf_stop_rx(device);
 			if (result != HACKRF_SUCCESS) {
 				if (DEBUG) printf("Error hackrf_stop_rx!\r\n");
+			} else {
+				if (DEBUG) printf("RX paused!\r\n");
+				return true;
 			}
-			else return true;
 		}
 	}
 	return false;

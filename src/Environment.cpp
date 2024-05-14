@@ -97,11 +97,7 @@ void Environment::startProcessing() {
 
 		soundCardInputReaderThread->start().detach();
 
-		//txDataHandler->start().detach();
-
 		soundProcessor->start().detach();
-
-		//while (!soundProcessor->isWorking() || !soundCardWriterThread->isWorking() || !specHandler->isWorking());
 	}
 }
 

@@ -37,7 +37,7 @@ void Config::initSettings() {
 
     audioWriteFrameLen = (outputSamplerateDivider) / 4;
 
-    audioReadFrameLen = 32;
+    audioReadFrameLen = 4;
 
     //circleBufferLen = currentWorkingInputSamplerate / 4;
 
@@ -184,6 +184,12 @@ void Config::loadXml() {
 
             tinyxml2::XMLElement* pfrequencyShift = pReceiver->FirstChildElement("frequencyShift");
             receiver.frequencyShift = std::stoi(std::string(pfrequencyShift->GetText()));
+
+            tinyxml2::XMLElement* penableNotch = pReceiver->FirstChildElement("enableNotch");
+            receiver.enableNotch = (std::stoi(std::string(penableNotch->GetText())) == 1) ? true : false;
+
+            tinyxml2::XMLElement* pnotchCenterFreq = pReceiver->FirstChildElement("notchCenterFreq");
+            receiver.notchCenterFreq = std::stoi(std::string(pnotchCenterFreq->GetText()));
 
             tinyxml2::XMLElement* pAgc = pReceiver->FirstChildElement("Agc");
             if (NULL != pAgc) {
@@ -511,6 +517,12 @@ void Config::save() {
 
             tinyxml2::XMLElement* pfrequencyShift = pReceiver->FirstChildElement("frequencyShift");
             pfrequencyShift->SetText(receiver.frequencyShift);
+
+            tinyxml2::XMLElement* penableNotch = pReceiver->FirstChildElement("enableNotch");
+            penableNotch->SetText((receiver.enableNotch == true) ? "1" : "0");
+
+            tinyxml2::XMLElement* pnotchCenterFreq = pReceiver->FirstChildElement("notchCenterFreq");
+            pnotchCenterFreq->SetText(receiver.notchCenterFreq);
 
             tinyxml2::XMLElement* pAgc = pReceiver->FirstChildElement("Agc");
             if (NULL != pAgc) {

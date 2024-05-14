@@ -9,6 +9,8 @@ void ViewModel::storeToConfig() {
 	config->volume = volume;
 	config->filterWidth = filterWidth;
 	config->receiver.modulation = receiverMode;
+	config->receiver.enableNotch = enableNotch;
+	config->receiver.notchCenterFreq = notchCenterFreq;
 	config->rsp.gain = rspModel.gain;
 	config->rsp.lna = rspModel.lna;
 
@@ -23,7 +25,6 @@ void ViewModel::storeToConfig() {
 	config->transmit.txBySpaceBtn = transmit.txBySpaceBtn;
 	config->transmit.amModulationDepth = transmit.amModulationDepth;
 	config->transmit.inputLevel = transmit.inputLevel;
-	
 
 }
 
@@ -51,6 +52,10 @@ void ViewModel::loadFromConfig() {
 	
 	filterWidth = config->filterWidth;
 	receiverMode = config->receiver.modulation;
+	
+	enableNotch = config->receiver.enableNotch;
+	notchCenterFreq = config->receiver.notchCenterFreq;
+
 	rspModel.gain = config->rsp.gain;
 	rspModel.lna = config->rsp.lna;
 

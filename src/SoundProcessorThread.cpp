@@ -33,6 +33,7 @@ SoundProcessorThread::SoundProcessorThread(DeviceController* devCnt,
 
 	//Инициализация полифазных фильтров
 	initFilters(config->defaultFilterWidth);
+	initNotchFilter(config->receiver.notchCenterFreq);
 }
 
 SoundProcessorThread::~SoundProcessorThread() {
@@ -50,14 +51,21 @@ void SoundProcessorThread::initFilters(int filterWidth) {
 	firFilterQ.initCoeffs(config->currentWorkingInputSamplerate, filterWidth, config->outputSamplerateDivider, config->polyphaseFilterLen);
 	fir.init(fir.LOWPASS, fir.BLACKMAN_HARRIS, 512, filterWidth, 0, config->outputSamplerate);
 
-	firI.init(fir.LOWPASS, fir.BARTLETT, 256, filterWidth, 0, config->outputSamplerate);
-	firQ.init(fir.LOWPASS, fir.BARTLETT, 256, filterWidth, 0, config->outputSamplerate);
+	firI.init(fir.LOWPASS, fir.BLACKMAN_HARRIS, 256, filterWidth, 0, config->outputSamplerate);
+	firQ.init(fir.LOWPASS, fir.BLACKMAN_HARRIS, 256, filterWidth, 0, config->outputSamplerate);
 }
+
+void SoundProcessorThread::initNotchFilter(int notchCenterFreq) {
+	firNotch.init(fir.BANDSTOP, fir.BLACKMAN_HARRIS, 511, notchCenterFreq, notchCenterFreq + config->receiver.notchWidth, config->outputSamplerate);
+}
+
+
 
 void SoundProcessorThread::run() {
 	isWorking_ = true;
 
 	int storedFilterWidth = config->defaultFilterWidth;
+	int storedNotchCenterFreq = config->receiver.notchCenterFreq;
 
 	DeviceN* device = devCnt->getDevice();
 	DeviceType deviceType = devCnt->getCurrentDeviceType();
@@ -72,7 +80,10 @@ void SoundProcessorThread::run() {
 		if (device != nullptr) {
 			switch (deviceType) {
 				case HACKRF:
-					if (((HackRFDevice*)device)->isDeviceTransmitting()) continue;
+					if (((HackRFDevice*)device)->isDeviceTransmitting()) {
+						std::this_thread::sleep_for(std::chrono::milliseconds(1));
+						continue;
+					}
 					break;
 			}
 		}
@@ -81,6 +92,10 @@ void SoundProcessorThread::run() {
 		if (storedFilterWidth != viewModel->filterWidth) {
 			storedFilterWidth = viewModel->filterWidth;
 			initFilters(storedFilterWidth);
+		}
+		if (storedNotchCenterFreq != viewModel->notchCenterFreq) {
+			storedNotchCenterFreq = viewModel->notchCenterFreq;
+			initNotchFilter(storedNotchCenterFreq);
 		}
 		//------------------------
 
@@ -107,7 +122,7 @@ template<typename DEVICE, typename DATATYPE> void SoundProcessorThread::initProc
 	viewModel->setBufferAvailable(available);
 	if (available >= len) {
 		processData<DATATYPE, DEVICE>(buffer->read(), device);
-	} else std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	} else std::this_thread::sleep_for(std::chrono::milliseconds(1));
 }
 
 template<typename T, typename D> void SoundProcessorThread::processData(T* data, D* device) {
@@ -165,8 +180,12 @@ template<typename T, typename D> void SoundProcessorThread::processData(T* data,
 					break;
 			}
 			//-------------------
+
+			if (config->receiver.enableNotch) audio = firNotch.proc(audio);
+
 			audio = fir.proc(audio);
 			audio = agc.processNew(audio);
+
 			//Если AM, то немного усилим сигнал
 			if (mode == AM) audio *= 3.0f;
 			if (mode == nFM) audio *= 2.0f;

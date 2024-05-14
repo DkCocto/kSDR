@@ -11,7 +11,7 @@ private:
 
 	Config* config = nullptr;
 
-	int inputDataLen = 128 * 1024;
+	int inputDataLen = 64 * 1024;
 
 	float* inputData;
 	float* amData;

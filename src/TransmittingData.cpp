@@ -12,7 +12,7 @@ TransmittingData::TransmittingData(Config* config, int freq, int samplingRate, i
 
     emptySignals = new Signal[ssb.getOutputBufferLen() >> 1];
     for (int i = 0; i < ssb.getOutputBufferLen() >> 1; i++) {
-        float dither = ((float)rand() / (float)(RAND_MAX)) / 100.0f;
+        float dither = ((float)rand() / (float)(RAND_MAX)) / 200.0f;
         emptySignals[i].I = dither;
         emptySignals[i].Q = dither;
     }
@@ -23,19 +23,16 @@ TransmittingData::~TransmittingData() {
 }
 
 Signal* TransmittingData::nextBuffer() {
-
     if (config->receiver.modulation == USB || config->receiver.modulation == LSB) {
         if (txBuffer->available() < ssb.getOutputBufferHalfLen()) {
             return emptySignals;
-        }
-        else {
+        } else {
             return ssb.processData(txBuffer);
         }
     } else if (config->receiver.modulation == AM) {
         if (txBuffer->available() < am.getOutputBufferHalfLen()) {
             return emptySignals;
-        }
-        else {
+        } else {
             return am.processData(txBuffer);
         }
     } else {

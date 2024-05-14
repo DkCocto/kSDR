@@ -13,8 +13,8 @@ private:
 	vector<double> q = { 0.0, 0.0, 0.0 };
 	double lastPhase = 0.0f;
 	double gain = 0.001f;
-	double limiti;
-	double limitq;
+	double limiti = 0;
+	double limitq = 0;
 
 
 public:

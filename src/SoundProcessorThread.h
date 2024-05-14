@@ -35,6 +35,7 @@ class SoundProcessorThread : public MyThread {
 	Config* config;
 
 	FIR fir;
+	FIR firNotch;
 	FIR firI;
 	FIR firQ;
 
@@ -60,6 +61,7 @@ public:
 	~SoundProcessorThread();
 
 	void initFilters(int filterWidth);
+	void initNotchFilter(int notchCenterFreq);
 
 	template<typename T, typename D> void processData(T* data, D* device);
 
