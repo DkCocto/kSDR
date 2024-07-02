@@ -226,6 +226,20 @@ void Display::renderImGUIFirst() {
 		
 		ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
 
+		if (env->getComPortHandler()->isConnected()) {
+			if (ImGui::TreeNode("Tranceiver Device")) {
+				ImGui::Spacing();
+
+				ImGui::Checkbox("ATT", &viewModel->myTranceiverDevice.att);
+
+				ImGui::Checkbox("PRE", &viewModel->myTranceiverDevice.pre);
+
+				ImGui::Checkbox("DPF ByPass", &viewModel->myTranceiverDevice.bypass);
+
+				ImGui::TreePop();
+			}
+		}
+
 		//ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
 		//if (ImGui::BeginTabBar("MyTabBar", tab_bar_flags)) {
 		if (ImGui::TreeNode("Control")) {

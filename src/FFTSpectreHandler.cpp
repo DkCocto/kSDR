@@ -175,7 +175,7 @@ void SpectreHandler::dataPostprocess() {
 
 float SpectreHandler::psd(float re, float im) {
 	//return (20*Math.log10(Math.sqrt((re*re)/binBandwidth + (im*im)/binBandwidth)));
-	return 20 * log(sqrt((re * re + im * im) / (double) config->fftLen));
+	return 10.0f * log(sqrt((re * re + im * im) / (float) config->fftLen));
 }
 
 FFTData* SpectreHandler::getFFTData() {

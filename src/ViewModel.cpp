@@ -26,6 +26,10 @@ void ViewModel::storeToConfig() {
 	config->transmit.amModulationDepth = transmit.amModulationDepth;
 	config->transmit.inputLevel = transmit.inputLevel;
 
+	config->myTranceiverDevice.att = myTranceiverDevice.att;
+	config->myTranceiverDevice.pre = myTranceiverDevice.pre;
+	config->myTranceiverDevice.bypass = myTranceiverDevice.bypass;
+
 }
 
 void ViewModel::loadFromConfig() {
@@ -50,6 +54,10 @@ void ViewModel::loadFromConfig() {
 	transmit.amModulationDepth = config->transmit.amModulationDepth;
 	transmit.inputLevel = config->transmit.inputLevel;
 	
+	myTranceiverDevice.att = config->myTranceiverDevice.att;
+	myTranceiverDevice.pre = config->myTranceiverDevice.pre;
+	myTranceiverDevice.bypass = config->myTranceiverDevice.bypass;
+
 	filterWidth = config->filterWidth;
 	receiverMode = config->receiver.modulation;
 	

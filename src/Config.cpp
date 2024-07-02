@@ -322,6 +322,18 @@ void Config::loadXml() {
             tinyxml2::XMLElement* preceiveRegionColor = pColorTheme->FirstChildElement("receiveRegionColor");
             colorTheme.receiveRegionColor = std::stoll(std::string(preceiveRegionColor->GetText()));
         }
+
+        tinyxml2::XMLElement* pMyTranceiverDevice = pRootElement->FirstChildElement("MyTranceiverDevice");
+        if (NULL != pMyTranceiverDevice) {
+            tinyxml2::XMLElement* pAtt = pMyTranceiverDevice->FirstChildElement("att");
+            myTranceiverDevice.att = (std::stoi(std::string(pAtt->GetText())) == 1) ? true : false;
+
+            tinyxml2::XMLElement* pPre = pMyTranceiverDevice->FirstChildElement("pre");
+            myTranceiverDevice.pre = (std::stoi(std::string(pPre->GetText())) == 1) ? true : false;
+
+            tinyxml2::XMLElement* pBypass = pMyTranceiverDevice->FirstChildElement("bypass");
+            myTranceiverDevice.bypass = (std::stoi(std::string(pBypass->GetText())) == 1) ? true : false;
+        }
     } else {
         printf("Config file not found!\r\n");
     }
@@ -643,6 +655,18 @@ void Config::save() {
 
             tinyxml2::XMLElement* preceiveRegionColor = pColorTheme->FirstChildElement("receiveRegionColor");
             preceiveRegionColor->SetText(colorTheme.receiveRegionColor);
+        }
+
+        tinyxml2::XMLElement* pMyTranceiverDevice = pRootElement->FirstChildElement("MyTranceiverDevice");
+        if (NULL != pMyTranceiverDevice) {
+            tinyxml2::XMLElement* pAtt = pMyTranceiverDevice->FirstChildElement("att");
+            pAtt->SetText((myTranceiverDevice.att == true) ? "1" : "0");
+
+            tinyxml2::XMLElement* pPre = pMyTranceiverDevice->FirstChildElement("pre");
+            pPre->SetText((myTranceiverDevice.pre == true) ? "1" : "0");
+
+            tinyxml2::XMLElement* pBypass = pMyTranceiverDevice->FirstChildElement("bypass");
+            pBypass->SetText((myTranceiverDevice.bypass == true) ? "1" : "0");
         }
 
         doc.SaveFile(CONFIG_FILENAME);

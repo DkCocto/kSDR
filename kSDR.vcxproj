@@ -23,8 +23,12 @@
     <ClCompile Include="src\AM.cpp" />
     <ClCompile Include="src\CircleBuffer.cpp" />
     <ClCompile Include="src\CircleBufferReaderThread.cpp" />
+    <ClCompile Include="src\COMPortHandler.cpp" />
     <ClCompile Include="src\FastFir\jfastfir.cpp" />
+    <ClCompile Include="src\impl\list_ports\list_ports_win.cc" />
+    <ClCompile Include="src\impl\win.cc" />
     <ClCompile Include="src\Modulation.cpp" />
+    <ClCompile Include="src\serial.cc" />
     <ClCompile Include="src\SoundCardInputReaderThread.cpp" />
     <ClCompile Include="src\SoundCardWriterThread.cpp" />
     <ClCompile Include="src\ColoredSpectreBG.cpp" />
@@ -104,8 +108,12 @@
     <ClInclude Include="src\CircleBuffer.h" />
     <ClInclude Include="src\CircleBufferNew.h" />
     <ClInclude Include="src\CircleBufferReaderThread.h" />
+    <ClInclude Include="src\ComPortHandler.h" />
     <ClInclude Include="src\FastFir\jfastfir.h" />
     <ClInclude Include="src\Modulation.h" />
+    <ClInclude Include="src\serial\impl\win.h" />
+    <ClInclude Include="src\serial\serial.h" />
+    <ClInclude Include="src\serial\v8stdint.h" />
     <ClInclude Include="src\SoundCardInputReaderThread.h" />
     <ClInclude Include="src\SoundCardWriterThread.h" />
     <ClInclude Include="src\ColoredSpectreBG.h" />
@@ -203,7 +211,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
     <EnableASAN>false</EnableASAN>
@@ -297,6 +305,7 @@
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <OmitFramePointers>true</OmitFramePointers>
       <FloatingPointModel>Precise</FloatingPointModel>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

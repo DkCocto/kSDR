@@ -81,6 +81,12 @@ public:
 		float amModulationDepth = 1.0f;
 	} transmit;
 
+	struct MyTranceiverDevice {
+		bool att = false;
+		bool pre = false;
+		bool bypass = false;
+	} myTranceiverDevice;
+
 	float bufferAvailable = 0;
 
 	void setBufferAvailable(int readAvailableBufferCount);

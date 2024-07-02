@@ -46,6 +46,12 @@
     <Filter Include="Файлы заголовков\Modulation">
       <UniqueIdentifier>{eaada6a3-b065-4b92-9b45-90b7ace86cf7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Исходные файлы\Serial">
+      <UniqueIdentifier>{9456d633-093f-4e69-8c52-e88f01ac4ca6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\Serial">
+      <UniqueIdentifier>{dfa87b9e-fe6e-4cb5-a782-85ddd6c1ea61}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Config.cpp">
@@ -272,6 +278,18 @@
     </ClCompile>
     <ClCompile Include="src\FastFir\jfastfir.cpp">
       <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\impl\win.cc">
+      <Filter>Исходные файлы\Serial</Filter>
+    </ClCompile>
+    <ClCompile Include="src\serial.cc">
+      <Filter>Исходные файлы\Serial</Filter>
+    </ClCompile>
+    <ClCompile Include="src\impl\list_ports\list_ports_win.cc">
+      <Filter>Файлы заголовков\Serial</Filter>
+    </ClCompile>
+    <ClCompile Include="src\COMPortHandler.cpp">
+      <Filter>Исходные файлы\Thread</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -523,6 +541,18 @@
     </ClInclude>
     <ClInclude Include="src\FastFir\jfastfir.h">
       <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\serial\impl\win.h">
+      <Filter>Файлы заголовков\Serial</Filter>
+    </ClInclude>
+    <ClInclude Include="src\serial\v8stdint.h">
+      <Filter>Файлы заголовков\Serial</Filter>
+    </ClInclude>
+    <ClInclude Include="src\serial\serial.h">
+      <Filter>Файлы заголовков\Serial</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ComPortHandler.h">
+      <Filter>Файлы заголовков\Thread</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

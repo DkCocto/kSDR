@@ -181,6 +181,24 @@ public:
 
 	//--------------------------------------
 
+	struct MyTranceiverDevice {
+		enum BAND {
+			B_160,
+			B_80,
+			B_40,
+			B_30,
+			B_20,
+			B_17,
+			B_15,
+			B_12,
+			B_10,
+			UNDEF
+		};
+		bool att = false;
+		bool pre = false;
+		bool bypass = false;
+	} myTranceiverDevice;
+
 	void loadXml();
 	void initSettings();
 	void save();

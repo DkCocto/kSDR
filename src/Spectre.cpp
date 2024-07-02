@@ -29,8 +29,8 @@ void Spectre::waterfallAutoColorCorrection() {
 }
 
 void Spectre::spectreRatioAutoCorrection() {
-	viewModel->minDb = minMax.average - 15;
-	viewModel->ratio = minMax.max + 30;
+	viewModel->minDb = minMax.average - 8;
+	viewModel->ratio = minMax.max + 19;
 	//config->spectre.spectreCorrectionDb = viewModel->minDb;
 }
 
@@ -340,7 +340,7 @@ void Spectre::handleEvents(int spectreWidthInPX, ReceiverLogic* receiverLogic, F
 			float newCenterFreq = flowingSpec->moveSpectreByMouse(spectreWidthInPX, getMousePosXOnSpectreWindow());
 
 			receiverLogic->setFrequencyDelta(receiverLogic->getFrequencyDelta());
-			waterfall->clear();
+			//waterfall->clear();
 		}
 	}
 

@@ -11,6 +11,7 @@
 #include "CircleBufferNew.h"
 #include "Buffer.h"
 #include "TXDataHandler.h"
+#include "ComPortHandler.h"
 
 class Environment {
 	private:
@@ -45,6 +46,8 @@ class Environment {
 
 		ReceiverLogic* receiverLogic = nullptr;
 
+		ComPortHandler* comPortHandler = nullptr;
+
 	public:
 
 		std::atomic_bool reloading = false;
@@ -67,4 +70,6 @@ class Environment {
 		ReceiverLogic* getReceiverLogic();
 		FlowingSpectre* getFlowingSpectre();
 		SoundCardInputReaderThread* getSoundCardInputReader();
+		ComPortHandler* getComPortHandler();
+
 };
