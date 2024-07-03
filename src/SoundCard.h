@@ -37,4 +37,6 @@ public:
 
 	int availableToRead();
 
+	bool isInputAvailable();
+
 };

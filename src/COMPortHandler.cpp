@@ -11,29 +11,47 @@ void ComPortHandler::run() {
 		if (port != nullptr && !port->isOpen()) {
 			connectToDevice();
 		} else {
+
+			if (!deviceInited) {
+				deviceInited = initDevice();
+			}
+
 			if (freq != (int)config->lastSelectedFreq) {
 
-				freq = (int)config->lastSelectedFreq;
-				sendCMD(CMD_.SET_FREQUENCY + to_string(freq));
+				string answer = sendCMD(CMD_.SET_FREQUENCY + to_string((int)config->lastSelectedFreq));
+				if (answer == CMD_.OK || answer == CMD_.ERR) freq = (int)config->lastSelectedFreq;
 
 			} if (currentDeviceState.att != config->myTranceiverDevice.att) {
 
-				sendCMD(CMD_.ATT + to_string((int)config->myTranceiverDevice.att));
-				currentDeviceState.att = config->myTranceiverDevice.att;
+				string answer = sendCMD(CMD_.ATT + to_string((int)config->myTranceiverDevice.att));
+				if (answer == CMD_.OK) currentDeviceState.att = config->myTranceiverDevice.att;
 
 			} if (currentDeviceState.pre != config->myTranceiverDevice.pre) {
 
-				sendCMD(CMD_.PRE + to_string((int)config->myTranceiverDevice.pre));
-				currentDeviceState.pre = config->myTranceiverDevice.pre;
+				string answer = sendCMD(CMD_.PRE + to_string((int)config->myTranceiverDevice.pre));
+				if (answer == CMD_.OK) currentDeviceState.pre = config->myTranceiverDevice.pre;
+
+			} if (currentDeviceState.bypass != config->myTranceiverDevice.bypass) {
+
+				string answer = sendCMD(CMD_.BYPASS + to_string((int)config->myTranceiverDevice.bypass));
+				if (answer == CMD_.OK) currentDeviceState.bypass = config->myTranceiverDevice.bypass;
 
 			} else {
 
-				std::this_thread::sleep_for(std::chrono::milliseconds(1));
+				std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
 			}
 		}
 
 	}
+}
+
+bool ComPortHandler::initDevice() {
+	bool result = false;
+	result |= sendCMD(CMD_.ATT + to_string((int)config->myTranceiverDevice.att)).size() > 0;
+	result |= sendCMD(CMD_.PRE + to_string((int)config->myTranceiverDevice.pre)).size() > 0;
+	result |= sendCMD(CMD_.BYPASS + to_string((int)config->myTranceiverDevice.bypass)).size() > 0;
+	return result;
 }
 
 bool ComPortHandler::connectToDevice() {
@@ -52,13 +70,11 @@ bool ComPortHandler::connectToDevice() {
 		std::this_thread::sleep_for(std::chrono::milliseconds(3000));
 		if (port->isOpen()) {
 
-			sendCMD(CMD_.INIT);
-
-			string deviceAnswer = port->readline();
+			string deviceAnswer = sendCMD(CMD_.INIT);
 
 			//cout << device.port + " PIPIKA: " + to_string(port->available()) + " " + deviceAnswer + "\n";
 
-			if (deviceAnswer == CMD_.OK + CMD_.CMD_END) {
+			if (deviceAnswer == CMD_.OK) {
 				COM_PORT = device.port;
 				cout << "Com port device has been successfully connected!\n";
 				return true;
@@ -71,10 +87,21 @@ bool ComPortHandler::connectToDevice() {
 	return false;
 }
 
-void ComPortHandler::sendCMD(string cmd) {
-	if (port != nullptr && port->isOpen()) {
-		port->write(cmd + CMD_.CMD_END);
+string ComPortHandler::sendCMD(string cmd) {
+	try {
+		if (port != nullptr && port->isOpen()) {
+			port->write(cmd + CMD_.CMD_END);
+			string answer = port->readline();
+			answer.pop_back();
+
+			//cout << "CMD: " + cmd + "; answer: " + answer + "\n";
+
+			return answer;
+		}
+	} catch (const std::exception& ex) {
+		port->close();
 	}
+	return "";
 }
 
 ComPortHandler::ComPortHandler(Config* config) {
@@ -113,4 +140,13 @@ bool ComPortHandler::isConnected() {
 	}
 
 	return result;
+}
+
+void ComPortHandler::close() {
+	if (port != nullptr) {
+		if (port->isOpen()) {
+			sendCMD(CMD_.CLOSE);
+			port->close();
+		}
+	}
 }

@@ -52,10 +52,10 @@
         <amModulationDepth>15.134</amModulationDepth>
     </Transmit>
     <Receiver>
-        <startFreq>6900000</startFreq>
-        <lastSelectedFreq>7050000</lastSelectedFreq>
-        <volume>1.2460001</volume>
-        <filterWidth>2700</filterWidth>
+        <startFreq>3500000</startFreq>
+        <lastSelectedFreq>3663000</lastSelectedFreq>
+        <volume>3.313</volume>
+        <filterWidth>3221</filterWidth>
         <!-- USB:0, LSB:1, AM:2, nFM:3 -->
         <modulation>1</modulation>
         <enableFrequencyShift>1</enableFrequencyShift>
@@ -67,25 +67,25 @@
             <atackSpeedMs>0.12000000067055225</atackSpeedMs>
             <holdingTimeMs>1000</holdingTimeMs>
             <releaseSpeed>9.0000002778833823e-05</releaseSpeed>
-            <lastAmp>1.3766989707946777</lastAmp>
+            <lastAmp>3.1292469501495361</lastAmp>
         </Agc>
     </Receiver>
     <Waterfall>
-        <min>-102.06158</min>
-        <max>-14.625465</max>
+        <min>-100.09895</min>
+        <max>-74.950287</max>
         <speed>1</speed>
     </Waterfall>
     <Spectre>
-        <ratio>-18.346088</ratio>
-        <min>-90.340965</min>
+        <ratio>-62.620567</ratio>
+        <min>-104.42867</min>
         <speed>3</speed>
         <speed2>30</speed2>
         <!-- Must be a power of 2. The total will be fftLen = fftLen * 1024 -->
         <fftLen>262144</fftLen>
-        <visibleStartFreq>6868933</visibleStartFreq>
-        <visibleStopFreq>7331152</visibleStopFreq>
-        <startBin>65027</startBin>
-        <stopBin>72599</stopBin>
+        <visibleStartFreq>3581909</visibleStartFreq>
+        <visibleStopFreq>3712463</visibleStopFreq>
+        <startBin>66878</startBin>
+        <stopBin>69016</stopBin>
         <removeDCBias>1</removeDCBias>
         <style>1</style>
         <contourShowsPower>0</contourShowsPower>
@@ -95,7 +95,7 @@
         <decaySpeed>0.02373</decaySpeed>
         <decaySpeedDelta>0.995</decaySpeedDelta>
         <smoothingDepth>2</smoothingDepth>
-        <spectreCorrectionDb>-36</spectreCorrectionDb>
+        <spectreCorrectionDb>-50</spectreCorrectionDb>
     </Spectre>
     <ColorTheme>
         <spectreWindowFillColor1>4282405123</spectreWindowFillColor1>

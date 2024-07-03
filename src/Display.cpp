@@ -432,9 +432,9 @@ void Display::renderImGUIFirst() {
 
 				if (hackRfInterface != nullptr) {
 
-					bool reactionOnSpaceBtn = ImGui::IsKeyDown(ImGui::GetKeyIndex(ImGuiKey_Space)) && env->getConfig()->transmit.txBySpaceBtn;
+					bool reactionOnSpaceBtn = ImGui::IsKeyDown(ImGui::GetKeyIndex(ImGuiKey_Space)) && env->getConfig()->transmit.txBySpaceBtn && env->getSoundCard()->isInputAvailable();
 
-					if (hackRfInterface->isDeviceTransmitting() || reactionOnSpaceBtn) ImGui::BeginDisabled();
+					if (hackRfInterface->isDeviceTransmitting() || reactionOnSpaceBtn || !env->getSoundCard()->isInputAvailable()) ImGui::BeginDisabled();
 					if ((ImGui::Button("Start Transmitting") || (reactionOnSpaceBtn && !txSwitcherFlag)) && !hackRfInterface->isDeviceTransmitting()) {
 						if (hackRfInterface->pauseRX()) {
 							env->getSoundCardInputReader()->continueRead();
@@ -443,7 +443,7 @@ void Display::renderImGUIFirst() {
 							}
 						}
 					}
-					ImGui::SameLine(); if (hackRfInterface->isDeviceTransmitting() || reactionOnSpaceBtn) ImGui::EndDisabled();
+					ImGui::SameLine(); if (hackRfInterface->isDeviceTransmitting() || reactionOnSpaceBtn || !env->getSoundCard()->isInputAvailable()) ImGui::EndDisabled();
 
 					if (!hackRfInterface->isDeviceTransmitting() || reactionOnSpaceBtn) ImGui::BeginDisabled();
 

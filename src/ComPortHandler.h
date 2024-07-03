@@ -14,8 +14,10 @@ private:
 
 	void run();
 
+	bool initDevice();
+
 	string COM_PORT = "";
-	const int PORT_SPEED = 9600;
+	const int PORT_SPEED = 115200;
 
 	Serial* port = nullptr;
 
@@ -38,13 +40,13 @@ private:
 		const string CMD_DELIMITER = ",";
 	} CMD_;
 
-
+	bool deviceInited = false;
 
 	Config::MyTranceiverDevice currentDeviceState;
 
 	bool connectToDevice();
 
-	void sendCMD(string cmd);
+	string sendCMD(string cmd);
 
 public:
 	ComPortHandler(Config* config);
@@ -53,4 +55,5 @@ public:
 	std::thread start();
 
 	bool isConnected();
+	void close();
 };

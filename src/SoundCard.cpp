@@ -5,10 +5,14 @@ void SoundCard::init() {
 
 	inputParameters.device = Pa_GetDefaultInputDevice();
 
-	inputParameters.channelCount = config->inputChannelNumber;
-	inputParameters.sampleFormat = PA_SAMPLE_TYPE;
-	inputParameters.suggestedLatency = Pa_GetDeviceInfo(inputParameters.device)->defaultHighInputLatency;
-	inputParameters.hostApiSpecificStreamInfo = NULL;
+	if (inputParameters.device != paNoDevice) {
+
+		inputParameters.channelCount = config->inputChannelNumber;
+		inputParameters.sampleFormat = PA_SAMPLE_TYPE;
+		inputParameters.suggestedLatency = Pa_GetDeviceInfo(inputParameters.device)->defaultHighInputLatency;
+		inputParameters.hostApiSpecificStreamInfo = NULL;
+
+	}
 
 	outputParameters.device = Pa_GetDefaultOutputDevice();
 
@@ -34,17 +38,19 @@ SoundCard::~SoundCard() {
 }
 
 void SoundCard::open() {
-	//Sound input stream
-	err = Pa_OpenStream(
-		&inputStream,
-		&inputParameters,
-		NULL,
-		config->inputSamplerateSound,
-		config->audioReadFrameLen,
-		paClipOff,
-		NULL,
-		NULL);
-	if (err != paNoError) throw [&]() { showError(err); };
+	if (inputParameters.device != paNoDevice) {
+		//Sound input stream
+		err = Pa_OpenStream(
+			&inputStream,
+			&inputParameters,
+			NULL,
+			config->inputSamplerateSound,
+			config->audioReadFrameLen,
+			paClipOff,
+			NULL,
+			NULL);
+		if (err != paNoError) throw [&]() { showError(err); };
+	}
 
 	//err = Pa_StartStream(inputStream);
 	//if (err != paNoError) throw [&]() { showError(err); };
@@ -119,4 +125,8 @@ int SoundCard::availableToRead() {
 		throw printf("Stream is empty!");
 		return -1;
 	}
+}
+
+bool SoundCard::isInputAvailable() {
+	return inputParameters.device != paNoDevice;
 }
