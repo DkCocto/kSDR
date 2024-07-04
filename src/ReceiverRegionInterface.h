@@ -10,6 +10,8 @@
 #include "ReceiverLogic.h"
 #include "string"
 #include "SMeter.h"
+#include "Environment.h"
+#include "Utils.h"
 
 #define GRAY IM_COL32(95, 95, 95, 255)
 #define RED IM_COL32(255, 0, 0, 255)
@@ -41,8 +43,9 @@ private:
 	int backgroundY = 0;
 
 	//16 digits X.XXX.XXX.XXX Hz
-	const int backgroundWidth = 16 * freqCharWidth + 55;
-	const int backgroundHeight = 150;
+
+	const int backgroundWidth = 16 * freqCharWidth + 55 + 104;
+	const int backgroundHeight = 152;
 
 	const int smetreMargin = 40;
 
@@ -58,13 +61,17 @@ private:
 	void drawBackground(ImDrawList* draw_list);
 	void drawReceiveRegion(ImDrawList* draw_list, ReceiverLogic* receiverLogic);
 
+	Environment* env;
+
 public:
 
 	//ReceiverRegionInterface() {};
 
-	ReceiverRegionInterface(SpectreWindowData* sWD, Config* config, ViewModel* viewModel);
+	ReceiverRegionInterface(SpectreWindowData* sWD, Config* config, ViewModel* viewModel, Environment* env);
 
 	void drawRegion(ImDrawList* draw_list, ReceiverLogic* receiverLogic, FFTData::OUTPUT* spectreData);
+
+	void drawFeatureMarker(ImFont* fontMyRegular, ImDrawList* draw_list, int x, int y, ImU32 col, string msg);
 
 	int getFreqTextWidth();
 	int getFreqTextHeight();

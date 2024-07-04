@@ -1,15 +1,16 @@
 #include "ReceiverRegionInterface.h"
 
-ReceiverRegionInterface::ReceiverRegionInterface(SpectreWindowData* sWD, Config* config, ViewModel* viewModel) {
+ReceiverRegionInterface::ReceiverRegionInterface(SpectreWindowData* sWD, Config* config, ViewModel* viewModel, Environment* env) {
 	this->config = config;
 	this->viewModel = viewModel;
 	this->sWD = sWD;
+	this->env = env;
 	smeter = make_unique<SMeter>(viewModel);
 }
 
 void ReceiverRegionInterface::drawRegion(ImDrawList* draw_list, ReceiverLogic* receiverLogic, FFTData::OUTPUT* spectreData) {
-	backgroundX = sWD->startWindowPoint.x + sWD->rightPadding + X;
-	backgroundY = sWD->startWindowPoint.y + Y;
+	backgroundX = sWD->startWindowPoint.x + sWD->rightPadding + X - 25;
+	backgroundY = sWD->startWindowPoint.y + Y - 15;
 
 	freqTextX = backgroundX + backgroundPadding + freqTextMarginLeft;
 	freqTextY = backgroundY + backgroundPadding;
@@ -19,7 +20,7 @@ void ReceiverRegionInterface::drawRegion(ImDrawList* draw_list, ReceiverLogic* r
 	drawBackground(draw_list);
 
 	//S-meter
-	smeter->update(backgroundX + backgroundPadding + smetreMargin, backgroundY + freqTextHeight + 65, backgroundWidth - 2 * (backgroundPadding + smetreMargin), 50);
+	smeter->update(backgroundX + backgroundPadding + smetreMargin, backgroundY + freqTextHeight + 65, backgroundWidth - 2 * (backgroundPadding + smetreMargin) - 104, 50);
 	smeter->draw(draw_list, spectreData, receiverLogic);
 	//-------
 
@@ -36,7 +37,132 @@ void ReceiverRegionInterface::drawRegion(ImDrawList* draw_list, ReceiverLogic* r
 	);
 	ImGui::PopFont();
 
+	drawFeatureMarker(
+		viewModel->fontMyRegular, draw_list, 
+		freqTextX + 355, freqTextY - 6, 
+		(config->myTranceiverDevice.att == true) ? GREEN : GRAY, 
+		"ATT"
+	);
+
+	/*draw_list->AddRectFilled(
+		ImVec2(freqTextX + 355, freqTextY - 5),
+		ImVec2(freqTextX + 360 + 35, freqTextY + 25),
+		BLACK, 0);
+
+	draw_list->AddText(
+		ImVec2(
+			freqTextX + 360,
+			freqTextY
+		),
+		(config->myTranceiverDevice.att == true) ? GREEN : GRAY,
+		"ATT"
+	);*/
+
+	drawFeatureMarker(
+		viewModel->fontMyRegular, draw_list,
+		freqTextX + 355, freqTextY - 6 + 35,
+		(config->myTranceiverDevice.pre == true) ? GREEN : GRAY,
+		"PRE"
+	);
+
+	/*draw_list->AddText(
+		ImVec2(
+			freqTextX + 360,
+			freqTextY + 35
+		),
+		(config->myTranceiverDevice.pre == true) ? GREEN : GRAY,
+		"PRE"
+	);*/
+
+	drawFeatureMarker(
+		viewModel->fontMyRegular, draw_list,
+		freqTextX + 355, freqTextY - 6 + 70,
+		(config->myTranceiverDevice.bypass == true) ? GREEN : GRAY,
+		"ByP"
+	);
+
+	/*draw_list->AddText(
+		ImVec2(
+			freqTextX + 360,
+			freqTextY + 70
+		),
+		(config->myTranceiverDevice.bypass == true) ? GREEN : GRAY,
+		"ByP"
+	);*/
+
+	bool tx = false;
+	if (env->getDeviceController()->getDevice() != nullptr && env->getDeviceController()->getDevice()->deviceType == HACKRF) {
+		tx = ((HackRFDevice*)env->getDeviceController()->getDevice())->isDeviceTransmitting();
+	}
+
+	/*draw_list->AddText(
+		ImVec2(
+			freqTextX + 360,
+			freqTextY + 105
+		),
+		(tx == true) ? LIGHTRED : GREEN,
+		(tx == true) ? "TX" : "RX"
+	);*/
+
+	drawFeatureMarker(
+		viewModel->fontMyRegular, draw_list,
+		freqTextX + 355, freqTextY - 6 + 105,
+		(tx == true) ? LIGHTRED : GREEN,
+		(tx == true) ? "TX" : "RX"
+	);
+
+	/*draw_list->AddText(
+		ImVec2(
+			freqTextX + 405,
+			freqTextY
+		),
+		GREEN,
+		Utils::getModulationTxt(config->receiver.modulation).c_str()
+	);*/
+
+
+	drawFeatureMarker(
+		viewModel->fontMyRegular, draw_list,
+		freqTextX + 405, freqTextY - 6,
+		GREEN,
+		Utils::getModulationTxt(config->receiver.modulation).c_str()
+	);
+
+	/*draw_list->AddText(
+		ImVec2(
+			freqTextX + 405,
+			freqTextY + 35
+		),
+		GREEN,
+		Utils::getPrittyFilterWidth(config->filterWidth).c_str()
+	);*/
+
+	drawFeatureMarker(
+		viewModel->fontMyRegular, draw_list,
+		freqTextX + 405, freqTextY - 6 + 35,
+		GREEN,
+		Utils::getPrittyFilterWidth(config->filterWidth).c_str()
+	);
+
 	markDigitByMouse(draw_list, receiverLogic);
+}
+
+void ReceiverRegionInterface::drawFeatureMarker(ImFont* fontMyRegular, ImDrawList* draw_list, int x, int y, ImU32 col, string msg) {
+	ImGui::PushFont(fontMyRegular);
+	draw_list->AddRectFilled(
+		ImVec2(x, y),
+		ImVec2(x + 40, y + 30),
+		BLACK, 0);
+
+	draw_list->AddText(
+		ImVec2(
+			x + 6,
+			y + 6
+		),
+		col,
+		msg.c_str()
+	);
+	ImGui::PopFont();
 }
 
 int ReceiverRegionInterface::getFreqTextWidth() {

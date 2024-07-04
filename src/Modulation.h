@@ -7,7 +7,6 @@ class Modulation {
 
 private:
 
-
 protected:
 	int freq = 0;
 	const int outputBufferLen = 262144;

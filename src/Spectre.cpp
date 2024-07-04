@@ -1,13 +1,12 @@
 #include "Spectre.h"
 
 #define BLUE						IM_COL32(88, 88, 231, 255)
-#define GREEN						IM_COL32(0, 204, 0, 255)
 
 #define BASE_COLOR					IM_COL32(10, 10, 10, 100)
 
 #define VIOLET						IM_COL32(72, 3, 111, 160)
 #define RED							IM_COL32(166, 0, 0, 80)
-#define LIGHTRED					IM_COL32(255, 0, 0, 255)
+
 #define YELLOW						IM_COL32(255, 255, 0, 255)
 #define SPECTRE_COLOR				IM_COL32(50, 50, 50, 255)
 #define SPECTRE_CONTUR_COLOR		IM_COL32(255, 255, 255, 255)
@@ -49,7 +48,7 @@ Spectre::Spectre(Environment* env) {
 
 	this->waterfall = make_unique<Waterfall>(config, viewModel);
 
-	receiverRegionInterface = make_unique<ReceiverRegionInterface>(&sWD, config, viewModel);
+	receiverRegionInterface = make_unique<ReceiverRegionInterface>(&sWD, config, viewModel, env);
 }
 
 int savedStartWindowX = 0;
@@ -145,7 +144,7 @@ void Spectre::draw() {
 			drawFreqMarks(draw_list, sWD.startWindowPoint, sWD.windowLeftBottomCorner, spectreWidth, spectreHeight, env->getFlowingSpectre());
 
 			//TX/RX MARK
-			bool tx = false;
+			/*bool tx = false;
 			if (env->getDeviceController()->getDevice() != nullptr && env->getDeviceController()->getDevice()->deviceType == HACKRF) {
 				tx = ((HackRFDevice*)env->getDeviceController()->getDevice())->isDeviceTransmitting();
 			}
@@ -155,7 +154,7 @@ void Spectre::draw() {
 				(tx == true) ? LIGHTRED : GREEN,
 				(tx == true) ? "TX" : "RX"
 			);
-			ImGui::PopFont();
+			ImGui::PopFont();*/
 			//----------
 
 		ImGui::EndChild();

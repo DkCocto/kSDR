@@ -80,3 +80,12 @@ std::string Utils::getShortPrittyFreq(int freq) {
 		return Utils::getPrittyFreq(freq);
 	}
 }
+
+std::string Utils::getPrittyFilterWidth(int width) {
+	if (width < 1000) return std::to_string(width);
+	else {
+		std::stringstream out;
+		out << std::fixed << std::setprecision(1) << (float)width / 1000.0f;
+		return out.str();
+	}
+}
