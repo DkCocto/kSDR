@@ -109,8 +109,7 @@ void SMeter::drawLevel(ImDrawList* draw_list, FFTData::OUTPUT* spectreData, Rece
 
 	if (levelVal > 15.0f) levelVal = 15.0f;
 
-	float step = width / 15.0f;
-	//Display::instance->viewModel->serviceField1 = levelVal;
+	/*float step = width / 15.0f;
 
 	if (levelVal >= 9) {
 		draw_list->AddRectFilled(
@@ -128,14 +127,46 @@ void SMeter::drawLevel(ImDrawList* draw_list, FFTData::OUTPUT* spectreData, Rece
 		ImVec2 lineX2(X + step * levelVal, Y + LEVEL_PADDING_TOP + LEVEL_THICKNESS);
 		draw_list->AddRectFilled(lineX1, lineX2, YELLOW, 0);
 	}
+	
+	draw_list->AddLine(ImVec2(X + step * storedLevel, Y + LEVEL_PADDING_TOP - 1), ImVec2(X + step * storedLevel, Y + LEVEL_PADDING_TOP + LEVEL_THICKNESS - 1), color, 5.0f);
+	
+	*/
+
+	//отступ между кубиками
+	float otstup = 3.0f;
+	//ширина кубика
+	float cubikWidth = width / 30.0f - otstup;
+
+	//old_range = old_max - old_min
+	//new_range = new_max - new_min
+	//converted = (((old - old_min) * new_range) / old_range) + new_min
+
+	float delta = otstup + cubikWidth;
+
+	for (int i = 0; i < 2 * levelVal - 1; i++) {
+		float delta = otstup + cubikWidth;
+		ImVec2 lineX1(X + otstup			  + i * delta, Y + LEVEL_PADDING_TOP);
+		ImVec2 lineX2(X + otstup + cubikWidth + i * delta, Y + LEVEL_PADDING_TOP + LEVEL_THICKNESS);
+		draw_list->AddRectFilled(lineX1, lineX2, (i >= 18) ? RED : YELLOW, 0);
+	}
+
+	/*if (round(storedLevel) <= 9) {
+		color = WHITE;
+	}
+	else {
+		color = RED;
+	}*/
+
+	ImVec2 lineX1(X + otstup + round((2 * storedLevel - 1 < 0) ? 0 : (2 * storedLevel - 1)) * delta, Y + LEVEL_PADDING_TOP);
+	ImVec2 lineX2(X + otstup + cubikWidth + round((2 * storedLevel - 1 < 0) ? 0 : (2 * storedLevel - 1)) * delta, Y + LEVEL_PADDING_TOP + LEVEL_THICKNESS);
+	draw_list->AddRectFilled(lineX1, lineX2, WHITE, 0);
 
 	if (storedLevel <= 9) {
 		color = WHITE;
-	} else {
+	}
+	else {
 		color = RED;
 	}
-
-	draw_list->AddLine(ImVec2(X + step * storedLevel, Y + LEVEL_PADDING_TOP - 1), ImVec2(X + step * storedLevel, Y + LEVEL_PADDING_TOP + LEVEL_THICKNESS - 1), color, 5.0f);
 
 	std::string dBText = std::to_string((int)fromLevelToDb(storedLevel));
 

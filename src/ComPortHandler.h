@@ -7,7 +7,7 @@
 using namespace std;
 using namespace serial;
 
-class ComPortHandler : MyThread {
+class ComPortHandler : public MyThread {
 
 private:
 	Config* config;

@@ -226,7 +226,7 @@ void Display::renderImGUIFirst() {
 		
 		ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
 
-		if (env->getComPortHandler()->isConnected()) {
+		if (env->getComPortHandler() != nullptr && env->getComPortHandler()->isConnected()) {
 			if (ImGui::TreeNode("Tranceiver Device")) {
 				ImGui::Spacing();
 
@@ -533,7 +533,7 @@ void Display::renderImGUIFirst() {
 				ImGui::SliderFloat("Decay speed delta", &env->getConfig()->spectre.decaySpeedDelta, 0, 4);
 			ImGui::EndDisabled();
 
-			ImGui::SliderInt("Spectre correction Db", &env->getConfig()->spectre.spectreCorrectionDb, -50, 50);
+			ImGui::SliderInt("Spectre correction Db", &env->getConfig()->spectre.spectreCorrectionDb, -100, 50);
 
 			ImGui::Spacing();
 			ImGui::SeparatorText("Other");

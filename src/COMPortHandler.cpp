@@ -9,7 +9,8 @@ void ComPortHandler::run() {
 		}
 
 		if (port != nullptr && !port->isOpen()) {
-			connectToDevice();
+			bool result = connectToDevice();
+			if (!result) std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		} else {
 
 			if (!deviceInited) {
