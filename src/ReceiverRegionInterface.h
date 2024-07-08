@@ -44,7 +44,7 @@ private:
 
 	//16 digits X.XXX.XXX.XXX Hz
 
-	const int backgroundWidth = 16 * freqCharWidth + 55 + 104;
+	const int backgroundWidth = 16 * freqCharWidth + 55 + 206;
 	const int backgroundHeight = 152;
 
 	const int smetreMargin = 40;
@@ -71,7 +71,8 @@ public:
 
 	void drawRegion(ImDrawList* draw_list, ReceiverLogic* receiverLogic, FFTData::OUTPUT* spectreData);
 
-	void drawFeatureMarker(ImFont* fontMyRegular, ImDrawList* draw_list, int x, int y, ImU32 col, string msg);
+	void drawFeatureMarker3(ImFont* fontMyRegular, ImDrawList* draw_list, int x, int y, ImU32 col, string msg);
+	void drawFeatureMarker4withTitle(ImFont* fontMyRegular, ImDrawList* draw_list, int x, int y, ImU32 col, string title, string msg);
 
 	int getFreqTextWidth();
 	int getFreqTextHeight();

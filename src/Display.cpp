@@ -109,6 +109,7 @@ int Display::init() {
 	//style.AntiAliasedFill = true;
 
 	initSettings();
+	env->getComPortHandler()->setOnStartStopTxListener(this);
 }
 
 void Display::mainLoop() {
@@ -232,9 +233,13 @@ void Display::renderImGUIFirst() {
 
 				ImGui::Checkbox("ATT", &viewModel->myTranceiverDevice.att);
 
+				if (env->getComPortHandler()->getDeviceState().bypass) ImGui::BeginDisabled();
 				ImGui::Checkbox("PRE", &viewModel->myTranceiverDevice.pre);
+				if (env->getComPortHandler()->getDeviceState().bypass) ImGui::EndDisabled();
 
+				if (env->getComPortHandler()->getDeviceState().autoBypass) ImGui::BeginDisabled();
 				ImGui::Checkbox("DPF ByPass", &viewModel->myTranceiverDevice.bypass);
+				if (env->getComPortHandler()->getDeviceState().autoBypass) ImGui::EndDisabled();
 
 				ImGui::TreePop();
 			}
@@ -434,26 +439,16 @@ void Display::renderImGUIFirst() {
 
 					bool reactionOnSpaceBtn = ImGui::IsKeyDown(ImGui::GetKeyIndex(ImGuiKey_Space)) && env->getConfig()->transmit.txBySpaceBtn && env->getSoundCard()->isInputAvailable();
 
-					if (hackRfInterface->isDeviceTransmitting() || reactionOnSpaceBtn || !env->getSoundCard()->isInputAvailable()) ImGui::BeginDisabled();
+					if (hackRfInterface->isDeviceTransmitting() || reactionOnSpaceBtn || (env->getSoundCard() != nullptr && !env->getSoundCard()->isInputAvailable())) ImGui::BeginDisabled();
 					if ((ImGui::Button("Start Transmitting") || (reactionOnSpaceBtn && !txSwitcherFlag)) && !hackRfInterface->isDeviceTransmitting()) {
-						if (hackRfInterface->pauseRX()) {
-							env->getSoundCardInputReader()->continueRead();
-							if (hackRfInterface->startTX((int)env->getReceiverLogic()->getFrequencyDelta())) {
-								if (reactionOnSpaceBtn) txSwitcherFlag = true;
-							}
-						}
+						env->getComPortHandler()->startTX();
 					}
-					ImGui::SameLine(); if (hackRfInterface->isDeviceTransmitting() || reactionOnSpaceBtn || !env->getSoundCard()->isInputAvailable()) ImGui::EndDisabled();
+					ImGui::SameLine(); if (hackRfInterface->isDeviceTransmitting() || reactionOnSpaceBtn || (env->getSoundCard() != nullptr && !env->getSoundCard()->isInputAvailable())) ImGui::EndDisabled();
+
 
 					if (!hackRfInterface->isDeviceTransmitting() || reactionOnSpaceBtn) ImGui::BeginDisabled();
-
 					if (ImGui::Button("Stop Transmitting") || (!reactionOnSpaceBtn && txSwitcherFlag)) {
-						if (hackRfInterface->stopTX()) {
-							env->getSoundCardInputReader()->pause();
-							if (hackRfInterface->releasePauseRX()) {
-								txSwitcherFlag = false;
-							}
-						}
+						env->getComPortHandler()->stopTX();
 					};
 					if (!hackRfInterface->isDeviceTransmitting() || reactionOnSpaceBtn) ImGui::EndDisabled();
 				}
@@ -539,6 +534,8 @@ void Display::renderImGUIFirst() {
 			ImGui::SeparatorText("Other");
 
 			ImGui::Checkbox("Remove DC", &viewModel->removeDCBias);
+
+			smeterTypeLS->drawSetting();
 
 			waterfallSpeedLS->drawSetting();
 
@@ -907,7 +904,36 @@ void Display::initSettings() {
 	waterfallSpeedLS->bindVariable(&env->getConfig()->waterfall.speed);
 	//--------------------
 
+	std::map<int, std::string> smeterTypeMap = {
+	{0, "1"},
+	{1, "2"}
+	};
+	smeterTypeLS = std::make_unique<ListSetting<int>>(env, smeterTypeMap, "Smeter Type", false);
+	smeterTypeLS->bindVariable(&env->getConfig()->receiver.smeterType);
+
 	/*auto end = std::chrono::steady_clock::now();
 	auto elapsed_ms = std::chrono::duration_cast<std::chrono::microseconds>(end - begin);
 	std::cout << "The time: " << elapsed_ms.count() << " micros\n";*/
+}
+
+void Display::onStartTX() {
+	HackRfInterface* hackRfInterface = (HackRfInterface*)env->getDeviceController()->getDeviceInterface();
+	bool reactionOnSpaceBtn = ImGui::IsKeyDown(ImGui::GetKeyIndex(ImGuiKey_Space)) && env->getConfig()->transmit.txBySpaceBtn && env->getSoundCard()->isInputAvailable();
+	if (hackRfInterface->pauseRX()) {
+		env->getSoundCardInputReader()->continueRead();
+		if (hackRfInterface->startTX((int)env->getReceiverLogic()->getFrequencyDelta())) {
+			if (reactionOnSpaceBtn) txSwitcherFlag = true;
+		}
+	}
+}
+
+void Display::onStopTX() {
+	HackRfInterface* hackRfInterface = (HackRfInterface*)env->getDeviceController()->getDeviceInterface();
+	if (hackRfInterface->stopTX()) {
+		env->getSoundCardInputReader()->pause();
+		if (hackRfInterface->releasePauseRX()) {
+			txSwitcherFlag = false;
+		}
+		env->getComPortHandler()->stopTX();
+	}
 }

@@ -38,6 +38,7 @@ public:
 	static bool parse_u32(char* s, uint32_t* const value);
 	static std::string getPrittyFreq(int freq);
 	static std::string getShortPrittyFreq(int freq);
+	static std::string toStrWithAccuracy(float val, int accuracy);
 	static std::string getPrittyFilterWidth(int width);
 
 	static std::string getModulationTxt(int modulationCode) {

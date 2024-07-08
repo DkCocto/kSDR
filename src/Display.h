@@ -19,7 +19,7 @@
 
 #include <stb/stb_image.h>
 
-class Display {
+class Display : OnStartStopTxListener {
 
 private:
 	
@@ -51,8 +51,11 @@ private:
 	std::unique_ptr<ListSetting<int>> spectreStyleLS;
 	std::unique_ptr<ListSetting<int>> rtlDeviceGainLS;
 	std::unique_ptr<ListSetting<int>> rtlSampRateLS;
+	std::unique_ptr<ListSetting<int>> smeterTypeLS;
 
 	void initSettings();
+	void onStartTX();
+	void onStopTX();
 	void initDynamicSettings();
 
 	void showColorPicker(string title, unsigned int* configVal, bool withTransparency);
@@ -94,5 +97,7 @@ public:
 	void showAlertOKDialog(std::string title, std::string msg);
 
 	ViewModel* getViewModel();
+
+
 
 };

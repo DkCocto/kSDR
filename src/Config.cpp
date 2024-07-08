@@ -209,6 +209,8 @@ void Config::loadXml() {
                 receiver.agc.lastAmp = std::stod(std::string(plastAmp->GetText()));
             }
 
+            tinyxml2::XMLElement* psmeterType = pReceiver->FirstChildElement("smeterType");
+            receiver.smeterType = std::stoi(std::string(psmeterType->GetText()));
         }
 
         tinyxml2::XMLElement* pWaterfall = pRootElement->FirstChildElement("Waterfall");
@@ -535,6 +537,9 @@ void Config::save() {
 
             tinyxml2::XMLElement* pnotchCenterFreq = pReceiver->FirstChildElement("notchCenterFreq");
             pnotchCenterFreq->SetText(receiver.notchCenterFreq);
+
+            tinyxml2::XMLElement* psmeterType = pReceiver->FirstChildElement("smeterType");
+            psmeterType->SetText(receiver.smeterType);
 
             tinyxml2::XMLElement* pAgc = pReceiver->FirstChildElement("Agc");
             if (NULL != pAgc) {

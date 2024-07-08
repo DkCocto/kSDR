@@ -9,6 +9,7 @@
 #include "Spectre/FFTData.h"
 #include "ReceiverLogic.h"
 #include "Average.h"
+#include "Config.h"
 
 class SMeter {
 
@@ -28,9 +29,10 @@ class SMeter {
 
 	Average averageSignalDb;
 
+	Config* config;
 public:
 	
-	SMeter(ViewModel* viewModel);
+	SMeter(Config* config, ViewModel* viewModel);
 
 	void update(int X, int Y, int width, int height);
 	void draw(ImDrawList* draw_list, FFTData::OUTPUT* spectreData, ReceiverLogic* receiverLogic);

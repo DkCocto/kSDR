@@ -5,7 +5,7 @@ ReceiverRegionInterface::ReceiverRegionInterface(SpectreWindowData* sWD, Config*
 	this->viewModel = viewModel;
 	this->sWD = sWD;
 	this->env = env;
-	smeter = make_unique<SMeter>(viewModel);
+	smeter = make_unique<SMeter>(config, viewModel);
 }
 
 void ReceiverRegionInterface::drawRegion(ImDrawList* draw_list, ReceiverLogic* receiverLogic, FFTData::OUTPUT* spectreData) {
@@ -20,7 +20,7 @@ void ReceiverRegionInterface::drawRegion(ImDrawList* draw_list, ReceiverLogic* r
 	drawBackground(draw_list);
 
 	//S-meter
-	smeter->update(backgroundX + backgroundPadding + smetreMargin, backgroundY + freqTextHeight + 65, backgroundWidth - 2 * (backgroundPadding + smetreMargin) - 104, 50);
+	smeter->update(backgroundX + backgroundPadding + smetreMargin, backgroundY + freqTextHeight + 65, backgroundWidth - 2 * (backgroundPadding + smetreMargin) - 206, 50);
 	smeter->draw(draw_list, spectreData, receiverLogic);
 	//-------
 
@@ -37,10 +37,10 @@ void ReceiverRegionInterface::drawRegion(ImDrawList* draw_list, ReceiverLogic* r
 	);
 	ImGui::PopFont();
 
-	drawFeatureMarker(
+	drawFeatureMarker3(
 		viewModel->fontMyRegular, draw_list, 
 		freqTextX + 355, freqTextY - 6, 
-		(config->myTranceiverDevice.att == true) ? GREEN : GRAY, 
+		(env->getComPortHandler()->getDeviceState().att == true) ? GREEN : GRAY, 
 		"ATT"
 	);
 
@@ -58,10 +58,11 @@ void ReceiverRegionInterface::drawRegion(ImDrawList* draw_list, ReceiverLogic* r
 		"ATT"
 	);*/
 
-	drawFeatureMarker(
+	//config->myTranceiverDevice.pre == true && config->myTranceiverDevice.bypass == false
+	drawFeatureMarker3(
 		viewModel->fontMyRegular, draw_list,
 		freqTextX + 355, freqTextY - 6 + 35,
-		(config->myTranceiverDevice.pre == true) ? GREEN : GRAY,
+		(env->getComPortHandler()->getDeviceState().amp) ? GREEN : GRAY,
 		"PRE"
 	);
 
@@ -74,10 +75,10 @@ void ReceiverRegionInterface::drawRegion(ImDrawList* draw_list, ReceiverLogic* r
 		"PRE"
 	);*/
 
-	drawFeatureMarker(
+	drawFeatureMarker3(
 		viewModel->fontMyRegular, draw_list,
 		freqTextX + 355, freqTextY - 6 + 70,
-		(config->myTranceiverDevice.bypass == true) ? GREEN : GRAY,
+		(env->getComPortHandler()->getDeviceState().bypass == true) ? GREEN : GRAY,
 		"ByP"
 	);
 
@@ -104,7 +105,7 @@ void ReceiverRegionInterface::drawRegion(ImDrawList* draw_list, ReceiverLogic* r
 		(tx == true) ? "TX" : "RX"
 	);*/
 
-	drawFeatureMarker(
+	drawFeatureMarker3(
 		viewModel->fontMyRegular, draw_list,
 		freqTextX + 355, freqTextY - 6 + 105,
 		(tx == true) ? LIGHTRED : GREEN,
@@ -121,7 +122,7 @@ void ReceiverRegionInterface::drawRegion(ImDrawList* draw_list, ReceiverLogic* r
 	);*/
 
 
-	drawFeatureMarker(
+	drawFeatureMarker3(
 		viewModel->fontMyRegular, draw_list,
 		freqTextX + 405, freqTextY - 6,
 		GREEN,
@@ -137,17 +138,25 @@ void ReceiverRegionInterface::drawRegion(ImDrawList* draw_list, ReceiverLogic* r
 		Utils::getPrittyFilterWidth(config->filterWidth).c_str()
 	);*/
 
-	drawFeatureMarker(
+	drawFeatureMarker3(
 		viewModel->fontMyRegular, draw_list,
 		freqTextX + 405, freqTextY - 6 + 35,
 		GREEN,
 		Utils::getPrittyFilterWidth(config->filterWidth).c_str()
 	);
 
+	drawFeatureMarker4withTitle(
+		viewModel->fontMyRegular, draw_list,
+		freqTextX + 454, freqTextY - 6,
+		YELLOW,
+		"Volt",
+		(env->getComPortHandler() == nullptr) ? "0.0" : Utils::toStrWithAccuracy(env->getComPortHandler()->getDeviceState().volts, 1).c_str()
+	);
+
 	markDigitByMouse(draw_list, receiverLogic);
 }
 
-void ReceiverRegionInterface::drawFeatureMarker(ImFont* fontMyRegular, ImDrawList* draw_list, int x, int y, ImU32 col, string msg) {
+void ReceiverRegionInterface::drawFeatureMarker3(ImFont* fontMyRegular, ImDrawList* draw_list, int x, int y, ImU32 col, string msg) {
 	ImGui::PushFont(fontMyRegular);
 	draw_list->AddRectFilled(
 		ImVec2(x, y),
@@ -161,6 +170,24 @@ void ReceiverRegionInterface::drawFeatureMarker(ImFont* fontMyRegular, ImDrawLis
 		),
 		col,
 		msg.c_str()
+	);
+	ImGui::PopFont();
+}
+
+void ReceiverRegionInterface::drawFeatureMarker4withTitle(ImFont* fontMyRegular, ImDrawList* draw_list, int x, int y, ImU32 col, string title, string msg) {
+	ImGui::PushFont(fontMyRegular);
+	draw_list->AddRectFilled(
+		ImVec2(x, y),
+		ImVec2(x + 95, y + 30),
+		BLACK, 0);
+
+	draw_list->AddText(
+		ImVec2(
+			x + 6,
+			y + 6
+		),
+		col,
+		(title + " " + msg).c_str()
 	);
 	ImGui::PopFont();
 }

@@ -1,7 +1,15 @@
 #include "ComPortHandler.h"
+#include <chrono>
+
 
 void ComPortHandler::run() {
+	using std::chrono::high_resolution_clock;
+
+	chrono::time_point getStateTimerPoint1 = high_resolution_clock::now();
+	chrono::time_point getStateTimerPoint2 = high_resolution_clock::now();
+
 	while (true) {
+
 		if (!config->WORKING) {
 			printf("ComPortHandler Stopped\r\n");
 			isWorking_ = false;
@@ -11,10 +19,18 @@ void ComPortHandler::run() {
 		if (port != nullptr && !port->isOpen()) {
 			bool result = connectToDevice();
 			if (!result) std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-		} else {
+		}
+		else {
 
 			if (!deviceInited) {
 				deviceInited = initDevice();
+			}
+
+			getStateTimerPoint2 = high_resolution_clock::now();
+			if (duration_cast<chrono::milliseconds>(getStateTimerPoint2 - getStateTimerPoint1).count() > 100) {
+				string answer = sendCMD(CMD_.GET_STATE);
+				deviceState.parseState(answer);
+				getStateTimerPoint1 = high_resolution_clock::now();
 			}
 
 			if (freq != (int)config->lastSelectedFreq) {
@@ -37,9 +53,26 @@ void ComPortHandler::run() {
 				string answer = sendCMD(CMD_.BYPASS + to_string((int)config->myTranceiverDevice.bypass));
 				if (answer == CMD_.OK) currentDeviceState.bypass = config->myTranceiverDevice.bypass;
 
+			} if (needToTxStart) {
+				txStarted = sendCMD(CMD_.TX_ + "1") == CMD_.START_TX_OK;
+				if (!txStarted) {
+					readyToTxStart = true;
+				} else {
+					readyToTxStop = true;
+					onStartStopTxListener->onStartTX();
+				}
+				needToTxStart = false;
+			} if (needToTxStop) {
+				txStarted = sendCMD(CMD_.TX_ + "0") != CMD_.STOP_TX_OK;
+				if (txStarted) {
+					readyToTxStop = true;
+				} else {
+					readyToTxStart = true;
+					onStartStopTxListener->onStopTX();
+				}
+				needToTxStop = false;
 			} else {
-
-				std::this_thread::sleep_for(std::chrono::milliseconds(10));
+				std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
 			}
 		}
@@ -150,4 +183,34 @@ void ComPortHandler::close() {
 			port->close();
 		}
 	}
+}
+
+void ComPortHandler::startTX() {
+	if (readyToTxStart) {
+		readyToTxStart = false;
+		needToTxStart = true;
+	}
+}
+
+void ComPortHandler::stopTX() {
+	if (readyToTxStop) {
+		readyToTxStop = false;
+		needToTxStop = true;
+	}
+}
+
+bool ComPortHandler::isTXStarted() {
+	return txStarted;
+}
+
+void ComPortHandler::setOnStartStopTxListener(OnStartStopTxListener* onStartStopTxListener) {
+	this->onStartStopTxListener = onStartStopTxListener;
+}
+
+/*void ComPortHandler::setOnStopTxListener(OnStopTxListener* onStopTxListener) {
+	this->onStopTxListener = onStopTxListener;
+}*/
+
+ComPortHandler::DeviceState ComPortHandler::getDeviceState() {
+	return deviceState;
 }

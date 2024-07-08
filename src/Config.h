@@ -126,7 +126,7 @@ public:
 		bool enableNotch = 0;
 		int notchCenterFreq = 0;
 		int notchWidth = 400;
-
+		int smeterType = 0;
 	} receiver;
 
 	struct Transmit {
