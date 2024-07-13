@@ -41,6 +41,10 @@ public:
 	static std::string toStrWithAccuracy(float val, int accuracy);
 	static std::string getPrittyFilterWidth(int width);
 
+	static double convertSegment(double value, double From1, double From2, double To1, double To2);
+
+	static int convFFTResBinToSpecBin(int bin, int len);
+
 	static std::string getModulationTxt(int modulationCode) {
 		switch (modulationCode) {
 		case USB_:

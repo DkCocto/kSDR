@@ -128,6 +128,9 @@ void Spectre::draw() {
 			//dB mark line
 			float stepInPX = (float)spectreHeight / (float)SPECTRE_DB_MARK_COUNT;
 			float stepdB = (abs(veryMinSpectreVal - viewModel->ratio)) / SPECTRE_DB_MARK_COUNT;
+			config->spectre.minVisibleDB = veryMinSpectreVal;
+			config->spectre.maxVisibleDB = (int)round(veryMinSpectreVal + (SPECTRE_DB_MARK_COUNT - 1) * stepdB);
+
 
 			for (int i = 0; i < SPECTRE_DB_MARK_COUNT; i++) {
 				int dbMark = (int)round(veryMinSpectreVal + i * stepdB);
@@ -415,6 +418,9 @@ void Spectre::drawSpectreContour(FFTData::OUTPUT* fullSpectreData, ImDrawList* d
 	std::vector<float> reducedSpectreData = flowingSpec->getReducedData(fullSpectreData, config->visibleSpectreBinCount, specHandler);
 
 	minMax = getMinMaxInSpectre(reducedSpectreData, reducedSpectreData.size());
+	config->spectre.minDb = minMax.min;
+	config->spectre.maxDb = minMax.max;
+	config->spectre.averageDb = minMax.average;
 
 	//printf("%f\r\n", minMax.average);
 

@@ -255,9 +255,6 @@
     <ClCompile Include="src\imgui\imgui_widgets.cpp">
       <Filter>Исходные файлы\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="src\TransmittingData.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="src\HilbertTransformFFTW.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
@@ -290,6 +287,12 @@
     </ClCompile>
     <ClCompile Include="src\COMPortHandler.cpp">
       <Filter>Исходные файлы\Thread</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TransmittingData.cpp">
+      <Filter>Исходные файлы\Modulation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CW.cpp">
+      <Filter>Исходные файлы\Modulation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -553,6 +556,9 @@
     </ClInclude>
     <ClInclude Include="src\ComPortHandler.h">
       <Filter>Файлы заголовков\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CW.h">
+      <Filter>Файлы заголовков\Modulation</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

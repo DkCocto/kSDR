@@ -108,6 +108,11 @@ public:
 		int spectreCorrectionDb = -50;
 		int visibleStartFreq = 7000000;
 		int visibleStopFreq = 7200000;
+		int minDb = 0;
+		int maxDb = 0;
+		int averageDb = 0;
+		int minVisibleDB = 0;
+		int maxVisibleDB = 0;
 	} spectre;
 
 	struct Receiver {
@@ -127,11 +132,16 @@ public:
 		int notchCenterFreq = 0;
 		int notchWidth = 400;
 		int smeterType = 0;
+
+		int receiveBinA = 0;
+		int receiveBinB = 0;
 	} receiver;
 
 	struct Transmit {
 		bool txBySpaceBtn = false;
 		float inputLevel = 1.0f;
+		float inputLevel2 = 1.0f;
+		float inputLevel3 = 1.0f;
 		float amModulationDepth = 1.0f;
 	} transmit;
 

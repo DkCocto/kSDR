@@ -68,7 +68,7 @@ Signal* SSBModulation::processData(CircleBufferNew<float>* buffer) {
 			if (config->receiver.modulation == USB) ssb = carier.I * Q + carier.Q * I;
 			if (config->receiver.modulation == LSB) ssb = carier.I * Q - carier.Q * I;
 
-			ssbData[i] = ssb;
+			ssbData[i] = ssb * config->transmit.inputLevel3;
 		}
 
 		fftw_complex* complex2 = hilbertTransformFFTW->process(ssbData);
@@ -76,10 +76,10 @@ Signal* SSBModulation::processData(CircleBufferNew<float>* buffer) {
 		for (int i = 0; i < inputDataLen; i++) {
 			float I = (float)complex2[i][IMAG];
 			float Q = (float)complex2[i][REAL];
-			float dither = ((float)rand() / (float)(RAND_MAX)) / 150.0f;
-			float dither2 = ((float)rand() / (float)(RAND_MAX)) / 150.0f;
+			float dither = ((float)rand() / (float)(RAND_MAX)) / 100.0f;
+			float dither2 = ((float)rand() / (float)(RAND_MAX)) / 100.0f;
 			auto mixedSignal = mixer->mix(I, Q);
-			outputDataSignal[j * inputDataLen + i] = Signal{ mixedSignal.I + dither, mixedSignal.Q + dither2 };
+			outputDataSignal[j * inputDataLen + i] = Signal{ mixedSignal.I + dither , mixedSignal.Q + dither2 };
 		}
 
 	}

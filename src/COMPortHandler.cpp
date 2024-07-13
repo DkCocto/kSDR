@@ -27,7 +27,7 @@ void ComPortHandler::run() {
 			}
 
 			getStateTimerPoint2 = high_resolution_clock::now();
-			if (duration_cast<chrono::milliseconds>(getStateTimerPoint2 - getStateTimerPoint1).count() > 100) {
+			if (duration_cast<chrono::milliseconds>(getStateTimerPoint2 - getStateTimerPoint1).count() > 20) {
 				string answer = sendCMD(CMD_.GET_STATE);
 				deviceState.parseState(answer);
 				getStateTimerPoint1 = high_resolution_clock::now();
@@ -144,6 +144,7 @@ ComPortHandler::ComPortHandler(Config* config) {
 	port = new Serial("", PORT_SPEED, serial::Timeout::simpleTimeout(500));
 
 	currentDeviceState = config->myTranceiverDevice;
+
 }
 
 ComPortHandler::~ComPortHandler() {
@@ -205,6 +206,10 @@ bool ComPortHandler::isTXStarted() {
 
 void ComPortHandler::setOnStartStopTxListener(OnStartStopTxListener* onStartStopTxListener) {
 	this->onStartStopTxListener = onStartStopTxListener;
+}
+
+OnStartStopTxListener* ComPortHandler::getOnStartStopTxListener() {
+	return this->onStartStopTxListener;
 }
 
 /*void ComPortHandler::setOnStopTxListener(OnStopTxListener* onStopTxListener) {

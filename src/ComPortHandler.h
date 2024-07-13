@@ -3,6 +3,7 @@
 #include "serial/serial.h"
 #include "Config.h"
 #include "Thread/MyThread.h"
+#include "KalmanFilter.h"
 
 
 using namespace std;
@@ -91,6 +92,11 @@ private:
 		float swr;
 		float power;
 
+		KalmanFilter* kFVolts = new KalmanFilter(2, 0.02);
+		KalmanFilter* kFCurrent = new KalmanFilter(2, 0.02);
+		KalmanFilter* kFSwr = new KalmanFilter(2, 0.02);
+		KalmanFilter* kFPower = new KalmanFilter(2, 0.02);
+		
 		DeviceState() {
 			band = B_40;
 			freq = 7100000;
@@ -126,11 +132,14 @@ private:
 			bypass = atoi(result[5].c_str());
 			autoBypass = atoi(result[6].c_str());
 
-			swr = atof(result[7].c_str());
-			power = atof(result[8].c_str());
+			swr = kFSwr->filter(atof(result[7].c_str()));
+			power = kFPower->filter(atof(result[8].c_str()));
 
-			volts = atof(result[9].c_str());
-			current = atof(result[10].c_str());
+			volts = kFVolts->filter(atof(result[9].c_str()));
+			current = kFCurrent->filter(atof(result[10].c_str()));
+		}
+		bool isDevicePoweredON() {
+			return volts >= 9;
 		}
 	} deviceState;
 
@@ -156,6 +165,8 @@ public:
 	void stopTX();
 	bool isTXStarted();
 	void setOnStartStopTxListener(OnStartStopTxListener* onStartStopTxListener);
+
+	OnStartStopTxListener* getOnStartStopTxListener();
 
 	DeviceState getDeviceState();
 };

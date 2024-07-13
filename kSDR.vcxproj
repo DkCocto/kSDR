@@ -24,6 +24,7 @@
     <ClCompile Include="src\CircleBuffer.cpp" />
     <ClCompile Include="src\CircleBufferReaderThread.cpp" />
     <ClCompile Include="src\COMPortHandler.cpp" />
+    <ClCompile Include="src\CW.cpp" />
     <ClCompile Include="src\FastFir\jfastfir.cpp" />
     <ClCompile Include="src\impl\list_ports\list_ports_win.cc" />
     <ClCompile Include="src\impl\win.cc" />
@@ -109,6 +110,7 @@
     <ClInclude Include="src\CircleBufferNew.h" />
     <ClInclude Include="src\CircleBufferReaderThread.h" />
     <ClInclude Include="src\ComPortHandler.h" />
+    <ClInclude Include="src\CW.h" />
     <ClInclude Include="src\FastFir\jfastfir.h" />
     <ClInclude Include="src\Modulation.h" />
     <ClInclude Include="src\serial\impl\win.h" />

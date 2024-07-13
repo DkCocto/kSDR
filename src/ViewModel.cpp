@@ -25,6 +25,8 @@ void ViewModel::storeToConfig() {
 	config->transmit.txBySpaceBtn = transmit.txBySpaceBtn;
 	config->transmit.amModulationDepth = transmit.amModulationDepth;
 	config->transmit.inputLevel = transmit.inputLevel;
+	config->transmit.inputLevel2 = transmit.inputLevel2;
+	config->transmit.inputLevel3 = transmit.inputLevel3;
 
 	config->myTranceiverDevice.att = myTranceiverDevice.att;
 	config->myTranceiverDevice.pre = myTranceiverDevice.pre;
@@ -53,6 +55,8 @@ void ViewModel::loadFromConfig() {
 	transmit.txBySpaceBtn = config->transmit.txBySpaceBtn;
 	transmit.amModulationDepth = config->transmit.amModulationDepth;
 	transmit.inputLevel = config->transmit.inputLevel;
+	transmit.inputLevel2 = config->transmit.inputLevel2;
+	transmit.inputLevel3 = config->transmit.inputLevel3;
 	
 	myTranceiverDevice.att = config->myTranceiverDevice.att;
 	myTranceiverDevice.pre = config->myTranceiverDevice.pre;

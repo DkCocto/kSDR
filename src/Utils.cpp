@@ -95,3 +95,13 @@ std::string Utils::getPrittyFilterWidth(int width) {
 		return out.str();
 	}
 }
+
+double Utils::convertSegment(double value, double From1, double From2, double To1, double To2) {
+	return (value - From1) / (From2 - From1) * (To2 - To1) + To1;
+}
+
+int Utils::convFFTResBinToSpecBin(int bin, int len) {
+	int halfLen = len / 2;
+	if (bin >= halfLen) return bin - halfLen;
+	else return bin + halfLen;
+}

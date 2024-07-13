@@ -187,7 +187,7 @@ std::vector<float> FlowingSpectre::getReducedData(FFTData::OUTPUT* fullSpectreDa
 	int flowingSpectreLen = getLen();
 
 	if (flowingSpectreLen <= desiredBins) {
-		FFTData::OUTPUT* reducedSpectreData = specHandler->getFFTData()->getDataCopy(fullSpectreData, A, getLen());
+		FFTData::OUTPUT* reducedSpectreData = specHandler->getFFTData()->getDataCopy(fullSpectreData, A, flowingSpectreLen);
 		//int spectreLen = flowingSpectreLen;
 		std::vector<float> v;
 		v.assign(reducedSpectreData->data, reducedSpectreData->data + reducedSpectreData->len);

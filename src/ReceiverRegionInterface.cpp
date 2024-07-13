@@ -20,7 +20,7 @@ void ReceiverRegionInterface::drawRegion(ImDrawList* draw_list, ReceiverLogic* r
 	drawBackground(draw_list);
 
 	//S-meter
-	smeter->update(backgroundX + backgroundPadding + smetreMargin, backgroundY + freqTextHeight + 65, backgroundWidth - 2 * (backgroundPadding + smetreMargin) - 206, 50);
+	smeter->update(backgroundX + backgroundPadding + smetreMargin, backgroundY + freqTextHeight + 65, backgroundWidth - 2 * (backgroundPadding + smetreMargin) - 250, 50);
 	smeter->draw(draw_list, spectreData, receiverLogic);
 	//-------
 
@@ -37,132 +37,118 @@ void ReceiverRegionInterface::drawRegion(ImDrawList* draw_list, ReceiverLogic* r
 	);
 	ImGui::PopFont();
 
-	drawFeatureMarker3(
-		viewModel->fontMyRegular, draw_list, 
-		freqTextX + 355, freqTextY - 6, 
-		(env->getComPortHandler()->getDeviceState().att == true) ? GREEN : GRAY, 
-		"ATT"
-	);
+	if (env->getComPortHandler() != nullptr) {
 
-	/*draw_list->AddRectFilled(
-		ImVec2(freqTextX + 355, freqTextY - 5),
-		ImVec2(freqTextX + 360 + 35, freqTextY + 25),
-		BLACK, 0);
+		bool tx = false;
+		if (env->getDeviceController()->getDevice() != nullptr && env->getDeviceController()->getDevice()->deviceType == HACKRF) {
+			tx = ((HackRFDevice*)env->getDeviceController()->getDevice())->isDeviceTransmitting();
+		}
 
-	draw_list->AddText(
-		ImVec2(
-			freqTextX + 360,
-			freqTextY
-		),
-		(config->myTranceiverDevice.att == true) ? GREEN : GRAY,
-		"ATT"
-	);*/
+		drawFeatureMarker(
+			viewModel->fontMyRegular, draw_list,
+			freqTextX + 355, freqTextY - 6,
+			(tx == true) ? LIGHTRED : GREEN,
+			(tx == true) ? "TX" : "RX"
+		);
 
-	//config->myTranceiverDevice.pre == true && config->myTranceiverDevice.bypass == false
-	drawFeatureMarker3(
-		viewModel->fontMyRegular, draw_list,
-		freqTextX + 355, freqTextY - 6 + 35,
-		(env->getComPortHandler()->getDeviceState().amp) ? GREEN : GRAY,
-		"PRE"
-	);
+		drawFeatureMarker(
+			viewModel->fontMyRegular, draw_list,
+			freqTextX + 355, freqTextY - 6 + 35,
+			(env->getComPortHandler()->getDeviceState().att == true) ? GREEN : GRAY,
+			"ATT"
+		);
 
-	/*draw_list->AddText(
-		ImVec2(
-			freqTextX + 360,
-			freqTextY + 35
-		),
-		(config->myTranceiverDevice.pre == true) ? GREEN : GRAY,
-		"PRE"
-	);*/
+		drawFeatureMarker(
+			viewModel->fontMyRegular, draw_list,
+			freqTextX + 355, freqTextY - 6 + 70,
+			(env->getComPortHandler()->getDeviceState().amp) ? GREEN : GRAY,
+			"PRE"
+		);
 
-	drawFeatureMarker3(
-		viewModel->fontMyRegular, draw_list,
-		freqTextX + 355, freqTextY - 6 + 70,
-		(env->getComPortHandler()->getDeviceState().bypass == true) ? GREEN : GRAY,
-		"ByP"
-	);
+		drawFeatureMarker(
+			viewModel->fontMyRegular, draw_list,
+			freqTextX + 355, freqTextY - 6 + 105,
+			(env->getComPortHandler()->getDeviceState().bypass == true) ? GREEN : GRAY,
+			"ByP"
+		);
 
-	/*draw_list->AddText(
-		ImVec2(
-			freqTextX + 360,
-			freqTextY + 70
-		),
-		(config->myTranceiverDevice.bypass == true) ? GREEN : GRAY,
-		"ByP"
-	);*/
 
-	bool tx = false;
-	if (env->getDeviceController()->getDevice() != nullptr && env->getDeviceController()->getDevice()->deviceType == HACKRF) {
-		tx = ((HackRFDevice*)env->getDeviceController()->getDevice())->isDeviceTransmitting();
+		drawFeatureMarker(
+			viewModel->fontMyRegular, draw_list,
+			freqTextX + 405, freqTextY - 6,
+			GREEN,
+			Utils::getModulationTxt(config->receiver.modulation).c_str()
+		);
+
+		drawFeatureMarker(
+			viewModel->fontMyRegular, draw_list,
+			freqTextX + 405, freqTextY - 6 + 35,
+			GREEN,
+			Utils::getPrittyFilterWidth(config->filterWidth).c_str()
+		);
+
+		drawFeatureMarker(
+			viewModel->fontMyRegular, draw_list,
+			freqTextX + 454, freqTextY - 6,
+			YELLOW,
+			"IN"
+		);
+
+		drawFeatureMarker(
+			viewModel->fontMyRegular, draw_list,
+			freqTextX + 454, freqTextY - 6 + 35,
+			YELLOW,
+			(env->getComPortHandler() == nullptr) ? "0.0A" : string(Utils::toStrWithAccuracy(env->getComPortHandler()->getDeviceState().volts, 1) + "V").c_str()
+		);
+
+		drawFeatureMarker(
+			viewModel->fontMyRegular, draw_list,
+			freqTextX + 454, freqTextY - 6 + 70,
+			YELLOW,
+			(env->getComPortHandler() == nullptr) ? "0.0A" : string(Utils::toStrWithAccuracy(env->getComPortHandler()->getDeviceState().current, 1) + "A").c_str()
+		);
+
+		drawFeatureMarker(
+			viewModel->fontMyRegular, draw_list,
+			freqTextX + 454, freqTextY - 6 + 105,
+			YELLOW,
+			(env->getComPortHandler() == nullptr) ? "0.0W" : string(Utils::toStrWithAccuracy(env->getComPortHandler()->getDeviceState().volts * env->getComPortHandler()->getDeviceState().current, 1) + "W").c_str()
+		);
+
+		drawFeatureMarker(
+			viewModel->fontMyRegular, draw_list,
+			freqTextX + 516, freqTextY - 6,
+			YELLOW,
+			"Out"
+		);
+
+		drawFeatureMarker(
+			viewModel->fontMyRegular, draw_list,
+			freqTextX + 516, freqTextY - 6 + 35,
+			YELLOW,
+			(env->getComPortHandler() == nullptr) ? "SWR 0.0" : string("SWR " + Utils::toStrWithAccuracy(env->getComPortHandler()->getDeviceState().swr, 1)).c_str()
+		);
+
+		drawFeatureMarker(
+			viewModel->fontMyRegular, draw_list,
+			freqTextX + 516, freqTextY - 6 + 70,
+			YELLOW,
+			(env->getComPortHandler() == nullptr) ? "0.0W" : string(Utils::toStrWithAccuracy(env->getComPortHandler()->getDeviceState().power, 1) + "W").c_str()
+		);
 	}
-
-	/*draw_list->AddText(
-		ImVec2(
-			freqTextX + 360,
-			freqTextY + 105
-		),
-		(tx == true) ? LIGHTRED : GREEN,
-		(tx == true) ? "TX" : "RX"
-	);*/
-
-	drawFeatureMarker3(
-		viewModel->fontMyRegular, draw_list,
-		freqTextX + 355, freqTextY - 6 + 105,
-		(tx == true) ? LIGHTRED : GREEN,
-		(tx == true) ? "TX" : "RX"
-	);
-
-	/*draw_list->AddText(
-		ImVec2(
-			freqTextX + 405,
-			freqTextY
-		),
-		GREEN,
-		Utils::getModulationTxt(config->receiver.modulation).c_str()
-	);*/
-
-
-	drawFeatureMarker3(
-		viewModel->fontMyRegular, draw_list,
-		freqTextX + 405, freqTextY - 6,
-		GREEN,
-		Utils::getModulationTxt(config->receiver.modulation).c_str()
-	);
-
-	/*draw_list->AddText(
-		ImVec2(
-			freqTextX + 405,
-			freqTextY + 35
-		),
-		GREEN,
-		Utils::getPrittyFilterWidth(config->filterWidth).c_str()
-	);*/
-
-	drawFeatureMarker3(
-		viewModel->fontMyRegular, draw_list,
-		freqTextX + 405, freqTextY - 6 + 35,
-		GREEN,
-		Utils::getPrittyFilterWidth(config->filterWidth).c_str()
-	);
-
-	drawFeatureMarker4withTitle(
-		viewModel->fontMyRegular, draw_list,
-		freqTextX + 454, freqTextY - 6,
-		YELLOW,
-		"Volt",
-		(env->getComPortHandler() == nullptr) ? "0.0" : Utils::toStrWithAccuracy(env->getComPortHandler()->getDeviceState().volts, 1).c_str()
-	);
-
 	markDigitByMouse(draw_list, receiverLogic);
 }
 
-void ReceiverRegionInterface::drawFeatureMarker3(ImFont* fontMyRegular, ImDrawList* draw_list, int x, int y, ImU32 col, string msg) {
+void ReceiverRegionInterface::drawFeatureMarker(ImFont* fontMyRegular, ImDrawList* draw_list, int x, int y, ImU32 col, string msg) {
 	ImGui::PushFont(fontMyRegular);
+	// 0 -> 10
+	// 40 -> 3
+	// 49 -> 4
+	// 78 -> 7
 	draw_list->AddRectFilled(
 		ImVec2(x, y),
-		ImVec2(x + 40, y + 30),
+		ImVec2(x + 9.7 * msg.size() + 10.3, y + 30),
 		BLACK, 0);
-
 	draw_list->AddText(
 		ImVec2(
 			x + 6,

@@ -100,6 +100,9 @@ template<typename DEVICE, typename DATATYPE> void SpectreHandler::prepareToProce
 	} else std::this_thread::sleep_for(std::chrono::milliseconds(1));
 }
 
+int oldMin = 0;
+int oldMax = 0;
+
 template<typename T, typename D> void SpectreHandler::processFFT(T* data, D* device) {
 	for (int i = 0; i < spectreSize; i++) {
 		float I = device->prepareData(data[2 * i]);
@@ -115,7 +118,34 @@ template<typename T, typename D> void SpectreHandler::processFFT(T* data, D* dev
 
 	dataPostprocess();
 
-	fftData->setData(superOutput, outputWaterfall, spectreSize);
+	if (config->TRANSMITTING) {
+
+		float* outputCopy = new float[spectreSize];
+
+		memcpy(outputCopy, superOutput, sizeof(superOutput) * spectreSize);
+
+		for (int i = config->receiver.receiveBinA; i <= config->receiver.receiveBinB; i++) {
+			i = Utils::convFFTResBinToSpecBin(i, spectreSize);
+			if (oldMax < outputCopy[i]) oldMax = outputCopy[i];
+			if (oldMin > outputCopy[i]) oldMin = outputCopy[i];
+		}
+
+		for (int i = 0; i < spectreSize; i++) {
+			int newI = Utils::convFFTResBinToSpecBin(i, spectreSize);
+			if (i < config->receiver.receiveBinA || i > config->receiver.receiveBinB) {
+				outputCopy[newI] = config->spectre.minVisibleDB;
+			}
+			else {
+				//if (abs(to2 - newMin) < config->spectre.maxVisibleDB) to2 = config->spectre.maxVisibleDB;
+				outputCopy[newI] = Utils::convertSegment(outputCopy[newI], oldMin, oldMax, config->spectre.minVisibleDB, config->spectre.maxVisibleDB);
+			}
+		}
+		fftData->setData(outputCopy, outputCopy, spectreSize);
+
+		delete[] outputCopy;
+	} else {
+		fftData->setData(superOutput, outputWaterfall, spectreSize);
+	}
 }
 
 float SpectreHandler::average(float avg, float new_sample, int n) {
@@ -131,8 +161,7 @@ void SpectreHandler::dataPostprocess() {
 		if (firstRun) {
 			tmpArray[i] = psd;
 			firstRun = false;
-		}
-		else {
+		} else {
 			tmpArray[i] = average(tmpArray[i], psd, config->spectre.spectreSpeed);
 		}
 	}
@@ -143,16 +172,18 @@ void SpectreHandler::dataPostprocess() {
 
 	for (int n = 0; n <= config->spectre.smoothingDepth; n++) {
 		for (int j = 0; j < spectreSize; j++) {
+			j = Utils::convFFTResBinToSpecBin(j, spectreSize);
 			if (j >= 1 && j < spectreSize - 1) {
 				tmpArray2[j] = (tmpArray[j - 1] + tmpArray[j] + tmpArray[j + 1]) / 3;
 				//tmpArray2[j] = (tmpArray[j - 2] + 2.0f * tmpArray[j - 1] + 3.0f * tmpArray[j] + 2.0f * tmpArray[j + 1] + tmpArray[j + 2]) / 9.0f;
-			}
-			else {
+			} else {
 				tmpArray2[j] = tmpArray[j];
 			}
+
 			if (n == 0) {
 				outputWaterfall[j] = tmpArray2[j];
 			}
+
 			if (n == config->spectre.smoothingDepth) {
 				if (config->spectre.hangAndDecay) {
 					if (superOutput[j] < tmpArray2[j]) {

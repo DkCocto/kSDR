@@ -4,14 +4,14 @@ void SoundCardInputReaderThread::initFilters(int audioFilterWidth) {
 	if (this->audioFilterWidth != audioFilterWidth) {
 		this->audioFilterWidth = audioFilterWidth;
 		this->resamplingFilterWidth = 2 * audioFilterWidth;
-		audioFilter.init(audioFilter.LOWPASS, audioFilter.BLACKMAN, 64, this->audioFilterWidth, 0, config->inputSamplerateSound);
+		audioFilter.init(audioFilter.LOWPASS, audioFilter.HAMMING, 127, this->audioFilterWidth, 0, config->inputSamplerateSound);
 		
 		if (fastfir != nullptr) delete fastfir;
 		//create FastFIR filter
 		fastfir = new JFastFIRFilter;
 
 		//set the kernel of the filter, in this case a Low Pass filter at 800Hz
-		fastfir->setKernel(JFilterDesign::LowPassHanning(this->resamplingFilterWidth, config->currentWorkingInputSamplerate, 1111));
+		fastfir->setKernel(JFilterDesign::LowPassHanning(this->resamplingFilterWidth, config->currentWorkingInputSamplerate, 1222));
 	}
 
 }
@@ -89,7 +89,7 @@ void SoundCardInputReaderThread::run() {
 
 			for (int i = 0; i < upsamplingDataLen; i++) {
 				//if (i % relation != 0) {
-				double dither = ((double)rand() / (double)(RAND_MAX)) / 100000.0;
+				double dither = ((double)rand() / (double)(RAND_MAX)) / 200000.0;
 				upsamplingData[i] = dither;
 				//}
 			}
@@ -104,7 +104,7 @@ void SoundCardInputReaderThread::run() {
 			//std::copy(v.begin(), v.end(), upsamplingData);
 
 			for (int i = 0; i < upsamplingDataLen; i++) {
-				upsamplingDataOut[i] = upsamplingData[i] * config->transmit.inputLevel;
+				upsamplingDataOut[i] = upsamplingData[i] * config->transmit.inputLevel2;
 			}
 
 			soundInputBuffer->write(upsamplingDataOut, upsamplingDataLen);

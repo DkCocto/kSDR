@@ -78,6 +78,8 @@ public:
 	struct Transmit {
 		bool txBySpaceBtn = false;
 		float inputLevel = 1.0f;
+		float inputLevel2 = 1.0f;
+		float inputLevel3 = 1.0f;
 		float amModulationDepth = 1.0f;
 	} transmit;
 

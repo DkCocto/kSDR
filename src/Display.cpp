@@ -109,7 +109,6 @@ int Display::init() {
 	//style.AntiAliasedFill = true;
 
 	initSettings();
-	env->getComPortHandler()->setOnStartStopTxListener(this);
 }
 
 void Display::mainLoop() {
@@ -122,6 +121,8 @@ void Display::mainLoop() {
 
 		glClearColor(bgColor.x, bgColor.y, bgColor.z, bgColor.w);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		if (env->getComPortHandler() != nullptr && env->getComPortHandler()->getOnStartStopTxListener() == nullptr) env->getComPortHandler()->setOnStartStopTxListener(this);
 
 		renderImGUIFirst();
 
@@ -439,16 +440,28 @@ void Display::renderImGUIFirst() {
 
 					bool reactionOnSpaceBtn = ImGui::IsKeyDown(ImGui::GetKeyIndex(ImGuiKey_Space)) && env->getConfig()->transmit.txBySpaceBtn && env->getSoundCard()->isInputAvailable();
 
-					if (hackRfInterface->isDeviceTransmitting() || reactionOnSpaceBtn || (env->getSoundCard() != nullptr && !env->getSoundCard()->isInputAvailable())) ImGui::BeginDisabled();
+					bool txDisabledIf = hackRfInterface->isDeviceTransmitting() || 
+										reactionOnSpaceBtn || 
+										(env->getSoundCard() != nullptr && !env->getSoundCard()->isInputAvailable()) || 
+										!env->getComPortHandler()->getDeviceState().isDevicePoweredON();
+
+					if (txDisabledIf) ImGui::BeginDisabled();
 					if ((ImGui::Button("Start Transmitting") || (reactionOnSpaceBtn && !txSwitcherFlag)) && !hackRfInterface->isDeviceTransmitting()) {
 						env->getComPortHandler()->startTX();
 					}
-					ImGui::SameLine(); if (hackRfInterface->isDeviceTransmitting() || reactionOnSpaceBtn || (env->getSoundCard() != nullptr && !env->getSoundCard()->isInputAvailable())) ImGui::EndDisabled();
+					ImGui::SameLine(); if (txDisabledIf) ImGui::EndDisabled();
 
 
 					if (!hackRfInterface->isDeviceTransmitting() || reactionOnSpaceBtn) ImGui::BeginDisabled();
 					if (ImGui::Button("Stop Transmitting") || (!reactionOnSpaceBtn && txSwitcherFlag)) {
-						env->getComPortHandler()->stopTX();
+						HackRfInterface* hackRfInterface = (HackRfInterface*)env->getDeviceController()->getDeviceInterface();
+						if (hackRfInterface->stopTX()) {
+							env->getSoundCardInputReader()->pause();
+							if (hackRfInterface->releasePauseRX()) {
+								txSwitcherFlag = false;
+							}
+							env->getComPortHandler()->stopTX();
+						}
 					};
 					if (!hackRfInterface->isDeviceTransmitting() || reactionOnSpaceBtn) ImGui::EndDisabled();
 				}
@@ -458,7 +471,9 @@ void Display::renderImGUIFirst() {
 				ImGui::SliderInt("TX AMP", &viewModel->hackRFModel.enableTxAmp, 0, 1);
 				ImGui::SliderInt("Tx VGA Gain", &viewModel->hackRFModel.txVgaGain, 0, 47);
 
-				ImGui::SliderFloat("Input Level", &viewModel->transmit.inputLevel, 0, 10);
+				ImGui::SliderFloat("Input Level", &viewModel->transmit.inputLevel, 0, 130);
+				//ImGui::SliderFloat("Input Level2", &viewModel->transmit.inputLevel2, 0, 30);
+				//ImGui::SliderFloat("Input Level3", &viewModel->transmit.inputLevel3, 0, 10);
 				ImGui::SliderFloat("AM Modulation Depth", &viewModel->transmit.amModulationDepth, 1, 50);
 				
 				ImGui::Spacing();
@@ -597,7 +612,6 @@ void Display::renderImGUIFirst() {
 		viewModel->storeToConfig();
 
 	ImGui::End();
-	//ImGui::PopID();
 
 	spectre->draw();
 
@@ -617,6 +631,10 @@ void Display::renderImGUIFirst() {
 	auto range = env->getFlowingSpectre()->getVisibleFreqsRangeAbsolute();
 	env->getConfig()->spectre.visibleStartFreq = range.first;
 	env->getConfig()->spectre.visibleStopFreq = range.second;
+
+	auto binsArea = env->getReceiverLogic()->getReceiveBinsArea(env->getConfig()->filterWidth, env->getConfig()->receiver.modulation);
+	env->getConfig()->receiver.receiveBinA = binsArea.A;
+	env->getConfig()->receiver.receiveBinB = binsArea.B;
 }
 
 void Display::showSelectDeviceSetting() {
@@ -928,12 +946,5 @@ void Display::onStartTX() {
 }
 
 void Display::onStopTX() {
-	HackRfInterface* hackRfInterface = (HackRfInterface*)env->getDeviceController()->getDeviceInterface();
-	if (hackRfInterface->stopTX()) {
-		env->getSoundCardInputReader()->pause();
-		if (hackRfInterface->releasePauseRX()) {
-			txSwitcherFlag = false;
-		}
-		env->getComPortHandler()->stopTX();
-	}
+
 }
