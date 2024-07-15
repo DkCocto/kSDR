@@ -466,6 +466,7 @@ void Display::renderImGUIFirst() {
 					if (!hackRfInterface->isDeviceTransmitting() || reactionOnSpaceBtn) ImGui::EndDisabled();
 				}
 
+				ImGui::Checkbox("Send Tone Signal", &viewModel->transmit.sendToneSignal);
 				ImGui::Checkbox("TX by Space btn", &viewModel->transmit.txBySpaceBtn);
 
 				ImGui::SliderInt("TX AMP", &viewModel->hackRFModel.enableTxAmp, 0, 1);

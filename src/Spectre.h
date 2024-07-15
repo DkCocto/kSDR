@@ -38,6 +38,8 @@ class Spectre {
 	
 	Environment* env;
 
+	const float spectreWaterfallRelations = 1.1;
+
 public:
 
 	struct MIN_MAX {

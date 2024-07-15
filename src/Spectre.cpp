@@ -80,7 +80,7 @@ void Spectre::draw() {
 		windowFrame.UPPER_RIGHT = sWD.startWindowPoint;
 		windowFrame.BOTTOM_LEFT = ImVec2(sWD.startWindowPoint.x + sWD.windowLeftBottomCorner.x, sWD.startWindowPoint.y + sWD.windowLeftBottomCorner.y);
 
-		spectreHeight = sWD.windowLeftBottomCorner.y / 2.0;
+		spectreHeight = sWD.windowLeftBottomCorner.y / 2.0 * spectreWaterfallRelations;
 		spectreWidth = sWD.windowLeftBottomCorner.x - sWD.rightPadding - sWD.leftPadding;
 
 		handleEvents(spectreWidth, env->getReceiverLogic(), env->getFlowingSpectre());
@@ -185,11 +185,11 @@ void Spectre::draw() {
 					(void*)(intptr_t)waterfall->getTexturesArray()[i],
 					ImVec2(
 						sWD.startWindowPoint.x + sWD.rightPadding,
-						sWD.startWindowPoint.y + waterfallHeight + 2 * sWD.waterfallPaddingTop + stepY * i
+						sWD.startWindowPoint.y + spectreHeight + sWD.waterfallPaddingTop + stepY * i
 					),
 					ImVec2(
 						sWD.startWindowPoint.x + sWD.windowLeftBottomCorner.x - sWD.leftPadding,
-						sWD.startWindowPoint.y + waterfallHeight + 2 * sWD.waterfallPaddingTop + stepY * (i + 1)
+						sWD.startWindowPoint.y + spectreHeight + sWD.waterfallPaddingTop + stepY * (i + 1)
 					));
 			}
 

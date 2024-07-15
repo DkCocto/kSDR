@@ -81,6 +81,7 @@ public:
 		float inputLevel2 = 1.0f;
 		float inputLevel3 = 1.0f;
 		float amModulationDepth = 1.0f;
+		bool sendToneSignal = false;
 	} transmit;
 
 	struct MyTranceiverDevice {

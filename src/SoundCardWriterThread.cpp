@@ -39,7 +39,7 @@ void SoundCardWriterThread::run() {
 			soundWriterCircleBuffer->read(data, len);
 			soundCard->write(data, len);
 		} else {
-			std::this_thread::sleep_for(std::chrono::milliseconds(10));
+			std::this_thread::sleep_for(std::chrono::microseconds(1));
 		}
 	}
 }

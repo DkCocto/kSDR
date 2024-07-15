@@ -37,7 +37,7 @@ void Config::initSettings() {
 
     audioWriteFrameLen = (outputSamplerateDivider) / 4;
 
-    audioReadFrameLen = 4;
+    audioReadFrameLen = 8;
 
     //circleBufferLen = currentWorkingInputSamplerate / 4;
 

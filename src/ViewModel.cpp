@@ -27,6 +27,7 @@ void ViewModel::storeToConfig() {
 	config->transmit.inputLevel = transmit.inputLevel;
 	config->transmit.inputLevel2 = transmit.inputLevel2;
 	config->transmit.inputLevel3 = transmit.inputLevel3;
+	config->transmit.sendToneSignal = transmit.sendToneSignal;
 
 	config->myTranceiverDevice.att = myTranceiverDevice.att;
 	config->myTranceiverDevice.pre = myTranceiverDevice.pre;
@@ -57,6 +58,7 @@ void ViewModel::loadFromConfig() {
 	transmit.inputLevel = config->transmit.inputLevel;
 	transmit.inputLevel2 = config->transmit.inputLevel2;
 	transmit.inputLevel3 = config->transmit.inputLevel3;
+	transmit.sendToneSignal = config->transmit.sendToneSignal;
 	
 	myTranceiverDevice.att = config->myTranceiverDevice.att;
 	myTranceiverDevice.pre = config->myTranceiverDevice.pre;

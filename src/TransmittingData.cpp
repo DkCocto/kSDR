@@ -25,18 +25,18 @@ TransmittingData::~TransmittingData() {
 Signal* TransmittingData::nextBuffer() {
     if (config->receiver.modulation == USB || config->receiver.modulation == LSB) {
         if (txBuffer->available() < ssb.getOutputBufferHalfLen()) {
-            return emptySignals;
+            return nullptr;
         } else {
             return ssb.processData(txBuffer);
         }
     } else if (config->receiver.modulation == AM) {
         if (txBuffer->available() < am.getOutputBufferHalfLen()) {
-            return emptySignals;
+            return nullptr;
         } else {
             return am.processData(txBuffer);
         }
     } else {
-        return emptySignals;
+        return nullptr;
     }
 
 }

@@ -39,8 +39,8 @@ void SoundCardInputReaderThread::run() {
 
 	const int BUFFER_READ_LEN = config->audioReadFrameLen; //2
 
-	int relation = config->currentWorkingInputSamplerate / config->inputSamplerateSound; // 4 000 000 / 31 250 = 128
-	int upsamplingDataLen = BUFFER_READ_LEN * relation; // 2 * 128 = 256
+	int relation = config->currentWorkingInputSamplerate / config->inputSamplerateSound; // 8 000 000 / 31 250 = 256
+	int upsamplingDataLen = BUFFER_READ_LEN * relation; // 32 * 256 = 8192
 
 	float* readBuffer = new float[BUFFER_READ_LEN];
 
@@ -52,6 +52,8 @@ void SoundCardInputReaderThread::run() {
 
 	vector<double> data;
 	data.reserve(upsamplingDataLen);
+
+	SinOscillator so(TONE_SIGNAL_FREQ, config->inputSamplerateSound);
 
 	while (true) {
 		if (!config->WORKING) {
@@ -72,7 +74,7 @@ void SoundCardInputReaderThread::run() {
 		}
 
 		if (currentStatus == REST) {
-			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+			std::this_thread::sleep_for(std::chrono::microseconds(1));
 			continue;
 		}
 
@@ -86,6 +88,12 @@ void SoundCardInputReaderThread::run() {
 
 		if (soundCard->availableToRead() >= BUFFER_READ_LEN) {
 			soundCard->read(readBuffer, BUFFER_READ_LEN);
+
+			if (config->transmit.sendToneSignal) {
+				for (int i = 0; i < BUFFER_READ_LEN; i++) {
+					readBuffer[i] = so.nextSample();
+				}
+			}
 
 			for (int i = 0; i < upsamplingDataLen; i++) {
 				//if (i % relation != 0) {
@@ -110,7 +118,7 @@ void SoundCardInputReaderThread::run() {
 			soundInputBuffer->write(upsamplingDataOut, upsamplingDataLen);
 
 		} else {
-			std::this_thread::sleep_for(std::chrono::milliseconds(10));
+			std::this_thread::sleep_for(std::chrono::microseconds(1));
 		}
 	}
 	delete[] readBuffer;

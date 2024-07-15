@@ -5,6 +5,7 @@
 #include "SoundCard.h"
 #include "FIR.h"
 #include "FastFir/jfastfir.h"
+#include "SinOscillator.h"
 
 //Class reads data from sound input, filter it and resample. After that stores it to the buffer.
 class SoundCardInputReaderThread : public MyThread {
@@ -28,6 +29,8 @@ private:
 	void run();
 
 	void initFilters(int audioFilterWidth);
+
+	int const TONE_SIGNAL_FREQ = 1000;
 
 public:
 
