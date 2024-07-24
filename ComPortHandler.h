@@ -1,12 +1,13 @@
 #pragma once
 
+#include "serial/serial.h"
 #include "Config.h"
 #include "Thread/MyThread.h"
 #include "KalmanFilter.h"
 #include <chrono>
-#include "serialib.h"
 
 using namespace std;
+using namespace serial;
 
 class OnStartStopTxListener {
 public:
@@ -23,10 +24,10 @@ private:
 
 	bool initDevice();
 
-	serialib serial;
-
 	string COM_PORT = "";
 	const int PORT_SPEED = 115200;
+
+	Serial* port = nullptr;
 
 	int freq = 0;
 

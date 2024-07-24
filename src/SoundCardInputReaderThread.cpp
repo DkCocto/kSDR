@@ -4,7 +4,7 @@ void SoundCardInputReaderThread::initFilters(int audioFilterWidth) {
 	if (this->audioFilterWidth != audioFilterWidth) {
 		this->audioFilterWidth = audioFilterWidth;
 		this->resamplingFilterWidth = 2 * audioFilterWidth;
-		audioFilter.init(audioFilter.LOWPASS, audioFilter.HAMMING, 127, this->audioFilterWidth, 0, config->inputSamplerateSound);
+		audioFilter.init(audioFilter.LOWPASS, audioFilter.BLACKMAN, 127, this->audioFilterWidth, 0, config->inputSamplerateSound);
 		
 		if (fastfir != nullptr) delete fastfir;
 		//create FastFIR filter
@@ -96,10 +96,10 @@ void SoundCardInputReaderThread::run() {
 			}
 
 			for (int i = 0; i < upsamplingDataLen; i++) {
-				//if (i % relation != 0) {
-				double dither = ((double)rand() / (double)(RAND_MAX)) / 200000.0;
-				upsamplingData[i] = dither;
-				//}
+				if (i % relation != 0) {
+					double dither = ((double)rand() / (double)(RAND_MAX)) / 1000000.0;
+					upsamplingData[i] = dither;
+				}
 			}
 
 			for (int i = 0; i < BUFFER_READ_LEN; i++) {
@@ -109,11 +109,11 @@ void SoundCardInputReaderThread::run() {
 
 			fastfir->Update(upsamplingData);
 			
-			//std::copy(v.begin(), v.end(), upsamplingData);
+			std::copy(upsamplingData.begin(), upsamplingData.end(), upsamplingDataOut);
 
-			for (int i = 0; i < upsamplingDataLen; i++) {
-				upsamplingDataOut[i] = upsamplingData[i] * config->transmit.inputLevel2;
-			}
+			/*for (int i = 0; i < upsamplingDataLen; i++) {
+				upsamplingDataOut[i] = upsamplingData[i];
+			}*/
 
 			soundInputBuffer->write(upsamplingDataOut, upsamplingDataLen);
 

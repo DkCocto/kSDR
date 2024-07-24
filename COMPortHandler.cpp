@@ -1,4 +1,5 @@
 #include "ComPortHandler.h"
+#include <chrono>
 
 
 void ComPortHandler::run() {
@@ -15,7 +16,7 @@ void ComPortHandler::run() {
 			return;
 		}
 
-		if (!serial.isDeviceOpen()) {
+		if (port != nullptr && !port->isOpen()) {
 			bool result = connectToDevice();
 			if (!result) std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		}
@@ -91,72 +92,85 @@ bool ComPortHandler::connectToDevice() {
 
 	COM_PORT = "";
 
-	auto portList = serial.getAvailablePorts();
-	
-	for (int i = 0; i < portList.size(); i++) {
-		char errorOpening = serial.openDevice(portList[i].c_str(), 115200);
-		
-		std::this_thread::sleep_for(std::chrono::milliseconds(3000));
-		
-		if (errorOpening == 1) {
-			cout << "Port oppened: " << portList[i] << endl;
-			string deviceAnswer = sendCMD(CMD_.INIT);
+	std::vector<serial::PortInfo> devices_found = serial::list_ports();
 
-			//cout << "Answer: " << deviceAnswer << endl;
+	std::vector<serial::PortInfo>::iterator iter = devices_found.begin();
 
-			if (deviceAnswer == CMD_.OK) {
-				COM_PORT = portList[i];
-				cout << "Device found!\n";
-				return true;
-			} else {
-				serial.closeDevice();
+	while (iter != devices_found.end()) {
+		serial::PortInfo device = *iter++;
+		printf("(%s, %s, %s)\n", device.port.c_str(), device.description.c_str(), device.hardware_id.c_str());
+		try {
+			port->setPort(device.port);
+			cout << "Open port: " << device.port << "\n";
+			port->open();
+
+			cout << "Sending start cmd...\n";
+
+			std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+
+			if (port->isOpen()) {
+
+				//port->flush();
+				string deviceAnswer = sendCMD(CMD_.INIT);
+
+				cout << device.port + " PIPIKA: " + to_string(port->available()) + " " + deviceAnswer + "\n";
+
+				if (deviceAnswer == CMD_.OK) {
+					COM_PORT = device.port;
+					cout << "Com port device has been successfully connected!\n";
+					return true;
+				}
+				else {
+					port->close();
+				}
 			}
+
+		} catch (const std::exception& ex) {
+			cout << "Error connect to device. Exception.\n";
+			continue;
 		}
+		
 	}
 
 	return false;
 }
 
 string ComPortHandler::sendCMD(string cmd) {
-	if (serial.isDeviceOpen()) {
+	try {
+		if (port != nullptr && port->isOpen()) {
+			port->write(cmd + CMD_.CMD_END);
+			string answer = port->readline();
+			answer.pop_back();
 
-		if (serial.writeString(string(cmd + CMD_.CMD_END).c_str()) == 1) {
-			char str[128];
+			//cout << "CMD: " + cmd + "; answer: " + answer + "\n";
 
-			int result = serial.readString(str, '\n', 127, 500);
-
-			//cout << "Result: " << result << endl;
-
-			string answer = "";
-
-			if (result > 0) {
-				answer = string(str, result);
-
-				answer.pop_back();
-
-				//cout << "CMD: " + cmd + "; answer: " + answer << endl;
-
-				return answer;
-			}
+			return answer;
+		} else {
+			cout << "Error sending cmd. Port is not open.\n";
 		}
-	} else {
-		cout << "Error sending cmd. Port is not open.\n";
+	} catch (const std::exception& ex) {
+		cout << "Error sending cmd. Exception. Closing port...\n";
+		port->close();
 	}
-	
 	return "";
 }
 
 ComPortHandler::ComPortHandler(Config* config) {
 	this->config = config;
 
+	port = new Serial("", PORT_SPEED, serial::Timeout::simpleTimeout(1000));
+
 	currentDeviceState = config->myTranceiverDevice;
 }
 
 ComPortHandler::~ComPortHandler() {
 	printf("~ComPortHandler()\r\n");
-	if (serial.isDeviceOpen()) {
-		if (COM_PORT.size() != 0) sendCMD(CMD_.CLOSE);
-		serial.closeDevice();
+	if (port != nullptr) {
+		if (port->isOpen()) {
+			sendCMD(CMD_.CLOSE);
+			port->close();
+		}
+		delete port;
 	}
 }
 
@@ -168,9 +182,11 @@ std::thread ComPortHandler::start() {
 bool ComPortHandler::isConnected() {
 	bool result = false;
 
-	if (serial.isDeviceOpen()) {
-		if (COM_PORT.size() > 0) {
-			result = true;
+	if (port != nullptr) {
+		if (port->isOpen()) {
+			if (COM_PORT.size() > 0) {
+				result = true;
+			}
 		}
 	}
 
@@ -178,9 +194,11 @@ bool ComPortHandler::isConnected() {
 }
 
 void ComPortHandler::close() {
-	if (serial.isDeviceOpen()) {
-		sendCMD(CMD_.CLOSE);
-		serial.closeDevice();
+	if (port != nullptr) {
+		if (port->isOpen()) {
+			sendCMD(CMD_.CLOSE);
+			port->close();
+		}
 	}
 }
 

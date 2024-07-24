@@ -9,6 +9,8 @@ private:
 
 protected:
 	int freq = 0;
+	
+	// = HACKRF TX BUFFER
 	const int outputBufferLen = 262144;
 	const int halfOutputBufferLen = 262144 >> 1;
 

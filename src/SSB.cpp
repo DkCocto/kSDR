@@ -1,6 +1,7 @@
 #include "SSB.h"
 
 SSBModulation::SSBModulation() {
+
 	this->inputDataLen = SSB_HILBERT_TRANSFORM_LEN;
 	inputData = new float[inputDataLen];
 	inputDataCopyDouble = new double[inputDataLen];

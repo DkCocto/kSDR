@@ -44,7 +44,10 @@ private:
 
 	//16 digits X.XXX.XXX.XXX Hz
 
-	const int backgroundWidth = 16 * freqCharWidth + 55 + 250;
+	const int buttonGroupWidth4Col = 250;
+	const int buttonGroupWidth2Col = 105;
+
+	int backgroundWidth = 16 * freqCharWidth + 55;
 	const int backgroundHeight = 152;
 
 	const int smetreMargin = 40;

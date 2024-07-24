@@ -6,6 +6,7 @@
 #include <sstream>
 #include "iostream"
 #include <iomanip>
+#include "Windows.h"
 
 #define watch(x) cout << (#x) << " is " << (x) << endl
 

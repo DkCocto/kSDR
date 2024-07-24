@@ -16,7 +16,7 @@ private:
 
 	int inputDataLen = 512;
 
-	const int carierFreq = 100000;
+	const int carierFreq = 500000;
 
 	Config* config = nullptr;
 

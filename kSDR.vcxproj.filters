@@ -276,15 +276,6 @@
     <ClCompile Include="src\FastFir\jfastfir.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="src\impl\win.cc">
-      <Filter>Исходные файлы\Serial</Filter>
-    </ClCompile>
-    <ClCompile Include="src\serial.cc">
-      <Filter>Исходные файлы\Serial</Filter>
-    </ClCompile>
-    <ClCompile Include="src\impl\list_ports\list_ports_win.cc">
-      <Filter>Файлы заголовков\Serial</Filter>
-    </ClCompile>
     <ClCompile Include="src\COMPortHandler.cpp">
       <Filter>Исходные файлы\Thread</Filter>
     </ClCompile>
@@ -293,6 +284,9 @@
     </ClCompile>
     <ClCompile Include="src\CW.cpp">
       <Filter>Исходные файлы\Modulation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\serialib.cpp">
+      <Filter>Исходные файлы\Serial</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -545,20 +539,14 @@
     <ClInclude Include="src\FastFir\jfastfir.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="src\serial\impl\win.h">
-      <Filter>Файлы заголовков\Serial</Filter>
-    </ClInclude>
-    <ClInclude Include="src\serial\v8stdint.h">
-      <Filter>Файлы заголовков\Serial</Filter>
-    </ClInclude>
-    <ClInclude Include="src\serial\serial.h">
-      <Filter>Файлы заголовков\Serial</Filter>
-    </ClInclude>
     <ClInclude Include="src\ComPortHandler.h">
       <Filter>Файлы заголовков\Thread</Filter>
     </ClInclude>
     <ClInclude Include="src\CW.h">
       <Filter>Файлы заголовков\Modulation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\serialib.h">
+      <Filter>Файлы заголовков\Serial</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

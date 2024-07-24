@@ -9,6 +9,14 @@ ReceiverRegionInterface::ReceiverRegionInterface(SpectreWindowData* sWD, Config*
 }
 
 void ReceiverRegionInterface::drawRegion(ImDrawList* draw_list, ReceiverLogic* receiverLogic, FFTData::OUTPUT* spectreData) {
+	
+	bool showAllBtns = env->getConfig()->deviceType == DeviceType::HACKRF && 
+					   (env->getComPortHandler() != nullptr && env->getComPortHandler()->isConnected());
+
+	int buttonGroupWidth = ((showAllBtns == true) ? buttonGroupWidth4Col : buttonGroupWidth2Col);
+
+	backgroundWidth = 16 * freqCharWidth + 55 + buttonGroupWidth;
+	
 	backgroundX = sWD->startWindowPoint.x + sWD->rightPadding + X - 25;
 	backgroundY = sWD->startWindowPoint.y + Y - 15;
 
@@ -20,7 +28,7 @@ void ReceiverRegionInterface::drawRegion(ImDrawList* draw_list, ReceiverLogic* r
 	drawBackground(draw_list);
 
 	//S-meter
-	smeter->update(backgroundX + backgroundPadding + smetreMargin, backgroundY + freqTextHeight + 65, backgroundWidth - 2 * (backgroundPadding + smetreMargin) - 250, 50);
+	smeter->update(backgroundX + backgroundPadding + smetreMargin, backgroundY + freqTextHeight + 65, backgroundWidth - 2 * (backgroundPadding + smetreMargin) - buttonGroupWidth, 50);
 	smeter->draw(draw_list, spectreData, receiverLogic);
 	//-------
 
@@ -37,55 +45,55 @@ void ReceiverRegionInterface::drawRegion(ImDrawList* draw_list, ReceiverLogic* r
 	);
 	ImGui::PopFont();
 
-	if (env->getComPortHandler() != nullptr) {
 
-		bool tx = false;
-		if (env->getDeviceController()->getDevice() != nullptr && env->getDeviceController()->getDevice()->deviceType == HACKRF) {
-			tx = ((HackRFDevice*)env->getDeviceController()->getDevice())->isDeviceTransmitting();
-		}
+	bool tx = false;
+	if (env->getDeviceController()->getDevice() != nullptr && env->getDeviceController()->getDevice()->deviceType == HACKRF) {
+		tx = ((HackRFDevice*)env->getDeviceController()->getDevice())->isDeviceTransmitting();
+	}
 
-		drawFeatureMarker(
-			viewModel->fontMyRegular, draw_list,
-			freqTextX + 355, freqTextY - 6,
-			(tx == true) ? LIGHTRED : GREEN,
-			(tx == true) ? "TX" : "RX"
-		);
+	drawFeatureMarker(
+		viewModel->fontMyRegular, draw_list,
+		freqTextX + 355, freqTextY - 6,
+		(tx == true) ? LIGHTRED : GREEN,
+		(tx == true) ? "TX" : "RX"
+	);
 
-		drawFeatureMarker(
-			viewModel->fontMyRegular, draw_list,
-			freqTextX + 355, freqTextY - 6 + 35,
-			(env->getComPortHandler()->getDeviceState().att == true) ? GREEN : GRAY,
-			"ATT"
-		);
+	drawFeatureMarker(
+		viewModel->fontMyRegular, draw_list,
+		freqTextX + 355, freqTextY - 6 + 35,
+		(env->getComPortHandler() != nullptr && env->getComPortHandler()->getDeviceState().att == true) ? GREEN : GRAY,
+		"ATT"
+	);
 
-		drawFeatureMarker(
-			viewModel->fontMyRegular, draw_list,
-			freqTextX + 355, freqTextY - 6 + 70,
-			(env->getComPortHandler()->getDeviceState().amp) ? GREEN : GRAY,
-			"PRE"
-		);
+	drawFeatureMarker(
+		viewModel->fontMyRegular, draw_list,
+		freqTextX + 355, freqTextY - 6 + 70,
+		(env->getComPortHandler() != nullptr && env->getComPortHandler()->getDeviceState().amp) ? GREEN : GRAY,
+		"PRE"
+	);
 
-		drawFeatureMarker(
-			viewModel->fontMyRegular, draw_list,
-			freqTextX + 355, freqTextY - 6 + 105,
-			(env->getComPortHandler()->getDeviceState().bypass == true) ? GREEN : GRAY,
-			"ByP"
-		);
+	drawFeatureMarker(
+		viewModel->fontMyRegular, draw_list,
+		freqTextX + 355, freqTextY - 6 + 105,
+		(env->getComPortHandler() != nullptr && env->getComPortHandler()->getDeviceState().bypass == true) ? GREEN : GRAY,
+		"ByP"
+	);
 
+	drawFeatureMarker(
+		viewModel->fontMyRegular, draw_list,
+		freqTextX + 405, freqTextY - 6,
+		GREEN,
+		Utils::getModulationTxt(config->receiver.modulation).c_str()
+	);
 
-		drawFeatureMarker(
-			viewModel->fontMyRegular, draw_list,
-			freqTextX + 405, freqTextY - 6,
-			GREEN,
-			Utils::getModulationTxt(config->receiver.modulation).c_str()
-		);
+	drawFeatureMarker(
+		viewModel->fontMyRegular, draw_list,
+		freqTextX + 405, freqTextY - 6 + 35,
+		GREEN,
+		Utils::getPrittyFilterWidth(config->filterWidth).c_str()
+	);
 
-		drawFeatureMarker(
-			viewModel->fontMyRegular, draw_list,
-			freqTextX + 405, freqTextY - 6 + 35,
-			GREEN,
-			Utils::getPrittyFilterWidth(config->filterWidth).c_str()
-		);
+	if (env->getComPortHandler() != nullptr && env->getComPortHandler()->isConnected()) {
 
 		drawFeatureMarker(
 			viewModel->fontMyRegular, draw_list,

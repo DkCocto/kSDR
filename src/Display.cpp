@@ -443,7 +443,7 @@ void Display::renderImGUIFirst() {
 					bool txDisabledIf = hackRfInterface->isDeviceTransmitting() || 
 										reactionOnSpaceBtn || 
 										(env->getSoundCard() != nullptr && !env->getSoundCard()->isInputAvailable()) || 
-										!env->getComPortHandler()->getDeviceState().isDevicePoweredON();
+										(env->getComPortHandler() != nullptr && !env->getComPortHandler()->getDeviceState().isDevicePoweredON());
 
 					if (txDisabledIf) ImGui::BeginDisabled();
 					if ((ImGui::Button("Start Transmitting") || (reactionOnSpaceBtn && !txSwitcherFlag)) && !hackRfInterface->isDeviceTransmitting()) {
@@ -470,7 +470,7 @@ void Display::renderImGUIFirst() {
 				ImGui::Checkbox("TX by Space btn", &viewModel->transmit.txBySpaceBtn);
 
 				ImGui::SliderInt("TX AMP", &viewModel->hackRFModel.enableTxAmp, 0, 1);
-				ImGui::SliderInt("Tx VGA Gain", &viewModel->hackRFModel.txVgaGain, 0, 47);
+				ImGui::SliderInt("Tx VGA Gain", &viewModel->hackRFModel.txVgaGain, 0, 35); //Max 47
 
 				ImGui::SliderFloat("Input Level", &viewModel->transmit.inputLevel, 0, 130);
 				//ImGui::SliderFloat("Input Level2", &viewModel->transmit.inputLevel2, 0, 30);
