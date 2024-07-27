@@ -3,15 +3,15 @@
 void SoundCardInputReaderThread::initFilters(int audioFilterWidth) {
 	if (this->audioFilterWidth != audioFilterWidth) {
 		this->audioFilterWidth = audioFilterWidth;
-		this->resamplingFilterWidth = 2 * audioFilterWidth;
-		audioFilter.init(audioFilter.LOWPASS, audioFilter.BLACKMAN, 127, this->audioFilterWidth, 0, config->inputSamplerateSound);
+		this->resamplingFilterWidth = audioFilterWidth;
+		audioFilter.init(audioFilter.LOWPASS, audioFilter.BLACKMAN_NUTTAL, 64, this->audioFilterWidth, 0, config->inputSamplerateSound);
 		
 		if (fastfir != nullptr) delete fastfir;
 		//create FastFIR filter
 		fastfir = new JFastFIRFilter;
 
 		//set the kernel of the filter, in this case a Low Pass filter at 800Hz
-		fastfir->setKernel(JFilterDesign::LowPassHanning(this->resamplingFilterWidth, config->currentWorkingInputSamplerate, 1222));
+		fastfir->setKernel(JFilterDesign::LowPassHanning(this->resamplingFilterWidth, config->currentWorkingInputSamplerate, 1111));
 	}
 
 }
@@ -42,7 +42,7 @@ void SoundCardInputReaderThread::run() {
 	int relation = config->currentWorkingInputSamplerate / config->inputSamplerateSound; // 8 000 000 / 31 250 = 256
 	int upsamplingDataLen = BUFFER_READ_LEN * relation; // 32 * 256 = 8192
 
-	float* readBuffer = new float[BUFFER_READ_LEN];
+	float* readBuffer = new float[BUFFER_READ_LEN]; // count = 2
 
 	float *upsamplingDataOut = new float[upsamplingDataLen];
 	memset(upsamplingDataOut, 0, sizeof(float) * upsamplingDataLen);
@@ -53,7 +53,7 @@ void SoundCardInputReaderThread::run() {
 	vector<double> data;
 	data.reserve(upsamplingDataLen);
 
-	SinOscillator so(TONE_SIGNAL_FREQ, config->inputSamplerateSound);
+	CosOscillator so(TONE_SIGNAL_FREQ, config->inputSamplerateSound);
 
 	while (true) {
 		if (!config->WORKING) {
@@ -82,9 +82,9 @@ void SoundCardInputReaderThread::run() {
 
 		//BUFFER_READ_LEN = 2
 		//samplerate = 4000000
-		//input samplerate = 31250
-		//relation = 4000000 / 31250 = 128
-		//upsamplingDataLen = 2 * 128 = 256
+		//input samplerate = 40000
+		//relation = 4000000 / 40000 = 100
+		//upsamplingDataLen = 2 * 100 = 200
 
 		if (soundCard->availableToRead() >= BUFFER_READ_LEN) {
 			soundCard->read(readBuffer, BUFFER_READ_LEN);
@@ -97,7 +97,7 @@ void SoundCardInputReaderThread::run() {
 
 			for (int i = 0; i < upsamplingDataLen; i++) {
 				if (i % relation != 0) {
-					double dither = ((double)rand() / (double)(RAND_MAX)) / 1000000.0;
+					double dither = ((double)rand() / (double)(RAND_MAX)) / 10000000;
 					upsamplingData[i] = dither;
 				}
 			}

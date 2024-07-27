@@ -23,7 +23,7 @@ void HilbertTransformFFTW::resetOut() {
     out = new fftw_complex[len];
 }
 
-fftw_complex* HilbertTransformFFTW::process(double* in) {
+fftw_complex* HilbertTransformFFTW::process(float* in) {
 
     // copy the data to the complex array
     for (int i = 0; i < len; ++i) {

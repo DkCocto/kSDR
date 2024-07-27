@@ -99,7 +99,7 @@ bool ComPortHandler::connectToDevice() {
 		std::this_thread::sleep_for(std::chrono::milliseconds(3000));
 		
 		if (errorOpening == 1) {
-			cout << "Port oppened: " << portList[i] << endl;
+			//cout << "Port oppened: " << portList[i] << endl;
 			string deviceAnswer = sendCMD(CMD_.INIT);
 
 			//cout << "Answer: " << deviceAnswer << endl;
@@ -155,7 +155,10 @@ ComPortHandler::ComPortHandler(Config* config) {
 ComPortHandler::~ComPortHandler() {
 	printf("~ComPortHandler()\r\n");
 	if (serial.isDeviceOpen()) {
-		if (COM_PORT.size() != 0) sendCMD(CMD_.CLOSE);
+		if (COM_PORT.size() != 0) {
+			if (deviceState.tx) sendCMD(CMD_.TX_ + "0");
+			sendCMD(CMD_.CLOSE);
+		}
 		serial.closeDevice();
 	}
 }

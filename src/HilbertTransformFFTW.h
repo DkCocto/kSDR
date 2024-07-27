@@ -20,6 +20,6 @@ public:
 
 	HilbertTransformFFTW(int len);
 	~HilbertTransformFFTW();
-	fftw_complex* process(double* in);
+	fftw_complex* process(float* in);
 	void resetOut();
 };

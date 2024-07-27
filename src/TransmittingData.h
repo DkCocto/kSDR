@@ -26,7 +26,7 @@ public:
 	TransmittingData(Config* config, int sampleRate, int freq, int outputBufLen);
 	~TransmittingData();
 
-	Signal* nextBuffer();
+	Modulation::DataStruct* nextBuffer(int maxBufLen);
 	void setFreq(int freq);
 	void setTXBuffer(CircleBufferNew<float>* txBuffer);
 	CircleBufferNew<float>* getTXBuffer();

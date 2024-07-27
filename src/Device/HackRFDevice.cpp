@@ -3,25 +3,38 @@
 int HackRFDevice::rx_callback(hackrf_transfer* transfer) {
 	HackRFDevice* hackRFDevice = (HackRFDevice*)transfer->rx_ctx;
 
-	hackRFDevice->getBufferForSpec()->write(transfer->buffer, transfer->buffer_length);
-	hackRFDevice->getBufferForProc()->write(transfer->buffer, transfer->buffer_length);
+	hackRFDevice->getBufferForSpec()->write(transfer->buffer, HACKRF_TX_BUFFER_LEN);
+	hackRFDevice->getBufferForProc()->write(transfer->buffer, HACKRF_TX_BUFFER_LEN);
 
 	return 0;
 }
 
+//ComplexOscillator* carierSignal = new ComplexOscillator(5000, 4000000);
+//Mixer* mixer = new Mixer(4000000);
+
 int HackRFDevice::tx_callback(hackrf_transfer* transfer) {
-	HackRFDevice* hackRFDevice = (HackRFDevice*)transfer->rx_ctx;
+
+	HackRFDevice* hackRFDevice = (HackRFDevice*)transfer->tx_ctx;
 
 	TransmittingData* transmittingData = hackRFDevice->transmittingData;
 
+
+	/*for (int i = 0; i < HACKRF_TX_BUFFER_HALF_LEN; i++) {
+		auto signal = carierSignal->next();
+		auto mixedSignal = mixer->mix(signal.I, signal.Q);
+		transfer->buffer[2 * i] = hackRFDevice->chuchka((uint8_t)(((mixedSignal.I + 1.0f) / 2.0f) * 255.0f));
+		transfer->buffer[2 * i + 1] = hackRFDevice->chuchka((uint8_t)(((mixedSignal.Q + 1.0f) / 2.0f) * 255.0f));
+	}
+
+	hackRFDevice->getBufferForSpec()->write(transfer->buffer, transfer->buffer_length);*/
+
 	if (transmittingData != nullptr) {
-		Signal* signal = transmittingData->nextBuffer();
+		Modulation::DataStruct* data = transmittingData->nextBuffer(HACKRF_TX_BUFFER_LEN);
 
-		if (signal == nullptr) return 0;
-
-		for (int i = 0; i < HACKRF_TX_BUFFER_HALF_LEN; i++) {
-			transfer->buffer[2 * i] = hackRFDevice->chuchka((uint8_t)(((signal[i].I + 1.0f) / 2.0f) * 255.0f));
-			transfer->buffer[2 * i + 1] = hackRFDevice->chuchka((uint8_t)(((signal[i].Q + 1.0f) / 2.0f) * 255.0f));
+		if (data == nullptr) return 0;
+		
+		for (int i = 0; i < HACKRF_TX_BUFFER_LEN; i++) {
+			transfer->buffer[i] = hackRFDevice->prepareSignal((uint8_t)(((data->data[i] + 1.0f) / 2.0f) * 255.0f));
 		}
 
 		hackRFDevice->getBufferForSpec()->write(transfer->buffer, transfer->buffer_length);
@@ -30,7 +43,7 @@ int HackRFDevice::tx_callback(hackrf_transfer* transfer) {
 	return 0;
 }
 
-uint8_t HackRFDevice::chuchka(uint8_t val) {
+uint8_t HackRFDevice::prepareSignal(uint8_t val) {
 	if (val >= 128 && val <= 255) return val - 128;
 	if (val >= 0 && val <= 127) return val + 128;
 }

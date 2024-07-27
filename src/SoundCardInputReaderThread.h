@@ -5,7 +5,7 @@
 #include "SoundCard.h"
 #include "FIR.h"
 #include "FastFir/jfastfir.h"
-#include "SinOscillator.h"
+#include "CosOscillator.h"
 
 //Class reads data from sound input, filter it and resample. After that stores it to the buffer.
 class SoundCardInputReaderThread : public MyThread {

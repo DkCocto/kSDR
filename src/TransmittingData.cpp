@@ -22,23 +22,14 @@ TransmittingData::~TransmittingData() {
     delete[] emptySignals;
 }
 
-Signal* TransmittingData::nextBuffer() {
+Modulation::DataStruct* TransmittingData::nextBuffer(int maxBufLen) {
     if (config->receiver.modulation == USB || config->receiver.modulation == LSB) {
-        if (txBuffer->available() < ssb.getOutputBufferHalfLen()) {
-            return nullptr;
-        } else {
-            return ssb.processData(txBuffer);
-        }
+        return ssb.processData(txBuffer, maxBufLen);
     } else if (config->receiver.modulation == AM) {
-        if (txBuffer->available() < am.getOutputBufferHalfLen()) {
-            return nullptr;
-        } else {
-            return am.processData(txBuffer);
-        }
+        return am.processData(txBuffer, maxBufLen);
     } else {
         return nullptr;
     }
-
 }
 
 void TransmittingData::setFreq(int freq) {

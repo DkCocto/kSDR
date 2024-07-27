@@ -28,7 +28,7 @@ public:
 	AMModulation();
 	~AMModulation();
 
-	Signal* processData(CircleBufferNew<float>* buffer);
+	DataStruct* processData(CircleBufferNew<float>* buffer, int maxBufLen);
 	void setFreq(int freq);
 	void setConfig(Config* config);
 	int getOutputBufferHalfLen();

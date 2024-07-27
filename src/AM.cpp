@@ -31,7 +31,7 @@ int AMModulation::getOutputBufferHalfLen() {
 	return halfOutputBufferLen;
 }
 
-Signal* AMModulation::processData(CircleBufferNew<float>* buffer) {
+AMModulation::DataStruct* AMModulation::processData(CircleBufferNew<float>* buffer, int maxBufLen) {
 
 	for (int j = 0; j < halfOutputBufferLen / inputDataLen; j++) {
 
@@ -56,5 +56,5 @@ Signal* AMModulation::processData(CircleBufferNew<float>* buffer) {
 
 	}
 
-	return outputDataSignal;
+	return new DataStruct;
 }

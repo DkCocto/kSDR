@@ -7,6 +7,7 @@
 #include "ComplexOscillator.h"
 #include "Mixer.h"
 #include "WindowBlackmanHarris.h"
+#include "SinOscillator.h"
 
 #define SSB_HILBERT_TRANSFORM_LEN 128 * 1024
 
@@ -14,16 +15,17 @@ class SSBModulation : Modulation {
 
 private:
 
-	int inputDataLen = 512;
+	int inputDataLen;
+	int outputDataLen;
 
-	const int carierFreq = 500000;
+	const int carierFreq = 50000;
 
 	Config* config = nullptr;
 
-	double* inputDataCopyDouble;
-	double* ssbData;
-	Signal* outputDataSignal;
-	float* outputData;
+	//double* inputDataCopyDouble;
+	float* ssbData;
+	//Signal* outputDataSignal;
+	//float* outputData;
 	float* inputData;
 
 	HilbertTransformFFTW* hilbertTransformFFTW = nullptr;
@@ -32,17 +34,21 @@ private:
 
 	Mixer* mixer = nullptr;
 
-	WindowBlackmanHarris* windowBlackmanHarris;
+	//WindowBlackmanHarris* windowBlackmanHarris;
 
 	void init();
 
+	SinOscillator so;
+
 public:
+
+	DataStruct* dataStruct;
 
 	SSBModulation();
 	~SSBModulation();
 
 	void setConfig(Config* config);
-	Signal* processData(CircleBufferNew<float>* buffer);
+	DataStruct* processData(CircleBufferNew<float>* buffer, int maxBufLen);
 	int getInputBufferLen();
 	int getOutputBufferLen();
 	int getOutputBufferHalfLen();

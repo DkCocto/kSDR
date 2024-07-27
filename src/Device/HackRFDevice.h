@@ -6,7 +6,7 @@
 #include "../TransmittingData.h"
 
 #define HACKRF_TX_BUFFER_LEN 262144
-#define HACKRF_TX_BUFFER_HALF_LEN 131072
+#define HACKRF_TX_BUFFER_HALF_LEN 262144 / 2
 
 class HackRFDevice : public DeviceN {
 	private:
@@ -18,7 +18,7 @@ class HackRFDevice : public DeviceN {
 		static int rx_callback(hackrf_transfer* transfer);
 		static int tx_callback(hackrf_transfer* transfer);
 
-		uint8_t chuchka(uint8_t val);
+		uint8_t prepareSignal(uint8_t val);
 
 		CircleBufferNew<uint8_t>* bufferForSpec;
 		CircleBufferNew<uint8_t>* bufferForProc;

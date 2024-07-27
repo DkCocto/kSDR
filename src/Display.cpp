@@ -472,9 +472,9 @@ void Display::renderImGUIFirst() {
 				ImGui::SliderInt("TX AMP", &viewModel->hackRFModel.enableTxAmp, 0, 1);
 				ImGui::SliderInt("Tx VGA Gain", &viewModel->hackRFModel.txVgaGain, 0, 35); //Max 47
 
-				ImGui::SliderFloat("Input Level", &viewModel->transmit.inputLevel, 0, 130);
-				//ImGui::SliderFloat("Input Level2", &viewModel->transmit.inputLevel2, 0, 30);
-				//ImGui::SliderFloat("Input Level3", &viewModel->transmit.inputLevel3, 0, 10);
+				ImGui::SliderFloat("Input Level", &viewModel->transmit.inputLevel, 0, 200);
+				ImGui::SliderFloat("Input Level2", &viewModel->transmit.inputLevel2, 0, 2);
+				ImGui::SliderFloat("Input Level3", &viewModel->transmit.inputLevel3, 0, 2);
 				ImGui::SliderFloat("AM Modulation Depth", &viewModel->transmit.amModulationDepth, 1, 50);
 				
 				ImGui::Spacing();

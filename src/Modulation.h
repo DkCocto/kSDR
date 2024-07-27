@@ -12,11 +12,17 @@ protected:
 	
 	// = HACKRF TX BUFFER
 	const int outputBufferLen = 262144;
-	const int halfOutputBufferLen = 262144 >> 1;
+	const int halfOutputBufferLen = 262144 / 2;
 
 public:
+
+	struct DataStruct {
+		float* data;
+		int len;
+	};
+
 	virtual void setFreq(int freq) = 0;
 	int getFreq();
 
-	virtual Signal* processData(CircleBufferNew<float>* buffer) = 0;
+	virtual DataStruct* processData(CircleBufferNew<float>* buffer, int maxBufLen) = 0;
 };
