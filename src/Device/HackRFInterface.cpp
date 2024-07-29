@@ -74,9 +74,9 @@ bool HackRfInterface::releasePauseRX() {
 }
 
 bool HackRfInterface::startTX(int freq) {
-	transmittingData->setFreq(freq);
-
 	HackRFDevice* hackRFDevice = (HackRFDevice*)device;
+
+	hackRFDevice->config->transmit.txFreq = freq;
 
 	bool result = ((HackRFDevice*)device)->startTX();
 

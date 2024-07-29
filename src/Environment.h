@@ -4,7 +4,7 @@
 #include "Device/DeviceController.h"
 #include "FlowingFFTSpectre.h"
 #include "SoundCardWriterThread.h"
-#include "SoundCardInputReaderThread.h"
+#include "SignalModulatorThread.h"
 #include "SoundCard.h"
 #include "SoundProcessorThread.h"
 #include "ViewModel.h"
@@ -36,7 +36,7 @@ class Environment {
 
 		SoundCardWriterThread* soundCardWriterThread = nullptr;
 
-		SoundCardInputReaderThread* soundCardInputReaderThread = nullptr;
+		SignalModulatorThread* soundCardInputReaderThread = nullptr;
 
 		SoundCard* soundCard = nullptr;
 
@@ -69,7 +69,7 @@ class Environment {
 		ViewModel* getViewModel();
 		ReceiverLogic* getReceiverLogic();
 		FlowingSpectre* getFlowingSpectre();
-		SoundCardInputReaderThread* getSoundCardInputReader();
+		SignalModulatorThread* getSoundCardInputReader();
 		ComPortHandler* getComPortHandler();
 
 };

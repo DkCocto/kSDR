@@ -28,7 +28,7 @@
     <ClCompile Include="src\FastFir\jfastfir.cpp" />
     <ClCompile Include="src\Modulation.cpp" />
     <ClCompile Include="src\serialib.cpp" />
-    <ClCompile Include="src\SoundCardInputReaderThread.cpp" />
+    <ClCompile Include="src\SignalModulatorThread.cpp" />
     <ClCompile Include="src\SoundCardWriterThread.cpp" />
     <ClCompile Include="src\ColoredSpectreBG.cpp" />
     <ClCompile Include="src\ComplexOscillator.cpp" />
@@ -112,7 +112,7 @@
     <ClInclude Include="src\FastFir\jfastfir.h" />
     <ClInclude Include="src\Modulation.h" />
     <ClInclude Include="src\serialib.h" />
-    <ClInclude Include="src\SoundCardInputReaderThread.h" />
+    <ClInclude Include="src\SignalModulatorThread.h" />
     <ClInclude Include="src\SoundCardWriterThread.h" />
     <ClInclude Include="src\ColoredSpectreBG.h" />
     <ClInclude Include="src\ComplexOscillator.h" />

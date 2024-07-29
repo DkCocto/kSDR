@@ -18,23 +18,13 @@ int HackRFDevice::tx_callback(hackrf_transfer* transfer) {
 
 	TransmittingData* transmittingData = hackRFDevice->transmittingData;
 
-
-	/*for (int i = 0; i < HACKRF_TX_BUFFER_HALF_LEN; i++) {
-		auto signal = carierSignal->next();
-		auto mixedSignal = mixer->mix(signal.I, signal.Q);
-		transfer->buffer[2 * i] = hackRFDevice->chuchka((uint8_t)(((mixedSignal.I + 1.0f) / 2.0f) * 255.0f));
-		transfer->buffer[2 * i + 1] = hackRFDevice->chuchka((uint8_t)(((mixedSignal.Q + 1.0f) / 2.0f) * 255.0f));
-	}
-
-	hackRFDevice->getBufferForSpec()->write(transfer->buffer, transfer->buffer_length);*/
-
 	if (transmittingData != nullptr) {
-		Modulation::DataStruct* data = transmittingData->nextBuffer(HACKRF_TX_BUFFER_LEN);
+		float* data = transmittingData->nextBuffer();
 
 		if (data == nullptr) return 0;
 		
 		for (int i = 0; i < HACKRF_TX_BUFFER_LEN; i++) {
-			transfer->buffer[i] = hackRFDevice->prepareSignal((uint8_t)(((data->data[i] + 1.0f) / 2.0f) * 255.0f));
+			transfer->buffer[i] = hackRFDevice->prepareSignal((uint8_t)(((data[i] + 1.0f) / 2.0f) * 255.0f));
 		}
 
 		hackRFDevice->getBufferForSpec()->write(transfer->buffer, transfer->buffer_length);

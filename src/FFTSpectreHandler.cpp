@@ -105,6 +105,7 @@ int oldMax = 0;
 
 template<typename T, typename D> void SpectreHandler::processFFT(T* data, D* device) {
 	for (int i = 0; i < spectreSize; i++) {
+		
 		float I = device->prepareData(data[2 * i]);
 		float Q = device->prepareData(data[2 * i + 1]);
 
@@ -118,6 +119,7 @@ template<typename T, typename D> void SpectreHandler::processFFT(T* data, D* dev
 
 	dataPostprocess();
 
+	//config->TRANSMITTING
 	if (config->TRANSMITTING) {
 
 		float* outputCopy = new float[spectreSize];

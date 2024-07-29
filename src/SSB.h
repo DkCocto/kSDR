@@ -2,57 +2,67 @@
 
 #include "Config.h"
 #include "Modulation.h"
-#include "HilbertTransformFFTW.h"
 #include "ComplexSignal.h"
 #include "ComplexOscillator.h"
 #include "Mixer.h"
-#include "WindowBlackmanHarris.h"
+//#include "WindowBlackmanHarris.h"
 #include "SinOscillator.h"
+#include "HilbertTransform.h"
+#include "Delay.h"
+#include "FastFir/jfastfir.h"
+#include "FIR.h"
 
-#define SSB_HILBERT_TRANSFORM_LEN 128 * 1024
+//#define SSB_HILBERT_TRANSFORM_LEN 128 * 1024
 
 class SSBModulation : Modulation {
 
 private:
 
-	int inputDataLen;
-	int outputDataLen;
+	DataStruct* ssbSignalData;
 
-	const int carierFreq = 50000;
+	const int carierFreq = 6000;
 
 	Config* config = nullptr;
 
-	//double* inputDataCopyDouble;
-	float* ssbData;
-	//Signal* outputDataSignal;
-	//float* outputData;
-	float* inputData;
+	//create pointer
+	JFastFIRFilter* fastfir;
+	JFastFIRFilter* fastfir2;
 
-	HilbertTransformFFTW* hilbertTransformFFTW = nullptr;
+	FIR audioFilter;
 
-	ComplexOscillator* carierSignal = nullptr;
+	HilbertTransform* hilbertTransform1;
+	HilbertTransform* hilbertTransform2;
 
-	Mixer* mixer = nullptr;
+	Delay* delay1;
+	Delay* delay2;
 
-	//WindowBlackmanHarris* windowBlackmanHarris;
+	ComplexOscillator carierSignal;
 
-	void init();
+	Mixer mixer;
 
-	SinOscillator so;
+	int relation;
+	int upsamplingDataLen;
+
+	int inputDataLen;
+
+	std::vector<double> upsamplingDataQ;
+	std::vector<double> upsamplingDataI;
+
+	std::vector<float> bufQ;
+	std::vector<float> bufI;
+
+	int storedFilterWidth = 0;
+	int storedModulation = 0;
+
+	void initFilters();
 
 public:
 
-	DataStruct* dataStruct;
-
-	SSBModulation();
+	SSBModulation(Config* config, int inputDataLen);
 	~SSBModulation();
 
-	void setConfig(Config* config);
-	DataStruct* processData(CircleBufferNew<float>* buffer, int maxBufLen);
-	int getInputBufferLen();
-	int getOutputBufferLen();
-	int getOutputBufferHalfLen();
-	//int setOutputBufferLen(int outputBufferLen);
+	DataStruct* processData(float* data);
+	
 	void setFreq(int freq);
 
 };

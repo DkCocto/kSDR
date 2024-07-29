@@ -4,7 +4,9 @@ TransmittingData::TransmittingData(Config* config, int freq, int samplingRate, i
     this->config = config;
     this->outputBufLen = outputBufLen;
 
-    ssb.setConfig(config);
+    data = new float[outputBufLen];
+
+    /*ssb.setConfig(config);
     ssb.setFreq(freq);
 
     am.setConfig(config);
@@ -15,26 +17,16 @@ TransmittingData::TransmittingData(Config* config, int freq, int samplingRate, i
         float dither = ((float)rand() / (float)(RAND_MAX)) / 200.0f;
         emptySignals[i].I = dither;
         emptySignals[i].Q = dither;
-    }
+    }*/
 }
 
 TransmittingData::~TransmittingData() { 
-    delete[] emptySignals;
+    delete[] data;
 }
 
-Modulation::DataStruct* TransmittingData::nextBuffer(int maxBufLen) {
-    if (config->receiver.modulation == USB || config->receiver.modulation == LSB) {
-        return ssb.processData(txBuffer, maxBufLen);
-    } else if (config->receiver.modulation == AM) {
-        return am.processData(txBuffer, maxBufLen);
-    } else {
-        return nullptr;
-    }
-}
-
-void TransmittingData::setFreq(int freq) {
-    ssb.setFreq(freq);
-    am.setFreq(freq);
+float* TransmittingData::nextBuffer() {
+    txBuffer->read(data, outputBufLen);
+    return data;
 }
 
 void TransmittingData::setTXBuffer(CircleBufferNew<float>* txBuffer) {

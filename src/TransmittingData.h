@@ -3,8 +3,6 @@
 #include "Env.h"
 #include "Config.h"
 #include "CircleBufferNew.h"
-#include "SSB.h"
-#include "AM.h"
 
 class TransmittingData {
 
@@ -16,18 +14,17 @@ private:
 
 	int outputBufLen = 262144;
 
-	SSBModulation ssb;
-	AMModulation am;
+	float* data;
 
-	Signal* emptySignals;
+	//Signal* emptySignals;
 
 public:
 
 	TransmittingData(Config* config, int sampleRate, int freq, int outputBufLen);
 	~TransmittingData();
 
-	Modulation::DataStruct* nextBuffer(int maxBufLen);
-	void setFreq(int freq);
+	float* nextBuffer();
+	//void setFreq(int freq);
 	void setTXBuffer(CircleBufferNew<float>* txBuffer);
 	CircleBufferNew<float>* getTXBuffer();
 };

@@ -628,7 +628,7 @@ void Display::renderImGUIFirst() {
 	ImGui::PopStyleColor();
 
 	env->getConfig()->lastSelectedFreq = env->getReceiverLogic()->getSelectedFreqNew(); //saving last selected freq to env->getConfig() class
-	
+
 	auto range = env->getFlowingSpectre()->getVisibleFreqsRangeAbsolute();
 	env->getConfig()->spectre.visibleStartFreq = range.first;
 	env->getConfig()->spectre.visibleStopFreq = range.second;

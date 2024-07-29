@@ -8,7 +8,7 @@ class Modulation {
 private:
 
 protected:
-	int freq = 0;
+	int freq = 200000;
 	
 	// = HACKRF TX BUFFER
 	const int outputBufferLen = 262144;
@@ -24,5 +24,7 @@ public:
 	virtual void setFreq(int freq) = 0;
 	int getFreq();
 
-	virtual DataStruct* processData(CircleBufferNew<float>* buffer, int maxBufLen) = 0;
+	virtual DataStruct* processData(float* data) = 0;
+
+	virtual void initFilters() = 0;
 };

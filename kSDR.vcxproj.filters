@@ -258,7 +258,7 @@
     <ClCompile Include="src\HilbertTransformFFTW.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="src\SoundCardInputReaderThread.cpp">
+    <ClCompile Include="src\SignalModulatorThread.cpp">
       <Filter>Исходные файлы\Thread</Filter>
     </ClCompile>
     <ClCompile Include="src\TXDataHandler.cpp">
@@ -521,7 +521,7 @@
     <ClInclude Include="src\HilbertTransformFFTW.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="src\SoundCardInputReaderThread.h">
+    <ClInclude Include="src\SignalModulatorThread.h">
       <Filter>Файлы заголовков\Thread</Filter>
     </ClInclude>
     <ClInclude Include="src\TXDataHandler.h">

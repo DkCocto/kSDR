@@ -3,7 +3,6 @@
 #include "Thread/MyThread.h"
 #include "CircleBufferNew.h"
 #include "FIR.h"
-#include "SSB.h"
 
 #define BUFFER_READ_LEN 8
 
@@ -18,8 +17,6 @@ private:
 
 	CircleBufferNew<float>* inputBuffer = nullptr;
 	CircleBufferNew<float>* outputBuffer = nullptr;
-
-	SSBModulation ssb;
 
 	void run();
 

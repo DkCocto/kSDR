@@ -108,7 +108,7 @@ void Environment::init() {
 	soundCard = new SoundCard(config);
 	soundProcessor = new SoundProcessorThread(deviceController, viewModel, receiverLogic, config, soundBuffer, specHandler);
 	soundCardWriterThread = new SoundCardWriterThread(config, deviceController, soundBuffer, soundCard);
-	soundCardInputReaderThread = new SoundCardInputReaderThread(config, soundInputBuffer, soundCard);
+	soundCardInputReaderThread = new SignalModulatorThread(config, soundInputBuffer, soundCard);
 	comPortHandler = new ComPortHandler(config);
 }
 
@@ -174,7 +174,7 @@ FlowingSpectre* Environment::getFlowingSpectre() {
 	return flowingSpec;
 }
 
-SoundCardInputReaderThread* Environment::getSoundCardInputReader() {
+SignalModulatorThread* Environment::getSoundCardInputReader() {
 	return soundCardInputReaderThread;
 }
 

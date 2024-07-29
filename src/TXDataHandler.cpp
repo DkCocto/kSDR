@@ -4,18 +4,12 @@ TXDataHandler::TXDataHandler(Config* config, CircleBufferNew<float>* inputBuffer
 	this->config = config;
 	this->inputBuffer = inputBuffer;
 	this->outputBuffer = outputBuffer;
-
 }
 
 TXDataHandler::~TXDataHandler() { }
 
 void TXDataHandler::run() {
 	isWorking_ = true;
-
-	ssb.setConfig(config);
-	ssb.setFreq(5000);
-
-	float* data = new float[ssb.getInputBufferLen()];
 
 	while (true) {
 		if (!config->WORKING) {
@@ -29,19 +23,8 @@ void TXDataHandler::run() {
 			continue;
 		}
 
-		if (inputBuffer->available() >= ssb.getInputBufferLen()) {
-
-			/*inputBuffer->read(data, ssb.getInputBufferLen());
-			float* processedData = ssb.processData(data);
-			outputBuffer->write(processedData, ssb.getOutputBufferLen());*/
-
-		} else {
-			std::this_thread::sleep_for(std::chrono::microseconds(1));
-		}
-
+		std::this_thread::sleep_for(std::chrono::microseconds(1));
 	}
-
-	delete[] data;
 
 }
 
