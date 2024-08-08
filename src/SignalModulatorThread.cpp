@@ -7,9 +7,10 @@ SignalModulatorThread::SignalModulatorThread(Config* config, CircleBufferNew<flo
 
 	so = SinOscillator(TONE_SIGNAL_FREQ, config->inputSamplerateSound);
 
-	BUFFER_READ_LEN = config->audioReadFrameLen; //2
+	BUFFER_READ_LEN = 4; //2
 
 	ssbModulation = new SSBModulation(config, BUFFER_READ_LEN);
+	amModulation = new AMModulation(config, BUFFER_READ_LEN);
 }
 
 SignalModulatorThread::~SignalModulatorThread() {
@@ -35,6 +36,7 @@ void SignalModulatorThread::run() {
 		}
 
 		if (currentStatus == START_READING) {
+			outputSignalBuffer->reset();
 			soundCard->startInput();
 			currentStatus = READING;
 		}
@@ -60,8 +62,15 @@ void SignalModulatorThread::run() {
 			}
 			//config->receiver.modulation == USB
 
-			auto ssbData = ssbModulation->processData(readBuffer);
-			outputSignalBuffer->write(ssbData->data, ssbData->len);
+			Modulation::DataStruct* data;
+
+			if (config->receiver.modulation == LSB || config->receiver.modulation == USB) {
+				data = ssbModulation->processData(readBuffer);
+			} else {
+				data = amModulation->processData(readBuffer);
+			}
+
+			outputSignalBuffer->write(data->data, data->len);
 
 		} else {
 			std::this_thread::sleep_for(std::chrono::microseconds(1));

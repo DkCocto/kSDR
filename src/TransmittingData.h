@@ -26,5 +26,6 @@ public:
 	float* nextBuffer();
 	//void setFreq(int freq);
 	void setTXBuffer(CircleBufferNew<float>* txBuffer);
+	void resetTXBuffer();
 	CircleBufferNew<float>* getTXBuffer();
 };

@@ -55,8 +55,6 @@ void SSBModulation::initFilters() {
 		this->storedFilterWidth = config->filterWidth;
 		this->storedModulation = config->receiver.modulation;
 
-		//audioFilter.init(audioFilter.BANDPASS, audioFilter.BLACKMAN_NUTTAL, 127, 150, config->filterWidth, config->inputSamplerateSound);
-		
 		int downFreq = 0;
 		int upFreq = 0;
 
@@ -92,19 +90,6 @@ void SSBModulation::initFilters() {
 			upFreq,
 			config->currentWorkingInputSamplerate,
 			1111));
-
-		/*int downFreq = 0;
-		int upFreq = 0;
-
-
-
-		audioFilter.init(audioFilter.BANDPASS,
-			audioFilter.HANNING,
-			127,
-			downFreq,
-			upFreq,
-			config->inputSamplerateSound
-		);*/
 
 	}
 }

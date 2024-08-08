@@ -256,6 +256,7 @@ bool HackRFDevice::startTX() {
 		if (result != HACKRF_SUCCESS) {
 			if (DEBUG) printf("Error hackrf_start_tx!\r\n");
 		} else {
+			transmittingData->resetTXBuffer();
 			isTxOn = true;
 			config->TRANSMITTING = true;
 			return true;

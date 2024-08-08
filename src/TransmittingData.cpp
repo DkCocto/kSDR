@@ -33,6 +33,10 @@ void TransmittingData::setTXBuffer(CircleBufferNew<float>* txBuffer) {
     this->txBuffer = txBuffer;
 }
 
+void TransmittingData::resetTXBuffer() {
+    txBuffer->reset();
+}
+
 CircleBufferNew<float>* TransmittingData::getTXBuffer() {
     return this->txBuffer;
 }

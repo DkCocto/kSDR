@@ -1,36 +1,59 @@
 #pragma once
 
 #include "Modulation.h"
-#include "HilbertTransformFFTW.h"
 #include "Mixer.h"
 #include "CosOscillator.h"
+#include "HilbertTransform.h"
+#include "Delay.h"
+#include "FastFir/jfastfir.h"
+#include "FIR.h"
 
 class AMModulation : Modulation {
 
 private:
 
+	FIR audioFilter;
+
+	DataStruct* signalData;
+
 	Config* config = nullptr;
 
-	int inputDataLen = 64 * 1024;
-
-	float* inputData;
 	float* amData;
-	Signal* outputDataSignal;
+	std::vector<double> upsampledData;
 
 	Mixer* mixer = nullptr;
 
+	JFastFIRFilter* fastfir;
+	JFastFIRFilter* fastfir2;
+
 	CosOscillator* cosOscillator = nullptr;
 
-	void init();
+	int inputDataLen = 0;
+
+	int storedFilterWidth = 0;
+
+	int relation;
+	int upsamplingDataLen;
+
+	std::vector<double> upsamplingDataQ;
+	std::vector<double> upsamplingDataI;
+
+	std::vector<float> amQ;
+	std::vector<float> amI;
+
+	HilbertTransform* hilbertTransform1;
+	Delay* delay1;
+
+	void initFilters();
+
+	float max = 0;
+	float min = 0;
 
 public:
 
-	AMModulation();
+	AMModulation(Config* config, int inputDataLen);
 	~AMModulation();
 
-	DataStruct* processData(CircleBufferNew<float>* buffer, int maxBufLen);
+	DataStruct* processData(float* input);
 	void setFreq(int freq);
-	void setConfig(Config* config);
-	int getOutputBufferHalfLen();
-
 };

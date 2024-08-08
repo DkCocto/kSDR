@@ -113,7 +113,7 @@ void ReceiverRegionInterface::drawRegion(ImDrawList* draw_list, ReceiverLogic* r
 			viewModel->fontMyRegular, draw_list,
 			freqTextX + 454, freqTextY - 6 + 70,
 			YELLOW,
-			(env->getComPortHandler() == nullptr) ? "0.0A" : string(Utils::toStrWithAccuracy(env->getComPortHandler()->getDeviceState().current, 1) + "A").c_str()
+			(env->getComPortHandler() == nullptr) ? "0.0A" : string(Utils::toStrWithAccuracy(env->getComPortHandler()->getDeviceState().current, 2) + "A").c_str()
 		);
 
 		drawFeatureMarker(

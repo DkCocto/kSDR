@@ -9,6 +9,7 @@
 #include "Delay.h"
 #include "HilbertTransform.h"
 #include "SSB.h"
+#include "AM.h"
 
 //Class reads data from sound input, modulate it and resample. After that stores the data to the circle buffer.
 class SignalModulatorThread : public MyThread {
@@ -30,6 +31,7 @@ private:
 	SinOscillator so;
 
 	SSBModulation* ssbModulation;
+	AMModulation* amModulation;
 
 public:
 

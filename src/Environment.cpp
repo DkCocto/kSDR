@@ -100,7 +100,9 @@ void Environment::startProcessing() {
 
 		soundProcessor->start().detach();
 
-		comPortHandler->start().detach();
+		if (config->deviceType == HACKRF) {
+			comPortHandler->start().detach();
+		}
 	}
 }
 

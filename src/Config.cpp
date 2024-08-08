@@ -733,7 +733,7 @@ void Config::calcOutputSamplerate() {
 }
 
 void Config::calcInputSamplerate() {
-    int i = 44000;
+    int i = 48000;
 
     while (currentWorkingInputSamplerate % i != 0) {
         i--;

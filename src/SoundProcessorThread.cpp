@@ -34,6 +34,8 @@ SoundProcessorThread::SoundProcessorThread(DeviceController* devCnt,
 	//Инициализация полифазных фильтров
 	initFilters(config->defaultFilterWidth);
 	initNotchFilter(config->receiver.notchCenterFreq);
+
+	continueRead();
 }
 
 SoundProcessorThread::~SoundProcessorThread() {
@@ -59,8 +61,6 @@ void SoundProcessorThread::initNotchFilter(int notchCenterFreq) {
 	firNotch.init(fir.BANDSTOP, fir.BLACKMAN_HARRIS, 511, notchCenterFreq, notchCenterFreq + config->receiver.notchWidth, config->outputSamplerate);
 }
 
-
-
 void SoundProcessorThread::run() {
 	isWorking_ = true;
 
@@ -77,16 +77,37 @@ void SoundProcessorThread::run() {
 			return;
 		}
 
-		if (device != nullptr) {
+		if (currentStatus == START_READING) {
+			soundWriterCircleBuffer->reset();
+			if (device != nullptr) {
+				if (deviceType == HACKRF) {
+					((HackRFDevice*)device)->getBufferForProc()->reset();
+				}
+			}
+			
+			currentStatus = READING;
+		}
+
+		if (currentStatus == PAUSE) {
+			currentStatus = REST;
+			continue;
+		}
+
+		if (currentStatus == REST) {
+			std::this_thread::sleep_for(std::chrono::microseconds(1));
+			continue;
+		}
+
+		/*if (device != nullptr) {
 			switch (deviceType) {
 				case HACKRF:
 					if (((HackRFDevice*)device)->isDeviceTransmitting()) {
-						std::this_thread::sleep_for(std::chrono::milliseconds(1));
+						std::this_thread::sleep_for(std::chrono::microseconds(1));
 						continue;
 					}
 					break;
 			}
-		}
+		}*/
 
 		//Обработка ширины фильтра
 		if (storedFilterWidth != viewModel->filterWidth) {

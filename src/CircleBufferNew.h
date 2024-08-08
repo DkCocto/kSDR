@@ -150,6 +150,7 @@ public:
 	void reset() {
 		writePointer = 0;
 		readPointer = 0;
+		memset(data, 0, sizeof(T) * size);
 	}
 
 };
