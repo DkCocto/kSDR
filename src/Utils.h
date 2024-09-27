@@ -42,6 +42,8 @@ public:
 	static std::string toStrWithAccuracy(float val, int accuracy);
 	static std::string getPrittyFilterWidth(int width);
 
+	static float getExponentialValue(int startX1, int startY1, int startX2, int startY2, int val);
+
 	static double convertSegment(double value, double From1, double From2, double To1, double To2);
 
 	static int convFFTResBinToSpecBin(int bin, int len);

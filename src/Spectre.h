@@ -38,7 +38,7 @@ class Spectre {
 	
 	Environment* env;
 
-	const float spectreWaterfallRelations = 1.1;
+	const float spectreWaterfallRelations = 1.15;
 
 public:
 

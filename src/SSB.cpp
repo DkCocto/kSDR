@@ -111,7 +111,7 @@ SSBModulation::DataStruct* SSBModulation::processData(float* input) {
 		if (config->receiver.modulation == USB) input[i] = carier.I * Q + carier.Q * I;
 		if (config->receiver.modulation == LSB) input[i] = carier.I * Q - carier.Q * I;
 
-		input[i] = audioFilter.proc(input[i]) * config->transmit.inputLevel;
+		input[i] = audioFilter.proc(input[i]);
 
 		bufQ[i] = delay2->filter(input[i]);
 		bufI[i] = hilbertTransform2->filter(input[i]);
@@ -139,8 +139,8 @@ SSBModulation::DataStruct* SSBModulation::processData(float* input) {
 
 	for (int i = 0; i < upsamplingDataLen; i++) {
 		auto mixedSignal = mixer.mix(upsamplingDataQ[i], upsamplingDataI[i]);
-		ssbSignalData->data[2 * i] = mixedSignal.Q;
-		ssbSignalData->data[2 * i + 1] = mixedSignal.I;
+		ssbSignalData->data[2 * i] = mixedSignal.Q * config->transmit.inputLevel;
+		ssbSignalData->data[2 * i + 1] = mixedSignal.I * config->transmit.inputLevel;
 	}
 
 	return ssbSignalData;

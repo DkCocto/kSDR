@@ -145,6 +145,8 @@ public:
 		float amModulationDepth = 1.0f;
 		bool sendToneSignal = false;
 		int txFreq = 0;
+		int tone1Freq = 900;
+		int tone2Freq = 2100;
 	} transmit;
 
 	DeviceType deviceType, delayedDeviceType;

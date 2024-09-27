@@ -124,6 +124,8 @@ void Display::mainLoop() {
 
 		if (env->getComPortHandler() != nullptr && env->getComPortHandler()->getOnStartStopTxListener() == nullptr) env->getComPortHandler()->setOnStartStopTxListener(this);
 
+
+
 		renderImGUIFirst();
 
 		// Rendering
@@ -200,9 +202,12 @@ void Display::renderImGUIFirst() {
 	//ImGui::PushID(999);
 	ImGui::Begin(APP_NAME);
 
+		ImGuiStyle& style = ImGui::GetStyle();
+		style.WindowPadding = ImVec2(10.0, 10.0);
+		//ImGui::SliderFloat2("WindowPadding", (float*)&style.WindowPadding, 0.0f, 20.0f, "%.0f");
 		ImGui::Spacing(); ImGui::Spacing();
 
-		ImGui::SliderFloat("Volume", &viewModel->volume, 0, 7);
+		ImGui::SliderFloat("Volume", &viewModel->volume, 0, 2);
 
 		if (ImGui::Button("GO")) {
 			env->getReceiverLogic()->setFreq((float)viewModel->goToFreq);
@@ -229,7 +234,8 @@ void Display::renderImGUIFirst() {
 		ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
 
 		if (env->getComPortHandler() != nullptr && env->getComPortHandler()->isConnected()) {
-			if (ImGui::TreeNode("Tranceiver Device")) {
+			if (ImGui::CollapsingHeader("Tranceiver Device")) {
+
 				ImGui::Spacing();
 
 				ImGui::Checkbox("ATT", &viewModel->myTranceiverDevice.att);
@@ -242,110 +248,136 @@ void Display::renderImGUIFirst() {
 				ImGui::Checkbox("DPF ByPass", &viewModel->myTranceiverDevice.bypass);
 				if (env->getComPortHandler()->getDeviceState().autoBypass) ImGui::EndDisabled();
 
-				ImGui::TreePop();
+				//ImGui::TreePop();
+				
 			}
 		}
 
 		//ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
 		//if (ImGui::BeginTabBar("MyTabBar", tab_bar_flags)) {
-		if (ImGui::TreeNode("Control")) {
+		if (ImGui::CollapsingHeader("Control")) {
 			ImGui::Spacing();
 
-			ImGui::SeparatorText("Receiver");
+			//ImGui::SeparatorText("Receiver");
+			if (ImGui::TreeNode("Receiver")) {
 
-			ImGui::SliderInt("Center freq", &viewModel->centerFrequency, 1000000, 30000000);
+				ImGui::SliderInt("Center freq", &viewModel->centerFrequency, 1000000, 30000000);
 
-			if (ImGui::Button("+")) {
-				env->getFlowingSpectre()->zoomIn();
-				env->getReceiverLogic()->setFrequencyDelta(env->getReceiverLogic()->getFrequencyDelta());
-			} ImGui::SameLine();
-			if (ImGui::Button("-")) {
-				env->getFlowingSpectre()->zoomOut();
-				env->getReceiverLogic()->setFrequencyDelta(env->getReceiverLogic()->getFrequencyDelta());
-			} ImGui::SameLine();
-			if (ImGui::Button("<-")) {
-				env->getFlowingSpectre()->move(-250);
-				env->getReceiverLogic()->setFrequencyDelta(env->getReceiverLogic()->getFrequencyDelta());
-			} ImGui::SameLine();
-			if (ImGui::Button("->")) {
-				env->getFlowingSpectre()->move(250);
-				env->getReceiverLogic()->setFrequencyDelta(env->getReceiverLogic()->getFrequencyDelta());
+				if (ImGui::Button("+")) {
+					env->getFlowingSpectre()->zoomIn();
+					env->getReceiverLogic()->setFrequencyDelta(env->getReceiverLogic()->getFrequencyDelta());
+				} ImGui::SameLine();
+				if (ImGui::Button("-")) {
+					env->getFlowingSpectre()->zoomOut();
+					env->getReceiverLogic()->setFrequencyDelta(env->getReceiverLogic()->getFrequencyDelta());
+				} ImGui::SameLine();
+				if (ImGui::Button("<-")) {
+					env->getFlowingSpectre()->move(-250);
+					env->getReceiverLogic()->setFrequencyDelta(env->getReceiverLogic()->getFrequencyDelta());
+				} ImGui::SameLine();
+				if (ImGui::Button("->")) {
+					env->getFlowingSpectre()->move(250);
+					env->getReceiverLogic()->setFrequencyDelta(env->getReceiverLogic()->getFrequencyDelta());
+				}
+
+				ImGui::TreePop();
+				ImGui::Spacing();
+			}
+			
+
+			//ImGui::SeparatorText("Audio Filter");
+			if (ImGui::TreeNode("Audio Filter")) {
+				
+				ImGui::Spacing();
+
+				if (ImGui::Button("100")) {
+					viewModel->filterWidth = 100;
+				}
+				ImGui::SameLine();
+				if (ImGui::Button("500")) {
+					viewModel->filterWidth = 500;
+				}
+				ImGui::SameLine();
+				if (ImGui::Button("1.2k")) {
+					viewModel->filterWidth = 1200;
+				}
+				ImGui::SameLine();
+				if (ImGui::Button("2.7k")) {
+					viewModel->filterWidth = 2700;
+				}
+
+				if (ImGui::Button("3.2k")) {
+					viewModel->filterWidth = 3200;
+				}
+				ImGui::SameLine();
+				if (ImGui::Button("6.0k")) {
+					viewModel->filterWidth = 6000;
+				}
+				ImGui::SameLine();
+				if (ImGui::Button("8.0k")) {
+					viewModel->filterWidth = 8000;
+				}
+				ImGui::SameLine();
+				if (ImGui::Button("12.0k")) {
+					viewModel->filterWidth = 12000;
+				}
+
+				ImGui::SliderInt("Audio Filter (Hz)", &viewModel->filterWidth, 0, 12000);
+
+				ImGui::TreePop();
+				ImGui::Spacing();
 			}
 
-			ImGui::Spacing();
+			//ImGui::SeparatorText("Notch Filter");
+			if (ImGui::TreeNode("Notch Filter")) {
 
-			ImGui::SeparatorText("Audio Filter");
+				ImGui::Spacing();
 
-			if (ImGui::Button("100")) {
-				viewModel->filterWidth = 100;
-			}
-			ImGui::SameLine();
-			if (ImGui::Button("500")) {
-				viewModel->filterWidth = 500;
-			}
-			ImGui::SameLine();
-			if (ImGui::Button("1.2k")) {
-				viewModel->filterWidth = 1200;
-			}
-			ImGui::SameLine();
-			if (ImGui::Button("2.7k")) {
-				viewModel->filterWidth = 2700;
+				ImGui::Checkbox("Enable Notch", &viewModel->enableNotch);
+
+				if (viewModel->notchCenterFreq > viewModel->filterWidth) viewModel->notchCenterFreq = viewModel->filterWidth;
+				ImGui::SliderInt("Notch Center (Hz)", &viewModel->notchCenterFreq, 0, viewModel->filterWidth);
+
+				ImGui::TreePop();
+				ImGui::Spacing();
 			}
 
-			if (ImGui::Button("3.2k")) {
-				viewModel->filterWidth = 3200;
-			}
-			ImGui::SameLine();
-			if (ImGui::Button("6.0k")) {
-				viewModel->filterWidth = 6000;
-			}
-			ImGui::SameLine();
-			if (ImGui::Button("8.0k")) {
-				viewModel->filterWidth = 8000;
-			}
-			ImGui::SameLine();
-			if (ImGui::Button("12.0k")) {
-				viewModel->filterWidth = 12000;
+			//ImGui::SeparatorText("Waterfall");
+			if (ImGui::TreeNode("Waterfall")) {
+
+				ImGui::Spacing();
+
+				ImGui::SliderFloat("Min", &viewModel->waterfallMin, -150, 0);
+				ImGui::SliderFloat("Max", &viewModel->waterfallMax, -150, 100); ImGui::Spacing();
+				ImGui::TreePop();
+				ImGui::Spacing();
+
 			}
 
-			ImGui::SliderInt("Audio Filter (Hz)", &viewModel->filterWidth, 0, 12000);
+			//ImGui::SeparatorText("Spectre");
+			if (ImGui::TreeNode("Spectre")) {
 
-			ImGui::Spacing();
+				ImGui::Spacing();
 
-			ImGui::SeparatorText("Notch Filter");
+				ImGui::SliderFloat("Ratio", &viewModel->ratio, -200, 100);
 
-			ImGui::Checkbox("Enable Notch", &viewModel->enableNotch);
+				ImGui::SliderFloat("Min val", &viewModel->minDb, -200, 0);
 
-			if (viewModel->notchCenterFreq > viewModel->filterWidth) viewModel->notchCenterFreq = viewModel->filterWidth;
-			ImGui::SliderInt("Notch Center (Hz)", &viewModel->notchCenterFreq, 0, viewModel->filterWidth);
+				ImGui::SliderInt("Speed", &env->getConfig()->spectre.spectreSpeed, 1, 50);
+				ImGui::SliderInt("Speed 2", &env->getConfig()->spectre.spectreSpeed2, 1, 50); ImGui::Spacing();
 
-			ImGui::Spacing();
-
-			ImGui::SeparatorText("Waterfall");
-
-			ImGui::SliderFloat("Min", &viewModel->waterfallMin, -150, 0);
-
-			ImGui::SliderFloat("Max", &viewModel->waterfallMax, -150, 100); ImGui::Spacing();
-
-			ImGui::SeparatorText("Spectre");
-
-			ImGui::SliderFloat("Ratio", &viewModel->ratio, -200, 100);
-
-			ImGui::SliderFloat("Min val", &viewModel->minDb, -200, 0);
-
-			ImGui::SliderInt("Speed", &env->getConfig()->spectre.spectreSpeed, 1, 50);
-			ImGui::SliderInt("Speed 2", &env->getConfig()->spectre.spectreSpeed2, 1, 50); ImGui::Spacing();
-
-			ImGui::TreePop();
+				ImGui::TreePop();
+				ImGui::Spacing();
+			}
 		}
 		
-		if (ImGui::TreeNode("Memory")) {
+		if (ImGui::CollapsingHeader("Memory")) {
 			ImGui::Spacing();
 			memoryRecordUserInterface.drawMemoryBlock(env->getReceiverLogic());
-			ImGui::TreePop();
+			//ImGui::TreePop();
 		}
 		
-		if (ImGui::TreeNode("Device Options")) {
+		if (ImGui::CollapsingHeader("Device Options")) {
 			ImGui::Spacing();
 			if (!env->getDeviceController()->isStatusInitOk()) ImGui::BeginDisabled();
 			if (ImGui::Button("Stop")) {
@@ -424,14 +456,14 @@ void Display::renderImGUIFirst() {
 					if (env->getDeviceController()->isStatusInitOk()) rtlInterface->sendParamsToDevice();
 				}
 			}
-			ImGui::TreePop();
+			//ImGui::TreePop();
 		}
 
 		if (env->getConfig()->deviceType == DeviceType::HACKRF) {
 
 			HackRfInterface* hackRfInterface = (HackRfInterface*)env->getDeviceController()->getDeviceInterface();
 
-			if (ImGui::TreeNode("TX Settings")) {
+			if (ImGui::CollapsingHeader("TX Settings")) {
 				ImGui::Spacing();
 
 				ImGui::Text("Never TX without an antenna connected!"); ImGui::Spacing();
@@ -466,7 +498,9 @@ void Display::renderImGUIFirst() {
 					if (!hackRfInterface->isDeviceTransmitting() || reactionOnSpaceBtn) ImGui::EndDisabled();
 				}
 
-				ImGui::Checkbox("Send Tone Signal", &viewModel->transmit.sendToneSignal);
+				ImGui::Checkbox("Send Double-tone Signal", &viewModel->transmit.sendToneSignal);
+				ImGui::SliderInt("Tone 1 freq", &viewModel->transmit.tone1Freq, 0, 6000);
+				ImGui::SliderInt("Tone 2 freq", &viewModel->transmit.tone2Freq, 0, 6000);
 				ImGui::Checkbox("TX by Space btn", &viewModel->transmit.txBySpaceBtn);
 
 				ImGui::SliderInt("TX AMP", &viewModel->hackRFModel.enableTxAmp, 0, 1);
@@ -479,7 +513,7 @@ void Display::renderImGUIFirst() {
 				
 				ImGui::Spacing();
 
-				ImGui::TreePop();
+				//ImGui::TreePop();
 			}
 
 			if (hackRfInterface != nullptr) {
@@ -494,71 +528,92 @@ void Display::renderImGUIFirst() {
 			}
 		}
 
-		if (ImGui::TreeNode("Settings")) {
+		if (ImGui::CollapsingHeader("Settings")) {
 			ImGui::Spacing();
 			ImGui::Text("After changing the settings\nmarked with an asterisk\napplication components will be reinitialized.");
 
-			ImGui::Spacing();
-			ImGui::SeparatorText("FFT");
+			//ImGui::SeparatorText("FFT");
 
-			fftLenLS->drawSetting();
+			if (ImGui::TreeNode("FFT")) {
+				ImGui::Spacing();
+				fftLenLS->drawSetting();
+				ImGui::TreePop();
+				ImGui::Spacing();
+			}
 
-			ImGui::Spacing();
-			ImGui::SeparatorText("Frequency shift");
+			//ImGui::SeparatorText("Frequency shift");
+			if (ImGui::TreeNode("Frequency shift")) {
+				ImGui::Spacing();
+				ImGui::InputInt("Shift in Hz", &env->getConfig()->receiver.frequencyShift);
+				ImGui::Checkbox("Enable shift", &env->getConfig()->receiver.enableFrequencyShift);
+				ImGui::TreePop();
+				ImGui::Spacing();
+			}
 
-			ImGui::InputInt("Shift in Hz", &env->getConfig()->receiver.frequencyShift);
-			ImGui::Checkbox("Enable shift", &env->getConfig()->receiver.enableFrequencyShift);
 
-			ImGui::Spacing();
-			ImGui::SeparatorText("AGC settings");
+			//ImGui::SeparatorText("AGC settings");
+			if (ImGui::TreeNode("AGC settings")) {
+				ImGui::Spacing();
+				ImGui::InputDouble("Sound threshold", &env->getConfig()->receiver.agc.threshold, 0.001f, 0.1f, "%.3f");
+				ImGui::InputDouble("Atack time (ms)", &env->getConfig()->receiver.agc.atackSpeedMs, 0.01f, 0.01f, "%.2f");
+				ImGui::InputDouble("Hold time (ms)", &env->getConfig()->receiver.agc.holdingTimeMs, 0.1f, 0.1f, "%.1f");
+				ImGui::InputDouble("Release time", &env->getConfig()->receiver.agc.releaseSpeed, 0.00001f, 0.1f, "%.7f");
+				ImGui::TreePop();
+				ImGui::Spacing();
+			}
 
-			ImGui::InputDouble("Sound threshold", &env->getConfig()->receiver.agc.threshold, 0.001f, 0.1f, "%.3f");
-			ImGui::InputDouble("Atack time (ms)", &env->getConfig()->receiver.agc.atackSpeedMs, 0.01f, 0.01f, "%.2f");
-			ImGui::InputDouble("Hold time (ms)", &env->getConfig()->receiver.agc.holdingTimeMs, 0.1f, 0.1f, "%.1f");
-			ImGui::InputDouble("Release time", &env->getConfig()->receiver.agc.releaseSpeed, 0.00001f, 0.1f, "%.7f");
+			//ImGui::SeparatorText("Color theme");
+			if (ImGui::TreeNode("Color theme")) {
+				ImGui::Spacing();
+				showColorPicker(string("Windows Background"), &env->getConfig()->colorTheme.windowsBGColor, false);
+				showColorPicker(string("Main Background"), &env->getConfig()->colorTheme.mainBGColor, false);
+				//showColorPicker(string("Window Title Background"), &env->getConfig()->colorTheme.windowsTitleBGColor);
+				showColorPicker(string("Spectre Window 1"), &env->getConfig()->colorTheme.spectreWindowFillColor1, false);
+				showColorPicker(string("Spectre Window 2"), &env->getConfig()->colorTheme.spectreWindowFillColor2, false);
+				showColorPicker(string("Spectre Fill"), &env->getConfig()->colorTheme.spectreFillColor, false);
+				ImGui::Checkbox("Spectre gradient", &env->getConfig()->colorTheme.spectreGradientEnable);
+				showColorPicker(string("Spectre Profile"), &env->getConfig()->colorTheme.spectreProfileColor, false);
+				showColorPicker(string("Receive Region"), &env->getConfig()->colorTheme.receiveRegionColor, true);
+				ImGui::TreePop();
+				ImGui::Spacing();
+			}
 
-			ImGui::Spacing();
-			ImGui::SeparatorText("Color theme");
 
-			showColorPicker(string("Windows Background"), &env->getConfig()->colorTheme.windowsBGColor, false);
-			showColorPicker(string("Main Background"), &env->getConfig()->colorTheme.mainBGColor, false);
-			//showColorPicker(string("Window Title Background"), &env->getConfig()->colorTheme.windowsTitleBGColor);
-			showColorPicker(string("Spectre Window 1"), &env->getConfig()->colorTheme.spectreWindowFillColor1, false);
-			showColorPicker(string("Spectre Window 2"), &env->getConfig()->colorTheme.spectreWindowFillColor2, false);
-			showColorPicker(string("Spectre Fill"), &env->getConfig()->colorTheme.spectreFillColor, false);
-			ImGui::Checkbox("Spectre gradient", &env->getConfig()->colorTheme.spectreGradientEnable);
-			showColorPicker(string("Spectre Profile"), &env->getConfig()->colorTheme.spectreProfileColor, false);
-			showColorPicker(string("Receive Region"), &env->getConfig()->colorTheme.receiveRegionColor, true);
+			//ImGui::SeparatorText("Spectre settings");
+			if (ImGui::TreeNode("Spectre settings")) {
+				ImGui::Spacing();
 
-			ImGui::Spacing();
-			ImGui::SeparatorText("Spectre settings");
-
-			spectreStyleLS->drawSetting();
-			ImGui::Checkbox("Contour shows signal power", &env->getConfig()->spectre.contourShowsPower);
-			ImGui::SliderFloat("Top coeff", &env->getConfig()->spectre.topCoeff, 0.5f, 1.5f);
-			ImGui::SliderFloat("Bottom coeff", &env->getConfig()->spectre.bottomCoeff, 0.5f, 1.5f);
-			smoothingDepthLS->drawSetting();
-			ImGui::Checkbox("Hang&Decay", &env->getConfig()->spectre.hangAndDecay);
-			ImGui::BeginDisabled(!env->getConfig()->spectre.hangAndDecay);
+				spectreStyleLS->drawSetting();
+				ImGui::Checkbox("Contour shows signal power", &env->getConfig()->spectre.contourShowsPower);
+				ImGui::SliderFloat("Top coeff", &env->getConfig()->spectre.topCoeff, 0.5f, 1.5f);
+				ImGui::SliderFloat("Bottom coeff", &env->getConfig()->spectre.bottomCoeff, 0.5f, 1.5f);
+				smoothingDepthLS->drawSetting();
+				ImGui::Checkbox("Hang&Decay", &env->getConfig()->spectre.hangAndDecay);
+				ImGui::BeginDisabled(!env->getConfig()->spectre.hangAndDecay);
 				ImGui::SliderFloat("Decay speed", &env->getConfig()->spectre.decaySpeed, 0, 0.5f, "%.5f");
 				ImGui::SliderFloat("Decay speed delta", &env->getConfig()->spectre.decaySpeedDelta, 0, 4);
-			ImGui::EndDisabled();
+				ImGui::EndDisabled();
 
-			ImGui::SliderInt("Spectre correction Db", &env->getConfig()->spectre.spectreCorrectionDb, -100, 50);
+				ImGui::SliderInt("Spectre correction Db", &env->getConfig()->spectre.spectreCorrectionDb, -100, 50);
 
-			ImGui::Spacing();
-			ImGui::SeparatorText("Other");
+				ImGui::TreePop();
+				ImGui::Spacing();
+			}
 
-			ImGui::Checkbox("Remove DC", &viewModel->removeDCBias);
+			if (ImGui::TreeNode("Other")) {
+				ImGui::Spacing();
+				ImGui::Checkbox("Remove DC", &viewModel->removeDCBias);
 
-			smeterTypeLS->drawSetting();
+				smeterTypeLS->drawSetting();
 
-			waterfallSpeedLS->drawSetting();
-
-			ImGui::TreePop();
+				waterfallSpeedLS->drawSetting();
+				ImGui::TreePop();
+				ImGui::Spacing();
+			}
+			//ImGui::TreePop();
 		}
 
-		if (ImGui::TreeNode("Info")) {
+		if (ImGui::CollapsingHeader("Info")) {
 			ImGui::Spacing();
 			ImGui::Text("Sampling rate: %d", env->getConfig()->currentWorkingInputSamplerate);
 			ImGui::Text("FFT length: %d", env->getConfig()->fftLen);
@@ -575,10 +630,10 @@ void Display::renderImGUIFirst() {
 			ImGui::Text("Disable cntrl queue: %s", s.str().c_str());
 		
 			ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-			ImGui::TreePop();
+			//ImGui::TreePop();
 		}
 
-		if (ImGui::TreeNode("About")) {
+		if (ImGui::CollapsingHeader("About")) {
 			ImGui::Spacing();
 			string msg;
 			msg.append(APP_NAME).append("\n\n");
@@ -587,7 +642,7 @@ void Display::renderImGUIFirst() {
 
 			ImGui::Text(msg.c_str());
 
-			ImGui::TreePop();
+			//ImGui::TreePop();
 		}
 		
 		//Если вкладка опций устройства не выбрана, то все равно устанавливаем конфигурацию на текущее устройство
@@ -608,9 +663,9 @@ void Display::renderImGUIFirst() {
 				}
 			}
 		}
-
 		//Danger нужно проверить этот момент
 		viewModel->storeToConfig();
+
 
 	ImGui::End();
 

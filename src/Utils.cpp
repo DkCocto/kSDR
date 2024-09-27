@@ -96,6 +96,11 @@ std::string Utils::getPrittyFilterWidth(int width) {
 	}
 }
 
+float Utils::getExponentialValue(int startX1, int startY1, int startX2, int startY2, int val) {
+
+	return 0.0f;
+}
+
 double Utils::convertSegment(double value, double From1, double From2, double To1, double To2) {
 	return (value - From1) / (From2 - From1) * (To2 - To1) + To1;
 }

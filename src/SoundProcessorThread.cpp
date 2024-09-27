@@ -210,7 +210,7 @@ template<typename T, typename D> void SoundProcessorThread::processData(T* data,
 			//Если AM, то немного усилим сигнал
 			if (mode == AM) audio *= 3.0f;
 			if (mode == nFM) audio *= 2.0f;
-			outputData[count] = audio * viewModel->volume;
+			outputData[count] = audio * config->volume;
 			count++;
 		}
 

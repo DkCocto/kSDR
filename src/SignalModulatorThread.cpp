@@ -1,11 +1,23 @@
 #include "SignalModulatorThread.h"
 
+void SignalModulatorThread::initToneGenerator() {
+	if (TONE_SIGNAL_FREQ1 != config->transmit.tone1Freq || TONE_SIGNAL_FREQ2 != config->transmit.tone2Freq) {
+		TONE_SIGNAL_FREQ1 = config->transmit.tone1Freq;
+		TONE_SIGNAL_FREQ2 = config->transmit.tone2Freq;
+		so1.setFreq(TONE_SIGNAL_FREQ1);
+		so2.setFreq(TONE_SIGNAL_FREQ2);
+	}
+}
+
 SignalModulatorThread::SignalModulatorThread(Config* config, CircleBufferNew<float>* soundInputBuffer, SoundCard* soundCard) {
 	this->config = config;
 	this->outputSignalBuffer = soundInputBuffer;
 	this->soundCard = soundCard;
 
-	so = SinOscillator(TONE_SIGNAL_FREQ, config->inputSamplerateSound);
+	so1 = SinOscillator(TONE_SIGNAL_FREQ1, config->inputSamplerateSound);
+	so2 = SinOscillator(TONE_SIGNAL_FREQ2, config->inputSamplerateSound);
+
+	initToneGenerator();
 
 	BUFFER_READ_LEN = 4; //2
 
@@ -53,11 +65,14 @@ void SignalModulatorThread::run() {
 		}
 
 		if (soundCard->availableToRead() >= BUFFER_READ_LEN) {
+
+			initToneGenerator();
+
 			soundCard->read(readBuffer, BUFFER_READ_LEN);
 
 			if (config->transmit.sendToneSignal) {
 				for (int i = 0; i < BUFFER_READ_LEN; i++) {
-					readBuffer[i] = so.nextSample();
+					readBuffer[i] = so1.nextSample() + so2.nextSample();
 				}
 			}
 			//config->receiver.modulation == USB

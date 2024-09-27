@@ -6,7 +6,7 @@ void ViewModel::storeToConfig() {
 	config->spectreRatio = ratio;
 	config->spectreMin = minDb;
 	config->startFrequency = centerFrequency;
-	config->volume = volume;
+	config->volume = pow(2.718, volume) - 1;
 	config->filterWidth = filterWidth;
 	config->receiver.modulation = receiverMode;
 	config->receiver.enableNotch = enableNotch;
@@ -28,6 +28,8 @@ void ViewModel::storeToConfig() {
 	config->transmit.inputLevel2 = transmit.inputLevel2;
 	config->transmit.inputLevel3 = transmit.inputLevel3;
 	config->transmit.sendToneSignal = transmit.sendToneSignal;
+	config->transmit.tone1Freq = transmit.tone1Freq;
+	config->transmit.tone2Freq = transmit.tone2Freq;
 
 	config->myTranceiverDevice.att = myTranceiverDevice.att;
 	config->myTranceiverDevice.pre = myTranceiverDevice.pre;
@@ -60,6 +62,9 @@ void ViewModel::loadFromConfig() {
 	transmit.inputLevel3 = config->transmit.inputLevel3;
 	transmit.sendToneSignal = config->transmit.sendToneSignal;
 	
+	transmit.tone1Freq = config->transmit.tone1Freq;
+	transmit.tone2Freq = config->transmit.tone2Freq;
+
 	myTranceiverDevice.att = config->myTranceiverDevice.att;
 	myTranceiverDevice.pre = config->myTranceiverDevice.pre;
 	myTranceiverDevice.bypass = config->myTranceiverDevice.bypass;

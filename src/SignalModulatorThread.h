@@ -26,12 +26,15 @@ private:
 
 	void run();
 
-	int const TONE_SIGNAL_FREQ = 1000;
+	int TONE_SIGNAL_FREQ1 = 0;
+	int TONE_SIGNAL_FREQ2 = 0;
 
-	SinOscillator so;
+	SinOscillator so1, so2;
 
 	SSBModulation* ssbModulation;
 	AMModulation* amModulation;
+
+	void initToneGenerator();
 
 public:
 
