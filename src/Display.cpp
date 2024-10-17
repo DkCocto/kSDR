@@ -240,9 +240,9 @@ void Display::renderImGUIFirst() {
 
 				ImGui::Checkbox("ATT", &viewModel->myTranceiverDevice.att);
 
-				if (env->getComPortHandler()->getDeviceState().bypass) ImGui::BeginDisabled();
+				//if (env->getComPortHandler()->getDeviceState().bypass) ImGui::BeginDisabled();
 				ImGui::Checkbox("PRE", &viewModel->myTranceiverDevice.pre);
-				if (env->getComPortHandler()->getDeviceState().bypass) ImGui::EndDisabled();
+				//if (env->getComPortHandler()->getDeviceState().bypass) ImGui::EndDisabled();
 
 				if (env->getComPortHandler()->getDeviceState().autoBypass) ImGui::BeginDisabled();
 				ImGui::Checkbox("DPF ByPass", &viewModel->myTranceiverDevice.bypass);

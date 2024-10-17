@@ -16,8 +16,6 @@ private:
 	int writePointer = 0;
 	int readPointer = 0;
 
-	bool wroteAtLeastOnce = false;
-
 	bool DEBUG = false;
 
 	Config* config;

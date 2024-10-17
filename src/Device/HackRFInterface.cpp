@@ -101,7 +101,6 @@ bool HackRfInterface::stopTX() {
 }
 
 void HackRfInterface::sendParamsToDevice() {
-
 	HackRFDevice* hackRFDevice = (HackRFDevice*)device;
 
 	if (needToSetFreq) {

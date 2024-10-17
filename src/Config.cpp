@@ -171,7 +171,7 @@ void Config::loadXml() {
             lastSelectedFreq = std::stof(std::string(plastSelectedFreq->GetText()));
 
             tinyxml2::XMLElement* pvolume = pReceiver->FirstChildElement("volume");
-            volume = std::stof(std::string(pvolume->GetText()));
+            volume = std::log(std::stof(std::string(pvolume->GetText())) + 1.0);
 
             tinyxml2::XMLElement* pfilterWidth = pReceiver->FirstChildElement("filterWidth");
             filterWidth = std::stoi(std::string(pfilterWidth->GetText()));
