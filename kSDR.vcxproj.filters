@@ -52,6 +52,12 @@
     <Filter Include="Файлы заголовков\Serial">
       <UniqueIdentifier>{dfa87b9e-fe6e-4cb5-a782-85ddd6c1ea61}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Исходные файлы\dsp">
+      <UniqueIdentifier>{e017eebb-e17d-477e-a403-54e1781d0ae4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\dsp">
+      <UniqueIdentifier>{fbc25ce0-7de2-4bd6-ab37-1625ddb0efe5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Config.cpp">
@@ -287,6 +293,9 @@
     </ClCompile>
     <ClCompile Include="src\serialib.cpp">
       <Filter>Исходные файлы\Serial</Filter>
+    </ClCompile>
+    <ClCompile Include="Decimator.cpp">
+      <Filter>Исходные файлы\dsp</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -547,6 +556,9 @@
     </ClInclude>
     <ClInclude Include="src\serialib.h">
       <Filter>Файлы заголовков\Serial</Filter>
+    </ClInclude>
+    <ClInclude Include="Decimator.h">
+      <Filter>Файлы заголовков\dsp</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

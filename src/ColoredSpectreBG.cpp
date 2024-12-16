@@ -18,7 +18,7 @@ void ColoredSpectreBG::generateImage(Waterfall* waterfall, params p) {
 			float val = ((p.height - ix)  - 0.0) / (p.height - 0.0) * (p.signalMaxDb - p.signalMinDb) + p.signalMinDb;
 
 			Waterfall::RGB rgb = waterfall->getColorForPowerInSpectre(val, p.minDb, p.maxDb);
-
+			
 			imageData[ix * p.width * depth + iy * depth + 0] = rgb.r;   //red
 			imageData[ix * p.width * depth + iy * depth + 1] = rgb.g;   //green
 			imageData[ix * p.width * depth + iy * depth + 2] = rgb.b;   //blue

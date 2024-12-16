@@ -13,7 +13,7 @@ void MemoryRecordUserInterface::drawMemoryBlock(ReceiverLogic* receiverLogic) {
 	if (ImGui::Button("Store frequency")) {
 		spectre->disableControlForID(DISABLE_CONTROL_STORE_FREQ);
 		recordToCommit = Config::MemoryRecord {
-			Utils::getPrittyFreq(((int)receiverLogic->getSelectedFreqNew())),
+			Utils::getPrettyFreq(((int)receiverLogic->getSelectedFreqNew())),
 			(float)receiverLogic->getSelectedFreqNew(),
 			viewModel->receiverMode,
 			viewModel->filterWidth
@@ -59,7 +59,7 @@ void MemoryRecordUserInterface::drawMemoryBlock(ReceiverLogic* receiverLogic) {
 			}
 
 			string toolTipText("Freq: ");
-			toolTipText.append(Utils::getPrittyFreq((int)memoryVector[row].freq)).append(" Hz");
+			toolTipText.append(Utils::getPrettyFreq((int)memoryVector[row].freq)).append(" Hz");
 
 			if (ImGui::IsItemHovered()) ImGui::SetTooltip(toolTipText.c_str());
 
@@ -151,7 +151,7 @@ void MemoryRecordUserInterface::initDeleteMemRecDialog(std::string id) {
 		auto& record = config->memoryVector[selectedRecordIndex];
 
 		ImGui::Text(string("Description: ").append(record.desc).append("\n").c_str());
-		ImGui::Text(string("Frequency: ").append(Utils::getPrittyFreq((int)record.freq)).append("\n\n").c_str());
+		ImGui::Text(string("Frequency: ").append(Utils::getPrettyFreq((int)record.freq)).append("\n\n").c_str());
 
 		if (ImGui::Button("Cancel", ImVec2(120, 0))) {
 			spectre->enableControlForID(DISABLE_CONTROL_DEL_FREQ);

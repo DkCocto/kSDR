@@ -32,7 +32,7 @@ void ReceiverRegionInterface::drawRegion(ImDrawList* draw_list, ReceiverLogic* r
 	smeter->draw(draw_list, spectreData, receiverLogic);
 	//-------
 
-	std::string freq = (Utils::getPrittyFreq((int)receiverLogic->getSelectedFreqNew())).append(" Hz");
+	std::string freq = (Utils::getPrettyFreq((int)receiverLogic->getSelectedFreqNew())).append(" Hz");
 
 	ImGui::PushFont(viewModel->fontBigRegular);
 	draw_list->AddText(
@@ -223,7 +223,7 @@ bool ReceiverRegionInterface::markDigitByMouse(ImDrawList* draw_list, ReceiverLo
 	ImGuiIO& io = ImGui::GetIO();
 
 	int totalDigits = to_string((int)receiverLogic->getSelectedFreqNew()).size();
-	int totalDigitsWithDots = Utils::getPrittyFreq((int)receiverLogic->getSelectedFreqNew()).size();
+	int totalDigitsWithDots = Utils::getPrettyFreq((int)receiverLogic->getSelectedFreqNew()).size();
 
 	selectedDigit = -1;
 

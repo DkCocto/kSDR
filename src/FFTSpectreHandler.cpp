@@ -1,5 +1,7 @@
 #include "FFTSpectreHandler.h"
 
+using namespace std::chrono;
+
 SpectreHandler::SpectreHandler(Config* config, FFTData* fftData, ViewModel* viewModel, DeviceController* deviceController) {
 	this->config = config;
 	this->viewModel = viewModel;
@@ -11,16 +13,6 @@ SpectreHandler::SpectreHandler(Config* config, FFTData* fftData, ViewModel* view
 
 	wb = new WindowBlackman(config->fftLen);
 	wbh = new WindowBlackmanHarris(config->fftLen);
-
-	complexLen = config->fftLen / 2 + 1;
-
-	realInput = new float[spectreSize];
-
-	imInput = new float[spectreSize];
-
-	realOut = new float[complexLen];
-
-	imOut = new float[complexLen];
 
 	superOutput = new float[spectreSize];
 	memset(superOutput, -100, sizeof(float) * spectreSize);
@@ -35,7 +27,9 @@ SpectreHandler::SpectreHandler(Config* config, FFTData* fftData, ViewModel* view
 	memset(tmpArray, -100, sizeof(float) * spectreSize);
 
 	inData = new fftw_complex[config->fftLen];
+	
 	outData = new fftw_complex[spectreSize];
+
 
 	//FFTW_MEASURE
 	printf("FFT module initializing...\n");
@@ -49,11 +43,6 @@ SpectreHandler::~SpectreHandler() {
 	fftw_destroy_plan(fftwPlan);
 	delete wb;
 	delete wbh;
-	//delete[] dataBuffer;
-	delete[] realInput;
-	delete[] imInput;
-	delete[] realOut;
-	delete[] imOut;
 	delete[] superOutput;
 	delete[] outputWaterfall;
 	delete[] tmpArray;
@@ -62,6 +51,10 @@ SpectreHandler::~SpectreHandler() {
 	delete[] outData;
 	delete[] speedDelta;
 }
+
+long long startTimeFpsControl = 0;
+long long endTimeFpsControl = 0;
+long long deltaFpsControl = 0;
 
 void SpectreHandler::run() {
 	isWorking_ = true;
@@ -75,6 +68,16 @@ void SpectreHandler::run() {
 			isWorking_ = false;
 			return;
 		}
+
+		/*endTimeFpsControl = std::chrono::steady_clock::now().time_since_epoch().count() / 1000000; // получаем время в миллисекундах
+		deltaFpsControl = endTimeFpsControl - startTimeFpsControl;
+
+		if (deltaFpsControl < 14) {
+			std::this_thread::sleep_for(std::chrono::milliseconds(14 - deltaFpsControl)); // пауза на оставшиеся миллисекунды
+		}
+
+		startTimeFpsControl = std::chrono::steady_clock::now().time_since_epoch().count() / 1000000; // обновляем время*/
+
 
 		if (device != nullptr) {
 			switch (deviceType) {

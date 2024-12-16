@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Decimator.cpp" />
     <ClCompile Include="src\AGC.cpp" />
     <ClCompile Include="src\AM.cpp" />
     <ClCompile Include="src\CircleBuffer.cpp" />
@@ -99,6 +100,7 @@
     <ClCompile Include="src\WindowBlackmanHarris.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Decimator.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="src\AGC.h" />
     <ClInclude Include="src\AM.h" />

@@ -64,7 +64,7 @@ bool Utils::parse_u32(char* s, uint32_t* const value) {
 	}
 }
 
-std::string Utils::getPrittyFreq(int freq) {
+std::string Utils::getPrettyFreq(int freq) {
 	std::ostringstream ss;
 	ss.imbue(std::locale(std::locale::classic(), new MyNumPunct));
 	ss << freq;
@@ -75,9 +75,9 @@ std::string Utils::getShortPrittyFreq(int freq) {
 	int freqDigitsCount = std::to_string(freq).size();
 
 	if (freqDigitsCount > 6) {
-		return Utils::getPrittyFreq(freq / 1000);
+		return Utils::getPrettyFreq(freq / 1000);
 	} else {
-		return Utils::getPrittyFreq(freq);
+		return Utils::getPrettyFreq(freq);
 	}
 }
 

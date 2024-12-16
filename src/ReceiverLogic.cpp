@@ -86,7 +86,7 @@ void ReceiverLogic::setFreq(double freq) {
 		double delta = freq - centerFrequency;
 		setFrequencyDelta(delta);
 	} else {
-		FlowingSpectre::FREQ_RANGE totalFreqsRange = flowingSpec->getTotalFreqsRange();
+		//	FlowingSpectre::FREQ_RANGE totalFreqsRange = flowingSpec->getTotalFreqsRange();
 		//if (freq >= totalFreqsRange.first && freq <= totalFreqsRange.second) {
 			//empty
 		//} else {

@@ -66,6 +66,9 @@ Result RTLDevice::start() {
 		return initResult;
 	}
 
+	//!!!ENABLE DIRECT SAMPLING!!!
+	rtlsdr_set_direct_sampling(device, 1);
+
 	std::thread t1([&] {
 		processing = true;
 		unsigned char buf[16384];

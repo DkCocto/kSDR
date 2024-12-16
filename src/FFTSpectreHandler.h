@@ -29,14 +29,6 @@ private:
 	WindowBlackmanHarris* wbh;
 
 	int savedBufferPos = -1;
-
-	int complexLen;
-
-	float* realInput;
-	float* imInput;
-
-	float* realOut;
-	float* imOut;
 	
 	float* superOutput;
 	float* outputWaterfall;

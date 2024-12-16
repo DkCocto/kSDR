@@ -657,7 +657,7 @@ void Spectre::drawFreqPointerMark(ImVec2 startWindowPoint, ImVec2 windowLeftBott
 		//delete [] polygon;
 
 		ImGui::SetCursorPos(ImVec2(io.MousePos.x - (startWindowPoint.x + sWD.rightPadding) + 100, io.MousePos.y - startWindowPoint.y + 62));
-		ImGui::Text(Utils::getPrittyFreq((int)receiverLogic->getFreqByPosOnSpectrePx(io.MousePos.x - (startWindowPoint.x + sWD.rightPadding))).c_str());
+		ImGui::Text(Utils::getPrettyFreq((int)receiverLogic->getFreqByPosOnSpectrePx(io.MousePos.x - (startWindowPoint.x + sWD.rightPadding))).c_str());
 		ImGui::SetCursorPos(ImVec2(0, 0));
 	}
 }
@@ -680,7 +680,7 @@ void Spectre::drawMemoryMarks(ImDrawList* draw_list, FlowingSpectre* flowingSpec
 			ImGui::SetCursorPos(ImVec2(x, y));
 			ImGui::TextColored(ImGui::ColorConvertU32ToFloat4(GREEN), mark.c_str());
 			if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort)) {
-				string tooltipText("Description: " + config->memoryVector[i].desc + "\nFreq: " + Utils::getPrittyFreq(config->memoryVector[i].freq) + " Hz\nClick to go");
+				string tooltipText("Description: " + config->memoryVector[i].desc + "\nFreq: " + Utils::getPrettyFreq(config->memoryVector[i].freq) + " Hz\nClick to go");
 				disableControlForID(100 * i);
 				ImGui::BeginTooltip();
 				ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
