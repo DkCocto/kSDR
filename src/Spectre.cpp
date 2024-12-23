@@ -695,8 +695,6 @@ void Spectre::drawMemoryMarks(ImDrawList* draw_list, FlowingSpectre* flowingSpec
 			ImGui::SetCursorPos(ImVec2(0, 0));
 		}
 	}
-
-
 }
 
 void Spectre::executeMemoryRecord(Config::MemoryRecord record, ReceiverLogic* receiverLogic) {

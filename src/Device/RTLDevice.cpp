@@ -67,7 +67,8 @@ Result RTLDevice::start() {
 	}
 
 	//!!!ENABLE DIRECT SAMPLING!!!
-	rtlsdr_set_direct_sampling(device, 1);
+	rtlsdr_set_direct_sampling(device, 2);
+	rtlsdr_set_agc_mode(device, 1);
 
 	std::thread t1([&] {
 		processing = true;
