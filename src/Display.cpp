@@ -411,12 +411,12 @@ void Display::renderImGUIFirst() {
 
 				HackRfInterface* hackRfInterface = (HackRfInterface*)env->getDeviceController()->getDeviceInterface();
 
-				ImGui::SliderInt("LNA Gain", &viewModel->hackRFModel.lnaGain, 0, 5);
-				ImGui::SliderInt("VGA Gain", &viewModel->hackRFModel.vgaGain, 0, 31);
+				ImGui::SliderInt("LNA Gain", &viewModel->hackRF.lnaGain, 0, 5);
+				ImGui::SliderInt("VGA Gain", &viewModel->hackRF.vgaGain, 0, 31);
 
 				if (hackRfInterface != nullptr) {
 					if (hackRfInterface->isDeviceTransmitting()) ImGui::BeginDisabled();
-						ImGui::SliderInt("RX AMP", &viewModel->hackRFModel.enableRxAmp, 0, 1);
+						ImGui::SliderInt("RX AMP", &viewModel->hackRF.rxAmp, 0, 1);
 					if (hackRfInterface->isDeviceTransmitting()) ImGui::EndDisabled();
 				}
 
@@ -498,13 +498,16 @@ void Display::renderImGUIFirst() {
 					if (!hackRfInterface->isDeviceTransmitting() || reactionOnSpaceBtn) ImGui::EndDisabled();
 				}
 
+
+				ImGui::SliderInt("Output Power (W)", &viewModel->transmit.outputPower, 0, 25);
+
 				ImGui::Checkbox("Send Double-tone Signal", &viewModel->transmit.sendToneSignal);
 				ImGui::SliderInt("Tone 1 freq", &viewModel->transmit.tone1Freq, 0, 6000);
 				ImGui::SliderInt("Tone 2 freq", &viewModel->transmit.tone2Freq, 0, 6000);
 				ImGui::Checkbox("TX by Space btn", &viewModel->transmit.txBySpaceBtn);
 
-				ImGui::SliderInt("TX AMP", &viewModel->hackRFModel.enableTxAmp, 0, 1);
-				ImGui::SliderInt("Tx VGA Gain", &viewModel->hackRFModel.txVgaGain, 0, 35); //Max 47
+				ImGui::SliderInt("TX AMP", &viewModel->hackRF.txAmp, 0, 1);
+				ImGui::SliderInt("Tx VGA Gain", &viewModel->hackRF.txVgaGain, 0, 35); //Max 47
 
 				ImGui::SliderFloat("Input Level", &viewModel->transmit.inputLevel, 0, 200);
 				ImGui::SliderFloat("Input Level2", &viewModel->transmit.inputLevel2, 0, 2);
@@ -517,11 +520,11 @@ void Display::renderImGUIFirst() {
 			}
 
 			if (hackRfInterface != nullptr) {
-				hackRfInterface->setLnaGain((uint32_t)viewModel->hackRFModel.lnaGain);
-				hackRfInterface->setVgaGain(viewModel->hackRFModel.vgaGain);
-				hackRfInterface->enableRxAmp(viewModel->hackRFModel.enableRxAmp);
-				hackRfInterface->enableTxAmp(viewModel->hackRFModel.enableTxAmp);
-				hackRfInterface->setTxVgaGain(viewModel->hackRFModel.txVgaGain);
+				hackRfInterface->setLnaGain((uint32_t)viewModel->hackRF.lnaGain);
+				hackRfInterface->setVgaGain(viewModel->hackRF.vgaGain);
+				hackRfInterface->enableRxAmp(viewModel->hackRF.rxAmp);
+				hackRfInterface->enableTxAmp(viewModel->hackRF.txAmp);
+				hackRfInterface->setTxVgaGain(viewModel->hackRF.txVgaGain);
 				hackRfInterface->setBaseband(env->getConfig()->hackrf.basebandFilter);
 
 				if (env->getDeviceController()->isStatusInitOk()) hackRfInterface->sendParamsToDevice();
@@ -644,7 +647,7 @@ void Display::renderImGUIFirst() {
 
 			//ImGui::TreePop();
 		}
-		
+		//env->getALC()->process(env->getComPortHandler()->getDeviceState().rawPower);
 		//Если вкладка опций устройства не выбрана, то все равно устанавливаем конфигурацию на текущее устройство
 		if (env->getDeviceController()->isStatusInitOk()) {
 			DeviceInterface* deviceInterface = env->getDeviceController()->getDeviceInterface();
@@ -652,6 +655,11 @@ void Display::renderImGUIFirst() {
 				if (env->getDeviceController()->getCurrentDeviceType() == HACKRF) {
 					((HackRfInterface*)deviceInterface)->setFreq(viewModel->centerFrequency);
 					((HackRfInterface*)deviceInterface)->sendParamsToDevice();
+					if (((HackRfInterface*)deviceInterface)->isDeviceTransmitting()) {
+						auto pair = env->getALC()->process(env->getComPortHandler()->getDeviceState().rawPower);
+						viewModel->transmit.inputLevel = pair.first;
+						viewModel->hackRF.txVgaGain = pair.second;
+					}
 				}
 				if (env->getDeviceController()->getCurrentDeviceType() == RTL) {
 					((RTLInterface*)deviceInterface)->setFreq(viewModel->centerFrequency);
@@ -691,6 +699,8 @@ void Display::renderImGUIFirst() {
 	auto binsArea = env->getReceiverLogic()->getReceiveBinsArea(env->getConfig()->filterWidth, env->getConfig()->receiver.modulation);
 	env->getConfig()->receiver.receiveBinA = binsArea.A;
 	env->getConfig()->receiver.receiveBinB = binsArea.B;
+
+
 }
 
 void Display::showSelectDeviceSetting() {

@@ -145,8 +145,9 @@ public:
 		float amModulationDepth = 1.0f;
 		bool sendToneSignal = false;
 		int txFreq = 0;
-		int tone1Freq = 900;
-		int tone2Freq = 2100;
+		int tone1Freq = 1000;
+		int tone2Freq = 0;
+		int outputPower = 10;
 	} transmit;
 
 	DeviceType deviceType, delayedDeviceType;
@@ -154,11 +155,11 @@ public:
 	struct HackRF {
 		int deviceSamplingRate = 4000000;
 		int basebandFilter = 1750000;
-		char rxAmp = 0;
-		char txAmp = 0;
-		char lnaGain = 16;
-		char vgaGain = 20;
-		char txVgaGain = 47;
+		int rxAmp = 0;
+		int txAmp = 0;
+		int lnaGain = 16;
+		int vgaGain = 20;
+		int txVgaGain = 47;
 	} hackrf;
 
 	struct RSP {

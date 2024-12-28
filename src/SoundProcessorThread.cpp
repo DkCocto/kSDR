@@ -1,5 +1,6 @@
 #include "SoundProcessorThread.h"
 
+
 SoundProcessorThread::SoundProcessorThread(DeviceController* devCnt, 
 											ViewModel* viewModel, 
 											ReceiverLogic* receiverLogic, 
@@ -125,6 +126,15 @@ void SoundProcessorThread::run() {
 			switch (deviceType) {
 				case HACKRF:
 					initProcess<HackRFDevice, uint8_t>((HackRFDevice*)device);
+					/*DeviceInterface* di = this->devCnt->getDeviceInterface();
+					if (di != nullptr) {
+						HackRfInterface* hdi = (HackRfInterface*)di;
+						if (hdi->isDeviceTransmitting()) {
+							//viewModel->hackRFModel.txVgaGain = hackRfDevice->alc.process(comPortHandler->getDeviceState().rawPower, config->hackrf.txVgaGain, viewModel->transmit.inputLevel);
+							//config->hackrf.txVgaGain = viewModel->hackRFModel.txVgaGain;
+						}
+					}*/
+					
 					break;
 				case RTL:
 					initProcess<RTLDevice, unsigned char>((RTLDevice*)device);
@@ -149,6 +159,10 @@ template<typename DEVICE, typename DATATYPE> void SoundProcessorThread::initProc
 template<typename T, typename D> void SoundProcessorThread::processData(T* data, D* device) {
 	long count = 0;
 	short decimationCount = 0;
+
+	mixer.setFreq(receiverLogic->getFrequencyDelta());
+
+
 	for (int i = 0; i < len / 2; i++) {
 
 		float I = device->prepareData(data[2 * i]);
@@ -156,7 +170,6 @@ template<typename T, typename D> void SoundProcessorThread::processData(T* data,
 
 		dcRemover.process(&I, &Q);
 
-		mixer.setFreq(receiverLogic->getFrequencyDelta());
 		Signal mixedSignal = mixer.mix(I, Q);
 
 		decimateBufferI[decimationCount] = mixedSignal.I;

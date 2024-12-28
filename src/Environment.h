@@ -12,6 +12,7 @@
 #include "Buffer.h"
 #include "TXDataHandler.h"
 #include "ComPortHandler.h"
+#include "ALC.h"
 
 class Environment {
 	private:
@@ -47,6 +48,8 @@ class Environment {
 		ReceiverLogic* receiverLogic = nullptr;
 
 		ComPortHandler* comPortHandler = nullptr;
+	
+		ALC* alc = nullptr;
 
 	public:
 
@@ -71,5 +74,5 @@ class Environment {
 		FlowingSpectre* getFlowingSpectre();
 		SignalModulatorThread* getSoundCardInputReader();
 		ComPortHandler* getComPortHandler();
-
+		ALC* getALC();
 };

@@ -58,6 +58,12 @@
     <Filter Include="Файлы заголовков\dsp">
       <UniqueIdentifier>{fbc25ce0-7de2-4bd6-ab37-1625ddb0efe5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Исходные файлы\ALC">
+      <UniqueIdentifier>{d27acfa7-5011-40f7-a9d9-d438f9b8ef39}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\ALC">
+      <UniqueIdentifier>{9b1e70d4-7259-446d-8fd3-69baf3f9e62d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Config.cpp">
@@ -559,6 +565,9 @@
     </ClInclude>
     <ClInclude Include="Decimator.h">
       <Filter>Файлы заголовков\dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ALC.h">
+      <Filter>Файлы заголовков\ALC</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

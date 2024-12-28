@@ -93,6 +93,7 @@ private:
 
 		float swr;
 		float power;
+		float rawPower;
 
 		KalmanFilter* kFVolts = new KalmanFilter(2, 0.5);
 		KalmanFilter* kFCurrent = new KalmanFilter(2, 0.5);
@@ -135,7 +136,8 @@ private:
 			autoBypass = atoi(result[6].c_str());
 
 			swr = kFSwr->filter(atof(result[7].c_str()));
-			power = kFPower->filter(atof(result[8].c_str()));
+			rawPower = atof(result[8].c_str());
+			power = kFPower->filter(rawPower);
 
 			volts = kFVolts->filter(atof(result[9].c_str()));
 			current = kFCurrent->filter(atof(result[10].c_str()));

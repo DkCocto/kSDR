@@ -27,7 +27,10 @@ class HackRFDevice : public DeviceN {
 
 		bool isTxOn = false;
 
+
+
 	public:
+
 		void setFreq(uint64_t frequency);
 		void setLnaGain(uint32_t gain);
 		void setVgaGain(uint32_t gain);

@@ -15,6 +15,7 @@ Environment::Environment() {
 	specHandler = new SpectreHandler(config, fftData, viewModel, deviceController);	//need to recreate
 	flowingSpec = new FlowingSpectre(config, viewModel);						
 	receiverLogic = new ReceiverLogic(config, viewModel, flowingSpec);				//need to setup new flowingSpec during its recreating
+	alc = new ALC(config);
 }
 
 Environment::~Environment() {
@@ -32,6 +33,7 @@ void Environment::cleanUp() {
 	delete soundInputBuffer;
 	delete receiverLogic;
 	delete comPortHandler;
+	delete alc;
 }
 
 Config* Environment::getConfig() {
@@ -182,4 +184,8 @@ SignalModulatorThread* Environment::getSoundCardInputReader() {
 
 ComPortHandler* Environment::getComPortHandler() {
 	return comPortHandler;
+}
+
+ALC* Environment::getALC() {
+	return alc;
 }
