@@ -17,6 +17,8 @@ public:
 class ALC {
 
     KalmanFilter* power = new KalmanFilter(1, 1.0);
+    KalmanFilter* p1 = new KalmanFilter(1, 0.3);
+    KalmanFilter* p2 = new KalmanFilter(1, 0.5);
 
     float currentOutputPower = 0;
 
@@ -24,19 +26,19 @@ class ALC {
 
     //float inputLevel = 50;
 
-    float smoothingFactorFast = 0.4f;
-    float smoothingFactorSlow = 0.05f;
+    float smoothingFactorFast = 0.8f;
+    float smoothingFactorSlow = 0.08f;
     //float aggressiveFactor = 2.0f; // Коэффициент для агрессивной корректировки
     //float maxDeviationFactor = 1.2f; // Допустимое отклонение (1.2 означает 20% больше целевой мощности)
 
     // Допустимая погрешность для проверки "близости" к целевой мощности
-    float tolerance = 0.3f; // Мощность считается близкой, если отклонение от целевой не более 0.5
+    float tolerance = 0.5f; // Мощность считается близкой, если отклонение от целевой не более 0.5
 
     // Переменные для контроля времени
     std::chrono::time_point<std::chrono::steady_clock> lastAdjustmentTime;
     bool reachedTargetPower = false;
     //bool canIncreasePower = false;
-    int timeToAllowIncrease = 2000; // Время в миллисекундах до разрешения увеличения мощности (например, 5 секунд)
+    int timeToAllowIncrease = 2500; // Время в миллисекундах до разрешения увеличения мощности (например, 5 секунд)
 
     Config* config;
 
@@ -46,10 +48,16 @@ public:
         this->config = config;
     }
 
+    ~ALC() {
+        delete power;
+        delete p1;
+        delete p2;
+    }
+
     std::pair<float, float> generatePair() {
         std::pair<float, float> pair;
-        pair.first = inputSignalLevel;
-        pair.second = Transform::make(inputSignalLevel, 0, 120, 0, 20);
+        pair.first = p1->filter(inputSignalLevel);
+        pair.second = p2->filter(Transform::make(inputSignalLevel, 0, 120, 0, 20));
         return pair;
     }
 

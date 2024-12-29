@@ -26,7 +26,7 @@ void ComPortHandler::run() {
 			}
 
 			getStateTimerPoint2 = high_resolution_clock::now();
-			if (duration_cast<chrono::milliseconds>(getStateTimerPoint2 - getStateTimerPoint1).count() > stateRequestTimePeriod) {
+			if (duration_cast<chrono::milliseconds>(getStateTimerPoint2 - getStateTimerPoint1).count() > stateRequestTimePeriodMS) {
 				string answer = sendCMD(CMD_.GET_STATE);
 				deviceState.parseState(answer);
 				getStateTimerPoint1 = high_resolution_clock::now();

@@ -36,7 +36,7 @@ private:
 	atomic_bool readyToTxStop = false;
 	bool txStarted = false;
 
-	const int stateRequestTimePeriod = 20;
+	const int stateRequestTimePeriodMS = 1;
 
 	struct CMD {
 		const string INIT = "i";
