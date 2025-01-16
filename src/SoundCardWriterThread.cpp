@@ -16,7 +16,6 @@ SoundCardWriterThread::~SoundCardWriterThread() {
 
 void SoundCardWriterThread::run() {
 	float secondsInBuffer = 0.0;
-
 	isWorking_ = true;
 
 	while (true) {
@@ -37,7 +36,7 @@ void SoundCardWriterThread::run() {
 
 		if (available >= len) {
 			soundWriterCircleBuffer->read(data, len);
-			soundCard->write(data, len);
+			if (soundCard->isOutputAvailable()) soundCard->write(data, len);
 		} else {
 			std::this_thread::sleep_for(std::chrono::microseconds(1));
 		}

@@ -12,6 +12,8 @@ class AMModulation : Modulation {
 
 private:
 
+	const int carierFreq = 6000;
+
 	FIR audioFilter;
 
 	DataStruct* signalData;
@@ -21,12 +23,15 @@ private:
 	float* amData;
 	std::vector<double> upsampledData;
 
+	std::vector<double> upsampledDataQ;
+	std::vector<double> upsampledDataI;
+
 	Mixer* mixer = nullptr;
 
-	JFastFIRFilter* fastfir;
-	JFastFIRFilter* fastfir2;
+	JFastFIRFilter* upsampledDataFilterI;
+	JFastFIRFilter* upsampledDataFilterQ;
 
-	CosOscillator* cosOscillator = nullptr;
+	CosOscillator* carierOscillator = nullptr;
 
 	int inputDataLen = 0;
 
@@ -34,9 +39,6 @@ private:
 
 	int relation;
 	int upsamplingDataLen;
-
-	std::vector<double> upsamplingDataQ;
-	std::vector<double> upsamplingDataI;
 
 	std::vector<float> amQ;
 	std::vector<float> amI;

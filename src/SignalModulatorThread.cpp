@@ -70,6 +70,8 @@ void SignalModulatorThread::run() {
 
 			soundCard->read(readBuffer, BUFFER_READ_LEN);
 
+			if (readBuffer == nullptr) continue;
+
 			if (config->transmit.sendToneSignal) {
 				for (int i = 0; i < BUFFER_READ_LEN; i++) {
 					readBuffer[i] = 0.5f * (so1.nextSample() + so2.nextSample());

@@ -1,6 +1,5 @@
 #include "ComPortHandler.h"
 
-
 void ComPortHandler::run() {
 	using std::chrono::high_resolution_clock;
 

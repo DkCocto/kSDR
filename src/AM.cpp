@@ -3,7 +3,7 @@
 void AMModulation::setFreq(int freq) {
 	if (this->freq != freq) {
 		this->freq = freq;
-		mixer->setFreq(freq);
+		mixer->setFreq((freq + carierFreq));
 	}
 }
 
@@ -13,25 +13,31 @@ void AMModulation::initFilters() {
 
 		audioFilter.init(audioFilter.LOWPASS,
 			audioFilter.BLACKMAN_NUTTAL,
-			127,
+			65,
 			config->filterWidth,
 			0,
 			config->inputSamplerateSound);
 
-		if (fastfir != nullptr) delete fastfir;
-		if (fastfir2 != nullptr) delete fastfir2;
+		int downFreq = 0;
+		int upFreq = 0;
 
-		//create FastFIR filter
-		fastfir = new JFastFIRFilter;
-		fastfir2 = new JFastFIRFilter;
+		downFreq = carierFreq - config->filterWidth;
+		upFreq = carierFreq + config->filterWidth;
 
-		fastfir->setKernel(JFilterDesign::LowPassHanning(
-			config->filterWidth,
+		if (upsampledDataFilterQ != nullptr) delete upsampledDataFilterQ;
+		if (upsampledDataFilterI != nullptr) delete upsampledDataFilterI;
+
+		upsampledDataFilterQ = new JFastFIRFilter;
+		upsampledDataFilterQ->setKernel(JFilterDesign::BandPassHanning(
+			downFreq,
+			upFreq,
 			config->currentWorkingInputSamplerate,
 			1111));
 
-		fastfir2->setKernel(JFilterDesign::LowPassHanning(
-			4 * config->filterWidth,
+		upsampledDataFilterI = new JFastFIRFilter;
+		upsampledDataFilterI->setKernel(JFilterDesign::BandPassHanning(
+			downFreq,
+			upFreq,
 			config->currentWorkingInputSamplerate,
 			1111));
 
@@ -57,14 +63,17 @@ AMModulation::AMModulation(Config* config, int inputDataLen) {
 
 	upsampledData = std::vector<double>(upsamplingDataLen); upsampledData.reserve(upsamplingDataLen);
 
-	upsamplingDataQ = std::vector<double>(upsamplingDataLen); upsamplingDataQ.reserve(upsamplingDataLen);
-	upsamplingDataI = std::vector<double>(upsamplingDataLen); upsamplingDataI.reserve(upsamplingDataLen);
+	upsampledDataQ = std::vector<double>(upsamplingDataLen); upsampledDataQ.reserve(upsamplingDataLen);
+	upsampledDataI = std::vector<double>(upsamplingDataLen); upsampledDataI.reserve(upsamplingDataLen);
+
+
 
 	int hTransform1Len = 127;
 	hilbertTransform1 = new HilbertTransform(config->inputSamplerateSound, hTransform1Len);
 	delay1 = new Delay((hTransform1Len - 1) / 2);
 
-	cosOscillator = new CosOscillator(0, config->inputSamplerateSound);
+	carierOscillator = new CosOscillator(carierFreq, config->inputSamplerateSound);
+
 	mixer = new Mixer(config->currentWorkingInputSamplerate);
 }
 
@@ -76,51 +85,50 @@ AMModulation::~AMModulation() {
 	delete delay1;
 
 	delete mixer;
-	delete cosOscillator;
+	delete carierOscillator;
 }
 
 AMModulation::DataStruct* AMModulation::processData(float* input) {
 	setFreq(config->transmit.txFreq);
+	
 	initFilters();
 
+
+	//Генерируем АМ сигнал на заданной частоте и c определенной частоте дескретизации
 	for (int i = 0; i < inputDataLen; i++) {
-		float oscillatorSignal = cosOscillator->nextSample();
-		amData[i] = (1.0f + config->transmit.amModulationDepth * input[i]) * oscillatorSignal * config->transmit.inputLevel;
-		//if (max < abs(amSignal)) max = abs(amSignal);
-		//if (min > abs(amSignal)) min = abs(amSignal);
+		float oscillatorSignal = carierOscillator->nextSample();
+		amData[i] = (1.0f + config->transmit.amModulationDepth * audioFilter.proc(input[i])) * oscillatorSignal;
+
+		amQ[i] = delay1->filter(amData[i]);
+		amI[i] = hilbertTransform1->filter(amData[i]);
+
+		//auto complexOscSignal = complexOscillator->next();
+		//auto complexOscSignal = mixer->mix(am, 0);
+
+		//signalData->data[2 * i] = complexOscSignal.Q * am;
+		//signalData->data[2 * i + 1] = complexOscSignal.I * am;
 	}
 
-	/*for (int i = 0; i < inputDataLen; i++) {
-		amQ[i] = delay1->filter(input[i]);
-		amI[i] = hilbertTransform1->filter(input[i]);
-	}*/
+	//Обнуляем массив в котором будут храниться требуемые данные 
+	std::fill(upsampledDataQ.begin(), upsampledDataQ.end(), 0.0);
+	std::fill(upsampledDataI.begin(), upsampledDataI.end(), 0.0);
+
+
+	for (int i = 0; i < inputDataLen; i++) {
+		upsampledDataQ[i * relation] = amQ[i];
+		upsampledDataI[i * relation] = amI[i];
+	}
+
+	upsampledDataFilterQ->Update(upsampledDataQ);
+	upsampledDataFilterI->Update(upsampledDataI);
 
 	for (int i = 0; i < upsamplingDataLen; i++) {
-		if (i % relation != 0) {
-			double dither1 = ((double)rand() / (double)(RAND_MAX)) / 1000;
-			upsamplingDataQ[i] = dither1;
-			/*double dither2 = ((double)rand() / (double)(RAND_MAX)) / 1000;
-			upsamplingDataI[i] = dither2;*/
-		}
+		auto complexOscSignal = mixer->mix(upsampledDataQ[i], upsampledDataI[i]);
+
+		signalData->data[2 * i] = complexOscSignal.Q * config->transmit.inputLevel;
+		signalData->data[2 * i + 1] = complexOscSignal.I * config->transmit.inputLevel;
 	}
 
-	for (int i = 0; i < inputDataLen; i++) {
-		//input[i] /= config->transmit.inputLevel3;
-		upsamplingDataQ[i * relation] = amData[i];
-		//upsamplingDataI[i * relation] = amI[i];
-	}
-
-	fastfir->Update(upsamplingDataQ);
-	//fastfir2->Update(upsamplingDataI);
-
-	for (int i = 0; i < upsamplingDataLen; i++) {
-		float ditherI = ((float)rand() / (float)(RAND_MAX)) / 1000.0f;
-		float ditherQ = ((float)rand() / (float)(RAND_MAX)) / 1000.0f;
-		auto mixedSignal = mixer->mix(upsamplingDataQ[i], 0.0f + ditherQ);
-
-		signalData->data[2 * i] = (mixedSignal.Q + ditherQ);
-		signalData->data[2 * i + 1] = (mixedSignal.I + ditherI);
-	}
 
 	return signalData;
 }

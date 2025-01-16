@@ -162,7 +162,6 @@ template<typename T, typename D> void SoundProcessorThread::processData(T* data,
 
 	mixer.setFreq(receiverLogic->getFrequencyDelta());
 
-
 	for (int i = 0; i < len / 2; i++) {
 
 		float I = device->prepareData(data[2 * i]);

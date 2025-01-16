@@ -6,20 +6,20 @@ void SoundCard::init() {
 	inputParameters.device = Pa_GetDefaultInputDevice();
 
 	if (inputParameters.device != paNoDevice) {
-
 		inputParameters.channelCount = config->inputChannelNumber;
 		inputParameters.sampleFormat = PA_SAMPLE_TYPE;
 		inputParameters.suggestedLatency = Pa_GetDeviceInfo(inputParameters.device)->defaultHighInputLatency;
 		inputParameters.hostApiSpecificStreamInfo = NULL;
-
 	}
 
 	outputParameters.device = Pa_GetDefaultOutputDevice();
 
-	outputParameters.channelCount = config->outputChannelNumber;
-	outputParameters.sampleFormat = PA_SAMPLE_TYPE;
-	outputParameters.suggestedLatency = Pa_GetDeviceInfo(outputParameters.device)->defaultHighOutputLatency;
-	outputParameters.hostApiSpecificStreamInfo = NULL;
+	if (outputParameters.device != paNoDevice) {
+		outputParameters.channelCount = config->outputChannelNumber;
+		outputParameters.sampleFormat = PA_SAMPLE_TYPE;
+		outputParameters.suggestedLatency = Pa_GetDeviceInfo(outputParameters.device)->defaultHighOutputLatency;
+		outputParameters.hostApiSpecificStreamInfo = NULL;
+	}
 }
 
 void SoundCard::showError(PaError err) {
@@ -49,29 +49,32 @@ void SoundCard::open() {
 			paClipOff,
 			NULL,
 			NULL);
-		if (err != paNoError) throw [&]() { showError(err); };
+		if (err != paNoError) showError(err);
 	}
 
 	//err = Pa_StartStream(inputStream);
 	//if (err != paNoError) throw [&]() { showError(err); };
 	//------------------
 
+	if (outputParameters.device != paNoDevice) {
 
-	//Sound output stream
-	err = Pa_OpenStream(
-		&outputStream,
-		NULL,
-		&outputParameters,
-		config->outputSamplerate,
-		config->audioWriteFrameLen,
-		paClipOff,
-		NULL,
-		NULL);
-	if (err != paNoError) throw [&]() { showError(err); };
+		//Sound output stream
+		err = Pa_OpenStream(
+			&outputStream,
+			NULL,
+			&outputParameters,
+			config->outputSamplerate,
+			config->audioWriteFrameLen,
+			paClipOff,
+			NULL,
+			NULL);
+		if (err != paNoError) showError(err);
 
-	err = Pa_StartStream(outputStream);
-	if (err != paNoError) throw [&]() { showError(err); };
-	//------------------
+		err = Pa_StartStream(outputStream);
+		if (err != paNoError) showError(err);
+		//------------------
+
+	}
 }
 
 void SoundCard::close() {
@@ -90,8 +93,8 @@ void SoundCard::close() {
 float* SoundCard::read(float* buffer, int len) {
 	if (inputStream) {
 		err = Pa_ReadStream(inputStream, buffer, len);
-		if (err != paNoError) throw printf("Error message : % s\n", Pa_GetErrorText(err));
-	} else throw printf("Stream is empty!");
+		if (err != paNoError) printf("Error message : % s\n", Pa_GetErrorText(err));
+	} else return nullptr;
 	return buffer;
 }
 
@@ -103,7 +106,6 @@ void SoundCard::write(float* buffer, int len) {
 			//throw printf("Error message : % s\n", Pa_GetErrorText(err));
 		}
 	}
-	else throw printf("Stream is empty!");
 }
 
 void SoundCard::stopInput() {
@@ -129,4 +131,8 @@ int SoundCard::availableToRead() {
 
 bool SoundCard::isInputAvailable() {
 	return inputParameters.device != paNoDevice;
+}
+
+bool SoundCard::isOutputAvailable() {
+	return outputParameters.device != paNoDevice;
 }
