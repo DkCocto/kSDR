@@ -13,7 +13,7 @@ void AMModulation::initFilters() {
 
 		audioFilter.init(audioFilter.LOWPASS,
 			audioFilter.BLACKMAN_NUTTAL,
-			65,
+			127,
 			config->filterWidth,
 			0,
 			config->inputSamplerateSound);
@@ -32,14 +32,14 @@ void AMModulation::initFilters() {
 			downFreq,
 			upFreq,
 			config->currentWorkingInputSamplerate,
-			1111));
+			1555));
 
 		upsampledDataFilterI = new JFastFIRFilter;
 		upsampledDataFilterI->setKernel(JFilterDesign::BandPassHanning(
 			downFreq,
 			upFreq,
 			config->currentWorkingInputSamplerate,
-			1111));
+			1555));
 
 	}
 }

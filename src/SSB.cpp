@@ -83,13 +83,13 @@ void SSBModulation::initFilters() {
 			downFreq,
 			upFreq,
 			config->currentWorkingInputSamplerate,
-			1111));
+			1555));
 
 		fastfir2->setKernel(JFilterDesign::BandPassHanning(
 			downFreq,
 			upFreq,
 			config->currentWorkingInputSamplerate,
-			1111));
+			1555));
 
 	}
 }
@@ -118,14 +118,18 @@ SSBModulation::DataStruct* SSBModulation::processData(float* input) {
 	}
 
 
-	for (int i = 0; i < upsamplingDataLen; i++) {
+	//Обнуляем массив в котором будут храниться требуемые данные 
+	std::fill(upsamplingDataQ.begin(), upsamplingDataQ.end(), 0.0);
+	std::fill(upsamplingDataI.begin(), upsamplingDataI.end(), 0.0);
+
+	/*for (int i = 0; i < upsamplingDataLen; i++) {
 		if (i % relation != 0) {
 			double dither1 = ((double)rand() / (double)(RAND_MAX)) / 10000000;
 			double dither2 = ((double)rand() / (double)(RAND_MAX)) / 10000000;
 			upsamplingDataQ[i] = dither1;
 			upsamplingDataI[i] = dither2;
 		}
-	}
+	}*/
 
 	for (int i = 0; i < inputDataLen; i++) {
 		upsamplingDataQ[i * relation] = bufQ[i];

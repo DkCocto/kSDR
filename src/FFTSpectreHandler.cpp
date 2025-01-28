@@ -1,6 +1,9 @@
 #include "FFTSpectreHandler.h"
+#include "FPSControl.cpp"
 
 using namespace std::chrono;
+
+FPSControl* fpsControl;
 
 SpectreHandler::SpectreHandler(Config* config, FFTData* fftData, ViewModel* viewModel, DeviceController* deviceController) {
 	this->config = config;
@@ -37,12 +40,15 @@ SpectreHandler::SpectreHandler(Config* config, FFTData* fftData, ViewModel* view
 
 	speedDelta = new float[spectreSize];
 	//memset(speedDelta, 1, sizeof(float) * spectreSize);
+
+	fpsControl = new FPSControl(60.0 / (config->fftLen / 1024.0) + config->currentWorkingInputSamplerate / (config->fftLen / 2.0));
 }
 
 SpectreHandler::~SpectreHandler() {
 	fftw_destroy_plan(fftwPlan);
 	delete wb;
 	delete wbh;
+	delete fpsControl;
 	delete[] superOutput;
 	delete[] outputWaterfall;
 	delete[] tmpArray;
@@ -92,7 +98,10 @@ void SpectreHandler::run() {
 					break;
 			}
 
-		} else std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+			
+
+		} else std::this_thread::sleep_for(std::chrono::nanoseconds(1));
 	}
 }
 
@@ -100,7 +109,8 @@ template<typename DEVICE, typename DATATYPE> void SpectreHandler::prepareToProce
 	auto buffer = device->getBufferForSpec();
 	if (buffer->available() >= config->fftLen) {
 		processFFT<DATATYPE, DEVICE>(buffer->read(), device);
-	} else std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		fpsControl->tick();
+	} else std::this_thread::sleep_for(std::chrono::nanoseconds(1));
 }
 
 int oldMin = 0;

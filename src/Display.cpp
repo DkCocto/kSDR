@@ -479,6 +479,8 @@ void Display::renderImGUIFirst() {
 
 					if (txDisabledIf) ImGui::BeginDisabled();
 					if ((ImGui::Button("Start Transmitting") || (reactionOnSpaceBtn && !txSwitcherFlag)) && !hackRfInterface->isDeviceTransmitting()) {
+						//viewModel->transmit.inputLevel = 0;
+						//viewModel->hackRF.txVgaGain = 0;
 						env->getComPortHandler()->startTX();
 					}
 					ImGui::SameLine(); if (txDisabledIf) ImGui::EndDisabled();
@@ -493,6 +495,7 @@ void Display::renderImGUIFirst() {
 								txSwitcherFlag = false;
 							}
 							env->getComPortHandler()->stopTX();
+							//viewModel->transmit.inputLevel = 0;
 						}
 					};
 					if (!hackRfInterface->isDeviceTransmitting() || reactionOnSpaceBtn) ImGui::EndDisabled();
@@ -656,9 +659,9 @@ void Display::renderImGUIFirst() {
 					((HackRfInterface*)deviceInterface)->setFreq(viewModel->centerFrequency);
 					((HackRfInterface*)deviceInterface)->sendParamsToDevice();
 					if (((HackRfInterface*)deviceInterface)->isDeviceTransmitting()) {
-						auto pair = env->getALC()->process(env->getComPortHandler()->getDeviceState().rawPower);
-						viewModel->transmit.inputLevel = pair.first;
-						viewModel->hackRF.txVgaGain = pair.second;
+						//auto pair = env->getALC()->process(env->getComPortHandler()->getDeviceState().rawPower);
+						//viewModel->transmit.inputLevel = pair.first;
+						//viewModel->hackRF.txVgaGain = pair.second;
 					}
 				}
 				if (env->getDeviceController()->getCurrentDeviceType() == RTL) {

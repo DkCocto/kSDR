@@ -27,6 +27,7 @@
     <ClCompile Include="src\COMPortHandler.cpp" />
     <ClCompile Include="src\CW.cpp" />
     <ClCompile Include="src\FastFir\jfastfir.cpp" />
+    <ClCompile Include="src\FPSControl.cpp" />
     <ClCompile Include="src\Modulation.cpp" />
     <ClCompile Include="src\serialib.cpp" />
     <ClCompile Include="src\SignalModulatorThread.cpp" />

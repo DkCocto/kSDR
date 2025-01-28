@@ -303,6 +303,9 @@
     <ClCompile Include="Decimator.cpp">
       <Filter>Исходные файлы\dsp</Filter>
     </ClCompile>
+    <ClCompile Include="src\FPSControl.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Config.h">

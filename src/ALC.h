@@ -26,10 +26,8 @@ class ALC {
 
     //float inputLevel = 50;
 
-    float smoothingFactorFast = 0.8f;
-    float smoothingFactorSlow = 0.08f;
-    //float aggressiveFactor = 2.0f; // Коэффициент для агрессивной корректировки
-    //float maxDeviationFactor = 1.2f; // Допустимое отклонение (1.2 означает 20% больше целевой мощности)
+    float smoothingFactorFast = 0.4f;
+    float smoothingFactorSlow = 0.06f;
 
     // Допустимая погрешность для проверки "близости" к целевой мощности
     float tolerance = 0.5f; // Мощность считается близкой, если отклонение от целевой не более 0.5
@@ -37,7 +35,7 @@ class ALC {
     // Переменные для контроля времени
     std::chrono::time_point<std::chrono::steady_clock> lastAdjustmentTime;
     bool reachedTargetPower = false;
-    //bool canIncreasePower = false;
+
     int timeToAllowIncrease = 2500; // Время в миллисекундах до разрешения увеличения мощности (например, 5 секунд)
 
     Config* config;
@@ -56,12 +54,16 @@ public:
 
     std::pair<float, float> generatePair() {
         std::pair<float, float> pair;
-        pair.first = p1->filter(inputSignalLevel);
-        pair.second = p2->filter(Transform::make(inputSignalLevel, 0, 120, 0, 20));
+        pair.first = inputSignalLevel;
+        //pair.first = p1->filter(inputSignalLevel);
+        //pair.second = p2->filter(Transform::make(inputSignalLevel, 0, 120, 0, 20));
         return pair;
     }
 
     std::pair<float, float> process(float currentOutputPower) {
+
+        if (inputSignalLevel >= 10 && currentOutputPower < 0.2) return generatePair();
+
         float targetPower = (float)config->transmit.outputPower;
         this->currentOutputPower = currentOutputPower;
         auto currentTime = std::chrono::steady_clock::now();

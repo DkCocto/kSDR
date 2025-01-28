@@ -29,7 +29,7 @@ int HackRFDevice::tx_callback(hackrf_transfer* transfer) {
 
 		hackRFDevice->getBufferForSpec()->write(transfer->buffer, transfer->buffer_length);
 	}
-
+	
 	return 0;
 }
 

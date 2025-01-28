@@ -36,10 +36,10 @@
             <!-- 0 1 2 3 4-->
             <lnaGain>2</lnaGain>
             <!-- 0 .. 30 -->
-            <vgaGain>12</vgaGain>
+            <vgaGain>11</vgaGain>
             <txAmp>0</txAmp>
             <!-- 0 .. 47 step 2-->
-            <txVgaGain>3</txVgaGain>
+            <txVgaGain>20</txVgaGain>
         </HackRF>
         <RTL>
             <deviceSamplingRate>2000000</deviceSamplingRate>
@@ -48,16 +48,16 @@
     </Device>
     <Transmit>
         <txBySpaceBtn>1</txBySpaceBtn>
-        <inputLevel>22.192787</inputLevel>
+        <inputLevel>53.556</inputLevel>
         <amModulationDepth>1.806</amModulationDepth>
     </Transmit>
     <Receiver>
-        <startFreq>6900000</startFreq>
-        <lastSelectedFreq>7071020</lastSelectedFreq>
-        <volume>1.7551569</volume>
-        <filterWidth>6000</filterWidth>
+        <startFreq>28300000</startFreq>
+        <lastSelectedFreq>28500000</lastSelectedFreq>
+        <volume>0.19237278</volume>
+        <filterWidth>3124</filterWidth>
         <!-- USB:0, LSB:1, AM:2, nFM:3 -->
-        <modulation>2</modulation>
+        <modulation>0</modulation>
         <enableFrequencyShift>0</enableFrequencyShift>
         <frequencyShift>-52000000</frequencyShift>
         <enableNotch>0</enableNotch>
@@ -67,41 +67,41 @@
             <atackSpeedMs>0.12000000067055225</atackSpeedMs>
             <holdingTimeMs>1000</holdingTimeMs>
             <releaseSpeed>5.0000003789318816e-05</releaseSpeed>
-            <lastAmp>40.795230865478516</lastAmp>
+            <lastAmp>111.65383148193359</lastAmp>
         </Agc>
         <smeterType>0</smeterType>
     </Receiver>
     <Waterfall>
-        <min>-114.74152</min>
-        <max>-31.561646</max>
+        <min>-107.71147</min>
+        <max>-31.321701</max>
         <speed>1</speed>
     </Waterfall>
     <Spectre>
-        <ratio>-31.421768</ratio>
-        <min>-106.88139</min>
+        <ratio>-25.164261</ratio>
+        <min>-105.86891</min>
         <speed>2</speed>
-        <speed2>41</speed2>
+        <speed2>20</speed2>
         <!-- Must be a power of 2. The total will be fftLen = fftLen * 1024 -->
         <fftLen>131072</fftLen>
-        <visibleStartFreq>6947790</visibleStartFreq>
-        <visibleStopFreq>7226538</visibleStopFreq>
-        <startBin>33551</startBin>
-        <stopBin>38117</stopBin>
+        <visibleStartFreq>28352918</visibleStartFreq>
+        <visibleStopFreq>28647168</visibleStopFreq>
+        <startBin>33635</startBin>
+        <stopBin>38455</stopBin>
         <removeDCBias>1</removeDCBias>
         <style>1</style>
         <contourShowsPower>0</contourShowsPower>
         <bottomCoeff>0.88200003</bottomCoeff>
         <topCoeff>0.76599997</topCoeff>
         <hangAndDecay>1</hangAndDecay>
-        <decaySpeed>0.03438</decaySpeed>
-        <decaySpeedDelta>0.29800001</decaySpeedDelta>
+        <decaySpeed>0.076449998</decaySpeed>
+        <decaySpeedDelta>0.36300001</decaySpeedDelta>
         <smoothingDepth>1</smoothingDepth>
         <spectreCorrectionDb>-49</spectreCorrectionDb>
     </Spectre>
     <ColorTheme>
         <spectreWindowFillColor1>4286447696</spectreWindowFillColor1>
         <spectreWindowFillColor2>4282779925</spectreWindowFillColor2>
-        <spectreFillColor>4293226313</spectreFillColor>
+        <spectreFillColor>4293616454</spectreFillColor>
         <spectreGradientEnable>1</spectreGradientEnable>
         <spectreProfileColor>4294967295</spectreProfileColor>
         <mainBGColor>4278190080</mainBGColor>
