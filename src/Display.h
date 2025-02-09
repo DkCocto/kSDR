@@ -52,6 +52,7 @@ private:
 	std::unique_ptr<ListSetting<int>> rtlDeviceGainLS;
 	std::unique_ptr<ListSetting<int>> rtlSampRateLS;
 	std::unique_ptr<ListSetting<int>> smeterTypeLS;
+	std::unique_ptr<ListSetting<int>> soundcardDeviceSampRateLS;
 
 	void initSettings();
 	void onStartTX();

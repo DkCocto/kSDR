@@ -148,6 +148,7 @@ public:
 		int tone1Freq = 1000;
 		int tone2Freq = 0;
 		int outputPower = 10;
+		bool phaserFilter = true;
 	} transmit;
 
 	DeviceType deviceType, delayedDeviceType;
@@ -175,6 +176,12 @@ public:
 		int deviceSamplingRate = 500000;
 		int gain = 50;
 	} rtl;
+
+	struct SOUNDCARDDEVICE {
+		int deviceSamplingRate = 192000;
+		int inputChannelCount = 2;
+		int inputFrameCount = inputChannelCount * 16;
+	} soundcardDevice;
 
 	struct App {
 		int winWidth = 1920;

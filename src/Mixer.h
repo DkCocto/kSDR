@@ -7,7 +7,7 @@ class Mixer {
 
 	int freq = 0;
 
-	ComplexSignal complexSignal;
+	//ComplexSignal complexSignal;
 
 public:
 

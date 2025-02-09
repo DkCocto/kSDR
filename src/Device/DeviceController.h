@@ -6,6 +6,8 @@
 #include "HackRFInterface.h"
 #include "RTLInterface.h"
 #include "RSPInterface.h"
+#include "SoundCardInterface.h"
+#include "../SoundCard.h"
 
 class DeviceController {
 	private:
@@ -50,4 +52,5 @@ class DeviceController {
 		bool isStatusInitFail();
 
 		void setTXBuffer(CircleBufferNew<float>* txBuffer);
+
 };

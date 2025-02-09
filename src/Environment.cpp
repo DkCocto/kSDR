@@ -95,6 +95,11 @@ void Environment::startProcessing() {
 
 		//Инициализируем звуковую карту
 		soundCard->open();
+		if (config->deviceType == DeviceType::SOUNDCARD) {
+			auto device = (SoundCardDevice*)deviceController->getDevice();
+			device->setInputStream(soundCard->getInputStream());
+			soundCard->startInput();
+		}
 
 		soundCardWriterThread->start().detach();
 

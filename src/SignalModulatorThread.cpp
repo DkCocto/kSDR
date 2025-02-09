@@ -1,4 +1,5 @@
 #include "SignalModulatorThread.h"
+#include "PhaserFilter.h"
 
 void SignalModulatorThread::initToneGenerator() {
 	if (TONE_SIGNAL_FREQ1 != config->transmit.tone1Freq || TONE_SIGNAL_FREQ2 != config->transmit.tone2Freq) {
@@ -8,6 +9,8 @@ void SignalModulatorThread::initToneGenerator() {
 		so2.setFreq(TONE_SIGNAL_FREQ2);
 	}
 }
+
+PhaserFilter phaserFilter;
 
 SignalModulatorThread::SignalModulatorThread(Config* config, CircleBufferNew<float>* soundInputBuffer, SoundCard* soundCard) {
 	this->config = config;
@@ -23,6 +26,8 @@ SignalModulatorThread::SignalModulatorThread(Config* config, CircleBufferNew<flo
 
 	ssbModulation = new SSBModulation(config, BUFFER_READ_LEN);
 	amModulation = new AMModulation(config, BUFFER_READ_LEN);
+
+	phaserFilter = PhaserFilter(config->inputSamplerateSound);
 }
 
 SignalModulatorThread::~SignalModulatorThread() {
@@ -33,6 +38,8 @@ std::thread SignalModulatorThread::start() {
 	std::thread p(&SignalModulatorThread::run, this);
 	return p;
 }
+
+
 
 void SignalModulatorThread::run() {
 
@@ -69,6 +76,8 @@ void SignalModulatorThread::run() {
 			initToneGenerator();
 
 			soundCard->read(readBuffer, BUFFER_READ_LEN);
+
+			if (config->transmit.phaserFilter) phaserFilter.process(readBuffer, BUFFER_READ_LEN);
 
 			if (readBuffer == nullptr) continue;
 

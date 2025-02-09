@@ -5,7 +5,6 @@
 #include "ComplexSignal.h"
 #include "ComplexOscillator.h"
 #include "Mixer.h"
-//#include "WindowBlackmanHarris.h"
 #include "SinOscillator.h"
 #include "HilbertTransform.h"
 #include "Delay.h"

@@ -90,15 +90,17 @@ FFTData::OUTPUT* FFTData::getDataCopy(bool waterfall) {
 	//memcpy(buffer, data + (spectreSize / 2), sizeof(data) * (spectreSize / 2));
 	//memcpy(buffer + (spectreSize / 2), data, sizeof(data) * (spectreSize / 2));
 	if (!waterfall) {
-		memcpy(dataCopy->data, spectreDataN->data + sizeDiv2, sizeof(float) * sizeDiv2);
-		memcpy(dataCopy->data + sizeDiv2, spectreDataN->data, sizeof(float) * sizeDiv2);
+		//memcpy(dataCopy->data, spectreDataN->data + sizeDiv2, sizeof(float) * sizeDiv2);
+		//memcpy(dataCopy->data + sizeDiv2, spectreDataN->data, sizeof(float) * sizeDiv2);
+		memcpy(dataCopy->data, spectreDataN->data, sizeof(float) * size);
 
 		destroyData(shadowSpectreDataN);
 		shadowSpectreDataN = new OUTPUT { new float[size], size };
 		memcpy(shadowSpectreDataN->data, dataCopy->data, sizeof(float) * size);
 	} else {
-		memcpy(dataCopy->data, waterfallDataN->data + sizeDiv2, sizeof(float) * sizeDiv2);
-		memcpy(dataCopy->data + sizeDiv2, waterfallDataN->data, sizeof(float) * sizeDiv2);
+		//memcpy(dataCopy->data, waterfallDataN->data + sizeDiv2, sizeof(float) * sizeDiv2);
+		//memcpy(dataCopy->data + sizeDiv2, waterfallDataN->data, sizeof(float) * sizeDiv2);
+		memcpy(dataCopy->data, waterfallDataN->data, sizeof(float) * size);
 
 		destroyData(shadowWaterfallDataN);
 		shadowWaterfallDataN = new OUTPUT { new float[size], size };

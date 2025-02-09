@@ -456,6 +456,10 @@ void Display::renderImGUIFirst() {
 					if (env->getDeviceController()->isStatusInitOk()) rtlInterface->sendParamsToDevice();
 				}
 			}
+
+			if (env->getConfig()->deviceType == DeviceType::SOUNDCARD) {
+				soundcardDeviceSampRateLS->drawSetting();
+			}
 			//ImGui::TreePop();
 		}
 
@@ -707,7 +711,7 @@ void Display::renderImGUIFirst() {
 }
 
 void Display::showSelectDeviceSetting() {
-	const char* items[] = { "RSP1/RSP1A", "HackRF", "RTLSDR" };
+	const char* items[] = { "RSP1/RSP1A", "HackRF", "RTLSDR", "SOUNDCARD"};
 	static int item_current_idx = env->getConfig()->deviceType; // Here we store our selection data as an index.
 	const char* combo_preview_value = items[item_current_idx];  // Pass in the preview value visible before opening the combo (it could be anything)
 	if (ImGui::BeginCombo("Device (*)", combo_preview_value, 0)) {
@@ -834,7 +838,8 @@ void Display::initSettings() {
 	std::map<DeviceType, std::string> selectDeviceMap = {
 		{RSP , "RSP"},
 		{HACKRF , "HACKRF"},
-		{RTL , "RTL"}
+		{RTL , "RTL"},
+		{SOUNDCARD , "SOUNDCARD"}
 	};
 
 	selectDeviceLS = std::make_unique<ListSetting<DeviceType>>(env, selectDeviceMap, "Select device", true);
@@ -948,6 +953,18 @@ void Display::initSettings() {
 	rtlSampRateLS->bindVariable(&env->getConfig()->rtl.deviceSamplingRate);
 
 
+	//Soundcard Device
+	std::map<int, std::string> soundcardDeviceSampRateMap = {
+	{48000 , "48000"},
+	{96000 , "96000"},
+	{192000 , "192000"}
+	};
+
+	soundcardDeviceSampRateLS = std::make_unique<ListSetting<int>>(env, soundcardDeviceSampRateMap, "Sampling rate", true);
+	soundcardDeviceSampRateLS->bindVariable(&env->getConfig()->soundcardDevice.deviceSamplingRate);
+
+	//-----------------
+
 	//-------------Spectre
 	std::map<int, std::string> spectreStyleMap = { {0, "Colored contour"}, {1, "Only contour"},	{2, "Color filled"} };
 
@@ -971,6 +988,9 @@ void Display::initSettings() {
 
 	//--------------Other-
 	std::map<int, std::string> fftLenMap = {
+		{ 1024, "1024"},
+		{ 2048, "2048"},
+		{ 4096, "4096"},
 		{ 8192, "8192"},
 		{ 16384, "16384" },
 		{ 32768, "32768" },

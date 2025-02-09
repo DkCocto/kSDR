@@ -17,7 +17,9 @@ class SpectreHandler : public MyThread {
 	
 private:
 
-	float* tmpArray;
+	float* veryRawDataArray;
+	float* spectreRawArray;
+	float* spectreRaw2Array;
 	float* tmpArray2;
 
 	//audiofft::AudioFFT fft;
@@ -67,6 +69,10 @@ private:
 	template<typename T, typename D> void processFFT(T* data, D* device);
 	float psd(float re, float im);
 	float average(float avg, float new_sample, int n);
+
+	void calculateAndNormalizeBinInRawData(float* data, int size);
+
+	void prepareDataForWaterfall(float* data, int size);
 
 public:
 

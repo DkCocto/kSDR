@@ -6,14 +6,7 @@ FIR::~FIR() {
 void FIR::init(unsigned char type, unsigned char window, short order, int f1, int f2, int sampleRate) {
     len = order;
     
-    /*if (m_fir != nullptr) delete[] m_fir;
-    m_fir = new float[order];
-    memset(m_fir, 0, sizeof(float) * order);
-
-    if (m_delay != nullptr) delete[] m_delay;
-    m_delay = new float[order];
-    memset(m_delay, 0, sizeof(float) * order);*/
-
+  
 
     m_fir.clear();
     m_delay.clear();
@@ -128,14 +121,6 @@ float FIR::proc(float sample) {
     float out = 0.0f;
     for (int i = 0; i < len; i++) out += m_delay[i] * m_fir[i];
 
-    // ограничение амплитуды
-    /*/if (out > 0) {
-        out += 0.0005;
-        if (out > 32767) out = 32767;
-    } else {
-        out -= 0.0005;
-        if (out < -32768) out = -32768;
-    }*/
     return out;
 }
 

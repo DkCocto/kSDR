@@ -33,7 +33,8 @@ constexpr auto DISABLE_CONTROL_COLOR_PICKER = 7;
 enum DeviceType {
 	RSP,
 	HACKRF,
-	RTL
+	RTL,
+	SOUNDCARD
 };
 
 #define LIGHTRED					IM_COL32(255, 0, 0, 255)

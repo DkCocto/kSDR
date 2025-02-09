@@ -142,6 +142,9 @@ void SoundProcessorThread::run() {
 				case RSP:
 					initProcess<RSPDevice, short>((RSPDevice*)device);
 					break;
+				case SOUNDCARD:
+					initProcess<SoundCardDevice, float>((SoundCardDevice*)device);
+					break;
 			}
 		}
 	}
@@ -223,6 +226,7 @@ template<typename T, typename D> void SoundProcessorThread::processData(T* data,
 			if (mode == AM) audio *= 3.0f;
 			if (mode == nFM) audio *= 2.0f;
 			outputData[count] = audio * config->volume;
+
 			count++;
 		}
 

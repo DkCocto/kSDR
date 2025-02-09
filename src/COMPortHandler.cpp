@@ -71,7 +71,6 @@ void ComPortHandler::run() {
 				needToTxStop = false;
 			} else {
 				std::this_thread::sleep_for(std::chrono::milliseconds(1));
-
 			}
 		}
 
@@ -87,7 +86,6 @@ bool ComPortHandler::initDevice() {
 }
 
 bool ComPortHandler::connectToDevice() {
-
 	COM_PORT = "";
 
 	auto portList = serial.getAvailablePorts();

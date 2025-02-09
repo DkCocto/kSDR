@@ -1,6 +1,10 @@
 #include "FFTSpectreHandler.h"
 #include "FPSControl.cpp"
 
+#include <iostream>
+#include <algorithm>
+#include <cmath>
+
 using namespace std::chrono;
 
 FPSControl* fpsControl;
@@ -23,11 +27,17 @@ SpectreHandler::SpectreHandler(Config* config, FFTData* fftData, ViewModel* view
 	outputWaterfall = new float[spectreSize];
 	memset(outputWaterfall, -100, sizeof(float) * spectreSize);
 
-	tmpArray = new float[spectreSize];
-	memset(tmpArray, -100, sizeof(float) * spectreSize);
+	veryRawDataArray = new float[spectreSize];
+	memset(veryRawDataArray, -100, sizeof(float) * spectreSize);
+
+	spectreRawArray = new float[spectreSize];
+	memset(spectreRawArray, -100, sizeof(float) * spectreSize);
+
+	spectreRaw2Array = new float[spectreSize];
+	memset(spectreRaw2Array, -100, sizeof(float) * spectreSize);
 
 	tmpArray2 = new float[spectreSize];
-	memset(tmpArray, -100, sizeof(float) * spectreSize);
+	memset(tmpArray2, -100, sizeof(float) * spectreSize);
 
 	inData = new fftw_complex[config->fftLen];
 	
@@ -51,7 +61,8 @@ SpectreHandler::~SpectreHandler() {
 	delete fpsControl;
 	delete[] superOutput;
 	delete[] outputWaterfall;
-	delete[] tmpArray;
+	delete[] spectreRawArray;
+	delete[] spectreRaw2Array;
 	delete[] tmpArray2;
 	delete[] inData;
 	delete[] outData;
@@ -96,6 +107,9 @@ void SpectreHandler::run() {
 				case RSP:
 					prepareToProcess<RSPDevice, short>((RSPDevice*)device);
 					break;
+				case SOUNDCARD:
+					prepareToProcess<SoundCardDevice, float>((SoundCardDevice*)device);
+					break;
 			}
 
 
@@ -109,7 +123,7 @@ template<typename DEVICE, typename DATATYPE> void SpectreHandler::prepareToProce
 	auto buffer = device->getBufferForSpec();
 	if (buffer->available() >= config->fftLen) {
 		processFFT<DATATYPE, DEVICE>(buffer->read(), device);
-		fpsControl->tick();
+		//fpsControl->tick();
 	} else std::this_thread::sleep_for(std::chrono::nanoseconds(1));
 }
 
@@ -140,19 +154,19 @@ template<typename T, typename D> void SpectreHandler::processFFT(T* data, D* dev
 		memcpy(outputCopy, superOutput, sizeof(superOutput) * spectreSize);
 
 		for (int i = config->receiver.receiveBinA; i <= config->receiver.receiveBinB; i++) {
-			i = Utils::convFFTResBinToSpecBin(i, spectreSize);
+			//i = Utils::convFFTResBinToSpecBin(i, spectreSize);
 			if (oldMax < outputCopy[i]) oldMax = outputCopy[i];
 			if (oldMin > outputCopy[i]) oldMin = outputCopy[i];
 		}
 
 		for (int i = 0; i < spectreSize; i++) {
-			int newI = Utils::convFFTResBinToSpecBin(i, spectreSize);
+			//int newI = Utils::convFFTResBinToSpecBin(i, spectreSize);
 			if (i < config->receiver.receiveBinA || i > config->receiver.receiveBinB) {
-				outputCopy[newI] = config->spectre.minVisibleDB;
+				outputCopy[i] = config->spectre.minVisibleDB;
 			}
 			else {
 				//if (abs(to2 - newMin) < config->spectre.maxVisibleDB) to2 = config->spectre.maxVisibleDB;
-				outputCopy[newI] = Utils::convertSegment(outputCopy[newI], oldMin, oldMax, config->spectre.minVisibleDB, config->spectre.maxVisibleDB);
+				outputCopy[i] = Utils::convertSegment(outputCopy[i], oldMin, oldMax, config->spectre.minVisibleDB, config->spectre.maxVisibleDB);
 			}
 		}
 		fftData->setData(outputCopy, outputCopy, spectreSize);
@@ -163,41 +177,143 @@ template<typename T, typename D> void SpectreHandler::processFFT(T* data, D* dev
 	}
 }
 
-float SpectreHandler::average(float avg, float new_sample, int n) {
-	float tmp = avg;
-	tmp -= avg / (float)n;
-	tmp += new_sample / (float)n;
-	return tmp;
+// Быстрое вычисление k-й порядковой статистики (QuickSelect)
+float quickSelect(float* data, int left, int right, int k) {
+	while (left < right) {
+		float pivot = data[right];  // Опорный элемент (последний)
+		int i = left;
+		for (int j = left; j < right; j++) {
+			if (data[j] < pivot) {
+				std::swap(data[i], data[j]);
+				i++;
+			}
+		}
+		std::swap(data[i], data[right]);
+
+		if (i == k) return data[i];
+		if (i < k) left = i + 1;
+		else right = i - 1;
+	}
+	return data[left];
 }
 
-void SpectreHandler::dataPostprocess() {
-	for (int i = 0; i < spectreSize; i++) {
-		float psd = this->psd(outData[i][0], outData[i][1]) + config->spectre.spectreCorrectionDb;
-		if (firstRun) {
-			tmpArray[i] = psd;
-			firstRun = false;
-		} else {
-			tmpArray[i] = average(tmpArray[i], psd, config->spectre.spectreSpeed);
+// Функция быстрой медианы O(N)
+float fastMedian(float* data, int size) {
+	if (size % 2 == 1)
+		return quickSelect(data, 0, size - 1, size / 2);
+	else
+		return (quickSelect(data, 0, size - 1, size / 2 - 1) +
+			quickSelect(data, 0, size - 1, size / 2)) / 2.0f;
+}
+
+// Функция удаления шумовой полки (быстрая)
+void removeNoiseFloor(float* spectrum, int size) {
+	float noise_floor = fastMedian(spectrum, size);  // Определяем уровень шума
+
+	// Убираем шум
+	for (int i = 0; i < size; ++i) {
+		float newValue = spectrum[i] - noise_floor;
+		spectrum[i] = (newValue > 0.0f) ? newValue : 0.0f; // Безопасная проверка
+	}
+}
+	
+void smoothSpectre(float* src, int size, int gaussDepth, float alpha) {
+	const float kernel[5] = { 0.06f, 0.24f, 0.40f, 0.24f, 0.06f };
+	float* temp = new float[size];
+
+	// 🔹 Гауссово сглаживание (повторяем несколько раз для глубины)
+	for (int iter = 0; iter < gaussDepth; iter++) {
+		for (int i = 2; i < size - 2; i++) {
+			temp[i] = src[i - 2] * kernel[0] +
+				src[i - 1] * kernel[1] +
+				src[i] * kernel[2] +
+				src[i + 1] * kernel[3] +
+				src[i + 2] * kernel[4];
+		}
+		// Копируем обратно в data
+		for (int i = 2; i < size - 2; i++) {
+			src[i] = temp[i];
 		}
 	}
 
-	//memcpy(tmpArray2, tmpArray, sizeof(float) * spectreSize);
-	//superOutput[j] = (tmpArray[j - 1] + tmpArray[j] + tmpArray[j + 1]) / 3;
-	//tmpArray2[j] = (tmpArray[j - 3] + 2 * tmpArray[j - 2] + 3 * tmpArray[j - 1] + 4 * tmpArray[j] + 3 * tmpArray[j + 1] + 2 * tmpArray[j + 2] + tmpArray[j + 3]) / 16.0;
+	// 🔹 Экспоненциальное усреднение
+	/*float prev = src[0];
+	for (int i = 1; i < size; i++) {
+		src[i] = alpha * src[i] + (1.0f - alpha) * prev;
+		prev = src[i];
+	}*/
 
-	for (int n = 0; n <= config->spectre.smoothingDepth; n++) {
+
+	delete[] temp;
+}
+
+float SpectreHandler::average(float avg, float new_sample, int n) {
+	return avg + (new_sample - avg) / (float)n;
+}
+
+void SpectreHandler::calculateAndNormalizeBinInRawData(float* data, int size) {
+	for (int i = 0; i < size; i++) {
+		data[Utils::convFFTResBinToSpecBin(i, size)] = this->psd(outData[i][0], outData[i][1]) + config->spectre.spectreCorrectionDb;
+	}
+}
+
+void SpectreHandler::dataPostprocess() {
+	calculateAndNormalizeBinInRawData(veryRawDataArray, spectreSize);
+
+	for (int i = 0; i < spectreSize; i++) {
+		spectreRawArray[i] = average(spectreRawArray[i], veryRawDataArray[i], 2);
+		outputWaterfall[i] = spectreRawArray[i];
+	}
+
+	//removeNoiseFloor(spectreRawArray, spectreSize);
+
+	smoothSpectre(spectreRawArray, spectreSize, config->spectre.smoothingDepth, 0.5f);
+
+	for (int i = 0; i < spectreSize; i++) {
+		spectreRaw2Array[i] = average(spectreRaw2Array[i], spectreRawArray[i], config->spectre.spectreSpeed);
+	}
+
+	for (int i = 0; i < spectreSize; i++) {
+		if (config->spectre.hangAndDecay) {
+			if (superOutput[i] < spectreRaw2Array[i]) {
+				superOutput[i] = spectreRaw2Array[i];
+				speedDelta[i] = 1.0f;
+			}
+			else {
+				superOutput[i] -= config->spectre.decaySpeed * speedDelta[i];
+				speedDelta[i] += config->spectre.decaySpeedDelta;
+			}
+		}
+		else {
+			superOutput[i] = spectreRaw2Array[i];
+		}
+	}
+
+	/*for (int i = 0; i < spectreSize; i++) {
+		spectreRaw2Array[i] = average(spectreRaw2Array[i], spectreRawArray[i], config->spectre.spectreSpeed);
+	}*/
+
+	//smoothSpectre(spectreRaw2Array, spectreSize, 1, 0.3f);
+
+	/*for (int i = 0; i < spectreSize; i++) {
+		superOutput[i] = spectreRaw2Array[i];
+	}*/
+
+	//movingAverageSmooth(spectreRawArray, spectreSize, config->spectre.spectreSpeed2);
+
+
+	/*for (int n = 0; n <= config->spectre.smoothingDepth; n++) {
 		for (int j = 0; j < spectreSize; j++) {
-			j = Utils::convFFTResBinToSpecBin(j, spectreSize);
+			//j = Utils::convFFTResBinToSpecBin(j, spectreSize);
 			if (j >= 1 && j < spectreSize - 1) {
-				tmpArray2[j] = (tmpArray[j - 1] + tmpArray[j] + tmpArray[j + 1]) / 3;
-				//tmpArray2[j] = (tmpArray[j - 2] + 2.0f * tmpArray[j - 1] + 3.0f * tmpArray[j] + 2.0f * tmpArray[j + 1] + tmpArray[j + 2]) / 9.0f;
+				tmpArray2[j] = (spectreRawArray[j - 1] + spectreRawArray[j] + spectreRawArray[j + 1]) / 3;
 			} else {
-				tmpArray2[j] = tmpArray[j];
+				tmpArray2[j] = spectreRawArray[j];
 			}
 
-			if (n == 0) {
-				outputWaterfall[j] = tmpArray2[j];
-			}
+			//if (n == 0) {
+			//	outputWaterfall[j] = tmpArray2[j];
+			//}
 
 			if (n == config->spectre.smoothingDepth) {
 				if (config->spectre.hangAndDecay) {
@@ -215,14 +331,14 @@ void SpectreHandler::dataPostprocess() {
 				}
 			}
 		}
-		if (n != config->spectre.smoothingDepth) memcpy(tmpArray, tmpArray2, sizeof(float) * spectreSize);
-	}
+		if (n != config->spectre.smoothingDepth) memcpy(spectreRawArray, tmpArray2, sizeof(float) * spectreSize);
+	}*/
 }
 
 float SpectreHandler::psd(float re, float im) {
 	//return (20*Math.log10(Math.sqrt((re*re)/binBandwidth + (im*im)/binBandwidth)));
 	float basis = sqrt((re * re + im * im) / (float)config->fftLen);
-	if (basis == 0) basis = 0.000001;
+	if (basis == 0) basis = 0.0001;
 	return 10.0f * log(basis);
 }
 
@@ -236,90 +352,3 @@ std::thread SpectreHandler::start() {
 	//DWORD result = ::SetThreadIdealProcessor(p.native_handle(), 1);
 	return p;
 }
-
-
-//std::atomic_int idx = 0;
-
-/*void SpectreHandler::putData(float* data) {
-	if (!spectreDataMutex.try_lock()) {
-		return;
-	}
-	memcpy(dataBuffer, data, sizeof(float) * config->fftLen);
-	spectreDataMutex.unlock(); // не забываем ставить unlock()!!!
-	ready = true;
-}*/
-
-/*void SpectreHandler::write(float val) {
-	if (ready) return;
-	dataBuffer[idx] = val;
-	idx++;
-	if (idx >= spectreSize) ready = true;
-}*/
-
-/*void SpectreHandler::reset() {
-	idx = 0;
-}*/
-
-
-/*float* FFTSpectreHandler::getOutputCopy(int startPos, int len, bool forWaterfall) {
-	float* buffer = new float[spectreSize];
-
-	//spectreDataMutex.lock();
-
-	float* data = (forWaterfall == true) ? outputWaterfall : superOutput;
-
-	memcpy(buffer, data + (spectreSize / 2), sizeof(data) * (spectreSize / 2));
-	memcpy(buffer + (spectreSize / 2), data, sizeof(data) * (spectreSize / 2));
-
-	//spectreDataMutex.unlock();
-
-	float* dataCopy = new float[len];
-
-	memcpy(dataCopy, buffer + startPos, sizeof(float) * len);
-
-	delete[] buffer;
-
-	return dataCopy;
-}*/
-
-//memcpy(output, dataBuffer, sizeof(output) * bufferLen);
-
-//memset(imOut, 0, sizeof(float) * bufferLen);
-
-//float* realIn = new float[bufferLen];
-//memset(realIn, 0, sizeof(float) * bufferLen);
-
-//prepareData();
-
-//std::vector<float> re(audiofft::AudioFFT::ComplexSize(FFT_LENGTH));
-//std::vector<float> im(audiofft::AudioFFT::ComplexSize(FFT_LENGTH));
-
-//cout << "im.size() " << audiofft::AudioFFT::ComplexSize(FFT_LENGTH) << "\r\n";
-
-//auto begin = std::chrono::steady_clock::now();
-
-//fft3(realInput, imInput, config->fftLen / 2, realOut, imOut);
-
-/*auto end = std::chrono::steady_clock::now();
-auto elapsed_ms = std::chrono::duration_cast<std::chrono::microseconds>(end - begin);
-std::cout << "The time: " << elapsed_ms.count() << " micros\n";*/
-
-//for (int i = 0; i < 32 * 1024; i++) printf("freq: %3d %+9.5f %+9.5f I\n", i, out[i][0], out[i][1]);
-
-/*for (int i = 0; i < config->fftLen / 2; i++) {
-	realOut[i] = out[i][0];
-	imOut[i] = out[i][1];
-}*/
-
-//fft3(realInput, imInput, config->fftLen / 2, realOut, imOut);
-
-//fft.fft(dataBuffer, realOut, imOut);
-
-//memcpy(output, realOut, sizeof(realOut));
-//memcpy(output + sizeof(realOut), imOut, sizeof(imOut));
-
-
-//Utils::printArray(inOut, bufferLen);
-
-//fft.process(1, 10, output, kakashka);
-//semaphore->unlock();

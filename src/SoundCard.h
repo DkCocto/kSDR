@@ -40,4 +40,6 @@ public:
 	bool isInputAvailable();
 	bool isOutputAvailable();
 
+	PaStream* getInputStream();
+
 };

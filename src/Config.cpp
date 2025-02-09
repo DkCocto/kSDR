@@ -24,11 +24,15 @@ void Config::initSettings() {
     case DeviceType::RTL:
         currentWorkingInputSamplerate = rtl.deviceSamplingRate / inputSamplerateDivider;
         break;
+    case DeviceType::SOUNDCARD:
+        currentWorkingInputSamplerate = soundcardDevice.deviceSamplingRate / inputSamplerateDivider;
+        inputSamplerateSound = currentWorkingInputSamplerate;
+        break;
     default:
         currentWorkingInputSamplerate = 4000000;
     }
 
-    calcInputSamplerate();
+    if (deviceType != DeviceType::SOUNDCARD) calcInputSamplerate();
     calcOutputSamplerate();
 
     bufferWriteAudioLen = (outputSamplerateDivider) / 4;
@@ -84,6 +88,9 @@ void Config::loadXml() {
                     break;
                 case 2:
                     deviceType = DeviceType::RTL;
+                    break;
+                case 3:
+                    deviceType = DeviceType::SOUNDCARD;
                     break;
                 default:
                     deviceType = DeviceType::HACKRF;
@@ -147,6 +154,12 @@ void Config::loadXml() {
 
                 tinyxml2::XMLElement* pgain = pRTL->FirstChildElement("gain");
                 rtl.gain = std::stoi(std::string(pgain->GetText()));
+            }
+
+            tinyxml2::XMLElement* pSoundcardDevice = pDevice->FirstChildElement("SOUNDCARDDEVICE");
+            if (NULL != pSoundcardDevice) {
+                tinyxml2::XMLElement* pdeviceSamplingRate = pSoundcardDevice->FirstChildElement("deviceSamplingRate");
+                soundcardDevice.deviceSamplingRate = std::stoi(std::string(pdeviceSamplingRate->GetText()));
             }
         }
 
@@ -437,6 +450,7 @@ void Config::save() {
             if (delayedDeviceType == DeviceType::RSP) ptype->SetText(0);
             else if (delayedDeviceType == DeviceType::HACKRF) ptype->SetText(1);
             else if (delayedDeviceType == DeviceType::RTL) ptype->SetText(2);
+            else if (delayedDeviceType == DeviceType::SOUNDCARD) ptype->SetText(3);
             else ptype->SetText(0);
 
             tinyxml2::XMLElement* psamplingRateDiv = pDevice->FirstChildElement("decimation");
@@ -494,6 +508,12 @@ void Config::save() {
 
                 tinyxml2::XMLElement* pgain = pRTL->FirstChildElement("gain");
                 pgain->SetText(rtl.gain);
+            }
+
+            tinyxml2::XMLElement* pSoundcardDevice = pDevice->FirstChildElement("SOUNDCARDDEVICE");
+            if (NULL != pSoundcardDevice) {
+                tinyxml2::XMLElement* pdeviceSamplingRate = pSoundcardDevice->FirstChildElement("deviceSamplingRate");
+                pdeviceSamplingRate->SetText(soundcardDevice.deviceSamplingRate);
             }
         }
 
@@ -693,6 +713,9 @@ void Config::setDevice(int deviceID) {
         case 2:
             delayedDeviceType = DeviceType::RTL;
             break;
+        case 3:
+            delayedDeviceType = DeviceType::SOUNDCARD;
+            break;
         default:
             delayedDeviceType = DeviceType::RSP;
     }
@@ -718,13 +741,15 @@ void Config::deleteRecord(int index) {
 
 void Config::calcOutputSamplerate() {
 	int sampleRate = currentWorkingInputSamplerate;
+    int targetSamplerate = (deviceType != DeviceType::SOUNDCARD) ? 48000 : soundcardDevice.deviceSamplingRate / 4;
+
 	int div = 1;
 
 	while (true) {
 		div *= 2;
 		if (sampleRate % div != 0) break;
 		else {
-			if (sampleRate / div <= 48000) break;
+			if (sampleRate / div <= targetSamplerate) break;
 		}
 	}
 	outputSamplerateDivider = div;

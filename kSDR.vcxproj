@@ -113,8 +113,11 @@
     <ClInclude Include="src\CircleBufferReaderThread.h" />
     <ClInclude Include="src\ComPortHandler.h" />
     <ClInclude Include="src\CW.h" />
+    <ClInclude Include="src\Device\SoundCardDevice.h" />
+    <ClInclude Include="src\Device\SoundCardInterface.h" />
     <ClInclude Include="src\FastFir\jfastfir.h" />
     <ClInclude Include="src\Modulation.h" />
+    <ClInclude Include="src\PhaserFilter.h" />
     <ClInclude Include="src\serialib.h" />
     <ClInclude Include="src\SignalModulatorThread.h" />
     <ClInclude Include="src\SoundCardWriterThread.h" />

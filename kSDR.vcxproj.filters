@@ -81,9 +81,6 @@
     <ClCompile Include="src\CircleBuffer.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="src\SoundReaderThread.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="src\Display.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
@@ -305,6 +302,9 @@
     </ClCompile>
     <ClCompile Include="src\FPSControl.cpp">
       <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SoundReaderThread.cpp">
+      <Filter>Исходные файлы\Thread</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -571,6 +571,15 @@
     </ClInclude>
     <ClInclude Include="src\ALC.h">
       <Filter>Файлы заголовков\ALC</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PhaserFilter.h">
+      <Filter>Файлы заголовков\dsp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Device\SoundCardDevice.h">
+      <Filter>Файлы заголовков\Device</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Device\SoundCardInterface.h">
+      <Filter>Файлы заголовков\Device</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

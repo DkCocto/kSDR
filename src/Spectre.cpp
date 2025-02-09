@@ -29,7 +29,7 @@ void Spectre::waterfallAutoColorCorrection() {
 
 void Spectre::spectreRatioAutoCorrection() {
 	viewModel->minDb = minMax.average - 8;
-	viewModel->ratio = minMax.max + 19;
+	viewModel->ratio = minMax.max + 30;
 	//config->spectre.spectreCorrectionDb = viewModel->minDb;
 }
 
@@ -172,7 +172,7 @@ void Spectre::draw() {
 					waterfall->update(fullWaterfallData, env->getFlowingSpectre(), env->getFFTSpectreHandler());
 				}
 			}
-
+			 
 			int waterfallHeight = sWD.windowLeftBottomCorner.y - spectreHeight - sWD.waterfallPaddingTop;
 
 			int spectreSize = env->getFlowingSpectre()->getLen();
@@ -445,7 +445,8 @@ void Spectre::drawSpectreContour(FFTData::OUTPUT* fullSpectreData, ImDrawList* d
 
 	double stepX = (double)(sWD.windowLeftBottomCorner.x - sWD.rightPadding - sWD.leftPadding) / (double)(reducedSpectreData.size() - 1.0);
 
-	double ratio = ratioKalman->filter((double)spectreHeight / (abs(veryMinSpectreVal - viewModel->ratio)));
+	//double ratio = ratioKalman->filter((double)spectreHeight / (abs(veryMinSpectreVal - viewModel->ratio)));
+	double ratio = (double)spectreHeight / (abs(veryMinSpectreVal - viewModel->ratio));
 
 	double koeff = 0;
 	if (abs(veryMinSpectreVal) * ratio > (double)spectreHeight) {
@@ -455,7 +456,8 @@ void Spectre::drawSpectreContour(FFTData::OUTPUT* fullSpectreData, ImDrawList* d
 		koeff = (double)spectreHeight - abs(veryMinSpectreVal) * ratio;
 	}
 
-	koeff = spectreTranferKalman->filter(koeff);
+	//koeff = spectreTranferKalman->filter(koeff);
+	//koeff = koeff;
 
 
 	if (config->spectre.style == 0 || config->spectre.style == 1) {

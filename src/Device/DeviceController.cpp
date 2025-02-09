@@ -58,6 +58,9 @@ void DeviceController::start(DeviceType deviceType) {
             }
             config->device = new RSP1(config, iqSignalsCircleBuffer);*/
             break;
+        case SOUNDCARD:
+            createDevice<SoundCardDevice, SoundCardInterface>(SOUNDCARD);
+            break;
         default:
             createDevice<HackRFDevice, HackRfInterface>(HACKRF);
     }
@@ -116,3 +119,4 @@ DeviceController::~DeviceController() {
     delete deviceInterface;
     delete device;
 }
+
