@@ -1,15 +1,9 @@
-#include "Waterfall.h"
-
-unsigned char newRange[256]{};
+﻿#include "Waterfall.h"
 
 Waterfall::Waterfall(Config* config, ViewModel* viewModel) {
 	memset(texturesArray, 0, sizeof(texturesArray) * size);
 	this->viewModel = viewModel;
 	this->config = config;
-
-	for (size_t i{}; i < 256; ++i) {
-		newRange[i] = oldToNew(i, 25, 230, 25, 230);
-	}
 }
 
 float Waterfall::getDiv() {
@@ -25,6 +19,64 @@ int Waterfall::oldToNew(int oldVal, int oldMin, int oldMax, int newMin, int newM
 }
 
 void Waterfall::update(FFTData::OUTPUT* spectreData, FlowingSpectre* flowingSpec, SpectreHandler* specHandler) {
+	std::vector<float> waterfallData = flowingSpec->getReducedData(spectreData, config->visibleSpectreBinCount, specHandler);
+
+	int width = waterfallData.size() / div;
+	int height = lineHeight;
+
+	std::vector<float> output(width, 0.0f);
+	float sum = 0.0f;
+	int count = 0;
+
+	for (size_t i = 0; i < waterfallData.size(); ++i) {
+		sum += waterfallData[i];
+		count++;
+
+		if (count == div) {
+			output[i / div] = sum / div;
+			sum = 0.0f;
+			count = 0;
+		}
+	}
+
+	// Создаем новую строку данных для водопада
+	GLubyte* newLine = new GLubyte[width * depth];
+
+	for (int iy = 0; iy < width; ++iy) {
+		Waterfall::RGB rgb = getColorForPowerInSpectre(output[iy], minValue, maxValue);
+		newLine[iy * depth + 0] = rgb.r;
+		newLine[iy * depth + 1] = rgb.g;
+		newLine[iy * depth + 2] = rgb.b;
+		newLine[iy * depth + 3] = 255;
+	}
+
+	// Удаляем старую текстуру (самую нижнюю)
+	glDeleteTextures(1, &texturesArray[size - 1]);
+
+	// Сдвигаем массив текстур вниз
+	for (int i = size - 1; i > 0; --i) {
+		texturesArray[i] = texturesArray[i - 1];
+	}
+
+	// Генерируем новую текстуру (для верхней строки)
+	GLuint texName;
+	glGenTextures(1, &texName);
+	glBindTexture(GL_TEXTURE_2D, texName);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, newLine);
+
+	// Записываем новую текстуру в массив
+	texturesArray[0] = texName;
+
+	delete[] newLine;
+}
+
+
+
+/*void Waterfall::update(FFTData::OUTPUT* spectreData, FlowingSpectre* flowingSpec, SpectreHandler* specHandler) {
 
 	//std::vector<float> fullSpectreData = flowingFFTSpectre->getSpectreHandler()->getFFTData()->getData(true);
 	
@@ -59,7 +111,7 @@ void Waterfall::update(FFTData::OUTPUT* spectreData, FlowingSpectre* flowingSpec
 	for (int ix = 0; ix < height; ++ix) {
 		for (int iy = 0; iy < width; ++iy) {
 			//6 10
-			Waterfall::RGB rgb = getColorForPowerInSpectre(output[iy], minValue - 6, maxValue + 10);
+			Waterfall::RGB rgb = getColorForPowerInSpectre(output[iy], minValue, maxValue + 5);
 
 			checkImage[ix * width * depth + iy * depth + 0] = rgb.r;   //red
 			checkImage[ix * width * depth + iy * depth + 1] = rgb.g;   //green
@@ -95,7 +147,7 @@ void Waterfall::update(FFTData::OUTPUT* spectreData, FlowingSpectre* flowingSpec
 	}
 
 	texturesArray[0] = texName;
-}
+}*/
 
 int Waterfall::getSize() {
 	return size;
@@ -143,7 +195,141 @@ int Waterfall::interpolate(int color1, int color2, float fraction) {
 		(int)((b2 - b1) * f + b1);
 }
 
+/*Waterfall::RGB Waterfall::getColorForPowerInSpectre(float power, float minValue, float maxValue) {
+	float fraction = (power - minValue) / (maxValue - minValue);
+	fraction = std::clamp(fraction, 0.0f, 1.0f); // Ограничиваем 0..1
+
+	// Логарифмическое усиление слабых сигналов
+	float gamma = 0.95f;  // Чем меньше, тем лучше видны слабые сигналы
+	fraction = std::pow(fraction, gamma);
+
+	// Цветовая карта SDR Console
+	const int numColors = 8;
+	const Waterfall::RGB colormap[numColors] = {
+		{  0,   0, 128},  // Темно-синий
+		{  0,   0, 255},  // Синий
+		{  0, 255, 255},  // Голубой
+		{  0, 255,   0},  // Зеленый
+		{255, 255,   0},  // Желтый
+		{255, 128,   0},  // Оранжевый
+		{255,   0,   0},  // Красный
+		{128,   0,   0}   // Темно-красный
+	};
+
+	// Определяем индекс в градиенте
+	float scaledIndex = fraction * (numColors - 1);
+	int idx1 = static_cast<int>(scaledIndex);
+	int idx2 = (idx1 + 1 < numColors) ? idx1 + 1 : idx1;
+	float t = scaledIndex - idx1;  // Доля между цветами
+
+	// Применяем сглаживание (smoothstep)
+	t = t * t * t * (t * (t * 6 - 15) + 10);
+
+	// Интерполяция (LERP) с плавным переходом
+	int r = static_cast<int>((1 - t) * colormap[idx1].r + t * colormap[idx2].r);
+	int g = static_cast<int>((1 - t) * colormap[idx1].g + t * colormap[idx2].g);
+	int b = static_cast<int>((1 - t) * colormap[idx1].b + t * colormap[idx2].b);
+
+	return { std::clamp(r, 0, 255), std::clamp(g, 0, 255), std::clamp(b, 0, 255) };
+}*/
+
+// Цвета градиента (можно настраивать)
+struct ColorPoint {
+	float r, g, b;
+	float position; // Позиция в градиенте (0..1)
+};
+
+
+
+/*std::vector<ColorPoint> gradient = {
+	{0.0f, 0.0f, 0.5f, 0.0f},    // Темно-синий
+	{0.0f, 0.0f, 1.0f, 0.125f},  // Синий
+	{0.0f, 1.0f, 1.0f, 0.175f},  // Голубой
+	{0.0f, 1.0f, 0.0f, 0.3f},    // Зеленый
+	{1.0f, 1.0f, 0.0f, 0.8f},   // Желтый
+	{1.0f, 0.5f, 0.0f, 1.0f}    // Оранжевый
+};*/
+/*Waterfall::RGB Waterfall::getColorForPowerInSpectre(float power, float minValue, float maxValue) {
+	float fraction = (power - minValue) / (maxValue - minValue);
+	fraction = std::clamp(fraction, 0.0f, 1.0f); // Ограничиваем 0..1
+
+	// Гамма-коррекция для повышения насыщенности
+	float gamma = 0.95f;
+	fraction = std::pow(fraction, gamma);
+	
+	std::vector<ColorPoint> gradient = {
+	   {0.0f, 0.0f, 0.0f, 0.0f},    // Черный (слабые сигналы)
+	   {0.0f, 0.0f, 1.0f, 0.f},    // Синий
+	   {0.0f, 1.0f, 0.0f, 0.35f},    // Зеленый
+	   {1.0f, 1.0f, 0.0f, 0.55f},    // Желтый
+	   {1.0f, 0.5f, 0.0f, 0.85f},    // Оранжевый
+	   {1.0f, 0.0f, 0.0f, 1.0f},    // Красный
+	};
+
+	// Находим два ближайших цвета для интерполяции
+	ColorPoint* start = &gradient[0];
+	ColorPoint* end = &gradient[1];
+	for (size_t i = 1; i < gradient.size(); ++i) {
+		if (fraction <= gradient[i].position) {
+			start = &gradient[i - 1];
+			end = &gradient[i];
+			break;
+		}
+	}
+
+	// Интерполяция между двумя цветами
+	float t = (fraction - start->position) / (end->position - start->position);
+
+	// Плавная интерполяция (выберите один из методов)
+	auto interpolate = [](float start, float end, float t) {
+		// Линейная интерполяция
+		// return start + (end - start) * t;
+
+		// Косинусная интерполяция
+		//float smoothT = (1.0f - std::cos(t * M_PI)) * 0.5f;
+		// return start + (end - start) * smoothT;
+
+		// Интерполяция Smoothstep
+		float smoothT = t * t * (3.0f - 2.0f * t);
+		return start + (end - start) * smoothT;
+	};
+
+	float r = interpolate(start->r, end->r, t);
+	float g = interpolate(start->g, end->g, t);
+	float b = interpolate(start->b, end->b, t);
+
+	return {
+		std::clamp(static_cast<int>(255.0 * r), 0, 255),
+		std::clamp(static_cast<int>(255.0 * g), 0, 255),
+		std::clamp(static_cast<int>(255.0 * b), 0, 255)
+	};
+}*/
+
+
 Waterfall::RGB Waterfall::getColorForPowerInSpectre(float power, float minValue, float maxValue) {
+	float fraction = (power - minValue) / (maxValue - minValue);
+	fraction = std::clamp(fraction, 0.0f, 1.0f); // Ограничиваем 0..1
+
+	// Гамма-коррекция для повышения насыщенности
+	float gamma = 1.05;
+	fraction = std::pow(fraction, gamma);
+	//fraction = (1.0 - cos(fraction * M_PI)) * 0.75;
+
+	float r, g, b;
+	if (fraction < 0.125f) { r = 0.0f; g = 0.0f; b = 4.0f * fraction + 0.5f; }
+	else if (fraction < 0.375f) { r = 0.0f; g = 4.0f * (fraction - 0.125f); b = 1.0f; }
+	else if (fraction < 0.800f) { r = 4.0f * (fraction - 0.375f); g = 1.0f; b = 1.0f - 4.0f * (fraction - 0.375f); }
+	else if (fraction < 0.99999f) { r = 1.0f; g = 1.0f - 4.0f * (fraction - 0.625f); b = 0.0f; }
+	else { r = 1.0f - 0.5f * (fraction - 0.875f); g = 0.0f; b = 0.0f; }
+
+	return {
+		std::clamp(static_cast<int>(255.0 * r), 0, 255),
+		std::clamp(static_cast<int>(255.0 * g), 0, 255),
+		std::clamp(static_cast<int>(255.0 * b), 0, 255)
+	};
+}
+
+/*Waterfall::RGB Waterfall::getColorForPowerInSpectre(float power, float minValue, float maxValue) {
 	float fraction = (1.0 / (maxValue - minValue)) * power - (minValue / (maxValue - minValue));
 
 	//myFastCos
@@ -161,9 +347,6 @@ Waterfall::RGB Waterfall::getColorForPowerInSpectre(float power, float minValue,
 	double r = 0.0; 
 	double g = 0.0; 
 	double b = 0.0;
-	
-	//680
-	//380
 
 	double l = (f - (0)) / (1.0 - 0) * (680.0 - 400) + 400;
 
@@ -182,7 +365,7 @@ Waterfall::RGB Waterfall::getColorForPowerInSpectre(float power, float minValue,
 	RGB rgb{ (int)(255.0 * r), (int)(255.0 * g), (int)(255.0 * b) };
 
 	return rgb;
-}
+}*/
 
 void Waterfall::setMinMaxValue(float min, float max) {
 	minValue = min;

@@ -55,6 +55,19 @@ public:
 	float waterfallMin = -80;
 	float waterfallMax = -60;
 
+	struct Waterfall {
+		float value1 = 0;
+		float value2 = 0;
+		float value3 = 0;
+		float value4 = 0;
+		float value5 = 0;
+		float value6 = 0;
+		float value7 = 0;
+		float value8 = 0;
+		float value9 = 0;
+		float value10 = 0;
+	} waterfall;
+
 	float ratio = -30;
 	float minDb = -100;
 

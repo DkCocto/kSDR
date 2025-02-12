@@ -12,6 +12,8 @@
 #include "DataReceiver.h"
 #include "DCRemove.h"
 #include "Device/DeviceController.h"
+#include "Window/WindowHandler.h"
+
 
 class SpectreHandler : public MyThread {
 	
@@ -27,8 +29,8 @@ private:
 	Config* config;
 	
 	//»нициализируем оконный массив с размерностью длины массива буфера спектра (возвращаетс¤ массив длиной +1)
-	WindowBlackman* wb;
-	WindowBlackmanHarris* wbh;
+	//WindowBlackman* wb;
+	//WindowBlackmanHarris* wbh;
 
 	int savedBufferPos = -1;
 	

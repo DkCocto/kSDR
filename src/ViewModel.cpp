@@ -1,6 +1,19 @@
 #include "ViewModel.h"
 
 void ViewModel::storeToConfig() {
+	config->waterfall.value1 = waterfall.value1;
+	config->waterfall.value2 = waterfall.value2;
+	config->waterfall.value3 = waterfall.value3;
+	config->waterfall.value4 = waterfall.value4;
+	config->waterfall.value5 = waterfall.value5;
+	config->waterfall.value6 = waterfall.value6;
+	config->waterfall.value7 = waterfall.value7;
+	config->waterfall.value8 = waterfall.value8;
+	config->waterfall.value9 = waterfall.value9;
+	config->waterfall.value10 = waterfall.value10;
+
+
+
 	config->waterfallMin = waterfallMin;
 	config->waterfallMax = waterfallMax;
 	config->spectreRatio = ratio;
@@ -82,6 +95,18 @@ void ViewModel::loadFromConfig() {
 	rspModel.lna = config->rsp.lna;
 
 	removeDCBias = config->removeDCBias;
+
+	waterfall.value1 = config->waterfall.value1;
+	waterfall.value2 = config->waterfall.value2;
+	waterfall.value3 = config->waterfall.value3;
+	waterfall.value4 = config->waterfall.value4;
+	waterfall.value5 = config->waterfall.value5;
+	waterfall.value6 = config->waterfall.value6;
+	waterfall.value7 = config->waterfall.value7;
+	waterfall.value8 = config->waterfall.value8;
+	waterfall.value9 = config->waterfall.value9;
+	waterfall.value10 = config->waterfall.value10;
+
 }
 
 ViewModel::ViewModel(Config* config) {

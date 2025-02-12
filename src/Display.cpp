@@ -349,6 +349,19 @@ void Display::renderImGUIFirst() {
 
 				ImGui::SliderFloat("Min", &viewModel->waterfallMin, -150, 0);
 				ImGui::SliderFloat("Max", &viewModel->waterfallMax, -150, 100); ImGui::Spacing();
+
+				ImGui::SliderFloat("Value1", &viewModel->waterfall.value1, 0, 1);
+				ImGui::SliderFloat("Value2", &viewModel->waterfall.value2, 0, 1); ImGui::Spacing();
+				ImGui::SliderFloat("Value3", &viewModel->waterfall.value3, 0, 1);
+				ImGui::SliderFloat("Value4", &viewModel->waterfall.value4, 0, 1); ImGui::Spacing();
+				ImGui::SliderFloat("Value5", &viewModel->waterfall.value5, 0, 1);
+				ImGui::SliderFloat("Value6", &viewModel->waterfall.value6, 0, 1); ImGui::Spacing();
+				ImGui::SliderFloat("Value7", &viewModel->waterfall.value7, 0, 1);
+				ImGui::SliderFloat("Value8", &viewModel->waterfall.value8, 0, 1); ImGui::Spacing();
+				ImGui::SliderFloat("Value9", &viewModel->waterfall.value9, 0, 1);
+				ImGui::SliderFloat("Value10", &viewModel->waterfall.value10, 0, 1); ImGui::Spacing();
+
+
 				ImGui::TreePop();
 				ImGui::Spacing();
 

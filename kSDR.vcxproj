@@ -192,6 +192,7 @@
     <ClInclude Include="src\Waterfall.h" />
     <ClInclude Include="src\WindowBlackman.h" />
     <ClInclude Include="src\WindowBlackmanHarris.h" />
+    <ClInclude Include="src\Window\WindowHandler.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="kSDR.rc" />

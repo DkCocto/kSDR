@@ -23,13 +23,23 @@ bool Spectre::isMouseOnRegion(Spectre::Region region) {
 }
 
 void Spectre::waterfallAutoColorCorrection() {
+	//if (abs(viewModel->waterfallMin - minMax.min) >= 2.0f)	viewModel->waterfallMin = minMax.min + 3.0f;
+
 	viewModel->waterfallMin = minMax.min;
-	viewModel->waterfallMax = minMax.average + (minMax.max - minMax.min) + 3;
+	//viewModel->waterfallMax = minMax.average + (minMax.max - minMax.min) + 3.0f;
+	viewModel->waterfallMax = minMax.max + 10.0f;
+
+	//auto newWaterfallMax = minMax.average + (minMax.max - minMax.min) + 3.0f;
+	//if (abs(viewModel->waterfallMax - newWaterfallMax) >= 2.0f) viewModel->waterfallMax = newWaterfallMax;
 }
 
 void Spectre::spectreRatioAutoCorrection() {
-	viewModel->minDb = minMax.average - 8;
-	viewModel->ratio = minMax.max + 30;
+	//viewModel->minDb = minMax.average - 8;
+	//if (abs(viewModel->minDb - minMax.min) >= 2.0f) 
+	viewModel->minDb = ratioKalman->filter(minMax.min);
+	//viewModel->minDb = minMax.min;
+	viewModel->ratio = spectreTranferKalman->filter(minMax.max + 20.0f);
+	//viewModel->ratio = minMax.max + 30.0f;
 	//config->spectre.spectreCorrectionDb = viewModel->minDb;
 }
 
@@ -43,8 +53,8 @@ Spectre::Spectre(Environment* env) {
 	this->config = env->getConfig();
 	this->viewModel = env->getViewModel();
 
-	ratioKalman = make_unique<KalmanFilter>(1, 0.01);
-	spectreTranferKalman = make_unique<KalmanFilter>(1, 0.01);
+	ratioKalman = make_unique<KalmanFilter>(1, 0.001);
+	spectreTranferKalman = make_unique<KalmanFilter>(1, 0.001);
 
 	this->waterfall = make_unique<Waterfall>(config, viewModel);
 
@@ -439,6 +449,8 @@ void Spectre::drawSpectreContour(FFTData::OUTPUT* fullSpectreData, ImDrawList* d
 		);
 	}
 
+	spectreRatioAutoCorrection();
+	//waterfallAutoColorCorrection();
 
 	veryMinSpectreVal = viewModel->minDb;
 	if (veryMaxSpectreVal < minMax.max) veryMaxSpectreVal = minMax.max;

@@ -3,6 +3,7 @@
 #include "FlowingFFTSpectre.h"
 #include "../include/GLFW/glfw3.h"
 #include "FastMath.h"
+#include <algorithm>
 
 class Waterfall {
 

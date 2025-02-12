@@ -64,6 +64,9 @@
     <Filter Include="Файлы заголовков\ALC">
       <UniqueIdentifier>{9b1e70d4-7259-446d-8fd3-69baf3f9e62d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Файлы заголовков\Window">
+      <UniqueIdentifier>{4228451e-f7ec-40e9-9e52-44b06869809e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Config.cpp">
@@ -580,6 +583,9 @@
     </ClInclude>
     <ClInclude Include="src\Device\SoundCardInterface.h">
       <Filter>Файлы заголовков\Device</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Window\WindowHandler.h">
+      <Filter>Файлы заголовков\Window</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
