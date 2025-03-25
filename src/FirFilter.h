@@ -1,48 +1,33 @@
 #pragma once
 
-#include "vector"
+#include <vector>
+#include <cstring> // Для memmove
 
 class FirFilter {
-    std::vector<float> coeffs; // Коэффициенты фильтра
-    std::vector<float> xv; // Этот массив хранит отложенные значения
-    int M; // Количество отсчетов (длина фильтра)
-    int currentIndex = 0; // Текущий индекс для кольцевого буфера
-    float Fc = 0.0f; // Будет установлено как cutoffFreq/SAMPLE_RATE
+	std::vector<float> coeffs;
+	std::vector<float> xv;
+	int M;
 
 public:
-    FirFilter(std::vector<float> taps, int tabsLen) {
-        coeffs = taps;
-        M = tabsLen - 1;
-        xv = std::vector<float>(M + 1, 0.0f); // Инициализация буфера с нулями
-    }
+	FirFilter(std::vector<float> taps, int tapsLen) {
+		coeffs = taps;
+		M = tapsLen - 1;
+		xv.resize(M + 1, 0.0f);
+	}
 
-    /**
-     * Рассчитывает результат с помощью свертки (конволюции).
-     * Предполагается, что коэффициенты фильтра уже перевернуты, так как
-     * новые значения добавляются в конец задерживающей линии xv.
-     * Обратите внимание, что симметричные фильтры, такие как фильтры с поднятым косинусом,
-     * не требуют переворота.
-     * @param in Входное значение
-     * @return Результат фильтрации
-     */
-    float filter(float in) {
-        // Сохраняем новое значение во время на текущем индексе
-        xv[currentIndex] = in;
+	float filter(float in) {
+		std::memmove(&xv[0], &xv[1], M * sizeof(float)); // Сдвигаем буфер
+		xv[M] = in; // Новый входной отсчет
 
-        // Выполняем вычисление суммы свертки
-        float sum = 0.0f;
-        int idx = currentIndex;
-        for (int i = 0; i <= M; i++) {
-            sum += coeffs[i] * xv[idx];
-            idx = (idx + 1) % (M + 1); // Индексация с использованием кольцевого буфера
-        }
-
-        // Обновляем currentIndex для следующего вызова
-        currentIndex = (currentIndex + 1) % (M + 1);
-
-        return sum;
-    }
+		float sum = 0.0f;
+		for (int i = 0; i <= M; i++) {
+			sum += coeffs[i] * xv[i];
+		}
+		return sum;
+	}
 };
+
+
 
 /*#pragma once
 
@@ -63,13 +48,6 @@ public:
 		xv = std::vector<float>(M + 1, 0);
 		xv.reserve(M + 1);
 	}
-
-	/**
-	 * Calculate the result with convolution.  This assumes that the filter kernel coeffs are already reversed as
-	 * new values are added to the end of the delay line xv.  Note that a symmetrical filter such as a raised
-	 * cosine does not need to be reversed.
-	 * @param in
-	 * @return
 	 
 	float filter(float in) {
 		float sum = 0.0f;
