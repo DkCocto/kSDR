@@ -530,10 +530,12 @@ void Display::renderImGUIFirst() {
 				ImGui::SliderInt("Tx VGA Gain", &viewModel->hackRF.txVgaGain, 0, 35); //Max 47
 
 				ImGui::SliderFloat("Input Level", &viewModel->transmit.inputLevel, 0, 200);
-				ImGui::SliderFloat("Input Level2", &viewModel->transmit.inputLevel2, 0, 2);
-				ImGui::SliderFloat("Input Level3", &viewModel->transmit.inputLevel3, 0, 2);
+				//ImGui::SliderFloat("Input Level2", &viewModel->transmit.inputLevel2, 0, 2);
+				//ImGui::SliderFloat("Input Level3", &viewModel->transmit.inputLevel3, 0, 2);
 				ImGui::SliderFloat("AM Modulation Depth", &viewModel->transmit.amModulationDepth, 1, 40);
 				
+				ImGui::Checkbox("Voice Phaser Filter", &viewModel->transmit.phaserFilter);
+
 				ImGui::Spacing();
 
 				//ImGui::TreePop();

@@ -40,7 +40,6 @@ std::thread SignalModulatorThread::start() {
 }
 
 
-
 void SignalModulatorThread::run() {
 
 	isWorking_ = true;

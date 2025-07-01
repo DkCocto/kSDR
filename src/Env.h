@@ -41,3 +41,6 @@ enum DeviceType {
 #define GREEN						IM_COL32(0, 204, 0, 255)
 #define BLACK						IM_COL32(0, 0, 0, 230)
 #define YELLOW						IM_COL32(255, 233, 0, 255)
+
+//Enable HackRF TX without a tranceiver connected
+#define DRY_TX true

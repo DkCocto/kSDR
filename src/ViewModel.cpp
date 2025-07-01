@@ -44,6 +44,7 @@ void ViewModel::storeToConfig() {
 	config->transmit.tone1Freq = transmit.tone1Freq;
 	config->transmit.tone2Freq = transmit.tone2Freq;
 	config->transmit.outputPower = transmit.outputPower;
+	config->transmit.phaserFilter = transmit.phaserFilter;
 
 
 	config->myTranceiverDevice.att = myTranceiverDevice.att;
@@ -77,6 +78,7 @@ void ViewModel::loadFromConfig() {
 	transmit.inputLevel3 = config->transmit.inputLevel3;
 	transmit.sendToneSignal = config->transmit.sendToneSignal;
 	transmit.outputPower = config->transmit.outputPower;
+	transmit.phaserFilter = config->transmit.phaserFilter;
 	
 	transmit.tone1Freq = config->transmit.tone1Freq;
 	transmit.tone2Freq = config->transmit.tone2Freq;

@@ -142,7 +142,8 @@ private:
 			current = kFCurrent->filter(atof(result[10].c_str()));
 		}
 		bool isDevicePoweredON() {
-			return volts >= 9;
+			if (!DRY_TX) return volts >= 9;
+			else return true;
 		}
 	} deviceState;
 

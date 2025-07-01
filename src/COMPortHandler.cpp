@@ -52,7 +52,8 @@ void ComPortHandler::run() {
 				if (answer == CMD_.OK) currentDeviceState.bypass = config->myTranceiverDevice.bypass;
 
 			} if (needToTxStart) {
-				txStarted = sendCMD(CMD_.TX_ + "1") == CMD_.START_TX_OK;
+				if (DRY_TX) txStarted = true;
+				else txStarted = sendCMD(CMD_.TX_ + "1") == CMD_.START_TX_OK;
 				if (!txStarted) {
 					readyToTxStart = true;
 				} else {
@@ -61,7 +62,8 @@ void ComPortHandler::run() {
 				}
 				needToTxStart = false;
 			} if (needToTxStop) {
-				txStarted = sendCMD(CMD_.TX_ + "0") != CMD_.STOP_TX_OK;
+				if (DRY_TX) txStarted = false;
+				else txStarted = sendCMD(CMD_.TX_ + "0") != CMD_.STOP_TX_OK;
 				if (txStarted) {
 					readyToTxStop = true;
 				} else {
@@ -185,14 +187,16 @@ void ComPortHandler::close() {
 }
 
 void ComPortHandler::startTX() {
-	if (readyToTxStart) {
+	if (DRY_TX) onStartStopTxListener->onStartTX();
+	else if (readyToTxStart) {
 		readyToTxStart = false;
 		needToTxStart = true;
 	}
 }
 
 void ComPortHandler::stopTX() {
-	if (readyToTxStop) {
+	if (DRY_TX) onStartStopTxListener->onStopTX();
+	else if (readyToTxStop) {
 		readyToTxStop = false;
 		needToTxStop = true;
 	}
