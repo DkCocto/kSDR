@@ -1,4 +1,71 @@
 # kSDR
+
+# kSDR — SDR for Android
+
+### kSDR is now available on **Google Play**!  
+
+Try **kSDR** on your Android device — phone, tablet, Chromebook, or even an Android TV box!  
+All you need is an SDR receiver and your Android device — and you can enjoy the radio spectrum and your radio hobby anywhere: at home, outdoors, or on the go.  
+
+---
+
+## Why kSDR?  
+
+We analyzed existing SDR apps on Google Play and noticed some common issues:  
+- ❌ Clunky and inconvenient interfaces  
+- ❌ Poor data processing speed  
+- ❌ Lack of gesture support  
+- ❌ Sluggish spectrum and waterfall performance  
+
+For a long time, this gave the impression that SDR apps on Android simply couldn’t be smooth or user-friendly.  
+With **kSDR**, we set out to prove otherwise!  
+
+---
+
+## What makes kSDR different?  
+
+✔️ Frequency control and spectrum navigation with **simple gestures** — no need to dig through menus  
+✔️ Intuitive zooming and frequency shifting  
+✔️ Spectrum, waterfall, and UI elements rendered directly via **OpenGL** for smooth performance  
+✔️ Minimal setup — works out of the box  
+
+**Minimum requirement:** Android 7.0 or higher (OpenGL is supported by default on all devices).  
+
+---
+
+## How to start  
+
+1. Install the app.  
+2. Connect your SDR device.  
+3. Start receiving signals!  
+
+No complicated setup. No extra software.  
+
+---
+
+## Supported devices  
+
+- **HackRF**  
+- **RTL-SDR**  
+- **MSI2500 (RSP1)**  
+
+> ⚠️ When using HackRF, kSDR can both **receive and transmit** radio signals.  
+> Always make sure an antenna is connected before transmitting — otherwise, you may damage your HackRF.  
+
+---
+
+## Roadmap  
+
+We are continuously improving **kSDR**, fixing bugs, and expanding the list of supported SDR hardware.  
+
+👉 Try it today — and experience a new level of radio on Android!  
+
+---
+
+📥 [Download on Google Play](https://play.google.com/)  
+
+
+
 Simple Fast SDR receiver app with OpenGL support
 
 Try our app. It's absolutely free. Fast addiction guaranteed!!)
