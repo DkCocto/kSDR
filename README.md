@@ -3,7 +3,7 @@
 ### kSDR is now available on **Google Play** too!  
 
 Try **kSDR** on your Android device — phone, tablet, Chromebook, or even an Android TV box!  
-All you need is an SDR receiver and your Android device — and you can enjoy the radio spectrum and your radio hobby anywhere: at home, outdoors, or on the go.  
+All you need is an SDR receiver and your Android device — and you can enjoy your radio hobby anywhere: at home, outdoors, or on the go.  
 
 📥 [Download on Google Play](https://play.google.com/store/apps/details?id=ru.kslabs.ksdr) <br>
 📥 [Download from our website](https://kslabs.ru/ksdr)  
@@ -49,10 +49,10 @@ No complicated setup. No extra software.
 
 We are continuously improving **kSDR**, fixing bugs, and expanding the list of supported SDR hardware.  
 
-👉 Try it today — and experience a new level of radio on Android!  
+👉 Try it today — and experience a new level of receiving radio-signals on Android!  
 
 ---
-
+<br><br>
 ### Simple Fast SDR receiver app with OpenGL support
 
 Try our app for PC with Windows. It's absolutely free. Fast addiction guaranteed!!)
